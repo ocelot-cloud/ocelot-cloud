@@ -1,0 +1,20 @@
+version: "3.3"
+
+services:
+  ocelot-cloud:
+    image: ocelotcloud/ocelotcloud:local
+    container_name: ocelot-cloud
+    restart: unless-stopped
+    ports:
+      - 80:8080
+    networks:
+      - ocelot-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: "-log-level=debug"
+    environment:
+      USE_DUMMY_STACKS: $USE_DUMMY_STACKS
+
+networks:
+  ocelot-net:
+    external: true

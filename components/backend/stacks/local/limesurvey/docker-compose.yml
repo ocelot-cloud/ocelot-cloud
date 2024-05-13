@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  limesurvey:
+    image: martialblog/limesurvey
+    container_name: limesurvey
+    healthcheck:
+      test: curl http://localhost:8080
+      interval: 1s
+    volumes:
+      - limesurvey-web:/var/www/html/upload/surveys
+    depends_on:
+      - limesurvey-db
+    environment:
+      - DB_HOST=limesurvey-db
+      - DB_PASSWORD=db-user-password-5643
+      - ADMIN_PASSWORD=web-admin-password-5643
+    networks:
+      - ocelot-net
+      - limesurvey-net
+
+  limesurvey-db:
+    image: docker.io/mysql:5.7
+    container_name: limesurvey-db
+    environment:
+      - "MYSQL_USER=limesurvey"
+      - "MYSQL_DATABASE=limesurvey"
+      - "MYSQL_PASSWORD=db-user-password-5643"
+      - "MYSQL_ROOT_PASSWORD=db-root-password-5643"
+    volumes:
+      - limesurvey-db:/var/lib/mysql
+    networks:
+      - limesurvey-net
+
+volumes:
+  limesurvey-web:
+  limesurvey-db:
+
+networks:
+  limesurvey-net:
+  ocelot-net:
+    external: true

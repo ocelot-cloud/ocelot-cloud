@@ -1,0 +1,65 @@
+version: "3.3"
+
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    container_name: gitlab
+    healthcheck:
+      test: curl -L http://localhost:80 | grep -v "GitLab is taking too much time to respond."
+      interval: 1s
+    restart: unless-stopped
+    ports:
+      - "2223:22"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.localhost'
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        gitlab_rails['db_adapter'] = "postgresql"
+        gitlab_rails['db_database'] = "gitlab"
+        gitlab_rails['db_username'] = "postgres"
+        gitlab_rails['db_password'] = "password"
+        gitlab_rails['db_host'] = "gitlab-db"
+    volumes:
+      - gitlab-web-config:/etc/gitlab
+      - gitlab-web-logs:/var/log/gitlab
+      - gitlab-web-data:/var/opt/gitlab
+    networks:
+      - ocelot-net
+      - gitlab-net
+
+  gitlab-runner:
+    image: 'gitlab/gitlab-runner:latest'
+    container_name: gitlab-runner
+    volumes:
+      - gitlab-runner-etc:/etc/gitlab-runner
+      - gitlab-runner-ssh:/root/.ssh
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - gitlab-net
+
+  gitlab-db:
+    image: postgres:16-alpine
+    container_name: gitlab-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: gitlab
+    volumes:
+      - gitlab-postgres:/var/lib/postgresql/data
+    networks:
+      - gitlab-net
+
+networks:
+  gitlab-net:
+  ocelot-net:
+    external: true
+
+volumes:
+  gitlab-web-config:
+  gitlab-web-logs:
+  gitlab-web-data:
+  gitlab-runner-etc:
+  gitlab-runner-ssh:
+  gitlab-postgres:

@@ -1,0 +1,19 @@
+name: 'Setup and Build Environment'
+description: 'Sets up environment and builds the Go application'
+inputs:
+  run_tests:
+    description: 'Whether to run ./ci-runner test-ci'
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v2
+    - run: |
+        mkdir -p ${{ github.workspace }}/go-cache ${{ github.workspace }}/npm-cache
+        echo "GOPATH=${{ github.workspace }}/go-cache" >> $GITHUB_ENV
+        echo "NPM_CONFIG_CACHE=${{ github.workspace }}/npm-cache" >> $GITHUB_ENV
+        echo "PATH=$PATH:/usr/local/go/bin:${{ github.workspace }}/go-cache/bin" >> $GITHUB_ENV
+        cd components/ci-runner
+        go build
+      shell: bash

@@ -1,0 +1,30 @@
+version: "3.3"
+
+volumes:
+  gitea:
+
+services:
+  gitea:
+    image: gitea/gitea:1.20.2
+    container_name: gitea
+    healthcheck:
+      test: curl http://localhost:3000
+      interval: 1s
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - DISABLE_REGISTRATION=true
+      - ROOT_URL=http://gitea.localhost/
+    restart: unless-stopped
+    volumes:
+      - gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "2222:22"
+    networks:
+      - ocelot-net
+
+networks:
+  ocelot-net:
+    external: true
