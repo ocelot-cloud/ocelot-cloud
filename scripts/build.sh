@@ -12,18 +12,12 @@ docker network create ocelot-net || true
 docker volume create backend-deps
 docker volume create frontend-deps
 
-echo "Setting directories"
-cd ../components
-COMPONENTS_DIR="$(pwd)"
-DOCKER_DIR="$COMPONENTS_DIR/ci-runner/docker"
-ARTIFACTS_DIR="$DOCKER_DIR/artifacts"
-FRONTEND_ARTIFACTS_DIR="$ARTIFACTS_DIR/frontend"
-BACKEND_ARTIFACTS_DIR="$ARTIFACTS_DIR/backend"
+. .env.sh
 
 echo "Transferring source code to artifacts directories"
 mkdir -p "$FRONTEND_ARTIFACTS_DIR" "$BACKEND_ARTIFACTS_DIR"
-rsync -a --delete --exclude="node_modules" "$COMPONENTS_DIR/frontend" "$ARTIFACTS_DIR/"
-rsync -a --delete "$COMPONENTS_DIR/backend" "$ARTIFACTS_DIR/"
+rsync -a --delete --exclude="node_modules" "$FRONTEND_DIR" "$ARTIFACTS_DIR/"
+rsync -a --delete "$BACKEND_DIR" "$ARTIFACTS_DIR/"
 
 echo "Building components"
 cd "$DOCKER_DIR"

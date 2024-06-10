@@ -1,0 +1,60 @@
+package tools
+
+import (
+	"testing"
+)
+
+func TestEvaluateLogLevel(t *testing.T) {
+	testCases := []struct {
+		name             string
+		profile          BackendComponentMode
+		userLogLevel     string
+		expectedLogLevel LogLevelValue // Assuming LogLevelValue is a type you've defined
+	}{
+		{"Default LogLevelValue of ProdMode", ProdWithGui, "notSet", INFO},
+		{"Default LogLevelValue of DevMode", DevelopmentSetup, "notSet", DEBUG},
+		{"Default LogLevelValue of DevMockedMode", DependenciesMocked, "notSet", INFO},
+		{"LogLevelValue of DevelopmentMode", DevelopmentSetup, "notSet", DEBUG},
+		{"LogLevelValue of ProdMode with Trace", ProdWithGui, "trace", TRACE},
+		{"LogLevelValue of ProdMode with Debug", ProdWithGui, "debug", DEBUG},
+		{"LogLevelValue of DevMode with Info", DevelopmentSetup, "info", INFO},
+		{"LogLevelValue of ProdMode with Warn", ProdWithGui, "warn", WARN},
+		{"LogLevelValue of ProdMode with Error", ProdWithGui, "error", ERROR},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actualLogLevel := EvaluateLogLevelBasedOn(tc.profile, tc.userLogLevel)
+			AssertEqual(t, tc.expectedLogLevel, actualLogLevel)
+		})
+	}
+}
+
+func TestPanicForInvalidLogLevel(t *testing.T) {
+	AssertPanics(t, func() {
+		EvaluateLogLevelBasedOn(ProdWithGui, "invalid value")
+	})
+}
+
+func TestGlobalConfig(t *testing.T) {
+	testCases := []struct {
+		name           string
+		profile        BackendComponentMode
+		useMock        bool
+		isGuiEnabled   bool
+		isCorsDisabled bool
+	}{
+		{"Prod Profile", ProdWithGui, false, true, false},
+		{"Dev Mocked Profile", DependenciesMocked, true, false, false},
+		{"Dev Setup Profile", DevelopmentSetup, false, false, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := SetGlobalConfig(tc.profile, "notSet", false, false)
+			AssertEqual(t, config.AreMocksEnabled, tc.useMock)
+			AssertEqual(t, config.IsGuiEnabled, tc.isGuiEnabled)
+			AssertEqual(t, config.AreCrossOriginRequestsAllowed, tc.isCorsDisabled)
+		})
+	}
+}

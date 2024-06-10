@@ -1,7 +1,3 @@
----
-
----
-
 # Contributing
 
 ### Report bugs
@@ -50,8 +46,8 @@ This project is designed to make development as easy and accessible as possible.
 
 - **Build on Docker**: Without any installations other than Docker, the entire project can be built from scratch and installed as described in the README. This gives users the ability to build their own Ocelot-Cloud images from source code if they prefer not to use the Ocelot-Cloud images uploaded to DockerHub.
 - The **ci-runner** component is a tool written in Go that is capable of performing many CI operations such as build, test, deploy, and specifically provides very fine-grained access to the test suite according to your development needs.
-- **Easy Tools**: Vue.js and Cypress are intuitive tools for web development and writing acceptance tests. Both technologies are configured to use Typescript because of its type safety. The backend and CI runner language Go was chosen mainly for its simplicity and efficiency.
-- The **CI pipelines**, or **Actions** in GitHub parlance, are enabled by the ci-runner and automatically execute the test suite for new commits pushed to GitHub. This enforces frequent quality assurance and early feedback for developers.
+- **Easy Tools**: Vue.js and Cypress are intuitive tools for web development and writing acceptance tests. Both technologies are configured to use Typescript because of its type safety. The backend and ci-runner language is Go, which is easy to learn and, in our opinion, pleasant to develop because of its lean design, and its executables have low resource requirements.
+- The **CI pipelines**, or "Actions" in GitHub parlance, are enabled by the ci-runner and automatically execute the test suite for new commits pushed to GitHub. This enforces frequent quality assurance and early feedback for developers.
 
 **Installation Requirements**
 
@@ -77,7 +73,7 @@ git clone https://github.com/ocelot-cloud/ocelot-cloud
 cd ocelot-cloud/scripts
 bash install.sh
 # Reboot computer
-cd ocelot-cloud/components/ci-runner
+cd ocelot-cloud/src/ci-runner
 go build && ./ci-runner test-ci
 ```
 
@@ -88,7 +84,7 @@ If you work on another system, the script may still be helpful for guiding you t
 The ci-runner is designed to make the testing process as easy as possible. Here is a quick start:
 
 ```bash
-cd components/ci-runner
+cd src/ci-runner
 go build && ./ci-runner
 go build && ./ci-runner test-backend-fast
 ```
@@ -100,9 +96,9 @@ There are a lot of options. Feel free to experiment with them to get familiar.
 To facilitate the development of interactions between the frontend and the backend, the 'dev' mode has been introduced. This is a special setup in which the frontend and backend run separately, allowing Vue.js to run its own process that enables hot loading of source code changes, reducing development time. Open a console and run one of these commands to start the setup in development mode:
 
 ```bash
-cd components/backend/component && bash run-dev.sh
-cd components/frontend          && bash run-dev.sh
-cd components/acceptance-tests  && bash run-dev.sh
+cd src/cloud/backend/component && bash run-dev.sh
+cd src/cloud/frontend          && bash run-dev.sh
+cd src/acceptance-tests  && bash run-dev.sh
 ```
 
 You can now visit the Vue.js GUI at `http://localhost.localdomain:8081/` and use the Cypress GUI to run acceptance tests if needed.
