@@ -35,7 +35,7 @@ describe('template spec', () => {
   });
 
   it('verify operations on stacks', () => {
-    if (isFrontendMocked) {
+    if (!isFrontendMocked) {
       new StackOperator('nginx-default')
           .assertState('Uninitialized')
           .operate('start')
@@ -64,11 +64,11 @@ describe('template spec', () => {
   });
 
   it('check whether custom ports and proxying to stacks work', () => {
-    if (isFrontendMocked) {
+    if (!isFrontendMocked) {
       new StackOperator('nginx-custom-port')
           .operate("start")
-          .waitSeconds(2)
           .assertWebsiteContent("nginx custom port")
+          .operate('stop')
     }
   });
 
