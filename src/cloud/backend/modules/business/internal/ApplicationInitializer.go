@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/gorilla/mux" // TODO To be wrapped?
 	"net/http"
 	"net/http/httputil"
 	"net/url"
