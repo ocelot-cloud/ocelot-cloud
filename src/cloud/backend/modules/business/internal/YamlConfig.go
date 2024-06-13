@@ -35,7 +35,7 @@ func ProvideStackConfigService(stackDir string) StackConfigService {
 		if !file.IsDir() {
 			continue
 		}
-		stackConfigFilePath := filepath.Join(stackDir, file.Name(), "application.yml")
+		stackConfigFilePath := filepath.Join(stackDir, file.Name(), "app.yml")
 		stackConfigs[file.Name()] = loadConfig(stackConfigFilePath)
 	}
 	return &StackConfigServiceImpl{stackConfigs: stackConfigs}
