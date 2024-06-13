@@ -8,8 +8,6 @@ import {
   isFrontendMocked,
 } from "./Config";
 
-// TODO It would be nice to have the option to run a specific single test. To be implemented in CI runner.
-// TODO It would also be faster, to have an option to skip the rebuild during acceptance testing, when the code did not change.
 describe('template spec', () => {
 
   beforeEach(() => {

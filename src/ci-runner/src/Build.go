@@ -39,9 +39,16 @@ var ComponentBuilds = map[COMPONENT]*Component{
 }
 
 func Build(comp COMPONENT) {
+	if SkipBackendBuild {
+		ComponentBuilds[Backend].SkipBuild = true
+	}
+	if SkipFrontendBuild {
+		ComponentBuilds[Frontend].SkipBuild = true
+	}
 	if SkipDockerImageBuild {
-		SkipBackendBuild = true
-		SkipFrontendBuild = true
+		ComponentBuilds[Backend].SkipBuild = true
+		ComponentBuilds[Frontend].SkipBuild = true
+		ComponentBuilds[DockerImage].SkipBuild = true
 	}
 	component := ComponentBuilds[comp]
 	if component.SkipBuild {
