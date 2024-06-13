@@ -15,14 +15,12 @@ describe('template spec', () => {
   })
 
   it('verify state lifecycle', () => {
-    if (isFrontendMocked) {
-      new StackOperator('nginx-slow-start')
-          .assertState('Uninitialized')
-          .operate('start')
-          .assertState('Available')
-          .operate('stop')
-          .assertState('Uninitialized')
-    }
+    new StackOperator('nginx-default')
+        .assertState('Uninitialized')
+        .operate('start')
+        .assertState('Available')
+        .operate('stop')
+        .assertState('Uninitialized')
   });
 
   it('assert column titles', () => {
@@ -52,15 +50,13 @@ describe('template spec', () => {
   })
 
   it('should verify that stack names are in alphabetical order', () => {
-    if (isFrontendMocked) {
-      new StackOperator('nginx-default')
-          .assertStackNameAlphabeticalOrder()
-          .operate('start')
-          .assertStackNameAlphabeticalOrder()
-          .operate('stop')
-          .assertStackNameAlphabeticalOrder()
-          .waitSeconds(1)
-    }
+    new StackOperator('nginx-default')
+        .assertStackNameAlphabeticalOrder()
+        .operate('start')
+        .assertStackNameAlphabeticalOrder()
+        .operate('stop')
+        .assertStackNameAlphabeticalOrder()
+        .waitSeconds(1)
   });
 
   it('check whether custom ports and proxying to stacks work', () => {
@@ -73,24 +69,22 @@ describe('template spec', () => {
   });
 
   it('verify button disabling based on current state', () => {
-    if (isFrontendMocked) {
-      let operator = new StackOperator('nginx-slow-start')
-      operator
-          .assertState('Uninitialized')
-          .shouldButtonBeEnabled('Open', false)
-          .shouldButtonBeEnabled('Start', true)
-          .shouldButtonBeEnabled('Stop', false)
-          .operate('start')
-          .assertState('Available')
-          .shouldButtonBeEnabled('Open', true)
-          .shouldButtonBeEnabled('Start', false)
-          .shouldButtonBeEnabled('Stop', true)
-          .operate("stop")
-          .assertState('Uninitialized')
-          .shouldButtonBeEnabled('Open', false)
-          .shouldButtonBeEnabled('Start', true)
-          .shouldButtonBeEnabled('Stop', false)
-    }
+    let operator = new StackOperator('nginx-default')
+    operator
+        .assertState('Uninitialized')
+        .shouldButtonBeEnabled('Open', false)
+        .shouldButtonBeEnabled('Start', true)
+        .shouldButtonBeEnabled('Stop', false)
+        .operate('start')
+        .assertState('Available')
+        .shouldButtonBeEnabled('Open', true)
+        .shouldButtonBeEnabled('Start', false)
+        .shouldButtonBeEnabled('Stop', true)
+        .operate("stop")
+        .assertState('Uninitialized')
+        .shouldButtonBeEnabled('Open', false)
+        .shouldButtonBeEnabled('Start', true)
+        .shouldButtonBeEnabled('Stop', false)
   });
 
   afterEach(() => {
