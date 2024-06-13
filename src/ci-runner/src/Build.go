@@ -1,5 +1,12 @@
 package src
 
+var (
+	SkipBackendBuild     bool
+	SkipFrontendBuild    bool
+	SkipDockerImageBuild bool
+	Quick                bool
+)
+
 type COMPONENT int
 
 const (
@@ -32,6 +39,10 @@ var ComponentBuilds = map[COMPONENT]*Component{
 }
 
 func Build(comp COMPONENT) {
+	if SkipDockerImageBuild {
+		SkipBackendBuild = true
+		SkipFrontendBuild = true
+	}
 	component := ComponentBuilds[comp]
 	if component.SkipBuild {
 		ColoredPrint(component.name + " build skipped")

@@ -10,16 +10,7 @@ import (
 	"strings"
 )
 
-// TODO Only execute pipeline, if the current commit has not been tested yet. -> cache a list of commits. Branch specific cache?
 // TODO Add option of executing specific acceptance tests only. Maybe add command which lists available options. Fail if acceptance test not found.
-// TODO Add a "completion" command which enables/updates auto-completion? Should be installed on execution.
-
-var (
-	SkipBackendBuild     bool
-	SkipFrontendBuild    bool
-	SkipDockerImageBuild bool
-	quick                bool
-)
 
 var rootCmd = &cobra.Command{
 	Use:   "ci-runner",
@@ -62,7 +53,7 @@ var testCmd = &cobra.Command{
 		inputTestType := args[0]
 		switch inputTestType {
 		case "backend":
-			src.TestBackendComponent(quick)
+			src.TestBackendComponent(src.Quick)
 		case "frontend":
 			src.TestFrontendFast()
 		case "acceptance":
@@ -91,36 +82,41 @@ var deployCmd = &cobra.Command{
 }
 
 func main() {
+	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 	pf := rootCmd.PersistentFlags()
-	pf.BoolVarP(&SkipBackendBuild, "skip-backend-build", "b", false, "Skip building the backend")
-	pf.BoolVarP(&SkipFrontendBuild, "skip-frontend-build", "f", false, "Skip building the frontend")
-	pf.BoolVarP(&SkipDockerImageBuild, "skip-docker-build", "d", false, "Skip building the Docker container, including skipping building the backend and frontend")
-	pf.BoolVarP(&quick, "quick", "q", false, "Quick execution, only unit tests and mocked components")
+	pf.BoolVarP(&src.SkipBackendBuild, "skip-backend-build", "b", false, "Skip building the backend")
+	pf.BoolVarP(&src.SkipFrontendBuild, "skip-frontend-build", "f", false, "Skip building the frontend")
+	pf.BoolVarP(&src.SkipDockerImageBuild, "skip-docker-build", "d", false, "Skip building the Docker container, including skipping building the backend and frontend")
+	pf.BoolVarP(&src.Quick, "quick", "q", false, "Quick execution, only unit tests and mocked components")
 
-	if err := rootCmd.ParseFlags(os.Args[1:]); err != nil {
-		src.ColoredPrint("\nError parsing flags: %s\n", err.Error())
-		src.CleanupAndExitWithError()
-	} else if SkipDockerImageBuild {
-		SkipBackendBuild = true
-		SkipFrontendBuild = true
-	}
-
-	src.ComponentBuilds[src.Backend].SkipBuild = SkipBackendBuild
-	src.ComponentBuilds[src.Frontend].SkipBuild = SkipFrontendBuild
-	src.ComponentBuilds[src.DockerImage].SkipBuild = SkipDockerImageBuild
+	src.ComponentBuilds[src.Backend].SkipBuild = src.SkipBackendBuild
+	src.ComponentBuilds[src.Frontend].SkipBuild = src.SkipFrontendBuild
+	src.ComponentBuilds[src.DockerImage].SkipBuild = src.SkipDockerImageBuild
 
 	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(testCmd)
 	rootCmd.AddCommand(deployCmd)
 	rootCmd.AddCommand(cleanCmd)
 
-	src.Cleanup()
-	failIfRequiredPortsAreAlreadyInUse()
-	failIfThereAreExistingDockerContainers()
+	if shouldDoPreChecks() {
+		src.Cleanup()
+		failIfRequiredPortsAreAlreadyInUse()
+		failIfThereAreExistingDockerContainers()
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		src.ColoredPrint("\nError during execution: %s\n", err.Error())
 		src.CleanupAndExitWithError()
+	}
+}
+
+func shouldDoPreChecks() bool {
+	if len(os.Args) == 1 {
+		return false
+	} else if len(os.Args) > 1 && (os.Args[1] == "completion" || os.Args[1] == "help" || os.Args[1] == "-h" || os.Args[1] == "--help") {
+		return false
+	} else {
+		return true
 	}
 }
 
