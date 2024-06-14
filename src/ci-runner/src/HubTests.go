@@ -5,7 +5,7 @@ func TestHub() {
 	deleteArtifacts()
 	StartDaemon(hubDir, "go run .")
 	WaitUntilPortIsReady("localhost:8082")
-	ExecuteInDir(hubDir, "bash test.sh")
+	ExecuteInDir(hubDir, "go test ./...")
 	deleteArtifacts()
 }
 

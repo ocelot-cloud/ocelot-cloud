@@ -47,13 +47,23 @@ func ExecuteInDir(dir string, commandStr string, envs ...string) {
 		if strings.Contains(output, "no test files") {
 			ColoredPrint(" => Testing failed because no tests were found. %s\n", elapsedTimeSummary)
 			CleanupAndExitWithError()
-		} else if strings.Contains(commandStr, "go test") && !strings.Contains(output, "PASS:") {
+		} else if strings.Contains(commandStr, "go test") && !strings.Contains(output, "PASS:") && !containsOkLine(output) {
 			ColoredPrint(" => Testing failed because no tests were actually executed; all tests were either skipped or not included. %s\n", elapsedTimeSummary)
 			CleanupAndExitWithError()
 		} else {
 			ColoredPrint(" => Command successful. %s\n", elapsedTimeSummary)
 		}
 	}
+}
+
+func containsOkLine(output string) bool {
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(strings.TrimSpace(line), "ok") {
+			return true
+		}
+	}
+	return false
 }
 
 func ColoredPrint(format string, a ...interface{}) {
