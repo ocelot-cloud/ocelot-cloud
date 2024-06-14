@@ -2,12 +2,13 @@ package security
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"ocelot/tools"
 	"strings"
 )
 
-var Logger = tools.ProvideLogger()
+var Logger = shared.ProvideLogger()
 
 type SecurityModule struct {
 	router *mux.Router

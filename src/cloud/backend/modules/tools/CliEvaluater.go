@@ -3,9 +3,12 @@ package tools
 import (
 	"flag"
 	"fmt"
+	"github.com/ocelot-cloud/shared"
 	"os"
 	"strings"
 )
+
+var logger = shared.ProvideLogger()
 
 const (
 	BackendModeProdWithGui        = "production"
@@ -99,15 +102,15 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 		"http",
 	}
 
-	LogLevel = EvaluateLogLevelBasedOn(backendMode, logLevelStr)
-	logger = ProvideLogger()
+	shared.LogLevel = EvaluateLogLevelBasedOn(backendMode, logLevelStr)
+	logger = shared.ProvideLogger()
 	logGlobalConfig(config)
 	return &config
 }
 
 func logGlobalConfig(config GlobalConfig) {
 	logger.Info("Profile is: %s", config.BackendMode.String())
-	logger.Info("Log level is: %s", LogLevel.String())
+	logger.Info("Log level is: %s", shared.LogLevel.String())
 	logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
 	logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
 	logger.Debug("Is the CORS policy relaxed by explicitly allowing cross-origin requests by setting specific response headers? -> %v", config.AreCrossOriginRequestsAllowed)
@@ -118,26 +121,26 @@ func logGlobalConfig(config GlobalConfig) {
 	logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
 }
 
-func EvaluateLogLevelBasedOn(BackendMode BackendComponentMode, levelStr string) LogLevelValue {
+func EvaluateLogLevelBasedOn(BackendMode BackendComponentMode, levelStr string) shared.LogLevelValue {
 	if levelStr == "notSet" {
 		if BackendMode == ProdWithGui || BackendMode == DependenciesMocked {
-			return INFO
+			return shared.INFO
 		} else if BackendMode == DevelopmentSetup {
-			return DEBUG
+			return shared.DEBUG
 		}
 	}
 
 	switch strings.ToLower(levelStr) {
 	case "trace":
-		return TRACE
+		return shared.TRACE
 	case "debug":
-		return DEBUG
+		return shared.DEBUG
 	case "info":
-		return INFO
+		return shared.INFO
 	case "warn":
-		return WARN
+		return shared.WARN
 	case "error":
-		return ERROR
+		return shared.ERROR
 	default:
 		panicMsg := fmt.Sprintf("Invalid log level: %s. Valid values are '-log-level=x' with x is one of these values: trace, debug, info (default), warn, error", levelStr)
 		panic(panicMsg)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/ocelot-cloud/shared"
 	"ocelot/business"
 	"ocelot/security"
 	"ocelot/tools"
@@ -9,7 +10,7 @@ import (
 	"strings"
 )
 
-var logger = tools.ProvideLogger()
+var logger = shared.ProvideLogger()
 
 func main() {
 	verifyCliToolInstallations()

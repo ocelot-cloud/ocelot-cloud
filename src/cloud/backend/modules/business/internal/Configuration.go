@@ -1,7 +1,9 @@
 package internal
 
-import "ocelot/tools"
+import (
+	"github.com/ocelot-cloud/shared"
+)
 
-var Logger = tools.ProvideLogger()
+var Logger = shared.ProvideLogger()
 var StackFileDir string
 var CoreStackFileDir = "stacks/core"

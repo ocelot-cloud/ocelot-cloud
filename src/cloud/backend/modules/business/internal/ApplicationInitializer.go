@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/gorilla/mux" // TODO To be wrapped?
+	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -49,7 +50,8 @@ func (a *ApplicationInitializer) getStackService(stackConfigService StackConfigS
 }
 
 func (a *ApplicationInitializer) initializeDockerNetwork() {
-	_ = tools.ExecuteShellCommand("docker network ls | grep -q ocelot-net || docker network create ocelot-net")
+	// TODO I remember that this is somewhere else used. So duplication? Maybe in ci-runner?
+	_ = shared.ExecuteShellCommand("docker network ls | grep -q ocelot-net || docker network create ocelot-net")
 }
 
 func (a *ApplicationInitializer) initializeHandlers() {
