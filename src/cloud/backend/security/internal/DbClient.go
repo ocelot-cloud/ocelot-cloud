@@ -8,9 +8,10 @@ import (
 )
 
 var Logger = shared.ProvideLogger()
+var databaseFile = "sqlite.db"
 
 func DoSomeDataBaseStuff() {
-	db, err := sql.Open("sqlite3", "ocelot-cloud.db")
+	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		Logger.Fatal("Failed to open database: %v", err)
 		return

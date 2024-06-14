@@ -8,8 +8,8 @@ import (
 // TODO Finish SQLite Client Implementation
 func TestSqliteClient(t *testing.T) {
 	DoSomeDataBaseStuff()
-	err := os.Remove("ocelot-cloud.db")
+	err := os.Remove(databaseFile)
 	if err != nil && !os.IsNotExist(err) {
-		t.Error("Error deleting ocelot-cloud.db:", err)
+		t.Errorf("Error deleting %s: %v", databaseFile, err)
 	}
 }
