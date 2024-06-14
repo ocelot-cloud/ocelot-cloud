@@ -3,9 +3,9 @@ package business
 import (
 	"github.com/gorilla/mux"
 	"github.com/ocelot-cloud/shared"
-	"ocelot/business/internal"
-	"ocelot/security"
-	"ocelot/tools"
+	"ocelot/backend/business/internal"
+	"ocelot/backend/security"
+	"ocelot/backend/tools"
 )
 
 type BusinessModule struct {

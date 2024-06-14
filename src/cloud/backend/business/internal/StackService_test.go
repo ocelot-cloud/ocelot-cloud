@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/ocelot-cloud/shared"
-	"ocelot/tools"
+	"ocelot/backend/tools"
 	"testing"
 )
 
@@ -10,7 +10,7 @@ var stackToDeploy = tools.NginxDefault
 var stack2ToDeploy = tools.NginxDefault2
 
 func createStackService() *StackServiceImpl {
-	StackFileDir = "../../../stacks/dummy"
+	StackFileDir = DefaultStackFileDir
 	return &StackServiceImpl{ProvideServiceMock(), ProvideStackConfigService(StackFileDir), ProvideDownloadManagerMock(), make(map[string]StackAction)}
 }
 

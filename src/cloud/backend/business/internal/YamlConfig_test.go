@@ -2,12 +2,14 @@ package internal
 
 import (
 	"github.com/ocelot-cloud/shared"
-	"ocelot/tools"
+	"ocelot/backend/tools"
 	"testing"
 )
 
+var DefaultStackFileDir = "../../stacks/dummy"
+
 func init() {
-	StackFileDir = "../../../stacks/dummy"
+	StackFileDir = DefaultStackFileDir
 }
 
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
@@ -51,7 +53,7 @@ func TestStackConfig(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			stackConfigService := ProvideStackConfigService("../../../stacks/dummy")
+			stackConfigService := ProvideStackConfigService(DefaultStackFileDir)
 			config := stackConfigService.GetStackConfig(tc.StackName)
 			shared.AssertEqual(t, tc.ExpectedPort, config.Port)
 			shared.AssertEqual(t, tc.ExpectedPath, config.UrlPath)

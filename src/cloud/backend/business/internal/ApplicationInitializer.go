@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"ocelot/security"
-	"ocelot/tools"
+	"ocelot/backend/security"
+	"ocelot/backend/tools"
 	"strings"
 )
 

@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/ocelot-cloud/shared"
-	"ocelot/business"
-	"ocelot/security"
-	"ocelot/tools"
+	"ocelot/backend/business"
+	"ocelot/backend/security"
+	"ocelot/backend/tools"
 	"os/exec"
 	"strings"
 )
