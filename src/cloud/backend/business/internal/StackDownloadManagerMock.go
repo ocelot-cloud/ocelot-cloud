@@ -1,6 +1,6 @@
 package internal
 
-import "ocelot/backend/tools"
+import "ocelot/backend/config"
 
 type StackDownloadManagerMock struct {
 	downloadStates map[string]DownloadState

@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/ocelot-cloud/shared"
-	"ocelot/backend/tools"
+	"ocelot/backend/config"
 	"testing"
 )
 

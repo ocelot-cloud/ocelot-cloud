@@ -2,7 +2,7 @@ package internal
 
 import (
 	"fmt"
-	"ocelot/backend/tools"
+	"ocelot/backend/config"
 )
 
 type DockerServiceMock struct {

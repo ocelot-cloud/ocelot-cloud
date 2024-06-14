@@ -19,7 +19,7 @@ var frontendDir = cloudDir + "/frontend"
 var acceptanceTestsDir = cloudDir + "/acceptance-tests"
 var ocelotStackDir = backendDir + "/stacks/core/ocelot-cloud"
 var backendBusinessInternalDir = backendDir + "/business/internal"
-var backendToolsDir = backendDir + "/tools"
+var backendToolsDir = backendDir + "/config"
 var backendSecurityInternalDir = backendDir + "/security/internal"
 var hubDir = srcDir + "/hub"
 
