@@ -115,6 +115,7 @@ func TestCi() {
 	testBackendCore()
 	TestBackendComponent(true)
 	TestBackendComponent(false)
+	TestHub()
 	TestFrontendFast()
 	TestAcceptance()
 }
