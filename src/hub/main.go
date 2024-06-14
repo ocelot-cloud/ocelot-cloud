@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// TODO Add logger, also shared logic.
+// TODO Add logger and testing wrapper, also shared logic.
 // TODO upload and download files, client logic and tests located in cloud, create repo, read repos and files, delete repos and files
 // TODO Cloud + Hub: add accounts (sqlite?), GUI to self-register, login and handler logic, maybe put logic in a shared folder/module?, delete account
 // TODO security: auth, tokens, upload only for logged in users and only to their repos, download is possible anonymously
