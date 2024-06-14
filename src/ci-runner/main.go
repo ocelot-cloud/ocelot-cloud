@@ -124,7 +124,7 @@ func shouldDoPreChecks() bool {
 }
 
 func failIfRequiredPortsAreAlreadyInUse() {
-	ports := []string{"8080", "8081"}
+	ports := []string{"8080", "8081", "8082"}
 
 	for _, port := range ports {
 		listener, err := net.Listen("tcp", ":"+port)

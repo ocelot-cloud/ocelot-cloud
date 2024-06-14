@@ -1,9 +1,14 @@
 package src
 
-// TODO add to CI runner CLI interface
 func TestHub() {
 	defer Cleanup()
-	ExecuteInDir(hubDir, "rm -rf users")
+	deleteArtifacts()
 	StartDaemon(hubDir, "go run .")
+	WaitUntilPortIsReady("localhost:8082")
 	ExecuteInDir(hubDir, "bash test.sh")
+	deleteArtifacts()
+}
+
+func deleteArtifacts() {
+	ExecuteInDir(hubDir, "bash -c 'rm -rf users *.tar.gz'")
 }
