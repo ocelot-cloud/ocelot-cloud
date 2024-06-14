@@ -21,7 +21,7 @@ import (
 
 const uploadPath = "./users" // TODO Create folder if not exist
 
-var Logger = shared.ProvideLogger()
+var logger = shared.ProvideLogger()
 
 func main() {
 	err := os.MkdirAll(uploadPath, os.ModePerm) // TODO Make permissions 600
@@ -32,7 +32,7 @@ func main() {
 	http.HandleFunc("/upload", uploadHandler)
 	http.HandleFunc("/download/", downloadHandler)
 
-	Logger.Info("Server started on :8082")
+	logger.Info("Server started on :8082")
 	log.Fatal(http.ListenAndServe(":8082", nil))
 }
 
@@ -74,7 +74,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
-	Logger.Error(msg)
+	logger.Error(msg)
 	http.Error(w, msg, http.StatusMethodNotAllowed)
 }
 
