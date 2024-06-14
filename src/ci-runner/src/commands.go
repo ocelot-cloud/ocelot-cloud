@@ -19,6 +19,7 @@ var frontendDir = cloudDir + "/frontend"
 var acceptanceTestsDir = cloudDir + "/acceptance-tests"
 var ocelotStackDir = backendDir + "/stacks/core/ocelot-cloud"
 var backendBusinessInternalDir = backendDir + "/modules/business/internal"
+var hubDir = srcDir + "/hub"
 
 const BackendModeProduction = "production"
 const BackendModeDependenciesMocked = "dependencies-mocked"

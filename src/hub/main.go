@@ -16,6 +16,7 @@ import (
 // TODO security: auth, tokens, upload only for logged in users and only to their repos, download is possible anonymously
 // TODO structure: https://hub.ocelot-cloud.org/myuser_myapp_v1.0.tar.gz
 // TODO Integration with cloud: acceptance test starts hub and cloud, cloud is told network location of hub, cloud initially has not a single app, but downloads it from hub during test
+// TODO In "users" should be subdirectories like "users/myuser/myapp/v1.0"
 
 const uploadPath = "./users" // TODO Create folder if not exist
 

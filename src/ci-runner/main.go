@@ -41,7 +41,8 @@ var cleanCmd = &cobra.Command{
 	},
 }
 
-var validTestTypes = []string{"backend", "frontend", "acceptance", "ci", "scheduled"}
+// TODO abstract duplication: make a structure with name + func, e.g. {("backend", src.TestBackendComponent(src.Quick)), ("frontend", ...}
+var validTestTypes = []string{"backend", "frontend", "acceptance", "ci", "scheduled", "hub"}
 var testTypeStr = strings.Join(validTestTypes, ", ")
 
 var testCmd = &cobra.Command{
@@ -62,6 +63,8 @@ var testCmd = &cobra.Command{
 			src.TestCi()
 		case "scheduled":
 			src.RunScheduledTests()
+		case "hub":
+			src.TestHub()
 		default:
 			src.ColoredPrint("\nerror: unknown command: %s\n", inputTestType)
 			src.ColoredPrint("valid args: %s\n", testTypeStr)
