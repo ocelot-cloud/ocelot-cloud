@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"github.com/ocelot-cloud/shared"
 	"testing"
 )
 
@@ -9,29 +10,29 @@ func TestEvaluateLogLevel(t *testing.T) {
 		name             string
 		profile          BackendComponentMode
 		userLogLevel     string
-		expectedLogLevel LogLevelValue // Assuming LogLevelValue is a type you've defined
+		expectedLogLevel shared.LogLevelValue // Assuming LogLevelValue is a type you've defined
 	}{
-		{"Default LogLevelValue of ProdMode", ProdWithGui, "notSet", INFO},
-		{"Default LogLevelValue of DevMode", DevelopmentSetup, "notSet", DEBUG},
-		{"Default LogLevelValue of DevMockedMode", DependenciesMocked, "notSet", INFO},
-		{"LogLevelValue of DevelopmentMode", DevelopmentSetup, "notSet", DEBUG},
-		{"LogLevelValue of ProdMode with Trace", ProdWithGui, "trace", TRACE},
-		{"LogLevelValue of ProdMode with Debug", ProdWithGui, "debug", DEBUG},
-		{"LogLevelValue of DevMode with Info", DevelopmentSetup, "info", INFO},
-		{"LogLevelValue of ProdMode with Warn", ProdWithGui, "warn", WARN},
-		{"LogLevelValue of ProdMode with Error", ProdWithGui, "error", ERROR},
+		{"Default LogLevelValue of ProdMode", ProdWithGui, "notSet", shared.INFO},
+		{"Default LogLevelValue of DevMode", DevelopmentSetup, "notSet", shared.DEBUG},
+		{"Default LogLevelValue of DevMockedMode", DependenciesMocked, "notSet", shared.INFO},
+		{"LogLevelValue of DevelopmentMode", DevelopmentSetup, "notSet", shared.DEBUG},
+		{"LogLevelValue of ProdMode with Trace", ProdWithGui, "trace", shared.TRACE},
+		{"LogLevelValue of ProdMode with Debug", ProdWithGui, "debug", shared.DEBUG},
+		{"LogLevelValue of DevMode with Info", DevelopmentSetup, "info", shared.INFO},
+		{"LogLevelValue of ProdMode with Warn", ProdWithGui, "warn", shared.WARN},
+		{"LogLevelValue of ProdMode with Error", ProdWithGui, "error", shared.ERROR},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actualLogLevel := EvaluateLogLevelBasedOn(tc.profile, tc.userLogLevel)
-			AssertEqual(t, tc.expectedLogLevel, actualLogLevel)
+			shared.AssertEqual(t, tc.expectedLogLevel, actualLogLevel)
 		})
 	}
 }
 
 func TestPanicForInvalidLogLevel(t *testing.T) {
-	AssertPanics(t, func() {
+	shared.AssertPanics(t, func() {
 		EvaluateLogLevelBasedOn(ProdWithGui, "invalid value")
 	})
 }
@@ -52,9 +53,9 @@ func TestGlobalConfig(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			config := SetGlobalConfig(tc.profile, "notSet", false, false)
-			AssertEqual(t, config.AreMocksEnabled, tc.useMock)
-			AssertEqual(t, config.IsGuiEnabled, tc.isGuiEnabled)
-			AssertEqual(t, config.AreCrossOriginRequestsAllowed, tc.isCorsDisabled)
+			shared.AssertEqual(t, config.AreMocksEnabled, tc.useMock)
+			shared.AssertEqual(t, config.IsGuiEnabled, tc.isGuiEnabled)
+			shared.AssertEqual(t, config.AreCrossOriginRequestsAllowed, tc.isCorsDisabled)
 		})
 	}
 }

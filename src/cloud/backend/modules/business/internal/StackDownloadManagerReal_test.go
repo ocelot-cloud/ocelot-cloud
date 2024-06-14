@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"ocelot/tools"
+	"github.com/ocelot-cloud/shared"
 	"os"
 	"os/exec"
 	"testing"
@@ -23,7 +23,7 @@ func TestDownloadStack_InitialState(t *testing.T) {
 	setup()
 
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
-	tools.AssertEqual(t, 0, len(downloadStates))
+	shared.AssertEqual(t, 0, len(downloadStates))
 }
 
 func TestDownloadStack_SingleDownload(t *testing.T) {
@@ -32,8 +32,8 @@ func TestDownloadStack_SingleDownload(t *testing.T) {
 	stackDownloadManager.DownloadStack(testStack)
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
 
-	tools.AssertEqual(t, 1, len(downloadStates))
-	tools.AssertEqual(t, downloadStates[testStack], Ongoing)
+	shared.AssertEqual(t, 1, len(downloadStates))
+	shared.AssertEqual(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadStack_DuplicateDownloadDoesNotCreateNewDownloadState(t *testing.T) {
@@ -43,8 +43,8 @@ func TestDownloadStack_DuplicateDownloadDoesNotCreateNewDownloadState(t *testing
 	stackDownloadManager.DownloadStack(testStack)
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
 
-	tools.AssertEqual(t, 1, len(downloadStates))
-	tools.AssertEqual(t, downloadStates[testStack], Ongoing)
+	shared.AssertEqual(t, 1, len(downloadStates))
+	shared.AssertEqual(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadStack_FinishedDownloadState(t *testing.T) {
@@ -54,8 +54,8 @@ func TestDownloadStack_FinishedDownloadState(t *testing.T) {
 	downloadProcessProviderMock.stackDownloadState.State = Finished
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
 
-	tools.AssertEqual(t, 1, len(downloadStates))
-	tools.AssertEqual(t, downloadStates[testStack], Finished)
+	shared.AssertEqual(t, 1, len(downloadStates))
+	shared.AssertEqual(t, downloadStates[testStack], Finished)
 }
 
 func TestDownloadStack_AllowDownloadSecondTime(t *testing.T) {
@@ -66,8 +66,8 @@ func TestDownloadStack_AllowDownloadSecondTime(t *testing.T) {
 	stackDownloadManager.DownloadStack(testStack)
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
 
-	tools.AssertEqual(t, 1, len(downloadStates))
-	tools.AssertEqual(t, downloadStates[testStack], Ongoing)
+	shared.AssertEqual(t, 1, len(downloadStates))
+	shared.AssertEqual(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadStack_ErrorState(t *testing.T) {
@@ -77,8 +77,8 @@ func TestDownloadStack_ErrorState(t *testing.T) {
 	downloadProcessProviderMock.stackDownloadState.State = Error
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
 
-	tools.AssertEqual(t, 1, len(downloadStates))
-	tools.AssertEqual(t, downloadStates[testStack], Error)
+	shared.AssertEqual(t, 1, len(downloadStates))
+	shared.AssertEqual(t, downloadStates[testStack], Error)
 }
 
 func TestDownloadStack_MultipleDownloads(t *testing.T) {
@@ -88,8 +88,8 @@ func TestDownloadStack_MultipleDownloads(t *testing.T) {
 	stackDownloadManager.DownloadStack(testStack2)
 	downloadStates := stackDownloadManager.GetStackDownloadStates()
 
-	tools.AssertEqual(t, 2, len(downloadStates))
-	tools.AssertEqual(t, downloadStates[testStack], Ongoing)
+	shared.AssertEqual(t, 2, len(downloadStates))
+	shared.AssertEqual(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadProcessProviderReal(t *testing.T) {

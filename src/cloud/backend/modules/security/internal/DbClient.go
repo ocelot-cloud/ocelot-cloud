@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"ocelot/tools"
+	"github.com/ocelot-cloud/shared"
 )
 
-var Logger = tools.ProvideLogger()
+var Logger = shared.ProvideLogger()
 
 func DoSomeDataBaseStuff() {
 	db, err := sql.Open("sqlite3", "ocelot-cloud.db")

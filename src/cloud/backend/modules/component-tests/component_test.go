@@ -3,6 +3,7 @@ package component_tests
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"ocelot/tools"
 	"os"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-var logger = tools.ProvideLogger()
+var logger = shared.ProvideLogger()
 
 const endpoint = "http://localhost:8080/api/stacks/"
 const stackOneName = tools.NginxDefault
@@ -43,12 +44,12 @@ func postJsonWithoutAssertions(endpoint string, data tools.StackInfo) {
 
 func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
 	resp, err := http.Get(endpoint)
-	tools.AssertNil(t, err)
+	shared.AssertNil(t, err)
 	defer resp.Body.Close()
 
 	var stackStates []tools.ResponsePayloadDto
 	err = json.NewDecoder(resp.Body).Decode(&stackStates)
-	tools.AssertNil(t, err)
+	shared.AssertNil(t, err)
 
 	return stackStates
 }
@@ -56,20 +57,20 @@ func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
 func assertState(t *testing.T, info []tools.ResponsePayloadDto, name string, state string) {
 	for _, singleInfo := range info {
 		if singleInfo.Name == name {
-			tools.AssertEqual(t, state, singleInfo.State, "Stack '"+name+"' was present but had wrong state.")
+			shared.AssertEqual(t, state, singleInfo.State, "Stack '"+name+"' was present but had wrong state.")
 			return
 		}
 	}
-	tools.AssertFail(t, "Stack was not present at all.")
+	shared.AssertFail(t, "Stack was not present at all.")
 }
 
 func postJSON(t *testing.T, endpoint string, stackName string) *http.Response {
 	stackNameJson := tools.StackInfo{Name: stackName}
 	jsonData, marshalErr := json.Marshal(stackNameJson)
-	tools.AssertNil(t, marshalErr)
+	shared.AssertNil(t, marshalErr)
 	resp, postErr := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
-	tools.AssertNil(t, postErr)
-	tools.AssertEqual(t, 200, resp.StatusCode)
+	shared.AssertNil(t, postErr)
+	shared.AssertEqual(t, 200, resp.StatusCode)
 	return resp
 }
 
@@ -84,10 +85,10 @@ func TestStopStackNotExisting(t *testing.T) {
 func postStackAndCheckResponse(t *testing.T, action string, expectedHttpStatus int) {
 	data := tools.StackInfo{"not-existing-stack"}
 	jsonData, err := json.Marshal(data)
-	tools.AssertNil(t, err)
+	shared.AssertNil(t, err)
 	resp, err := http.Post(endpoint+action, "application/json", bytes.NewBuffer(jsonData))
-	tools.AssertNil(t, err)
-	tools.AssertEqual(t, expectedHttpStatus, resp.StatusCode)
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, expectedHttpStatus, resp.StatusCode)
 }
 
 func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
@@ -96,17 +97,17 @@ func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
 
 func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, expectedAllowHeaders string) {
 	resp, err := http.Get("http://localhost:8080/api/stacks/read")
-	tools.AssertNil(t, err)
+	shared.AssertNil(t, err)
 	defer resp.Body.Close()
 
 	allowOrigin := resp.Header.Get("Access-Control-Allow-Origin")
-	tools.AssertEqual(t, expectedAllowOrigin, allowOrigin)
+	shared.AssertEqual(t, expectedAllowOrigin, allowOrigin)
 
 	allowMethods := resp.Header.Get("Access-Control-Allow-Methods")
-	tools.AssertEqual(t, expectedAllowMethods, allowMethods)
+	shared.AssertEqual(t, expectedAllowMethods, allowMethods)
 
 	allowHeaders := resp.Header.Get("Access-Control-Allow-Headers")
-	tools.AssertEqual(t, expectedAllowHeaders, allowHeaders)
+	shared.AssertEqual(t, expectedAllowHeaders, allowHeaders)
 }
 
 func TestUrlPaths(t *testing.T) {
@@ -120,17 +121,17 @@ func TestUrlPaths(t *testing.T) {
 			isDefaultNginxPathOk = true
 		}
 	}
-	tools.AssertTrue(t, isCustomPathNginxPathOk)
-	tools.AssertTrue(t, isDefaultNginxPathOk)
+	shared.AssertTrue(t, isCustomPathNginxPathOk)
+	shared.AssertTrue(t, isDefaultNginxPathOk)
 }
 
 func TestNetworkCreationOnStackDeployment(t *testing.T) {
 	dontExecuteTestForProfile(t, tools.BackendModeDependenciesMocked)
 
-	_ = tools.ExecuteShellCommand("docker network ls | grep -q nginx-default-net || docker network rm nginx-default-net")
+	_ = shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net || docker network rm nginx-default-net")
 	postJSON(t, endpoint+"deploy", tools.NginxDefault)
-	err := tools.ExecuteShellCommand("docker network ls | grep -q nginx-default-net")
-	tools.AssertNil(t, err)
+	err := shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net")
+	shared.AssertNil(t, err)
 }
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {

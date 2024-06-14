@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/ocelot-cloud/shared"
 	"ocelot/tools"
 	"testing"
 )
@@ -17,14 +18,14 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	stackService := createStackService()
 
 	err := stackService.DeployStack(stackToDeploy)
-	tools.AssertNil(t, err)
+	shared.AssertNil(t, err)
 
 	currentStackInfo := stackService.GetStackStateInfo()
 	assertState(t, currentStackInfo, stackToDeploy, Available)
 	assertState(t, currentStackInfo, stack2ToDeploy, Uninitialized)
 
 	err = stackService.StopStack(stackToDeploy)
-	tools.AssertNil(t, err)
+	shared.AssertNil(t, err)
 
 	infoAfterStop := stackService.GetStackStateInfo()
 	assertState(t, infoAfterStop, stackToDeploy, Uninitialized)
@@ -33,22 +34,22 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 
 func assertState(t *testing.T, stackInfo map[string]StackDetails, name string, state StackState) {
 	if _, ok := stackInfo[name]; ok {
-		tools.AssertEqual(t, state, stackInfo[name].State, "Stack was present but had wrong state.")
+		shared.AssertEqual(t, state, stackInfo[name].State, "Stack was present but had wrong state.")
 	} else {
-		tools.AssertFail(t, "Stack was not present at all.")
+		shared.AssertFail(t, "Stack was not present at all.")
 	}
 }
 
 func TestAllStacksStop(t *testing.T) {
 	stackService := createStackService()
-	tools.AssertNil(t, stackService.DeployStack(stackToDeploy))
-	tools.AssertNil(t, stackService.DeployStack(stack2ToDeploy))
+	shared.AssertNil(t, stackService.DeployStack(stackToDeploy))
+	shared.AssertNil(t, stackService.DeployStack(stack2ToDeploy))
 
 	infoAfterDeploy := stackService.GetStackStateInfo()
 	assertState(t, infoAfterDeploy, stackToDeploy, Available)
 	assertState(t, infoAfterDeploy, stack2ToDeploy, Available)
 
-	tools.AssertNil(t, stackService.StopAllStacks())
+	shared.AssertNil(t, stackService.StopAllStacks())
 
 	infoAfterStopAll := stackService.GetStackStateInfo()
 	assertState(t, infoAfterStopAll, stackToDeploy, Uninitialized)
@@ -57,21 +58,21 @@ func TestAllStacksStop(t *testing.T) {
 
 func TestToDeploySameStackTwice(t *testing.T) {
 	stackService := createStackService()
-	tools.AssertNil(t, stackService.DeployStack(stackToDeploy))
-	tools.AssertNil(t, stackService.DeployStack(stackToDeploy))
+	shared.AssertNil(t, stackService.DeployStack(stackToDeploy))
+	shared.AssertNil(t, stackService.DeployStack(stackToDeploy))
 }
 
 func TestToNotRunningStack(t *testing.T) {
 	stackService := createStackService()
 	err := stackService.StopStack(stackToDeploy)
-	tools.AssertNotNil(t, err)
-	tools.AssertEqual(t, "error - stopping stack failed", err.Error())
+	shared.AssertNotNil(t, err)
+	shared.AssertEqual(t, "error - stopping stack failed", err.Error())
 }
 
 func TestIgnoreStackInStackInfo(t *testing.T) {
 	stackService := createStackService()
 	stackName := "ocelot-cloud"
-	tools.AssertNil(t, stackService.DeployStack(stackName))
+	shared.AssertNil(t, stackService.DeployStack(stackName))
 
 	stackStateInfo := stackService.GetStackStateInfo()
 	if _, ok := stackStateInfo[stackName]; ok {
@@ -82,16 +83,16 @@ func TestIgnoreStackInStackInfo(t *testing.T) {
 
 func TestNginxCustomUrlPath(t *testing.T) {
 	stackService := createStackService()
-	tools.AssertNil(t, stackService.DeployStack(tools.NginxCustomPath))
+	shared.AssertNil(t, stackService.DeployStack(tools.NginxCustomPath))
 	actualUrlPath := getUrlPathForStack(t, stackService, tools.NginxCustomPath)
-	tools.AssertEqual(t, "/custom-path", actualUrlPath)
+	shared.AssertEqual(t, "/custom-path", actualUrlPath)
 }
 
 func TestNginxDefaultUrlPath(t *testing.T) {
 	stackService := createStackService()
-	tools.AssertNil(t, stackService.DeployStack(tools.NginxDefault))
+	shared.AssertNil(t, stackService.DeployStack(tools.NginxDefault))
 	actualUrlPath := getUrlPathForStack(t, stackService, tools.NginxDefault)
-	tools.AssertEqual(t, "/", actualUrlPath)
+	shared.AssertEqual(t, "/", actualUrlPath)
 }
 
 func getUrlPathForStack(t *testing.T, stackService StackService, stackName string) string {
@@ -111,19 +112,19 @@ type StackServiceTestApi struct {
 }
 
 func (s *StackServiceTestApi) deploy() *StackServiceTestApi {
-	tools.AssertNil(s.t, s.stackService.DeployStack(s.stackName))
+	shared.AssertNil(s.t, s.stackService.DeployStack(s.stackName))
 	return s
 }
 
 func (s *StackServiceTestApi) stop() *StackServiceTestApi {
-	tools.AssertNil(s.t, s.stackService.StopStack(s.stackName))
+	shared.AssertNil(s.t, s.stackService.StopStack(s.stackName))
 	return s
 }
 
 func (s *StackServiceTestApi) assertState(expectedState StackState) *StackServiceTestApi {
 	stackStateInfo := s.stackService.GetStackStateInfo()
 	if _, ok := stackStateInfo[s.stackName]; ok {
-		tools.AssertEqual(s.t, expectedState, stackStateInfo[s.stackName].State)
+		shared.AssertEqual(s.t, expectedState, stackStateInfo[s.stackName].State)
 	} else {
 		s.t.Fatalf("Stack '%s' not found", s.stackName)
 	}
