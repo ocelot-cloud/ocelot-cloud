@@ -54,6 +54,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	out, err := os.Create(filepath.Join(uploadPath, header.Filename))
 	if err != nil {
+		log.Printf("Failed to save file: %v\n", err.Error())
 		http.Error(w, "Failed to save file", http.StatusInternalServerError)
 		return
 	}
@@ -61,6 +62,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = io.Copy(out, file)
 	if err != nil {
+		log.Printf("Failed to save file: %v\n", err.Error())
 		http.Error(w, "Failed to save file", http.StatusInternalServerError)
 		return
 	}

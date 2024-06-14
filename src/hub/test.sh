@@ -5,8 +5,7 @@ set -e
 # Define the filename
 filename=myuser_myapp_v1.0.tar.gz
 
-# Remove the users directory if it exists
-rm -rf users
+mkdir -p users
 
 # Create a dummy file to upload
 echo "hello" > $filename
