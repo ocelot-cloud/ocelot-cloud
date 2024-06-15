@@ -22,11 +22,13 @@ import (
 // TODO How should uploads work? I imagine that the user simply-drags and drops stuff.
 // TODO tar.gz should be unpacked on ocelot server for viewing the content. Only packed for transport?
 // TODO protect against zip-bomb attack.
+// TODO Introduce sqlite for user database: username, password-hash, salt, email, email verified -> maybe shared logic?
 
 const uploadPath = "./users" // TODO Create folder if not exist
 
 var logger = shared.ProvideLogger()
 
+// TODO use paths that start with "/api/"
 func main() {
 	err := os.MkdirAll(uploadPath, os.ModePerm) // TODO Make permissions 600
 	if err != nil {

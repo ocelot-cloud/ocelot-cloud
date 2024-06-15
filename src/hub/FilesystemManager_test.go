@@ -77,7 +77,10 @@ func isFolderEmpty(relativePath string) bool {
 // getRepoList matching regex '*search-term*'
 // getTagList
 // limit to 100 elements? Allow search terms?
-func TestReading(t *testing.T) {
+
+// TODO Handle cases for "already existing" and "not found". e.g. user/app/tag does not exist
+
+func TestReadingUsers(t *testing.T) {
 	setup()
 	defer cleanup()
 	shared.AssertEqual(t, 0, len(GetUserList()))

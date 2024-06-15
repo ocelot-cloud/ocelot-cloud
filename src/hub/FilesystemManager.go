@@ -95,6 +95,11 @@ func getSubFolderNamesFromFolder(relativePath string) []string {
 	return fileNames
 }
 
+func GetAppList(username string) ([]string, error) {
+	// TODO user does not exist
+	return getSubFolderNamesFromFolder(usersDir), nil
+}
+
 func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	file, err := os.Create(tagFilePath)
