@@ -16,15 +16,14 @@ var (
 	sampleUser    = "myuser"
 	sampleApp     = "myapp"
 	sampleTag     = "v0.0.1"
-	usersDir      = "users"
 	singleUserDir = usersDir + "/" + sampleUser
 	appDir        = singleUserDir + "/" + sampleApp
 	sampleFile    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
 )
 
 func TestFilesystemManager(t *testing.T) {
-	shared.AssertNil(t, deleteIfExist(usersDir))
-	shared.AssertFalse(t, doesFolderExist(usersDir))
+	setup()
+	defer cleanup()
 	shared.AssertNil(t, CreateUser(sampleUser))
 	shared.AssertTrue(t, doesFolderExist(singleUserDir))
 	shared.AssertTrue(t, isFolderEmpty(singleUserDir))
@@ -80,16 +79,24 @@ func isFolderEmpty(relativePath string) bool {
 // getRepoList matching regex '*search-term*'
 // getTagList
 // limit to 100 elements? Allow search terms?
-func getFileNamesFromFolder(relativePath string) []string {
-	var fileNames []string
-	files, err := os.ReadDir(relativePath)
-	if err != nil {
-		return fileNames // return an empty slice if there's an error
-	}
-	for _, file := range files {
-		if !file.IsDir() {
-			fileNames = append(fileNames, file.Name())
-		}
-	}
-	return fileNames
+func TestReading(t *testing.T) {
+	setup()
+	defer cleanup()
+	shared.AssertEqual(t, 0, len(GetUserList()))
+	shared.AssertNil(t, CreateUser(sampleUser))
+	users := GetUserList()
+	shared.AssertEqual(t, 1, len(users))
+	shared.AssertEqual(t, sampleUser, users[0])
+
+	sampleUser2 := sampleUser + "2"
+	shared.AssertNil(t, CreateUser(sampleUser2))
+	users = GetUserList()
+	shared.AssertEqual(t, 2, len(users))
+	shared.AssertEqual(t, sampleUser, users[0])
+	shared.AssertEqual(t, sampleUser2, users[1])
+	// TODO Create user and test again, then a second user and again
+}
+
+func cleanup() {
+	deleteIfExist(usersDir)
 }

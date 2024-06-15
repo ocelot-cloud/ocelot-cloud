@@ -8,16 +8,25 @@ import (
 	"path/filepath"
 )
 
-func CreateUser(username string) error {
-	usersDir := "users"
+var (
+	usersDir = "users"
+)
+
+func init() {
+	setup()
+}
+
+func setup() {
 	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
 			// TODO duplication
 			logger.Error("Error creating users directory: %v", err)
-			return fmt.Errorf("Error creating users directory: %v", err)
+			os.Exit(1)
 		}
 	}
+}
 
+func CreateUser(username string) error {
 	userDir := filepath.Join(usersDir, username)
 	if err := os.MkdirAll(userDir, os.ModePerm); err != nil {
 		// TODO duplication
@@ -65,6 +74,24 @@ func deleteIfExist(path string) error {
 func exists(relativePath string) bool {
 	_, err := os.Stat(relativePath)
 	return !os.IsNotExist(err)
+}
+
+func GetUserList() []string {
+	return getSubFolderNamesFromFolder(usersDir)
+}
+
+func getSubFolderNamesFromFolder(relativePath string) []string {
+	var fileNames []string
+	files, err := os.ReadDir(relativePath)
+	if err != nil {
+		return nil
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			fileNames = append(fileNames, file.Name())
+		}
+	}
+	return fileNames
 }
 
 func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
