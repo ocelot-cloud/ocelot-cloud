@@ -11,10 +11,12 @@ import (
 // TODO Implement tests and corresponding functions.
 // TODO In the middle -> Create/Delete tag, tar.gz file from in-memory
 
-var sampleUser = "myuser"
-var sampleApp = "myapp"
-var sampleTag = "v0.0.1"
-var sampleFile, _ = fmt.Printf("%s.tar.gz", sampleTag)
+var (
+	sampleUser = "myuser"
+	sampleApp  = "myapp"
+	sampleTag  = "v0.0.1"
+	sampleFile = fmt.Sprintf("%s.tar.gz", sampleTag)
+)
 
 func TestFilesystemManager(t *testing.T) {
 	shared.AssertNil(t, deleteIfExist("users"))
