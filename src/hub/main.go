@@ -11,13 +11,17 @@ import (
 	"strings"
 )
 
-// TODO Add logger and testing wrapper, also shared logic.
 // TODO upload and download files, client logic and tests located in cloud, create repo, read repos and files, delete repos and files
 // TODO Cloud + Hub: add accounts (sqlite?), GUI to self-register, login and handler logic, maybe put logic in a shared folder/module?, delete account
 // TODO security: auth, tokens, upload only for logged in users and only to their repos, download is possible anonymously
 // TODO structure: https://hub.ocelot-cloud.org/myuser_myapp_v1.0.tar.gz
 // TODO Integration with cloud: acceptance test starts hub and cloud, cloud is told network location of hub, cloud initially has not a single app, but downloads it from hub during test
 // TODO In "users" should be subdirectories like "users/myuser/myapp/v1.0"
+// TODO Combine a complete story like: User registers account, logs in, uploads file etc...
+// TODO Email verification fpr accounts?
+// TODO How should uploads work? I imagine that the user simply-drags and drops stuff.
+// TODO tar.gz should be unpacked on ocelot server for viewing the content. Only packed for transport?
+// TODO protect against zip-bomb attack.
 
 const uploadPath = "./users" // TODO Create folder if not exist
 
@@ -75,7 +79,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
 	logger.Error(msg)
-	http.Error(w, msg, http.StatusMethodNotAllowed)
+	http.Error(w, msg, httpStatus)
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
