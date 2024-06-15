@@ -10,39 +10,44 @@ import (
 
 // TODO Implement tests and corresponding functions.
 // TODO In the middle -> Create/Delete tag, tar.gz file from in-memory
+// TODO Store all stuff in a "data" folder.
 
 var (
-	sampleUser = "myuser"
-	sampleApp  = "myapp"
-	sampleTag  = "v0.0.1"
-	sampleFile = fmt.Sprintf("%s.tar.gz", sampleTag)
+	sampleUser    = "myuser"
+	sampleApp     = "myapp"
+	sampleTag     = "v0.0.1"
+	usersDir      = "users"
+	singleUserDir = usersDir + "/" + sampleUser
+	appDir        = singleUserDir + "/" + sampleApp
+	tagPath       = appDir + "/" + sampleTag
+	sampleFile    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
 )
 
 func TestFilesystemManager(t *testing.T) {
-	shared.AssertNil(t, deleteIfExist("users"))
-	shared.AssertFalse(t, doesFolderExist("users"))
+	shared.AssertNil(t, deleteIfExist(usersDir))
+	shared.AssertFalse(t, doesFolderExist(usersDir))
 	shared.AssertNil(t, CreateUser(sampleUser))
-	shared.AssertTrue(t, doesFolderExist("users/myuser"))
-	shared.AssertTrue(t, isFolderEmpty("users/myuser"))
+	shared.AssertTrue(t, doesFolderExist(singleUserDir))
+	shared.AssertTrue(t, isFolderEmpty(singleUserDir))
 	CreateApp(sampleUser, sampleApp)
-	shared.AssertTrue(t, doesFolderExist("users/myuser/myapp"))
-	shared.AssertTrue(t, isFolderEmpty("users/myuser/myapp"))
+	shared.AssertTrue(t, doesFolderExist(appDir))
+	shared.AssertTrue(t, isFolderEmpty(appDir))
 
 	data := []byte("hello")
 	buffer := bytes.NewBuffer(data)
 	CreateTag(sampleUser, sampleApp, sampleTag, buffer) // TODO Should return error?
-	shared.AssertTrue(t, doesFolderExist("users/myuser/myapp"))
-	shared.AssertEqual(t, "hello", getTagFileContent("users/myuser/myapp/v0.0.1"))
+	shared.AssertTrue(t, doesFolderExist(appDir))
+	shared.AssertEqual(t, "hello", getTagFileContent(sampleFile))
 	DeleteTag(sampleUser, sampleApp, sampleTag)
-	shared.AssertFalse(t, doesFileExist("users/myuser/myapp/v0.0.1"))
+	shared.AssertFalse(t, doesFileExist(sampleFile))
 
 	DeleteApp(sampleUser, sampleApp)
-	shared.AssertTrue(t, doesFolderExist("users/myuser"))
-	shared.AssertFalse(t, doesFolderExist("users/myuser/myapp"))
+	shared.AssertTrue(t, doesFolderExist(singleUserDir))
+	shared.AssertFalse(t, doesFolderExist(appDir))
 	DeleteUser(sampleUser)
-	shared.AssertTrue(t, doesFolderExist("users"))
-	shared.AssertFalse(t, doesFolderExist("users/myuser"))
-	shared.AssertNil(t, deleteIfExist("users"))
+	shared.AssertTrue(t, doesFolderExist(usersDir))
+	shared.AssertFalse(t, doesFolderExist(singleUserDir))
+	shared.AssertNil(t, deleteIfExist(usersDir))
 }
 
 func doesFileExist(relativePath string) bool {

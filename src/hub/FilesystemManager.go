@@ -79,14 +79,14 @@ func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
 }
 
 func DeleteTag(user string, app string, tag string) {
-	tagFilePath := filepath.Join("users", user, app, fmt.Sprintf("%s", tag))
+	tagFilePath := filepath.Join("users", user, app, fmt.Sprintf("%s.tar.gz", tag))
 	if err := deleteIfExist(tagFilePath); err != nil {
 		logger.Error("Error deleting tag file: %v", err)
 	}
 }
 
 func getTagFileContent(path string) string {
-	data, err := os.ReadFile(path + ".tar.gz")
+	data, err := os.ReadFile(path)
 	if err != nil {
 		logger.Error("Error reading file content: %v", err)
 		return ""
