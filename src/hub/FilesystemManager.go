@@ -78,17 +78,17 @@ func exists(relativePath string) bool {
 }
 
 func GetUserList() []string {
-	return getSubFolderNamesFromFolder(usersDir)
+	return getFilesFromFolder(usersDir, true)
 }
 
-func getSubFolderNamesFromFolder(relativePath string) []string {
+func getFilesFromFolder(relativePath string, isFolder bool) []string {
 	var fileNames []string
 	files, err := os.ReadDir(relativePath)
 	if err != nil {
 		return nil
 	}
 	for _, file := range files {
-		if file.IsDir() {
+		if file.IsDir() == isFolder {
 			fileNames = append(fileNames, file.Name())
 		}
 	}
@@ -99,7 +99,17 @@ func GetAppList(username string) ([]string, error) {
 	userList := GetUserList() // TODO quite slow?
 	for _, v := range userList {
 		if v == username {
-			return getSubFolderNamesFromFolder(usersDir + "/" + username), nil
+			return getFilesFromFolder(usersDir+"/"+username, true), nil
+		}
+	}
+	return nil, fmt.Errorf("user '%s' not found", username)
+}
+
+func GetTagList(username string, app string) ([]string, error) {
+	userList := GetUserList() // TODO quite slow?
+	for _, v := range userList {
+		if v == username {
+			return getFilesFromFolder(usersDir+"/"+username, false), nil
 		}
 	}
 	return nil, fmt.Errorf("user '%s' not found", username)
