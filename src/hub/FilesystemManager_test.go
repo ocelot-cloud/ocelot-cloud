@@ -94,6 +94,14 @@ func TestReading(t *testing.T) {
 	shared.AssertEqual(t, sampleUser2, users[1])
 }
 
+func TestSetup(t *testing.T) {
+	cleanup()
+	shared.AssertFalse(t, doesFolderExist(usersDir))
+	setup()
+	shared.AssertTrue(t, doesFolderExist(usersDir))
+	cleanup()
+}
+
 func cleanup() {
 	deleteIfExist(dataDir)
 }
