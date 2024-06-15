@@ -50,19 +50,21 @@ func TestFilesystemManager(t *testing.T) {
 }
 
 func doesFileExist(relativePath string) bool {
-	info, err := os.Stat(relativePath)
+	exists, isDir := pathExists(relativePath)
+	return exists && !isDir
+}
+
+func pathExists(path string) (exists bool, isDir bool) {
+	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return false
+		return false, false
 	}
-	return !info.IsDir()
+	return true, info.IsDir()
 }
 
 func doesFolderExist(relativePath string) bool {
-	info, err := os.Stat(relativePath)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
+	exists, isDir := pathExists(relativePath)
+	return exists && isDir
 }
 
 func isFolderEmpty(relativePath string) bool {
