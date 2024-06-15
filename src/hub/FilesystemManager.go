@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -81,6 +82,7 @@ func GetUserList() []string {
 	return getFilesFromFolder(usersDir, true)
 }
 
+// TODO To be tested?
 func getFilesFromFolder(relativePath string, isFolder bool) []string {
 	var fileNames []string
 	files, err := os.ReadDir(relativePath)
@@ -96,37 +98,68 @@ func getFilesFromFolder(relativePath string, isFolder bool) []string {
 }
 
 func GetAppList(username string) ([]string, error) {
-	userList := GetUserList() // TODO quite slow?
-	for _, v := range userList {
-		if v == username {
-			return getFilesFromFolder(usersDir+"/"+username, true), nil
-		}
+	if doesUserExist(username) {
+		return getFilesFromFolder(usersDir+"/"+username, true), nil
+	} else {
+		return nil, fmt.Errorf("user '%s' not found", username)
 	}
-	return nil, fmt.Errorf("user '%s' not found", username)
 }
 
 func GetTagList(username string, app string) ([]string, error) {
+	if doesUserExist(username) {
+		if doesAppExist(username, app) {
+			tagFileNames := getFilesFromFolder(usersDir+"/"+username+"/"+app, false)
+			var tags []string
+			for _, tagFileName := range tagFileNames {
+				tags = append(tags, strings.TrimSuffix(tagFileName, ".tar.gz"))
+			}
+			return tags, nil
+		}
+		return nil, fmt.Errorf("app '%s' not found", app)
+	} else {
+		return nil, fmt.Errorf("user '%s' not found", username)
+	}
+}
+
+func doesAppExist(username string, app string) bool {
+	appList, err := GetAppList(username) // TODO quite slow?
+	if err != nil {
+		return false
+	}
+
+	for _, v := range appList {
+		if v == app {
+			return true
+		}
+	}
+	return false
+}
+
+func doesUserExist(username string) bool {
 	userList := GetUserList() // TODO quite slow?
 	for _, v := range userList {
 		if v == username {
-			return getFilesFromFolder(usersDir+"/"+username, false), nil
+			return true
 		}
 	}
-	return nil, fmt.Errorf("user '%s' not found", username)
+	return false
 }
 
-func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
+func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	file, err := os.Create(tagFilePath)
 	if err != nil {
+		// TODO Duplication
 		logger.Error("Error creating tag file: %v", err)
-		return
+		return fmt.Errorf("Error creating tag file: %v", err)
 	}
 	defer file.Close()
 
 	if _, err := io.Copy(file, buffer); err != nil {
 		logger.Error("Error writing to tag file: %v", err)
+		return fmt.Errorf("Error writing tag file: %v", err)
 	}
+	return nil
 }
 
 func DeleteTag(user string, app string, tag string) {

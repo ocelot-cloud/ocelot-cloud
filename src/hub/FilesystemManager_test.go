@@ -12,12 +12,13 @@ import (
 // TODO Store all stuff in a "data" folder.
 
 var (
-	sampleUser    = "myuser"
-	sampleApp     = "myapp"
-	sampleTag     = "v0.0.1"
-	singleUserDir = usersDir + "/" + sampleUser
-	appDir        = singleUserDir + "/" + sampleApp
-	sampleFile    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
+	sampleUser                    = "myuser"
+	sampleApp                     = "myapp"
+	sampleTag                     = "v0.0.1"
+	singleUserDir                 = usersDir + "/" + sampleUser
+	appDir                        = singleUserDir + "/" + sampleApp
+	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
+	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
 )
 
 func TestFilesystemManager(t *testing.T) {
@@ -30,9 +31,7 @@ func TestFilesystemManager(t *testing.T) {
 	shared.AssertTrue(t, doesFolderExist(appDir))
 	shared.AssertTrue(t, isFolderEmpty(appDir))
 
-	data := []byte("hello")
-	buffer := bytes.NewBuffer(data)
-	CreateTag(sampleUser, sampleApp, sampleTag, buffer) // TODO Should return error?
+	CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer) // TODO Should return error?
 	shared.AssertTrue(t, doesFolderExist(appDir))
 	shared.AssertEqual(t, "hello", getTagFileContent(sampleFile))
 	DeleteTag(sampleUser, sampleApp, sampleTag)
@@ -121,6 +120,25 @@ func TestReadingApps(t *testing.T) {
 	shared.AssertNil(t, err)
 	shared.AssertEqual(t, 1, len(list))
 	shared.AssertEqual(t, sampleApp, list[0])
+}
+
+func TestReadingTags(t *testing.T) {
+	defer cleanup()
+	list, err := GetTagList(sampleUser, sampleApp)
+	shared.AssertNotNil(t, err)
+	shared.AssertEqual(t, 0, len(list))
+
+	shared.AssertNil(t, CreateUser(sampleUser))
+	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
+	list, err = GetTagList(sampleUser, sampleApp)
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, 0, len(list))
+
+	shared.AssertNil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
+	list, err = GetTagList(sampleUser, sampleApp)
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, 1, len(list))
+	shared.AssertEqual(t, sampleTag, list[0])
 }
 
 func cleanup() {
