@@ -19,7 +19,6 @@ var (
 	usersDir      = "users"
 	singleUserDir = usersDir + "/" + sampleUser
 	appDir        = singleUserDir + "/" + sampleApp
-	tagPath       = appDir + "/" + sampleTag
 	sampleFile    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
 )
 
@@ -29,7 +28,7 @@ func TestFilesystemManager(t *testing.T) {
 	shared.AssertNil(t, CreateUser(sampleUser))
 	shared.AssertTrue(t, doesFolderExist(singleUserDir))
 	shared.AssertTrue(t, isFolderEmpty(singleUserDir))
-	CreateApp(sampleUser, sampleApp)
+	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
 	shared.AssertTrue(t, doesFolderExist(appDir))
 	shared.AssertTrue(t, isFolderEmpty(appDir))
 

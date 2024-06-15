@@ -34,11 +34,14 @@ func DeleteUser(username string) {
 	}
 }
 
-func CreateApp(username, app string) {
+func CreateApp(username, app string) error {
 	appDir := filepath.Join("users", username, app)
 	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
+		// TODO duplication
 		logger.Error("Error creating app directory: %v", err)
+		return fmt.Errorf("Error creating app directory: %v", err)
 	}
+	return nil
 }
 
 func DeleteApp(username, app string) {
