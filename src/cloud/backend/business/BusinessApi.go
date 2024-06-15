@@ -8,6 +8,8 @@ import (
 	"ocelot/backend/security"
 )
 
+// TODO Since I use packages, the config object is not needed to be passed around. I only need a global var for that.
+
 type BusinessModule struct {
 	appInitializer *internal.ApplicationInitializer
 }
