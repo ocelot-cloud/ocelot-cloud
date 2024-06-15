@@ -11,6 +11,7 @@ import (
 	"testing"
 )
 
+// TODO Clean up "users" folder before and after test. Also store in "data/users" instead.
 func TestFileUploadDownload(t *testing.T) {
 	filename := "myuser_myapp_v1.0.tar.gz"
 	usersDir := "users"

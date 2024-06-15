@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	usersDir = "users"
+	dataDir  = "data"
+	usersDir = dataDir + "/users"
 )
 
 func init() {
@@ -37,14 +38,14 @@ func CreateUser(username string) error {
 }
 
 func DeleteUser(username string) {
-	userDir := filepath.Join("users", username)
+	userDir := filepath.Join(usersDir, username)
 	if err := deleteIfExist(userDir); err != nil {
 		logger.Error("Error deleting user directory: %v", err)
 	}
 }
 
 func CreateApp(username, app string) error {
-	appDir := filepath.Join("users", username, app)
+	appDir := filepath.Join(usersDir, username, app)
 	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
 		// TODO duplication
 		logger.Error("Error creating app directory: %v", err)
@@ -54,7 +55,7 @@ func CreateApp(username, app string) error {
 }
 
 func DeleteApp(username, app string) {
-	appDir := filepath.Join("users", username, app)
+	appDir := filepath.Join(usersDir, username, app)
 	if err := deleteIfExist(appDir); err != nil {
 		logger.Error("Error deleting app directory: %v", err)
 	}
@@ -95,7 +96,7 @@ func getSubFolderNamesFromFolder(relativePath string) []string {
 }
 
 func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
-	tagFilePath := filepath.Join("users", user, app, fmt.Sprintf("%s.tar.gz", tag))
+	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	file, err := os.Create(tagFilePath)
 	if err != nil {
 		logger.Error("Error creating tag file: %v", err)
@@ -109,7 +110,7 @@ func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
 }
 
 func DeleteTag(user string, app string, tag string) {
-	tagFilePath := filepath.Join("users", user, app, fmt.Sprintf("%s.tar.gz", tag))
+	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	if err := deleteIfExist(tagFilePath); err != nil {
 		logger.Error("Error deleting tag file: %v", err)
 	}

@@ -9,7 +9,6 @@ import (
 )
 
 // TODO Implement tests and corresponding functions.
-// TODO In the middle -> Create/Delete tag, tar.gz file from in-memory
 // TODO Store all stuff in a "data" folder.
 
 var (
@@ -75,7 +74,6 @@ func isFolderEmpty(relativePath string) bool {
 }
 
 // TODO Create methods:
-// getUserList
 // getRepoList matching regex '*search-term*'
 // getTagList
 // limit to 100 elements? Allow search terms?
@@ -94,9 +92,8 @@ func TestReading(t *testing.T) {
 	shared.AssertEqual(t, 2, len(users))
 	shared.AssertEqual(t, sampleUser, users[0])
 	shared.AssertEqual(t, sampleUser2, users[1])
-	// TODO Create user and test again, then a second user and again
 }
 
 func cleanup() {
-	deleteIfExist(usersDir)
+	deleteIfExist(dataDir)
 }
