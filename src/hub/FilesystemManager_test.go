@@ -105,6 +105,24 @@ func TestSetup(t *testing.T) {
 	cleanup()
 }
 
+func TestReadingApps(t *testing.T) {
+	defer cleanup()
+	list, err := GetAppList(sampleUser)
+	shared.AssertNotNil(t, err)
+	shared.AssertEqual(t, 0, len(list))
+
+	shared.AssertNil(t, CreateUser(sampleUser))
+	list, err = GetAppList(sampleUser)
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, 0, len(list))
+
+	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
+	list, err = GetAppList(sampleUser)
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, 1, len(list))
+	shared.AssertEqual(t, sampleApp, list[0])
+}
+
 func cleanup() {
 	deleteIfExist(dataDir)
 }

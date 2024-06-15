@@ -23,6 +23,7 @@ import (
 // TODO tar.gz should be unpacked on ocelot server for viewing the content. Only packed for transport?
 // TODO protect against zip-bomb attack.
 // TODO Introduce sqlite for user database: username, password-hash, salt, email, email verified -> maybe shared logic?
+// TODO Can be deployed together with traefik to generate certs. Add "deploy hub" to ci-runner, also add docker-compose.yml. Maybe add a test server?
 
 const uploadPath = "./users" // TODO Create folder if not exist
 

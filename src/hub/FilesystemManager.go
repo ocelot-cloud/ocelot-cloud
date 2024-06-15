@@ -96,8 +96,13 @@ func getSubFolderNamesFromFolder(relativePath string) []string {
 }
 
 func GetAppList(username string) ([]string, error) {
-	// TODO user does not exist
-	return getSubFolderNamesFromFolder(usersDir), nil
+	userList := GetUserList() // TODO quite slow?
+	for _, v := range userList {
+		if v == username {
+			return getSubFolderNamesFromFolder(usersDir + "/" + username), nil
+		}
+	}
+	return nil, fmt.Errorf("user '%s' not found", username)
 }
 
 func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) {
