@@ -31,7 +31,7 @@ func TestFilesystemManager(t *testing.T) {
 	shared.AssertTrue(t, doesFolderExist(appDir))
 	shared.AssertTrue(t, isFolderEmpty(appDir))
 
-	CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer) // TODO Should return error?
+	shared.AssertNil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
 	shared.AssertTrue(t, doesFolderExist(appDir))
 	shared.AssertEqual(t, "hello", getTagFileContent(sampleFile))
 	DeleteTag(sampleUser, sampleApp, sampleTag)
