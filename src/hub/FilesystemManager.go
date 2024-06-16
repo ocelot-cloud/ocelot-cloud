@@ -77,7 +77,6 @@ func GetUserList() []string {
 	return getFilesFromFolder(usersDir, true)
 }
 
-// TODO To be tested?
 func getFilesFromFolder(relativePath string, isFolder bool) []string {
 	var fileNames []string
 	files, err := os.ReadDir(relativePath)
@@ -116,8 +115,10 @@ func GetTagList(username string, app string) ([]string, error) {
 	}
 }
 
+// TODO The operations Get(User/App/Tag)List are quite slow. Better put this logic into a database.
+
 func doesAppExist(username string, app string) bool {
-	appList, err := GetAppList(username) // TODO quite slow?
+	appList, err := GetAppList(username)
 	if err != nil {
 		return false
 	}
@@ -131,7 +132,7 @@ func doesAppExist(username string, app string) bool {
 }
 
 func doesUserExist(username string) bool {
-	userList := GetUserList() // TODO quite slow?
+	userList := GetUserList()
 	for _, v := range userList {
 		if v == username {
 			return true
