@@ -1,13 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/ocelot-cloud/shared"
 	"io"
-	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -25,22 +24,23 @@ import (
 // TODO Introduce sqlite for user database: username, password-hash, salt, email, email verified -> maybe shared logic?
 // TODO Can be deployed together with traefik to generate certs. Add "deploy hub" to ci-runner, also add docker-compose.yml. Maybe add a test server?
 
-const uploadPath = "./users"
-
-var logger = shared.ProvideLogger()
+var (
+	logger       = shared.ProvideLogger()
+	uploadPath   = "/api/upload"
+	downloadPath = "/api/download/"
+)
 
 // TODO use paths that start with "/api/"
 func main() {
-	err := os.MkdirAll(uploadPath, os.ModePerm) // TODO Make permissions 600
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	http.HandleFunc("/upload", uploadHandler)
-	http.HandleFunc("/download/", downloadHandler)
+	http.HandleFunc(uploadPath, uploadHandler)
+	http.HandleFunc(downloadPath, downloadHandler)
 
 	logger.Info("Server started on :8082")
-	log.Fatal(http.ListenAndServe(":8082", nil))
+	err := http.ListenAndServe(":8082", nil)
+	if err != nil {
+		// TODO Is server stop sometimes normal, e.g. when gracefully shutdown?
+		logger.Fatal("Server stopped: %v\n", err)
+	}
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,21 +63,31 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := os.Create(filepath.Join(uploadPath, header.Filename))
-	if err != nil {
-		logAndRespondError(w, "Failed to save file", http.StatusInternalServerError)
+	// TODO Duplication
+	fileInfo := strings.Split(header.Filename, "_")
+	if len(fileInfo) != 3 {
+		logAndRespondError(w, "Invalid file name", http.StatusBadRequest)
 		return
 	}
-	defer out.Close()
+	username := fileInfo[0]
+	app := fileInfo[1]
+	tag, _ := strings.CutSuffix(fileInfo[2], ".tar.gz") // TODO Check error.
 
-	_, err = io.Copy(out, file)
+	var fileBuffer bytes.Buffer
+	_, err = io.Copy(&fileBuffer, file)
 	if err != nil {
-		logAndRespondError(w, "Failed to save file", http.StatusInternalServerError)
+		logAndRespondError(w, "Failed to read file content", http.StatusInternalServerError)
+		return
+	}
+
+	err = CreateTag(username, app, tag, &fileBuffer)
+	if err != nil {
+		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "File uploaded successfully") // TODO to be logged
+	logger.Info("File uploaded successfully: %s\n", header.Filename)
 }
 
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
@@ -86,17 +96,33 @@ func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	fileName := strings.TrimPrefix(r.URL.Path, "/download/")
-	if fileName == "" {
+	uploadName := strings.TrimPrefix(r.URL.Path, downloadPath)
+	if uploadName == "" {
 		logAndRespondError(w, "File name is missing", http.StatusBadRequest)
 		return
 	}
 
-	filePath := filepath.Join(uploadPath, fileName)
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	fileInfo := strings.Split(uploadName, "_")
+	if len(fileInfo) != 3 {
+		logAndRespondError(w, "Invalid file name", http.StatusBadRequest)
+		return
+	}
+	username := fileInfo[0]
+	app := fileInfo[1]
+	fileName := fileInfo[2]
+
+	// TODO Should be returned by external function. Too low level here.
+	path := fmt.Sprintf("data/users/%s/%s/%s", username, app, fileName)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		logAndRespondError(w, "File not found", http.StatusNotFound)
 		return
 	}
 
-	http.ServeFile(w, r, filePath)
+	http.ServeFile(w, r, path)
+}
+
+type FileInfo struct {
+	FileName string
+	App      string
+	Tag      string
 }

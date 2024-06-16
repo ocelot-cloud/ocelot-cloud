@@ -2,50 +2,32 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	"github.com/ocelot-cloud/shared"
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
 // TODO Clean up "users" folder before and after test. Also store in "data/users" instead.
 func TestFileUploadDownload(t *testing.T) {
-	filename := "myuser_myapp_v1.0.tar.gz"
-	usersDir := "users"
-	uploadedFilePath := filepath.Join(usersDir, filename)
-
-	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
-		t.Fatalf("Users directory does not exist: %v", err)
-	}
+	defer cleanup()
+	shared.AssertNil(t, CreateUser(sampleUser))
+	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
+	filename := "myuser_myapp_v0.1.0.tar.gz"
 
 	fileContent := []byte("hello")
 	fileBuffer := bytes.NewBuffer(fileContent)
 
-	uploadURL := "http://localhost:8082/upload"
+	uploadURL := "http://localhost:8082/api/upload" // TODO To be abstracted
 	responseCode, err := uploadFile(uploadURL, filename, fileBuffer)
-	if err != nil {
-		t.Fatalf("Failed to upload file: %v", err)
-	}
-	if responseCode != http.StatusOK {
-		t.Fatalf("Failed to upload file. HTTP status code: %d", responseCode)
-	}
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, http.StatusOK, responseCode)
 
-	if _, err := os.Stat(uploadedFilePath); os.IsNotExist(err) {
-		t.Fatalf("Uploaded file does not exist in the users directory")
-	}
-
-	downloadURL := "http://localhost:8082/download/" + filename
+	downloadURL := "http://localhost:8082/api/download/" + filename // TODO To be abstracted
 	downloadedContent, err := downloadFile(downloadURL)
-	if err != nil {
-		t.Fatalf("Failed to download file: %v", err)
-	}
-
-	if !bytes.Equal(fileContent, downloadedContent) {
-		t.Fatalf("Downloaded content does not match uploaded content")
-	}
+	shared.AssertNil(t, err)
+	shared.AssertEqual(t, fileContent, downloadedContent)
 }
 
 func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
@@ -54,11 +36,11 @@ func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
 
 	part, err := writer.CreateFormFile("file", filename)
 	if err != nil {
-		return 0, err
+		return 0, logger.LogAndReturnError("Error creating file header: %v\n", err)
 	}
 
 	if _, err := io.Copy(part, fileBuffer); err != nil {
-		return 0, err
+		return 0, err // TODO To be logged
 	}
 	writer.Close()
 
@@ -86,7 +68,7 @@ func downloadFile(url string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to download file, status code: %d", resp.StatusCode)
+		return nil, logger.LogAndReturnError("failed to download file, status code: %d", resp.StatusCode)
 	}
 
 	downloadedContent, err := io.ReadAll(resp.Body)
