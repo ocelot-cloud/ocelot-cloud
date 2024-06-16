@@ -150,8 +150,7 @@ func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error 
 	defer file.Close()
 
 	if _, err := io.Copy(file, buffer); err != nil {
-		logger.Error("Error writing to tag file: %v", err)
-		return fmt.Errorf("Error writing tag file: %v", err)
+		return logger.LogAndReturnError("Error writing to tag file: %v", err)
 	}
 	return nil
 }

@@ -46,8 +46,8 @@ func TestFilesystemManager(t *testing.T) {
 	shared.AssertNil(t, deleteIfExist(usersDir))
 }
 
-func doesFileExist(relativePath string) bool {
-	exists, isDir := pathExists(relativePath)
+func doesFileExist(path string) bool {
+	exists, isDir := pathExists(path)
 	return exists && !isDir
 }
 
