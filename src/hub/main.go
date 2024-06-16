@@ -28,15 +28,16 @@ var (
 	logger       = shared.ProvideLogger()
 	uploadPath   = "/api/upload"
 	downloadPath = "/api/download/"
+	port         = "8082"
+	rootUrl      = "http://localhost:" + port
 )
 
-// TODO use paths that start with "/api/"
 func main() {
 	http.HandleFunc(uploadPath, uploadHandler)
 	http.HandleFunc(downloadPath, downloadHandler)
 
-	logger.Info("Server started on :8082")
-	err := http.ListenAndServe(":8082", nil)
+	logger.Info("Server started on port %s\n", port)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		// TODO Is server stop sometimes normal, e.g. when gracefully shutdown?
 		logger.Fatal("Server stopped: %v\n", err)

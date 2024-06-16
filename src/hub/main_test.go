@@ -19,12 +19,12 @@ func TestFileUploadDownload(t *testing.T) {
 	fileContent := []byte("hello")
 	fileBuffer := bytes.NewBuffer(fileContent)
 
-	uploadURL := "http://localhost:8082/api/upload" // TODO To be abstracted
+	uploadURL := rootUrl + uploadPath
 	responseCode, err := uploadFile(uploadURL, filename, fileBuffer)
 	shared.AssertNil(t, err)
 	shared.AssertEqual(t, http.StatusOK, responseCode)
 
-	downloadURL := "http://localhost:8082/api/download/" + filename // TODO To be abstracted
+	downloadURL := rootUrl + downloadPath + filename
 	downloadedContent, err := downloadFile(downloadURL)
 	shared.AssertNil(t, err)
 	shared.AssertEqual(t, fileContent, downloadedContent)
