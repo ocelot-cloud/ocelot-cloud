@@ -11,6 +11,8 @@ github.com/ocelot-cloud/shared v0.0.2 h1:rouUBQWhYao3FHokLUzw5OL9RAe7ZUuyGpPIdko
 github.com/ocelot-cloud/shared v0.0.2/go.mod h1:zT+SRR3MhclEUa6TcIWCB9I9ppikgd6nTq81wkngGoY=
 github.com/ocelot-cloud/shared v0.0.3 h1:M98cJeo4MeCNKnhbuUlUYnGaWjh3S+T4FGO73kH3mPk=
 github.com/ocelot-cloud/shared v0.0.3/go.mod h1:zT+SRR3MhclEUa6TcIWCB9I9ppikgd6nTq81wkngGoY=
+github.com/ocelot-cloud/shared v0.0.4 h1:ne9SZP3Ah5tnAWrYbPDag/xYMOrhJilcBqzDWTOZE6Q=
+github.com/ocelot-cloud/shared v0.0.4/go.mod h1:zT+SRR3MhclEUa6TcIWCB9I9ppikgd6nTq81wkngGoY=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

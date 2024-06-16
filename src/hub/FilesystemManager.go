@@ -21,8 +21,7 @@ func init() {
 func setup() {
 	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
-			// TODO duplication
-			logger.Error("Error creating users directory: %v", err)
+			logger.Error("Error creating users directory: %v. Terminating application.", err)
 			os.Exit(1)
 		}
 	}
@@ -31,9 +30,7 @@ func setup() {
 func CreateUser(username string) error {
 	userDir := filepath.Join(usersDir, username)
 	if err := os.MkdirAll(userDir, os.ModePerm); err != nil {
-		// TODO duplication
-		logger.Error("Error creating user directory: %v", err)
-		return fmt.Errorf("Error creating user directory: %v", err)
+		return logger.LogAndReturnError("Error creating user directory: %v", err)
 	}
 	return nil
 }
@@ -48,9 +45,7 @@ func DeleteUser(username string) {
 func CreateApp(username, app string) error {
 	appDir := filepath.Join(usersDir, username, app)
 	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
-		// TODO duplication
-		logger.Error("Error creating app directory: %v", err)
-		return fmt.Errorf("Error creating app directory: %v", err)
+		return logger.LogAndReturnError("Error creating app directory: %v", err)
 	}
 	return nil
 }
@@ -149,9 +144,7 @@ func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error 
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	file, err := os.Create(tagFilePath)
 	if err != nil {
-		// TODO Duplication
-		logger.Error("Error creating tag file: %v", err)
-		return fmt.Errorf("Error creating tag file: %v", err)
+		return logger.LogAndReturnError("Error creating tag file: %v", err)
 	}
 	defer file.Close()
 
