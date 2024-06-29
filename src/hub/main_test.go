@@ -40,7 +40,7 @@ func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
 	}
 
 	if _, err := io.Copy(part, fileBuffer); err != nil {
-		return 0, err // TODO To be logged
+		return 0, logger.LogAndReturnError("Error copying content: %v\n", err)
 	}
 	writer.Close()
 
