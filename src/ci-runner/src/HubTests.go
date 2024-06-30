@@ -1,19 +1,13 @@
 package src
 
 func TestHub() {
-	TestFilesystemManager()
-	TestUploadAndDownload()
-}
-
-func TestUploadAndDownload() {
 	printTestDescription("Testing file upload and download")
 	defer Cleanup()
 	StartDaemon(hubDir, "go run .")
 	WaitUntilPortIsReady("localhost:8082")
-	ExecuteInDir(hubDir, "go test -run TestFileUploadDownload")
+	ExecuteInDir(hubDir, "go test .")
 }
 
-func TestFilesystemManager() {
-	printTestDescription("Testing filesystem manager")
-	ExecuteInDir(hubDir, "go test -run TestFilesystemManager")
-}
+// TODO Separate unit from component tests?
+// TODO Write tests for CI-Runner? Especially when It should fail, e.g. to no were tests found or so.
+// TODO for this command: "go test -run TestFilesystemManager,..." comes the output -> "testing: warning: no tests to run", which should immediately fail.

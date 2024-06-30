@@ -47,11 +47,15 @@ func DeleteUser(username string) {
 	}
 }
 
-func CreateApp(username, app string) error {
-	appDir := filepath.Join(usersDir, username, app)
+func CreateApp(user, app string) error {
+	appDir := filepath.Join(usersDir, user, app)
+
+	if !doesUserExist(user) {
+		return logger.LogAndReturnError("User '%s' does not exist: %v", user)
+	}
 
 	if _, err := os.Stat(appDir); err == nil {
-		return logger.LogAndReturnError("App '%s' of user '%s' already exists", app, username)
+		return logger.LogAndReturnError("App '%s' of user '%s' already exists", app, user)
 	}
 
 	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
@@ -60,19 +64,19 @@ func CreateApp(username, app string) error {
 	return nil
 }
 
-func DeleteApp(username, app string) {
+func DeleteApp(username, app string) error {
 	appDir := filepath.Join(usersDir, username, app)
 	if err := deleteIfExist(appDir); err != nil {
-		logger.Error("Error deleting app directory: %v", err)
+		return logger.LogAndReturnError("Error deleting app directory: %v", err)
 	}
+	return nil
 }
 
 func deleteIfExist(path string) error {
 	if exists(path) {
 		err := os.RemoveAll(path)
 		if err != nil {
-			logger.Error("Error deleting file: %v", err)
-			return fmt.Errorf("failed to delete %s: %v", path, err)
+			return logger.LogAndReturnError("Error deleting file: %v", err)
 		}
 	}
 	return nil

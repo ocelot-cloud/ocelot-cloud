@@ -163,3 +163,26 @@ func cleanup() {
 		os.Exit(1)
 	}
 }
+
+func TestParentNotFound(t *testing.T) {
+	setup()
+	defer cleanup()
+	// TODO Assert for correct return message in both cases
+
+	/*
+		t.Fail()
+			shared.AssertNotNil(t, CreateApp(sampleUser, sampleApp))
+			shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
+
+			shared.AssertNil(t, CreateUser(sampleUser))
+			err := CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
+			shared.AssertNotNil(t, err)
+			shared.AssertEqual(t, "asda", err.Error())
+			shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
+
+	*/
+
+	// TODO do the same for tag?
+}
+
+// TODO Apply consistent naming to packages, files and types.
