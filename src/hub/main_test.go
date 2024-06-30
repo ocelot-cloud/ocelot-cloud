@@ -35,11 +35,11 @@ func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
 
 	part, err := writer.CreateFormFile("file", filename)
 	if err != nil {
-		return 0, logger.LogAndReturnError("Error creating file header: %v\n", err)
+		return 0, Logger.LogAndReturnError("Error creating file header: %v\n", err)
 	}
 
 	if _, err := io.Copy(part, fileBuffer); err != nil {
-		return 0, logger.LogAndReturnError("Error copying content: %v\n", err)
+		return 0, Logger.LogAndReturnError("Error copying content: %v\n", err)
 	}
 	writer.Close()
 
@@ -67,7 +67,7 @@ func downloadFile(url string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, logger.LogAndReturnError("failed to download file, status code: %d", resp.StatusCode)
+		return nil, Logger.LogAndReturnError("failed to download file, status code: %d", resp.StatusCode)
 	}
 
 	downloadedContent, err := io.ReadAll(resp.Body)

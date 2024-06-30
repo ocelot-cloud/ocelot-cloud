@@ -157,7 +157,7 @@ func TestReadingTags(t *testing.T) {
 func cleanup() {
 	err := deleteIfExist(dataDir)
 	if err != nil {
-		logger.Error("Cleanup: Could not delete dir: %s", dataDir)
+		Logger.Error("Cleanup: Could not delete dir: %s", dataDir)
 		os.Exit(1)
 	}
 }

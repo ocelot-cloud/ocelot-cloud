@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+// TODO General notes: Hub is only backend. Can be used via Cloud GUI, which directly addresses the hub API.
+
 // TODO upload and download files, client logic and tests located in cloud, create repo, read repos and files, delete repos and files
 // TODO Cloud + Hub: add accounts (sqlite?), GUI to self-register, login and handler logic, maybe put logic in a shared folder/module?, delete account
 // TODO security: auth, tokens, upload only for logged in users and only to their repos, download is possible anonymously
@@ -17,15 +19,27 @@ import (
 // TODO Integration with cloud: acceptance test starts hub and cloud, cloud is told network location of hub, cloud initially has not a single app, but downloads it from hub during test
 // TODO In "users" should be subdirectories like "users/myuser/myapp/v1.0"
 // TODO Combine a complete story like: User registers account, logs in, uploads file etc...
-// TODO Email verification fpr accounts?
+// TODO Email verification fpr accounts? -> Maybe shift to production release issues?
 // TODO How should uploads work? I imagine that the user simply-drags and drops stuff.
 // TODO tar.gz should be unpacked on ocelot server for viewing the content. Only packed for transport?
 // TODO protect against zip-bomb attack.
 // TODO Introduce sqlite for user database: username, password-hash, salt, email, email verified -> maybe shared logic?
 // TODO Can be deployed together with traefik to generate certs. Add "deploy hub" to ci-runner, also add docker-compose.yml. Maybe add a test server?
+// TODO At the beginning always login in the local cloud. On first use of upload, login to hub. Cloud gets a token for future automatic logins.
+// TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
+
+// TODO REST API
+// create user/app/tag
+// delete user/app/tag
+// search(app) -> may return many entries of the same app from different users
+// getTags(user, app)
+// upload(app, tag) -> upload goes to the currently logged in user repo
+// download(user, app, tag)
+// Then implement the client in the cloud. Maybe run usage tests against it for simple scenarios.
+// Implement input validation? only allow lowercase letters and underscores
 
 var (
-	logger       = shared.ProvideLogger()
+	Logger       = shared.ProvideLogger()
 	uploadPath   = "/api/upload"
 	downloadPath = "/api/download/"
 	port         = "8082"
@@ -36,11 +50,11 @@ func main() {
 	http.HandleFunc(uploadPath, uploadHandler)
 	http.HandleFunc(downloadPath, downloadHandler)
 
-	logger.Info("Server started on port %s\n", port)
+	Logger.Info("Server started on port %s\n", port)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		// TODO Is server stop sometimes normal, e.g. when gracefully shutdown?
-		logger.Fatal("Server stopped: %v\n", err)
+		Logger.Fatal("Server stopped: %v\n", err)
 	}
 }
 
@@ -88,11 +102,11 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	logger.Info("File uploaded successfully: %s\n", header.Filename)
+	Logger.Info("File uploaded successfully: %s\n", header.Filename)
 }
 
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
-	logger.Error(msg)
+	Logger.Error(msg)
 	http.Error(w, msg, httpStatus)
 }
 

@@ -21,7 +21,7 @@ func init() {
 func setup() {
 	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
-			logger.Error("Error creating users directory: %v. Terminating application.", err)
+			Logger.Error("Error creating users directory: %v. Terminating application.", err)
 			os.Exit(1)
 		}
 	}
@@ -31,11 +31,11 @@ func CreateUser(username string) error {
 	userDir := filepath.Join(usersDir, username)
 
 	if _, err := os.Stat(userDir); err == nil {
-		return logger.LogAndReturnError("User already exists: %v", username)
+		return Logger.LogAndReturnError("User already exists: %v", username)
 	}
 
 	if err := os.MkdirAll(userDir, os.ModePerm); err != nil {
-		return logger.LogAndReturnError("Error creating user directory: %v", err)
+		return Logger.LogAndReturnError("Error creating user directory: %v", err)
 	}
 	return nil
 }
@@ -43,7 +43,7 @@ func CreateUser(username string) error {
 func DeleteUser(username string) {
 	userDir := filepath.Join(usersDir, username)
 	if err := deleteIfExist(userDir); err != nil {
-		logger.Error("Error deleting user directory: %v", err)
+		Logger.Error("Error deleting user directory: %v", err)
 	}
 }
 
@@ -51,15 +51,15 @@ func CreateApp(user, app string) error {
 	appDir := filepath.Join(usersDir, user, app)
 
 	if !doesUserExist(user) {
-		return logger.LogAndReturnError("User '%s' does not exist", user)
+		return Logger.LogAndReturnError("User '%s' does not exist", user)
 	}
 
 	if _, err := os.Stat(appDir); err == nil {
-		return logger.LogAndReturnError("App '%s' of user '%s' already exists", app, user)
+		return Logger.LogAndReturnError("App '%s' of user '%s' already exists", app, user)
 	}
 
 	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
-		return logger.LogAndReturnError("Error creating app directory: %v", err)
+		return Logger.LogAndReturnError("Error creating app directory: %v", err)
 	}
 	return nil
 }
@@ -67,7 +67,7 @@ func CreateApp(user, app string) error {
 func DeleteApp(username, app string) error {
 	appDir := filepath.Join(usersDir, username, app)
 	if err := deleteIfExist(appDir); err != nil {
-		return logger.LogAndReturnError("Error deleting app directory: %v", err)
+		return Logger.LogAndReturnError("Error deleting app directory: %v", err)
 	}
 	return nil
 }
@@ -76,7 +76,7 @@ func deleteIfExist(path string) error {
 	if exists(path) {
 		err := os.RemoveAll(path)
 		if err != nil {
-			return logger.LogAndReturnError("Error deleting file: %v", err)
+			return Logger.LogAndReturnError("Error deleting file: %v", err)
 		}
 	}
 	return nil
@@ -157,22 +157,22 @@ func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error 
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 
 	if !doesAppExist(user, app) {
-		return logger.LogAndReturnError("App '%s' of user '%s' does not exist", app, user)
+		return Logger.LogAndReturnError("App '%s' of user '%s' does not exist", app, user)
 	}
 
 	if _, err := os.Stat(tagFilePath); err == nil {
-		return logger.LogAndReturnError("Tag '%s' of app '%s' of user '%s' already exists", tag, app, user)
+		return Logger.LogAndReturnError("Tag '%s' of app '%s' of user '%s' already exists", tag, app, user)
 	}
 
 	file, err := os.Create(tagFilePath)
 
 	if err != nil {
-		return logger.LogAndReturnError("Error creating tag file: %v", err)
+		return Logger.LogAndReturnError("Error creating tag file: %v", err)
 	}
 	defer file.Close()
 
 	if _, err := io.Copy(file, buffer); err != nil {
-		return logger.LogAndReturnError("Error writing to tag file: %v", err)
+		return Logger.LogAndReturnError("Error writing to tag file: %v", err)
 	}
 	return nil
 }
@@ -180,14 +180,14 @@ func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error 
 func DeleteTag(user string, app string, tag string) {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	if err := deleteIfExist(tagFilePath); err != nil {
-		logger.Error("Error deleting tag file: %v", err)
+		Logger.Error("Error deleting tag file: %v", err)
 	}
 }
 
 func getTagFileContent(path string) string {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		logger.Error("Error reading file content: %v", err)
+		Logger.Error("Error reading file content: %v", err)
 		return ""
 	}
 	return string(data)
