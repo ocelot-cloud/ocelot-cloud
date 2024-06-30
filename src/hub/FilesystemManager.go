@@ -49,6 +49,11 @@ func DeleteUser(username string) {
 
 func CreateApp(username, app string) error {
 	appDir := filepath.Join(usersDir, username, app)
+
+	if _, err := os.Stat(appDir); err == nil {
+		return logger.LogAndReturnError("App '%s' of user '%s' already exists", app, username)
+	}
+
 	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
 		return logger.LogAndReturnError("Error creating app directory: %v", err)
 	}
