@@ -125,8 +125,6 @@ func GetTagList(username string, app string) ([]string, error) {
 	}
 }
 
-// TODO The operations Get(User/App/Tag)List are quite slow. Better put this logic into a database.
-
 func doesAppExist(username string, app string) bool {
 	appList, err := GetAppList(username)
 	if err != nil {

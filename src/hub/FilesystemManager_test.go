@@ -8,9 +8,6 @@ import (
 	"testing"
 )
 
-// TODO Implement tests and corresponding functions.
-// TODO Store all stuff in a "data" folder.
-
 var (
 	sampleUser                    = "myuser"
 	sampleApp                     = "myapp"
@@ -95,7 +92,7 @@ func isFolderEmpty(relativePath string) bool {
 // getTagList
 // limit to 100 elements? Allow search terms?
 
-// TODO Handle cases for "already existing" and "not found". e.g. user/app/tag does not exist
+// TODO Handle case "not found". e.g. user/app/tag does not exist
 
 func TestReadingUsers(t *testing.T) {
 	setup()

@@ -9,7 +9,6 @@ import (
 	"testing"
 )
 
-// TODO Clean up "users" folder before and after test. Also store in "data/users" instead.
 func TestFileUploadDownload(t *testing.T) {
 	defer cleanup()
 	shared.AssertNil(t, CreateUser(sampleUser))
