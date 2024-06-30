@@ -29,6 +29,11 @@ func setup() {
 
 func CreateUser(username string) error {
 	userDir := filepath.Join(usersDir, username)
+
+	if _, err := os.Stat(userDir); err == nil {
+		return logger.LogAndReturnError("User already exists: %v", username)
+	}
+
 	if err := os.MkdirAll(userDir, os.ModePerm); err != nil {
 		return logger.LogAndReturnError("Error creating user directory: %v", err)
 	}

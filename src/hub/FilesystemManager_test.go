@@ -26,6 +26,11 @@ func TestFilesystemManager(t *testing.T) {
 	defer cleanup()
 	shared.AssertNil(t, CreateUser(sampleUser))
 	shared.AssertTrue(t, doesFolderExist(singleUserDir))
+	err := CreateUser(sampleUser)
+	shared.AssertNotNil(t, err)
+	expectedErrorMessage := fmt.Sprintf("User already exists: %s", sampleUser)
+	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+
 	shared.AssertTrue(t, isFolderEmpty(singleUserDir))
 	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
 	shared.AssertTrue(t, doesFolderExist(appDir))
