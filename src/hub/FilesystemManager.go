@@ -51,7 +51,7 @@ func CreateApp(user, app string) error {
 	appDir := filepath.Join(usersDir, user, app)
 
 	if !doesUserExist(user) {
-		return logger.LogAndReturnError("User '%s' does not exist: %v", user)
+		return logger.LogAndReturnError("User '%s' does not exist", user)
 	}
 
 	if _, err := os.Stat(appDir); err == nil {
@@ -155,6 +155,10 @@ func doesUserExist(username string) bool {
 
 func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
+
+	if !doesAppExist(user, app) {
+		return logger.LogAndReturnError("App '%s' of user '%s' does not exist", app, user)
+	}
 
 	if _, err := os.Stat(tagFilePath); err == nil {
 		return logger.LogAndReturnError("Tag '%s' of app '%s' of user '%s' already exists", tag, app, user)

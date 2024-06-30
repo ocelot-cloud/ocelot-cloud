@@ -167,22 +167,19 @@ func cleanup() {
 func TestParentNotFound(t *testing.T) {
 	setup()
 	defer cleanup()
-	// TODO Assert for correct return message in both cases
 
-	/*
-		t.Fail()
-			shared.AssertNotNil(t, CreateApp(sampleUser, sampleApp))
-			shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
+	err := CreateApp(sampleUser, sampleApp)
+	shared.AssertNotNil(t, err)
+	expectedErrorMessage := fmt.Sprintf("User '%s' does not exist", sampleUser)
+	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+	shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
 
-			shared.AssertNil(t, CreateUser(sampleUser))
-			err := CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
-			shared.AssertNotNil(t, err)
-			shared.AssertEqual(t, "asda", err.Error())
-			shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
-
-	*/
-
-	// TODO do the same for tag?
+	shared.AssertNil(t, CreateUser(sampleUser))
+	err = CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
+	shared.AssertNotNil(t, err)
+	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' does not exist", sampleApp, sampleUser)
+	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+	shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
 }
 
 // TODO Apply consistent naming to packages, files and types.
