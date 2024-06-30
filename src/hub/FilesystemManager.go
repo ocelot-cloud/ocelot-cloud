@@ -153,7 +153,13 @@ func doesUserExist(username string) bool {
 
 func CreateTag(user string, app string, tag string, buffer *bytes.Buffer) error {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
+
+	if _, err := os.Stat(tagFilePath); err == nil {
+		return logger.LogAndReturnError("Tag '%s' of app '%s' of user '%s' already exists", tag, app, user)
+	}
+
 	file, err := os.Create(tagFilePath)
+
 	if err != nil {
 		return logger.LogAndReturnError("Error creating tag file: %v", err)
 	}

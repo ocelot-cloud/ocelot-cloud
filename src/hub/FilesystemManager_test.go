@@ -45,12 +45,19 @@ func TestFilesystemManager(t *testing.T) {
 	shared.AssertNil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
 	shared.AssertTrue(t, doesFolderExist(appDir))
 	shared.AssertEqual(t, "hello", getTagFileContent(sampleFile))
+
+	err = CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
+	shared.AssertNotNil(t, err)
+	expectedErrorMessage = fmt.Sprintf("Tag '%s' of app '%s' of user '%s' already exists", sampleTag, sampleApp, sampleUser)
+	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+
 	DeleteTag(sampleUser, sampleApp, sampleTag)
 	shared.AssertFalse(t, doesFileExist(sampleFile))
 
 	DeleteApp(sampleUser, sampleApp)
 	shared.AssertTrue(t, doesFolderExist(singleUserDir))
 	shared.AssertFalse(t, doesFolderExist(appDir))
+
 	DeleteUser(sampleUser)
 	shared.AssertTrue(t, doesFolderExist(usersDir))
 	shared.AssertFalse(t, doesFolderExist(singleUserDir))
