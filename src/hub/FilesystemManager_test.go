@@ -92,8 +92,6 @@ func isFolderEmpty(relativePath string) bool {
 // getTagList
 // limit to 100 elements? Allow search terms?
 
-// TODO Handle case "not found". e.g. user/app/tag does not exist
-
 func TestReadingUsers(t *testing.T) {
 	setup()
 	defer cleanup()
