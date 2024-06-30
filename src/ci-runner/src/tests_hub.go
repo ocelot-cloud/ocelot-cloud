@@ -8,6 +8,5 @@ func TestHub() {
 	ExecuteInDir(hubDir, "go test .")
 }
 
-// TODO Separate unit from component tests?
 // TODO Write tests for CI-Runner? Especially when It should fail, e.g. to no were tests found or so.
 // TODO for this command: "go test -run TestFilesystemManager,..." comes the output -> "testing: warning: no tests to run", which should immediately fail.
