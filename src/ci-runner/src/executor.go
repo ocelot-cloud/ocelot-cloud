@@ -50,6 +50,9 @@ func ExecuteInDir(dir string, commandStr string, envs ...string) {
 		} else if strings.Contains(commandStr, "go test") && !strings.Contains(output, "PASS:") && !containsOkLine(output) {
 			ColoredPrint(" => Testing failed because no tests were actually executed; all tests were either skipped or not included. %s\n", elapsedTimeSummary)
 			CleanupAndExitWithError()
+		} else if strings.Contains(commandStr, "go test") && strings.Contains(output, "testing: warning: no tests to run") {
+			ColoredPrint(" => Testing failed because no tests were actually executed. %s\n", elapsedTimeSummary)
+			CleanupAndExitWithError()
 		} else {
 			ColoredPrint(" => Command successful. %s\n", elapsedTimeSummary)
 		}
