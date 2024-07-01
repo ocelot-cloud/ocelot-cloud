@@ -34,6 +34,7 @@ func initializeDatabase() {
 type UserManager interface {
 	CreateRepoUser(user string, password string) error
 	DoesUserExist(user string) bool
+	DeleteRepoUser(user string) error
 }
 
 type UserManagerSqlite struct{}
@@ -68,4 +69,17 @@ func hashAndSaltPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hashedPassword), nil
+}
+
+func (u *UserManagerSqlite) DeleteRepoUser(user string) error {
+	if !u.DoesUserExist(user) {
+		return Logger.LogAndReturnError("User %s does not exist", user)
+	}
+
+	_, err := db.Exec("DELETE FROM users WHERE username = ?", user)
+	if err != nil {
+		return Logger.LogAndReturnError("Failed to delete user: %v", err)
+	}
+
+	return nil
 }

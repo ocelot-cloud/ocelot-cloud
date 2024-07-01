@@ -8,7 +8,8 @@ import (
 var samplePassword = "mypassword"
 var userManager UserManager
 
-// TODO Finalize.
+// TODO Finalize functionality
+// TODO Add cases: "does not exist", "wrong password", "already existing"
 func TestStuff(t *testing.T) {
 	initializeDatabase()
 	userManager = &UserManagerSqlite{}
@@ -17,6 +18,9 @@ func TestStuff(t *testing.T) {
 	err := userManager.CreateRepoUser(sampleUser, samplePassword)
 	assert.Nil(t, err)
 	assert.True(t, userManager.DoesUserExist(sampleUser))
+	err = userManager.DeleteRepoUser(sampleUser)
+	assert.Nil(t, err)
+	assert.False(t, userManager.DoesUserExist(sampleUser))
 }
 
 func resetDatabase(t *testing.T) {
