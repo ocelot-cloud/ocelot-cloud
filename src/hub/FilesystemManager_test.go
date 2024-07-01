@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/assert"
 	"os"
 	"testing"
 )
@@ -21,44 +21,44 @@ var (
 func TestFilesystemManager(t *testing.T) {
 	setup()
 	defer cleanup()
-	shared.AssertNil(t, CreateUser(sampleUser))
-	shared.AssertTrue(t, doesFolderExist(singleUserDir))
-	shared.AssertTrue(t, isFolderEmpty(singleUserDir))
+	assert.Nil(t, CreateUser(sampleUser))
+	assert.True(t, doesFolderExist(singleUserDir))
+	assert.True(t, isFolderEmpty(singleUserDir))
 
 	err := CreateUser(sampleUser)
-	shared.AssertNotNil(t, err)
+	assert.NotNil(t, err)
 	expectedErrorMessage := fmt.Sprintf("User already exists: %s", sampleUser)
-	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+	assert.Equal(t, expectedErrorMessage, err.Error())
 
-	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
-	shared.AssertTrue(t, doesFolderExist(appDir))
-	shared.AssertTrue(t, isFolderEmpty(appDir))
+	assert.Nil(t, CreateApp(sampleUser, sampleApp))
+	assert.True(t, doesFolderExist(appDir))
+	assert.True(t, isFolderEmpty(appDir))
 
 	err = CreateApp(sampleUser, sampleApp)
-	shared.AssertNotNil(t, err)
+	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' already exists", sampleApp, sampleUser)
-	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+	assert.Equal(t, expectedErrorMessage, err.Error())
 
-	shared.AssertNil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
-	shared.AssertTrue(t, doesFolderExist(appDir))
-	shared.AssertEqual(t, "hello", getTagFileContent(sampleFile))
+	assert.Nil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
+	assert.True(t, doesFolderExist(appDir))
+	assert.Equal(t, "hello", getTagFileContent(sampleFile))
 
 	err = CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
-	shared.AssertNotNil(t, err)
+	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("Tag '%s' of app '%s' of user '%s' already exists", sampleTag, sampleApp, sampleUser)
-	shared.AssertEqual(t, expectedErrorMessage, err.Error())
+	assert.Equal(t, expectedErrorMessage, err.Error())
 
 	DeleteTag(sampleUser, sampleApp, sampleTag)
-	shared.AssertFalse(t, doesFileExist(sampleFile))
+	assert.False(t, doesFileExist(sampleFile))
 
 	DeleteApp(sampleUser, sampleApp)
-	shared.AssertTrue(t, doesFolderExist(singleUserDir))
-	shared.AssertFalse(t, doesFolderExist(appDir))
+	assert.True(t, doesFolderExist(singleUserDir))
+	assert.False(t, doesFolderExist(appDir))
 
 	DeleteUser(sampleUser)
-	shared.AssertTrue(t, doesFolderExist(usersDir))
-	shared.AssertFalse(t, doesFolderExist(singleUserDir))
-	shared.AssertNil(t, deleteIfExist(usersDir))
+	assert.True(t, doesFolderExist(usersDir))
+	assert.False(t, doesFolderExist(singleUserDir))
+	assert.Nil(t, deleteIfExist(usersDir))
 }
 
 func doesFileExist(path string) bool {
@@ -95,63 +95,63 @@ func isFolderEmpty(relativePath string) bool {
 func TestReadingUsers(t *testing.T) {
 	setup()
 	defer cleanup()
-	shared.AssertEqual(t, 0, len(GetUserList()))
-	shared.AssertNil(t, CreateUser(sampleUser))
+	assert.Equal(t, 0, len(GetUserList()))
+	assert.Nil(t, CreateUser(sampleUser))
 	users := GetUserList()
-	shared.AssertEqual(t, 1, len(users))
-	shared.AssertEqual(t, sampleUser, users[0])
+	assert.Equal(t, 1, len(users))
+	assert.Equal(t, sampleUser, users[0])
 
 	sampleUser2 := sampleUser + "2"
-	shared.AssertNil(t, CreateUser(sampleUser2))
+	assert.Nil(t, CreateUser(sampleUser2))
 	users = GetUserList()
-	shared.AssertEqual(t, 2, len(users))
-	shared.AssertEqual(t, sampleUser, users[0])
-	shared.AssertEqual(t, sampleUser2, users[1])
+	assert.Equal(t, 2, len(users))
+	assert.Equal(t, sampleUser, users[0])
+	assert.Equal(t, sampleUser2, users[1])
 }
 
 func TestSetup(t *testing.T) {
 	cleanup()
-	shared.AssertFalse(t, doesFolderExist(usersDir))
+	assert.False(t, doesFolderExist(usersDir))
 	setup()
-	shared.AssertTrue(t, doesFolderExist(usersDir))
+	assert.True(t, doesFolderExist(usersDir))
 	cleanup()
 }
 
 func TestReadingApps(t *testing.T) {
 	defer cleanup()
 	list, err := GetAppList(sampleUser)
-	shared.AssertNotNil(t, err)
-	shared.AssertEqual(t, 0, len(list))
+	assert.NotNil(t, err)
+	assert.Equal(t, 0, len(list))
 
-	shared.AssertNil(t, CreateUser(sampleUser))
+	assert.Nil(t, CreateUser(sampleUser))
 	list, err = GetAppList(sampleUser)
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, 0, len(list))
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(list))
 
-	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, CreateApp(sampleUser, sampleApp))
 	list, err = GetAppList(sampleUser)
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, 1, len(list))
-	shared.AssertEqual(t, sampleApp, list[0])
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(list))
+	assert.Equal(t, sampleApp, list[0])
 }
 
 func TestReadingTags(t *testing.T) {
 	defer cleanup()
 	list, err := GetTagList(sampleUser, sampleApp)
-	shared.AssertNotNil(t, err)
-	shared.AssertEqual(t, 0, len(list))
+	assert.NotNil(t, err)
+	assert.Equal(t, 0, len(list))
 
-	shared.AssertNil(t, CreateUser(sampleUser))
-	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, CreateUser(sampleUser))
+	assert.Nil(t, CreateApp(sampleUser, sampleApp))
 	list, err = GetTagList(sampleUser, sampleApp)
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, 0, len(list))
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(list))
 
-	shared.AssertNil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
+	assert.Nil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
 	list, err = GetTagList(sampleUser, sampleApp)
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, 1, len(list))
-	shared.AssertEqual(t, sampleTag, list[0])
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(list))
+	assert.Equal(t, sampleTag, list[0])
 }
 
 func cleanup() {
@@ -167,17 +167,17 @@ func TestParentNotFound(t *testing.T) {
 	defer cleanup()
 
 	err := CreateApp(sampleUser, sampleApp)
-	shared.AssertNotNil(t, err)
+	assert.NotNil(t, err)
 	expectedErrorMessage := fmt.Sprintf("User '%s' does not exist", sampleUser)
-	shared.AssertEqual(t, expectedErrorMessage, err.Error())
-	shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
+	assert.Equal(t, expectedErrorMessage, err.Error())
+	assert.Nil(t, DeleteApp(sampleUser, sampleApp))
 
-	shared.AssertNil(t, CreateUser(sampleUser))
+	assert.Nil(t, CreateUser(sampleUser))
 	err = CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
-	shared.AssertNotNil(t, err)
+	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' does not exist", sampleApp, sampleUser)
-	shared.AssertEqual(t, expectedErrorMessage, err.Error())
-	shared.AssertNil(t, DeleteApp(sampleUser, sampleApp))
+	assert.Equal(t, expectedErrorMessage, err.Error())
+	assert.Nil(t, DeleteApp(sampleUser, sampleApp))
 }
 
 // TODO Apply consistent naming to packages, files and types.

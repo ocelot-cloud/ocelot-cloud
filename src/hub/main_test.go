@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/assert"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -11,8 +11,8 @@ import (
 
 func TestFileUploadDownload(t *testing.T) {
 	defer cleanup()
-	shared.AssertNil(t, CreateUser(sampleUser))
-	shared.AssertNil(t, CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, CreateUser(sampleUser))
+	assert.Nil(t, CreateApp(sampleUser, sampleApp))
 	filename := "myuser_myapp_v0.1.0.tar.gz"
 
 	fileContent := []byte("hello")
@@ -20,13 +20,13 @@ func TestFileUploadDownload(t *testing.T) {
 
 	uploadURL := rootUrl + uploadPath
 	responseCode, err := uploadFile(uploadURL, filename, fileBuffer)
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, http.StatusOK, responseCode)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, responseCode)
 
 	downloadURL := rootUrl + downloadPath + filename
 	downloadedContent, err := downloadFile(downloadURL)
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, fileContent, downloadedContent)
+	assert.Nil(t, err)
+	assert.Equal(t, fileContent, downloadedContent)
 }
 
 func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
