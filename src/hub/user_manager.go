@@ -114,7 +114,7 @@ func (u *UserManagerSqlite) DeleteRepoUser(user string) error {
 		return Logger.LogAndReturnError("User %s does not exist", user)
 	}
 
-	_, err := db.Exec("DELETE FROM apps WHERE user_id = (SELECT username FROM users WHERE username = ?)", user)
+	_, err := db.Exec("DELETE FROM apps WHERE user_id = ?", user)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete apps for user %s: %v", user, err)
 	}
