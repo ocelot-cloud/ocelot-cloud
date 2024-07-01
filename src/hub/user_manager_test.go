@@ -10,6 +10,7 @@ var userManager UserManager
 
 // TODO Finalize functionality
 // TODO Add cases: "does not exist", "wrong password", "already existing"
+// TODO "app already existing" applies only if the creating user has an app with that name
 func TestStuff(t *testing.T) {
 	initializeDatabase()
 	userManager = &UserManagerSqlite{}
