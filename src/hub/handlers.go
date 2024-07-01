@@ -30,7 +30,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Duplication
-	fileInfo2, err := createFileInfo(header.Filename)
+	fileInfo, err := createFileInfo(header.Filename)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -43,7 +43,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = CreateTag(fileInfo2, &fileBuffer)
+	err = CreateTag(fileInfo, &fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return

@@ -153,6 +153,7 @@ func doesUserExist(username string) bool {
 	return false
 }
 
+// TODO Instead, this function should be connected with the file system manager.
 func CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error {
 	tagFilePath := filepath.Join(usersDir, fileInfo.User, fileInfo.App, fmt.Sprintf("%s.tar.gz", fileInfo.Tag))
 
