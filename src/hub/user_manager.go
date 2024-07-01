@@ -56,8 +56,9 @@ type UserManager interface {
 	DeleteRepoUser(user string) error
 	IsPasswordCorrect(user string, password string) bool
 	DoesAppExist(user string, app string) bool
-	AddApp(user string, app string) error
+	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
+	FindApps(query string) ([]App, error)
 }
 
 type UserManagerSqlite struct{}
@@ -122,7 +123,7 @@ func (u *UserManagerSqlite) DeleteRepoUser(user string) error {
 	return nil
 }
 
-func (u *UserManagerSqlite) AddApp(user string, app string) error {
+func (u *UserManagerSqlite) CreateApp(user string, app string) error {
 	if !u.DoesUserExist(user) {
 		return Logger.LogAndReturnError("User '%s' does not exist", user)
 	}
@@ -164,4 +165,41 @@ func (u *UserManagerSqlite) DeleteApp(user string, app string) error {
 		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
 	}
 	return nil
+}
+
+type App struct {
+	Username string
+	AppName  string
+}
+
+func (u *UserManagerSqlite) FindApps(query string) ([]App, error) {
+	var apps []App
+
+	rows, err := db.Query(`
+		SELECT u.user_name, a.app_name FROM users u 
+		JOIN apps a ON u.user_id = a.user_id
+		WHERE u.user_name LIKE ? OR a.app_name LIKE ?
+	`, "%"+query+"%", "%"+query+"%")
+
+	if err != nil {
+		return nil, Logger.LogAndReturnError("Failed to fetch apps: %v\n", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var app App
+		err := rows.Scan(&app.Username, &app.AppName)
+		if err != nil {
+			Logger.Error("Error scanning app row: %v\n", err)
+			continue
+		}
+		apps = append(apps, app)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, Logger.LogAndReturnError("Error iterating over app rows: %v\n", err)
+	}
+
+	return apps, nil
 }
