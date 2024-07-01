@@ -77,3 +77,7 @@ func downloadFile(url string) ([]byte, error) {
 
 	return downloadedContent, nil
 }
+
+func TestCreateUser(t *testing.T) {
+	// TODO implement
+}

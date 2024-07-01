@@ -14,6 +14,7 @@ var (
 )
 
 func main() {
+	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it shared module.
 	http.HandleFunc(uploadPath, uploadHandler)
 	http.HandleFunc(downloadPath, downloadHandler)
 
