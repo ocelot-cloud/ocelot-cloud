@@ -35,9 +35,26 @@ type UserManager interface {
 	CreateRepoUser(user string, password string) error
 	DoesUserExist(user string) bool
 	DeleteRepoUser(user string) error
+	IsPasswordCorrect(user string, password string) bool
 }
 
 type UserManagerSqlite struct{}
+
+func (u *UserManagerSqlite) IsPasswordCorrect(user string, password string) bool {
+	var hashedPassword string
+	err := db.QueryRow("SELECT hashed_password FROM users WHERE username = ?", user).Scan(&hashedPassword)
+	if err != nil {
+		Logger.Error("Failed to fetch hashed password: %v\n", err)
+		return false
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return false
+	}
+
+	return true
+}
 
 func (u *UserManagerSqlite) DoesUserExist(user string) bool {
 	var exists bool

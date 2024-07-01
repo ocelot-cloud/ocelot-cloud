@@ -18,6 +18,10 @@ func TestStuff(t *testing.T) {
 	err := userManager.CreateRepoUser(sampleUser, samplePassword)
 	assert.Nil(t, err)
 	assert.True(t, userManager.DoesUserExist(sampleUser))
+
+	assert.True(t, userManager.IsPasswordCorrect(sampleUser, samplePassword))
+	assert.False(t, userManager.IsPasswordCorrect(sampleUser, samplePassword+"x"))
+
 	err = userManager.DeleteRepoUser(sampleUser)
 	assert.Nil(t, err)
 	assert.False(t, userManager.DoesUserExist(sampleUser))
