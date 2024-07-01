@@ -25,8 +25,8 @@ func initializeDatabase() {
 
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
-    		id INTEGER PRIMARY KEY AUTOINCREMENT,
-    		username TEXT UNIQUE,
+    		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    		user_name TEXT UNIQUE,
     		hashed_password TEXT
 		)
 	`)
@@ -36,11 +36,11 @@ func initializeDatabase() {
 
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS apps (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			app_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_id INTEGER,
 			app_name TEXT,
 			UNIQUE(user_id, app_name),
-			FOREIGN KEY (user_id) REFERENCES users(id)
+			FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 		);
 	`)
 	if err != nil {
@@ -63,7 +63,7 @@ type UserManagerSqlite struct{}
 
 func (u *UserManagerSqlite) IsPasswordCorrect(user string, password string) bool {
 	var hashedPassword string
-	err := db.QueryRow("SELECT hashed_password FROM users WHERE username = ?", user).Scan(&hashedPassword)
+	err := db.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
 	if err != nil {
 		Logger.Error("Failed to fetch hashed password: %v\n", err)
 		return false
@@ -79,7 +79,7 @@ func (u *UserManagerSqlite) IsPasswordCorrect(user string, password string) bool
 
 func (u *UserManagerSqlite) DoesUserExist(user string) bool {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", user).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
 	if err != nil {
 		Logger.Error("Failed to check user existence: %v\n", err)
 		return false
@@ -93,8 +93,7 @@ func (u *UserManagerSqlite) CreateRepoUser(user string, password string) error {
 		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
 	}
 
-	// Insert user into database
-	_, err = db.Exec("INSERT INTO users (username, hashed_password) VALUES (?, ?)", user, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password) VALUES (?, ?)", user, hashedPassword)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to create user: %v\n", err)
 	}
@@ -114,12 +113,7 @@ func (u *UserManagerSqlite) DeleteRepoUser(user string) error {
 		return Logger.LogAndReturnError("User %s does not exist", user)
 	}
 
-	_, err := db.Exec("DELETE FROM apps WHERE user_id = ?", user)
-	if err != nil {
-		return Logger.LogAndReturnError("Failed to delete apps for user %s: %v", user, err)
-	}
-
-	_, err = db.Exec("DELETE FROM users WHERE username = ?", user)
+	_, err := db.Exec("DELETE FROM users WHERE user_name = ?", user)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete user: %v", err)
 	}
@@ -136,7 +130,10 @@ func (u *UserManagerSqlite) AddApp(user string, app string) error {
 		return Logger.LogAndReturnError("App '%s' already exists for user '%s'", app, user)
 	}
 
-	_, err := db.Exec("INSERT INTO apps (user_id, app_name) VALUES (?, ?)", user, app)
+	_, err := db.Exec(`
+		INSERT INTO apps (user_id, app_name)
+		VALUES ((SELECT user_id FROM users WHERE user_name = ?), ?)
+	`, user, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
 	}
@@ -146,7 +143,7 @@ func (u *UserManagerSqlite) AddApp(user string, app string) error {
 
 func (u *UserManagerSqlite) DoesAppExist(user string, app string) bool {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE user_id = ? AND app_name = ?)", user, app).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE user_id = (SELECT user_id FROM users WHERE user_name = ?) AND app_name = ?);", user, app).Scan(&exists)
 	if err != nil {
 		Logger.Error("Failed to check app existence for user '%s' and app '%s': %v\n", user, app, err)
 		return false
