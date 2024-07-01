@@ -33,6 +33,23 @@ func TestCreateApp(t *testing.T) {
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
+}
+
+func TestDeleteAppCascadingThroughUser(t *testing.T) {
+	defer resetDatabase()
+	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
+	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
+	assert.Nil(t, um.DeleteApp(sampleUser, sampleApp))
+	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
+}
+
+func TestDeleteAppDirectly(t *testing.T) {
+	defer resetDatabase()
+	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
+	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
+	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.DeleteRepoUser(sampleUser))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 }

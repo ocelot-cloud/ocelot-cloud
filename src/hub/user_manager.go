@@ -57,6 +57,7 @@ type UserManager interface {
 	IsPasswordCorrect(user string, password string) bool
 	DoesAppExist(user string, app string) bool
 	AddApp(user string, app string) error
+	DeleteApp(user string, app string) error
 }
 
 type UserManagerSqlite struct{}
@@ -155,4 +156,12 @@ func (u *UserManagerSqlite) DoesAppExist(user string, app string) bool {
 		return false
 	}
 	return exists
+}
+
+func (u *UserManagerSqlite) DeleteApp(user string, app string) error {
+	_, err := db.Exec(`DELETE FROM apps WHERE user_id = (SELECT user_id FROM users WHERE user_name = ?) AND app_name = ?`, user, app)
+	if err != nil {
+		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
+	}
+	return nil
 }
