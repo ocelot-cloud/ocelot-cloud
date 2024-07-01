@@ -13,8 +13,6 @@ func init() {
 	resetDatabase()
 }
 
-// TODO Finalize functionality: findApp()
-
 func TestUserCreation(t *testing.T) {
 	defer resetDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
