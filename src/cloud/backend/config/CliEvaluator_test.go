@@ -2,6 +2,7 @@ package tools
 
 import (
 	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/assert"
 	"testing"
 )
 
@@ -26,13 +27,13 @@ func TestEvaluateLogLevel(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actualLogLevel := EvaluateLogLevelBasedOn(tc.profile, tc.userLogLevel)
-			shared.AssertEqual(t, tc.expectedLogLevel, actualLogLevel)
+			assert.Equal(t, tc.expectedLogLevel, actualLogLevel)
 		})
 	}
 }
 
 func TestPanicForInvalidLogLevel(t *testing.T) {
-	shared.AssertPanics(t, func() {
+	assert.Panics(t, func() {
 		EvaluateLogLevelBasedOn(ProdWithGui, "invalid value")
 	})
 }
@@ -53,9 +54,9 @@ func TestGlobalConfig(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			config := SetGlobalConfig(tc.profile, "notSet", false, false)
-			shared.AssertEqual(t, config.AreMocksEnabled, tc.useMock)
-			shared.AssertEqual(t, config.IsGuiEnabled, tc.isGuiEnabled)
-			shared.AssertEqual(t, config.AreCrossOriginRequestsAllowed, tc.isCorsDisabled)
+			assert.Equal(t, config.AreMocksEnabled, tc.useMock)
+			assert.Equal(t, config.IsGuiEnabled, tc.isGuiEnabled)
+			assert.Equal(t, config.AreCrossOriginRequestsAllowed, tc.isCorsDisabled)
 		})
 	}
 }

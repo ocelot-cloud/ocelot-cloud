@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/assert"
 	"ocelot/backend/config"
 	"testing"
 )
@@ -15,7 +15,7 @@ func init() {
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
 	yamlConfig := ProvideStackConfigService(StackFileDir)
 	limesurveyUrlPath := yamlConfig.GetStackConfig(tools.NginxCustomPath).UrlPath
-	shared.AssertEqual(t, "/custom-path", limesurveyUrlPath)
+	assert.Equal(t, "/custom-path", limesurveyUrlPath)
 }
 
 func TestMissingYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
@@ -25,7 +25,7 @@ func TestMissingYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
 func assertEmptyUrlPathForStack(t *testing.T, stackName string) {
 	yamlConfig := ProvideStackConfigService(StackFileDir)
 	missingYamlFileUrlPathDefaultValue := yamlConfig.GetStackConfig(stackName).UrlPath
-	shared.AssertEqual(t, "/", missingYamlFileUrlPathDefaultValue)
+	assert.Equal(t, "/", missingYamlFileUrlPathDefaultValue)
 }
 
 func TestMissingUrlPathVariableInYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
@@ -35,8 +35,8 @@ func TestMissingUrlPathVariableInYamlFileLeadsToReturnOfIndexPath(t *testing.T) 
 func TestNonExistentStackShouldReturnDefaultConfig(t *testing.T) {
 	yamlConfig := ProvideStackConfigService(StackFileDir)
 	resultConfig := yamlConfig.GetStackConfig("non-existent-stack")
-	shared.AssertEqual(t, "/", resultConfig.UrlPath)
-	shared.AssertEqual(t, "80", resultConfig.Port)
+	assert.Equal(t, "/", resultConfig.UrlPath)
+	assert.Equal(t, "80", resultConfig.Port)
 }
 
 func TestStackConfig(t *testing.T) {
@@ -55,8 +55,8 @@ func TestStackConfig(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			stackConfigService := ProvideStackConfigService(DefaultStackFileDir)
 			config := stackConfigService.GetStackConfig(tc.StackName)
-			shared.AssertEqual(t, tc.ExpectedPort, config.Port)
-			shared.AssertEqual(t, tc.ExpectedPath, config.UrlPath)
+			assert.Equal(t, tc.ExpectedPort, config.Port)
+			assert.Equal(t, tc.ExpectedPath, config.UrlPath)
 		})
 	}
 }

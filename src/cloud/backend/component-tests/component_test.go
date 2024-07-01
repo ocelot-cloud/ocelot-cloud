@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/assert"
 	"net/http"
 	"ocelot/backend/config"
 	"os"
@@ -44,12 +45,12 @@ func postJsonWithoutAssertions(endpoint string, data tools.StackInfo) {
 
 func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
 	resp, err := http.Get(endpoint)
-	shared.AssertNil(t, err)
+	assert.Nil(t, err)
 	defer resp.Body.Close()
 
 	var stackStates []tools.ResponsePayloadDto
 	err = json.NewDecoder(resp.Body).Decode(&stackStates)
-	shared.AssertNil(t, err)
+	assert.Nil(t, err)
 
 	return stackStates
 }
@@ -57,20 +58,20 @@ func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
 func assertState(t *testing.T, info []tools.ResponsePayloadDto, name string, state string) {
 	for _, singleInfo := range info {
 		if singleInfo.Name == name {
-			shared.AssertEqual(t, state, singleInfo.State, "Stack '"+name+"' was present but had wrong state.")
+			assert.Equal(t, state, singleInfo.State, "Stack '"+name+"' was present but had wrong state.")
 			return
 		}
 	}
-	shared.AssertFail(t, "Stack was not present at all.")
+	assert.Fail(t, "Stack was not present at all.")
 }
 
 func postJSON(t *testing.T, endpoint string, stackName string) *http.Response {
 	stackNameJson := tools.StackInfo{Name: stackName}
 	jsonData, marshalErr := json.Marshal(stackNameJson)
-	shared.AssertNil(t, marshalErr)
+	assert.Nil(t, marshalErr)
 	resp, postErr := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
-	shared.AssertNil(t, postErr)
-	shared.AssertEqual(t, 200, resp.StatusCode)
+	assert.Nil(t, postErr)
+	assert.Equal(t, 200, resp.StatusCode)
 	return resp
 }
 
@@ -85,10 +86,10 @@ func TestStopStackNotExisting(t *testing.T) {
 func postStackAndCheckResponse(t *testing.T, action string, expectedHttpStatus int) {
 	data := tools.StackInfo{"not-existing-stack"}
 	jsonData, err := json.Marshal(data)
-	shared.AssertNil(t, err)
+	assert.Nil(t, err)
 	resp, err := http.Post(endpoint+action, "application/json", bytes.NewBuffer(jsonData))
-	shared.AssertNil(t, err)
-	shared.AssertEqual(t, expectedHttpStatus, resp.StatusCode)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedHttpStatus, resp.StatusCode)
 }
 
 func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
@@ -97,17 +98,17 @@ func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
 
 func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, expectedAllowHeaders string) {
 	resp, err := http.Get("http://localhost:8080/api/stacks/read")
-	shared.AssertNil(t, err)
+	assert.Nil(t, err)
 	defer resp.Body.Close()
 
 	allowOrigin := resp.Header.Get("Access-Control-Allow-Origin")
-	shared.AssertEqual(t, expectedAllowOrigin, allowOrigin)
+	assert.Equal(t, expectedAllowOrigin, allowOrigin)
 
 	allowMethods := resp.Header.Get("Access-Control-Allow-Methods")
-	shared.AssertEqual(t, expectedAllowMethods, allowMethods)
+	assert.Equal(t, expectedAllowMethods, allowMethods)
 
 	allowHeaders := resp.Header.Get("Access-Control-Allow-Headers")
-	shared.AssertEqual(t, expectedAllowHeaders, allowHeaders)
+	assert.Equal(t, expectedAllowHeaders, allowHeaders)
 }
 
 func TestUrlPaths(t *testing.T) {
@@ -121,8 +122,8 @@ func TestUrlPaths(t *testing.T) {
 			isDefaultNginxPathOk = true
 		}
 	}
-	shared.AssertTrue(t, isCustomPathNginxPathOk)
-	shared.AssertTrue(t, isDefaultNginxPathOk)
+	assert.True(t, isCustomPathNginxPathOk)
+	assert.True(t, isDefaultNginxPathOk)
 }
 
 func TestNetworkCreationOnStackDeployment(t *testing.T) {
@@ -131,7 +132,7 @@ func TestNetworkCreationOnStackDeployment(t *testing.T) {
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net || docker network rm nginx-default-net")
 	postJSON(t, endpoint+"deploy", tools.NginxDefault)
 	err := shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net")
-	shared.AssertNil(t, err)
+	assert.Nil(t, err)
 }
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {

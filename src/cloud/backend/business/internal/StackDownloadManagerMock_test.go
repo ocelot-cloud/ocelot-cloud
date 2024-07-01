@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/assert"
 	"ocelot/backend/config"
 	"testing"
 )
@@ -9,32 +9,32 @@ import (
 func TestNginxDownloadShouldTriggerDownloadState(t *testing.T) {
 	stackName := tools.NginxDownloading
 	manager := ProvideDownloadManagerMock()
-	shared.AssertEqual(t, 0, len(manager.GetStackDownloadStates()))
+	assert.Equal(t, 0, len(manager.GetStackDownloadStates()))
 
 	manager.DownloadStack(stackName)
 
 	result := manager.GetStackDownloadStates()
-	shared.AssertEqual(t, 1, len(result))
-	shared.AssertEqual(t, Ongoing, result[stackName])
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, Ongoing, result[stackName])
 
 	result = manager.GetStackDownloadStates()
-	shared.AssertEqual(t, 1, len(result))
-	shared.AssertEqual(t, Finished, result[stackName])
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, Finished, result[stackName])
 
 	manager.DownloadStack(stackName)
 	result = manager.GetStackDownloadStates()
-	shared.AssertEqual(t, 1, len(result))
-	shared.AssertEqual(t, Ongoing, result[stackName])
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, Ongoing, result[stackName])
 }
 
 func TestNginxDefaultDownloadShouldFinishImmediately(t *testing.T) {
 	stackName := tools.NginxDefault
 	manager := ProvideDownloadManagerMock()
-	shared.AssertEqual(t, 0, len(manager.GetStackDownloadStates()))
+	assert.Equal(t, 0, len(manager.GetStackDownloadStates()))
 
 	manager.DownloadStack(stackName)
 
 	result := manager.GetStackDownloadStates()
-	shared.AssertEqual(t, 1, len(result))
-	shared.AssertEqual(t, Finished, result[stackName])
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, Finished, result[stackName])
 }
