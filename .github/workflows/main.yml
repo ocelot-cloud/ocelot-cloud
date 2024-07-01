@@ -2,64 +2,32 @@ name: CI
 
 on:
   push:
+    branches:
+      - '**'
+  schedule:
+    - cron: '0 0 * * 3'
 
 jobs:
-  test:
+  ci-tests:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Cache Go modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ github.workspace }}/go-cache/pkg/mod
-            ${{ github.workspace }}/go-cache/bin
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: '1.21.6'
-
-      - name: Cache npm modules
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/npm-cache
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/package.json') }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 'v18.10.0'
-
-      - name: Cache Docker Compose
-        uses: actions/cache@v2
-        with:
-          path: ~/.docker/cli-plugins/docker-compose
-          key: ${{ runner.os }}-docker-compose-v2.24.6
-          restore-keys: |
-            ${{ runner.os }}-docker-compose-v2.24.6
-
-      - name: Install Docker Compose V2
-        if: steps.cache-docker-compose.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p ~/.docker/cli-plugins/
-          curl -SL "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o ~/.docker/cli-plugins/docker-compose
-          chmod +x ~/.docker/cli-plugins/docker-compose
-          docker compose version
-
-      - name: Set Permissions after Cache
-        run: |
-          chmod -R u+rwX ${{ github.workspace }}/go-cache || true
-          chmod -R u+rwX ${{ github.workspace }}/npm-cache || true
-
       - uses: ./.github/actions/setup
-      - name: Run Tests
+      - name: Run CI Tests
         run: |
-          cd components/ci-runner
-          ./ci-runner test-ci
+          cd src/ci-runner
+          go build
+          ./ci-runner test ci
+
+  scheduled-tests:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup
+      - name: Run Scheduled Tests
+        run: |
+          cd src/ci-runner
+          go build
+          ./ci-runner test scheduled
