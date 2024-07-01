@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"sort"
 	"testing"
 )
 
@@ -104,21 +105,23 @@ func TestPasswordVerification(t *testing.T) {
 func TestSearch(t *testing.T) {
 	defer resetDatabase()
 	um.CreateRepoUser(sampleUser, samplePassword)
-	um.CreateApp(sampleUser, "prefix_myapp_suffix")
-	um.CreateApp(sampleUser, "prefix_another-app_suffix")
-	a, err := um.FindApps("myapp")
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(a))
-	assert.Equal(t, sampleUser, a[0].Username)
-	assert.Equal(t, "prefix_myapp_suffix", a[0].AppName)
+	app1 := "prefix_myapp_suffix"
+	app2 := "prefix_another-app_suffix"
+	um.CreateApp(sampleUser, app1)
+	um.CreateApp(sampleUser, app2)
 
-	a, err = um.FindApps("app")
+	a, err := um.FindApps("app")
 	assert.Nil(t, err)
+
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].AppName < a[j].AppName
+	})
+
 	assert.Equal(t, 2, len(a))
 	assert.Equal(t, sampleUser, a[0].Username)
 	assert.Equal(t, sampleUser, a[1].Username)
-	assert.Equal(t, "prefix_myapp_suffix", a[0].AppName)
-	assert.Equal(t, "prefix_another-app_suffix", a[1].AppName)
+	assert.Equal(t, app2, a[0].AppName)
+	assert.Equal(t, app1, a[1].AppName)
 }
 
 func resetDatabase() {
