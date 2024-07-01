@@ -2,29 +2,28 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
-	"os"
 	"testing"
 )
 
 var samplePassword = "mypassword"
 var userManager UserManager
 
-func init() {
-	userManager = &UserManagerSqlite{}
-}
-
 // TODO Finalize.
 func TestStuff(t *testing.T) {
+	initializeDatabase()
+	userManager = &UserManagerSqlite{}
 	defer resetDatabase(t)
 	assert.False(t, userManager.DoesUserExist(sampleUser))
 	err := userManager.CreateRepoUser(sampleUser, samplePassword)
 	assert.Nil(t, err)
-	// TODO assert.True(t, a.DoesUserExist(sampleUser))
+	assert.True(t, userManager.DoesUserExist(sampleUser))
 }
 
 func resetDatabase(t *testing.T) {
-	if err := os.Remove(databaseFile); err != nil && !os.IsNotExist(err) {
-		assert.Fail(t, err.Error())
+	err := deleteIfExist(databaseFile)
+	if err != nil {
+		Logger.Error("Failed to delete database: %s, error: %v", databaseFile, err)
+		t.Fail()
 	}
 	initializeDatabase()
 }
