@@ -29,7 +29,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Duplication
 	fileInfo, err := createFileInfo(header.Filename)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
@@ -80,17 +79,13 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileInfo := strings.Split(uploadName, "_")
-	if len(fileInfo) != 3 {
-		logAndRespondError(w, "Invalid file name", http.StatusBadRequest)
+	fileInfo, err := createFileInfo(uploadName)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	username := fileInfo[0]
-	app := fileInfo[1]
-	fileName := fileInfo[2]
-
-	path := fmt.Sprintf("%s/%s/%s/%s", usersDir, username, app, fileName)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	path := fmt.Sprintf("%s/%s/%s/%s", usersDir, fileInfo.User, fileInfo.App, fileInfo.FileName)
+	if _, err = os.Stat(path); os.IsNotExist(err) {
 		logAndRespondError(w, "File not found", http.StatusNotFound)
 		return
 	}
