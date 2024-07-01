@@ -33,7 +33,8 @@ func TestCreateApp(t *testing.T) {
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
-	// TODO add: assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
+	assert.Nil(t, um.DeleteRepoUser(sampleUser))
+	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 }
 
 func TestPasswordVerification(t *testing.T) {

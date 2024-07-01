@@ -40,7 +40,7 @@ func initializeDatabase() {
 			user_id INTEGER,
 			app_name TEXT,
 			UNIQUE(user_id, app_name),
-			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+			FOREIGN KEY (user_id) REFERENCES users(id)
 		);
 	`)
 	if err != nil {
@@ -114,7 +114,12 @@ func (u *UserManagerSqlite) DeleteRepoUser(user string) error {
 		return Logger.LogAndReturnError("User %s does not exist", user)
 	}
 
-	_, err := db.Exec("DELETE FROM users WHERE username = ?", user)
+	_, err := db.Exec("DELETE FROM apps WHERE user_id = (SELECT username FROM users WHERE username = ?)", user)
+	if err != nil {
+		return Logger.LogAndReturnError("Failed to delete apps for user %s: %v", user, err)
+	}
+
+	_, err = db.Exec("DELETE FROM users WHERE username = ?", user)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete user: %v", err)
 	}
@@ -143,7 +148,7 @@ func (u *UserManagerSqlite) DoesAppExist(user string, app string) bool {
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE user_id = ? AND app_name = ?)", user, app).Scan(&exists)
 	if err != nil {
-		Logger.Error("Failed to check app existence for user '%s': %v\n", user, err)
+		Logger.Error("Failed to check app existence for user '%s' and app '%s': %v\n", user, app, err)
 		return false
 	}
 	return exists
