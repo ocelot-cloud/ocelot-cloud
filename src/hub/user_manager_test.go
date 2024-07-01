@@ -16,7 +16,7 @@ func init() {
 // TODO Add cases: "does not exist", "wrong password", "already existing"
 // TODO "app already existing" applies only if the creating user has an app with that name
 // TODO Duplications among multiple users are allowed for passwords and apps
-// TODO Add "DeleteApp"
+
 func TestUserCreation(t *testing.T) {
 	defer resetDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
@@ -52,6 +52,33 @@ func TestDeleteAppDirectly(t *testing.T) {
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.DeleteRepoUser(sampleUser))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
+}
+
+func TestCantCreateUserTwice(t *testing.T) {
+	defer resetDatabase()
+	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.NotNil(t, um.CreateRepoUser(sampleUser, samplePassword))
+}
+
+func TestCantCreateAppTwiceForSameUser(t *testing.T) {
+	defer resetDatabase()
+	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
+	assert.NotNil(t, um.AddApp(sampleUser, sampleApp))
+}
+
+func TestCantCreateAppWithoutUser(t *testing.T) {
+	defer resetDatabase()
+	assert.NotNil(t, um.AddApp(sampleUser, sampleApp))
+}
+
+func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
+	defer resetDatabase()
+	user2 := sampleUser + "2"
+	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateRepoUser(user2, samplePassword))
+	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
+	assert.True(t, um.IsPasswordCorrect(user2, samplePassword))
 }
 
 func TestPasswordVerification(t *testing.T) {
