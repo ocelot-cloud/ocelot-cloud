@@ -16,6 +16,7 @@ var (
 	appDir                        = singleUserDir + "/" + sampleApp
 	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
 	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
+	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 )
 
 func TestFilesystemManager(t *testing.T) {
@@ -39,11 +40,11 @@ func TestFilesystemManager(t *testing.T) {
 	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' already exists", sampleApp, sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
 
-	assert.Nil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
+	assert.Nil(t, CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer))
 	assert.True(t, doesFolderExist(appDir))
 	assert.Equal(t, "hello", getTagFileContent(sampleFile))
 
-	err = CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
+	err = CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer)
 	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("Tag '%s' of app '%s' of user '%s' already exists", sampleTag, sampleApp, sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
@@ -147,7 +148,7 @@ func TestReadingTags(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(list))
 
-	assert.Nil(t, CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer))
+	assert.Nil(t, CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer))
 	list, err = GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(list))
@@ -173,7 +174,7 @@ func TestParentNotFound(t *testing.T) {
 	assert.Nil(t, DeleteApp(sampleUser, sampleApp))
 
 	assert.Nil(t, CreateUser(sampleUser))
-	err = CreateTag(sampleUser, sampleApp, sampleTag, sampleTaggedFileContentBuffer)
+	err = CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer)
 	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' does not exist", sampleApp, sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())

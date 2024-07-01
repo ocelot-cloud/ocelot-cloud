@@ -30,14 +30,11 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Duplication
-	fileInfo := strings.Split(header.Filename, "_")
-	if len(fileInfo) != 3 {
-		logAndRespondError(w, "Invalid file name", http.StatusBadRequest)
+	fileInfo2, err := createFileInfo(header.Filename)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	username := fileInfo[0]
-	app := fileInfo[1]
-	tag, _ := strings.CutSuffix(fileInfo[2], ".tar.gz") // TODO Check error.
 
 	var fileBuffer bytes.Buffer
 	_, err = io.Copy(&fileBuffer, file)
@@ -46,7 +43,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = CreateTag(username, app, tag, &fileBuffer)
+	err = CreateTag(fileInfo2, &fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return
@@ -54,6 +51,21 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	Logger.Info("File uploaded successfully: %s", header.Filename)
+}
+
+// TODO Create unit tests
+func createFileInfo(filename string) (*FileInfo, error) {
+	infos := strings.Split(filename, "_")
+	if len(infos) != 3 {
+		return nil, fmt.Errorf("error, filenames should have exactly two underscores: %s", filename)
+	}
+	var info = &FileInfo{}
+	info.User = infos[0]
+	info.App = infos[1]
+	// TODO consider error here and test it.
+	info.FileName = infos[2]
+	info.Tag, _ = strings.CutSuffix(infos[2], ".tar.gz")
+	return info, nil
 }
 
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
@@ -87,7 +99,8 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type FileInfo struct {
-	FileName string
+	User     string
 	App      string
 	Tag      string
+	FileName string
 }
