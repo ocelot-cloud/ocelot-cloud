@@ -143,7 +143,13 @@ func (u *UserManagerSqlite) AddApp(user string, app string) error {
 
 func (u *UserManagerSqlite) DoesAppExist(user string, app string) bool {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE user_id = (SELECT user_id FROM users WHERE user_name = ?) AND app_name = ?);", user, app).Scan(&exists)
+	err := db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM apps WHERE user_id = (
+				SELECT user_id FROM users WHERE user_name = ?
+		  	) AND app_name = ?
+   		);
+	`, user, app).Scan(&exists)
 	if err != nil {
 		Logger.Error("Failed to check app existence for user '%s' and app '%s': %v\n", user, app, err)
 		return false
