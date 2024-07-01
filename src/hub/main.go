@@ -29,12 +29,15 @@ import (
 // TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
 
 // TODO REST API
-// create user/app/tag
-// delete user/app/tag
-// search(app) -> may return many entries of the same app from different users
-// getTags(user, app)
-// upload(app, tag) -> upload goes to the currently logged in user repo
-// download(user, app, tag)
+// security relevant:
+//   create user/app/tag
+//   delete user/app/tag
+//   upload(app, tag) -> upload goes to the currently logged in user repo
+// not security relevant:
+//   search(app) -> may return many entries of the same app from different users
+//   getTags(user, app)
+//   download(user, app, tag)
+// Design question: In my ocelot-cloud I want to add my credentials for the hub only once. So store the credentials there?
 // Then implement the client in the cloud. Maybe run usage tests against it for simple scenarios.
 // Implement input validation? only allow lowercase letters and underscores
 

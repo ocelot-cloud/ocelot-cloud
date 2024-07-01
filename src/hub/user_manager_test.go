@@ -23,7 +23,7 @@ func TestStuff(t *testing.T) {
 }
 
 func resetDatabase(t *testing.T) {
-	if err := os.Remove("sqlite.db"); err != nil && !os.IsNotExist(err) {
+	if err := os.Remove(databaseFile); err != nil && !os.IsNotExist(err) {
 		assert.Fail(t, err.Error())
 	}
 	initializeDatabase()
