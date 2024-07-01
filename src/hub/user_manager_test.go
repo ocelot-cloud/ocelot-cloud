@@ -6,26 +6,33 @@ import (
 )
 
 var samplePassword = "mypassword"
-var userManager UserManager
+var um UserManager
 
 // TODO Finalize functionality
 // TODO Add cases: "does not exist", "wrong password", "already existing"
 // TODO "app already existing" applies only if the creating user has an app with that name
+// TODO Duplications among multiple users are allowed for passwords and apps
+// TODO Add "DeleteApp"
 func TestStuff(t *testing.T) {
 	initializeDatabase()
-	userManager = &UserManagerSqlite{}
+	um = &UserManagerSqlite{}
 	defer resetDatabase(t)
-	assert.False(t, userManager.DoesUserExist(sampleUser))
-	err := userManager.CreateRepoUser(sampleUser, samplePassword)
+	assert.False(t, um.DoesUserExist(sampleUser))
+	err := um.CreateRepoUser(sampleUser, samplePassword)
 	assert.Nil(t, err)
-	assert.True(t, userManager.DoesUserExist(sampleUser))
+	assert.True(t, um.DoesUserExist(sampleUser))
 
-	assert.True(t, userManager.IsPasswordCorrect(sampleUser, samplePassword))
-	assert.False(t, userManager.IsPasswordCorrect(sampleUser, samplePassword+"x"))
+	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
+	assert.False(t, um.IsPasswordCorrect(sampleUser, samplePassword+"x"))
 
-	err = userManager.DeleteRepoUser(sampleUser)
+	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
+	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
+	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
+
+	err = um.DeleteRepoUser(sampleUser)
 	assert.Nil(t, err)
-	assert.False(t, userManager.DoesUserExist(sampleUser))
+	assert.False(t, um.DoesUserExist(sampleUser))
+	// TODO add: assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 }
 
 func resetDatabase(t *testing.T) {
