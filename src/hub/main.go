@@ -53,11 +53,11 @@ func main() {
 	http.HandleFunc(uploadPath, uploadHandler)
 	http.HandleFunc(downloadPath, downloadHandler)
 
-	Logger.Info("Server started on port %s\n", port)
+	Logger.Info("Server started on port %s", port)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		// TODO Is server stop sometimes normal, e.g. when gracefully shutdown?
-		Logger.Fatal("Server stopped: %v\n", err)
+		Logger.Fatal("Server stopped: %v", err)
 	}
 }
 
@@ -105,7 +105,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	Logger.Info("File uploaded successfully: %s\n", header.Filename)
+	Logger.Info("File uploaded successfully: %s", header.Filename)
 }
 
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
