@@ -12,10 +12,7 @@ func init() {
 	resetDatabase()
 }
 
-// TODO Finalize functionality
-// TODO Add cases: "does not exist", "wrong password", "already existing"
-// TODO "app already existing" applies only if the creating user has an app with that name
-// TODO Duplications among multiple users are allowed for passwords and apps
+// TODO Finalize functionality: findApp()
 
 func TestUserCreation(t *testing.T) {
 	defer resetDatabase()
@@ -79,6 +76,22 @@ func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 	assert.Nil(t, um.CreateRepoUser(user2, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(user2, samplePassword))
+}
+
+func TestTolerateSameAppsForTwoUsers(t *testing.T) {
+	defer resetDatabase()
+	user2 := sampleUser + "2"
+	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateRepoUser(user2, samplePassword))
+	assert.Nil(t, um.AddApp(sampleUser, sampleApp))
+	assert.Nil(t, um.AddApp(user2, sampleApp))
+
+	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
+	assert.True(t, um.DoesAppExist(user2, sampleApp))
+
+	assert.Nil(t, um.DeleteApp(sampleUser, sampleApp))
+	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
+	assert.True(t, um.DoesAppExist(user2, sampleApp))
 }
 
 func TestPasswordVerification(t *testing.T) {
