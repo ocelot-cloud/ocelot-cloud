@@ -11,11 +11,19 @@ var databaseFile = "sqlite.db"
 var db *sql.DB
 
 func init() {
+	initializeDatabase()
+}
+
+func initializeDatabase() {
+	// TODO Add database scheme version?
 	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		Logger.Fatal("Failed to open database: %v", err)
 		return
 	}
+
+	// TODO Add initial schemes. With version number table.
+
 	defer db.Close()
 }
 
