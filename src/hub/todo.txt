@@ -1,11 +1,7 @@
 // TODO General notes: Hub is only backend. Can be used via Cloud GUI, which directly addresses the hub API.
-// Roadmap: 0) tidy up main; 1) implement REST API of hub, with security; 2) integration with cloud
+// Roadmap: 1) implement REST API of hub, with security; 2) integration with cloud
 
 // TODO REST API
-// security relevant:
-//   create user/app/tag
-//   delete user/app/tag
-//   upload(app, tag) -> upload goes to the currently logged in user repo
 // not security relevant:
 //   search(app) -> may return many entries of the same app from different users
 //   getTags(user, app)

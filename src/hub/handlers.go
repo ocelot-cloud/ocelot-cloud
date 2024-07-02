@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// TODO Requires Auth
+// TODO Only allowed when the target is the user itself. Cant upload stuff to other users.
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -98,4 +100,17 @@ type FileInfo struct {
 	App      string
 	Tag      string
 	FileName string
+}
+
+// TODO All functions below require auth
+func userHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO create/delete user
+}
+
+func appHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO create/delete app
+}
+
+func tagHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO delete tag
 }

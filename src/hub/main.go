@@ -7,8 +7,11 @@ import (
 
 var (
 	Logger       = shared.ProvideLogger()
-	uploadPath   = "/api/upload"
-	downloadPath = "/api/download/"
+	tagPath      = "/api/tag"
+	uploadPath   = tagPath + "/upload"
+	downloadPath = tagPath + "/download/"
+	userPath     = "/api/user"
+	appPath      = "/api/app"
 	port         = "8082"
 	rootUrl      = "http://localhost:" + port
 )
@@ -17,6 +20,9 @@ func main() {
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it shared module.
 	http.HandleFunc(uploadPath, uploadHandler)
 	http.HandleFunc(downloadPath, downloadHandler)
+	http.HandleFunc(tagPath, tagHandler)
+	http.HandleFunc(appPath, appHandler)
+	http.HandleFunc(userPath, userHandler)
 
 	Logger.Info("Server started on port %s", port)
 	err := http.ListenAndServe(":"+port, nil)
