@@ -15,7 +15,8 @@ type GlobalConfig struct {
 	IsSecurityEnabled                bool
 	BackendMode                      BackendComponentMode
 	WaitForSecurityBeforeOpeningPort bool
-	RootDomain                       string
 	UseDummyStacks                   bool
-	Scheme                           string
+	Scheme                           string // "http" or "https"
+	RootDomain                       string // e.g. "localhost"
+	Port                             string // e.g. "8082"
 }

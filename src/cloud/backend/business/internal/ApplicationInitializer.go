@@ -57,8 +57,8 @@ func (a *ApplicationInitializer) initializeDockerNetwork() {
 func (a *ApplicationInitializer) initializeHandlers() {
 	a.initializeFunctionalEndpoints()
 	proxyHandler := a.buildProxyHandler()
-	Logger.Info("Starting server listening on port 8080")
-	err := http.ListenAndServe(":8080", http.HandlerFunc(proxyHandler))
+	Logger.Info("Starting server listening on port " + a.config.Port)
+	err := http.ListenAndServe(":"+a.config.Port, http.HandlerFunc(proxyHandler))
 	if err != nil {
 		Logger.Fatal("Failed to start server: " + err.Error())
 	}
@@ -66,7 +66,9 @@ func (a *ApplicationInitializer) initializeHandlers() {
 
 func (a *ApplicationInitializer) buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		if r.Host == "ocelot-cloud.localhost" || r.Host == "localhost:8080" {
+		ocelotDomain := "ocelot-cloud." + a.config.RootDomain
+		localDomain := a.config.RootDomain + ":" + a.config.Port
+		if r.Host == ocelotDomain || r.Host == localDomain {
 			a.router.ServeHTTP(w, r)
 		} else {
 			a.proxyRequestToTheDockerContainer(w, r)

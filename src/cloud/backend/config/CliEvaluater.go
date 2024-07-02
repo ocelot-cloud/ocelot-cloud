@@ -97,9 +97,10 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 		isOidcAuthenticationEnabled,
 		backendMode,
 		partialConfig.WaitForSecurityBeforeOpeningPort,
-		partialConfig.RootDomain,
 		useDummyStacks,
 		"http",
+		partialConfig.RootDomain,
+		"8080",
 	}
 
 	shared.LogLevel = EvaluateLogLevelBasedOn(backendMode, logLevelStr)

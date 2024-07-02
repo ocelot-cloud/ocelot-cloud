@@ -31,6 +31,14 @@ func (s *SecurityModule) ApplyAuthMiddlewares(h http.Handler) http.Handler {
 
 func (s *SecurityModule) applyAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		originHeader := r.Header.Get("Origin")
+		// TODO Make a check for its won domain or any subdomain
+		if originHeader != s.config.RootDomain {
+			Logger.Warn("requests cookie is invalid")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			cookie, err := r.Cookie("auth")
 			// TODO Not secure.
