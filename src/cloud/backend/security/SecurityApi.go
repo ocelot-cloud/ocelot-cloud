@@ -34,7 +34,7 @@ func (s *SecurityModule) applyAuthMiddleware(next http.Handler) http.Handler {
 			// TODO Not secure.
 			if err != nil || cookie.Value != "valid" {
 				Logger.Debug("requests cookie is invalid")
-				w.WriteHeader(http.StatusUnauthorized) // Or another appropriate status
+				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 		}
