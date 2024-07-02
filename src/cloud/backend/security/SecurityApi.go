@@ -5,6 +5,7 @@ import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"ocelot/backend/config"
+	"ocelot/backend/security/internal"
 	"strings"
 )
 
@@ -16,6 +17,7 @@ type SecurityModule struct {
 }
 
 func ProvideSecurityModule(router *mux.Router, config *tools.GlobalConfig) *SecurityModule {
+	router.HandleFunc("/api/login", internal.LoginHandler).Methods("POST")
 	return &SecurityModule{router, config}
 }
 
@@ -36,9 +38,14 @@ func (s *SecurityModule) applyAuthMiddleware(next http.Handler) http.Handler {
 				Logger.Debug("requests cookie is invalid")
 				w.WriteHeader(http.StatusUnauthorized)
 				return
+			} else {
+				Logger.Debug("user has a valid cookie and is allowed to access protected backend functions")
+				next.ServeHTTP(w, r)
 			}
+		} else {
+			Logger.Debug("a user requested the frontend")
+			next.ServeHTTP(w, r)
 		}
-		next.ServeHTTP(w, r)
 	})
 }
 

@@ -95,7 +95,6 @@ func (a *ApplicationInitializer) proxyRequestToTheDockerContainer(w http.Respons
 
 func (a *ApplicationInitializer) initializeFunctionalEndpoints() {
 	api := a.router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/login", login).Methods("POST")
 	api.HandleFunc("/check-session", checkSessionHandler).Methods("GET")
 	api.HandleFunc("/hello", a.helloHandler)
 
