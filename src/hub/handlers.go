@@ -108,9 +108,9 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO create/delete app
+	// TODO create/delete app, search for app: search
 }
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO delete tag
+	// TODO delete tag, getListOfTags(app)
 }
