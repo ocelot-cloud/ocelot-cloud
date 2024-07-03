@@ -31,7 +31,7 @@ func initializeDatabase() {
 		)
 	`)
 	if err != nil {
-		Logger.Fatal("Failed to create users table: %v\n", err)
+		Logger.Fatal("Failed to create users table: %v", err)
 	}
 
 	_, err = db.Exec(`
@@ -97,7 +97,7 @@ func (u *SqliteRepository) CreateUser(user string, password string) error {
 
 	_, err = db.Exec("INSERT INTO users (user_name, hashed_password) VALUES (?, ?)", user, hashedPassword)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to create user: %v\n", err)
+		return Logger.LogAndReturnError("Failed to create user: %v", err)
 	}
 	return nil
 }
