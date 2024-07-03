@@ -1,7 +1,12 @@
-// TODO General notes: Hub gets its own GUI.
-// Roadmap: 1) implement REST API of hub, 2) add gui to hub + acceptance testing, 3) Cloud needs basic functions: search for app and download tag, 4) if done, maybe separate projects? No need to test them together all the time I guess
+// TODO General notes: Hub is only backend, only cloud has GUI.
+// User creates account in hub and registers allowed domains (ocelot-cloud.my-domain.com)
+// User opens cloud GUI, accesses stuff from hub, and hub accepts since its from the cloud domain.
+Roadmap:
+  1) implement REST API of hub, with security (auth, origin policy)
+  2) Integration with cloud frontend
 
 // TODO REST API
+
 // Design question: In my ocelot-cloud I want to add my credentials for the hub only once. So store the credentials there?
 // Then implement the client in the cloud. Maybe run usage tests against it for simple scenarios.
 // Implement input validation? only allow lowercase letters and underscores
