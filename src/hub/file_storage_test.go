@@ -19,44 +19,46 @@ var (
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 )
 
+var fs FileStorage = &FileStorageImpl{}
+
 func TestFilesystemManager(t *testing.T) {
 	setup()
 	defer cleanup()
-	assert.Nil(t, CreateUser(sampleUser))
+	assert.Nil(t, fs.CreateUser(sampleUser))
 	assert.True(t, doesFolderExist(singleUserDir))
 	assert.True(t, isFolderEmpty(singleUserDir))
 
-	err := CreateUser(sampleUser)
+	err := fs.CreateUser(sampleUser)
 	assert.NotNil(t, err)
 	expectedErrorMessage := fmt.Sprintf("User already exists: %s", sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
 
-	assert.Nil(t, CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, fs.CreateApp(sampleUser, sampleApp))
 	assert.True(t, doesFolderExist(appDir))
 	assert.True(t, isFolderEmpty(appDir))
 
-	err = CreateApp(sampleUser, sampleApp)
+	err = fs.CreateApp(sampleUser, sampleApp)
 	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' already exists", sampleApp, sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
 
-	assert.Nil(t, CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer))
+	assert.Nil(t, fs.CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer))
 	assert.True(t, doesFolderExist(appDir))
 	assert.Equal(t, "hello", getTagFileContent(sampleFile))
 
-	err = CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer)
+	err = fs.CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer)
 	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("Tag '%s' of app '%s' of user '%s' already exists", sampleTag, sampleApp, sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
 
-	DeleteTag(sampleUser, sampleApp, sampleTag)
+	fs.DeleteTag(sampleUser, sampleApp, sampleTag)
 	assert.False(t, doesFileExist(sampleFile))
 
-	DeleteApp(sampleUser, sampleApp)
+	fs.DeleteApp(sampleUser, sampleApp)
 	assert.True(t, doesFolderExist(singleUserDir))
 	assert.False(t, doesFolderExist(appDir))
 
-	DeleteUser(sampleUser)
+	fs.DeleteUser(sampleUser)
 	assert.True(t, doesFolderExist(usersDir))
 	assert.False(t, doesFolderExist(singleUserDir))
 	assert.Nil(t, deleteIfExist(usersDir))
@@ -97,13 +99,13 @@ func TestReadingUsers(t *testing.T) {
 	setup()
 	defer cleanup()
 	assert.Equal(t, 0, len(GetUserList()))
-	assert.Nil(t, CreateUser(sampleUser))
+	assert.Nil(t, fs.CreateUser(sampleUser))
 	users := GetUserList()
 	assert.Equal(t, 1, len(users))
 	assert.Equal(t, sampleUser, users[0])
 
 	sampleUser2 := sampleUser + "2"
-	assert.Nil(t, CreateUser(sampleUser2))
+	assert.Nil(t, fs.CreateUser(sampleUser2))
 	users = GetUserList()
 	assert.Equal(t, 2, len(users))
 	assert.Equal(t, sampleUser, users[0])
@@ -124,12 +126,12 @@ func TestReadingApps(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, 0, len(list))
 
-	assert.Nil(t, CreateUser(sampleUser))
+	assert.Nil(t, fs.CreateUser(sampleUser))
 	list, err = GetAppList(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(list))
 
-	assert.Nil(t, CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, fs.CreateApp(sampleUser, sampleApp))
 	list, err = GetAppList(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(list))
@@ -142,13 +144,13 @@ func TestReadingTags(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, 0, len(list))
 
-	assert.Nil(t, CreateUser(sampleUser))
-	assert.Nil(t, CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, fs.CreateUser(sampleUser))
+	assert.Nil(t, fs.CreateApp(sampleUser, sampleApp))
 	list, err = GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(list))
 
-	assert.Nil(t, CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer))
+	assert.Nil(t, fs.CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer))
 	list, err = GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(list))
@@ -167,18 +169,18 @@ func TestParentNotFound(t *testing.T) {
 	setup()
 	defer cleanup()
 
-	err := CreateApp(sampleUser, sampleApp)
+	err := fs.CreateApp(sampleUser, sampleApp)
 	assert.NotNil(t, err)
 	expectedErrorMessage := fmt.Sprintf("User '%s' does not exist", sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
-	assert.Nil(t, DeleteApp(sampleUser, sampleApp))
+	assert.Nil(t, fs.DeleteApp(sampleUser, sampleApp))
 
-	assert.Nil(t, CreateUser(sampleUser))
-	err = CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer)
+	assert.Nil(t, fs.CreateUser(sampleUser))
+	err = fs.CreateTag(sampleFileInfo, sampleTaggedFileContentBuffer)
 	assert.NotNil(t, err)
 	expectedErrorMessage = fmt.Sprintf("App '%s' of user '%s' does not exist", sampleApp, sampleUser)
 	assert.Equal(t, expectedErrorMessage, err.Error())
-	assert.Nil(t, DeleteApp(sampleUser, sampleApp))
+	assert.Nil(t, fs.DeleteApp(sampleUser, sampleApp))
 }
 
 // TODO Apply consistent naming to packages, files and types.

@@ -12,8 +12,10 @@ import (
 
 func TestFileUploadDownload(t *testing.T) {
 	defer cleanup()
-	assert.Nil(t, CreateUser(sampleUser))
-	assert.Nil(t, CreateApp(sampleUser, sampleApp))
+	// TODO Should be global?
+	fs := FileStorageImpl{}
+	assert.Nil(t, fs.CreateUser(sampleUser))
+	assert.Nil(t, fs.CreateApp(sampleUser, sampleApp))
 	filename := "myuser_myapp_v0.1.0.tar.gz"
 
 	fileContent := []byte("hello")

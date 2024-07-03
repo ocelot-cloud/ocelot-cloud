@@ -19,8 +19,16 @@ func init() {
 }
 
 // TODO
-type FileStorager interface {
+type FileStorage interface {
+	CreateUser(username string) error
+	DeleteUser(username string)
+	CreateApp(user, app string) error
+	DeleteApp(username, app string) error
+	CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error
+	DeleteTag(user string, app string, tag string)
 }
+
+type FileStorageImpl struct{}
 
 func setup() {
 	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
@@ -31,7 +39,7 @@ func setup() {
 	}
 }
 
-func CreateUser(username string) error {
+func (f *FileStorageImpl) CreateUser(username string) error {
 	userDir := filepath.Join(usersDir, username)
 
 	if _, err := os.Stat(userDir); err == nil {
@@ -44,14 +52,14 @@ func CreateUser(username string) error {
 	return nil
 }
 
-func DeleteUser(username string) {
+func (f *FileStorageImpl) DeleteUser(username string) {
 	userDir := filepath.Join(usersDir, username)
 	if err := deleteIfExist(userDir); err != nil {
 		Logger.Error("Error deleting user directory: %v", err)
 	}
 }
 
-func CreateApp(user, app string) error {
+func (f *FileStorageImpl) CreateApp(user, app string) error {
 	appDir := filepath.Join(usersDir, user, app)
 
 	if !doesUserExist(user) {
@@ -68,7 +76,7 @@ func CreateApp(user, app string) error {
 	return nil
 }
 
-func DeleteApp(username, app string) error {
+func (f *FileStorageImpl) DeleteApp(username, app string) error {
 	appDir := filepath.Join(usersDir, username, app)
 	if err := deleteIfExist(appDir); err != nil {
 		return Logger.LogAndReturnError("Error deleting app directory: %v", err)
@@ -158,7 +166,7 @@ func doesUserExist(username string) bool {
 }
 
 // TODO Instead, this function should be connected with the file system manager.
-func CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error {
+func (f *FileStorageImpl) CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error {
 	tagFilePath := filepath.Join(usersDir, fileInfo.User, fileInfo.App, fmt.Sprintf("%s.tar.gz", fileInfo.Tag))
 
 	if !doesAppExist(fileInfo.User, fileInfo.App) {
@@ -182,7 +190,7 @@ func CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error {
 	return nil
 }
 
-func DeleteTag(user string, app string, tag string) {
+func (f *FileStorageImpl) DeleteTag(user string, app string, tag string) {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	if err := deleteIfExist(tagFilePath); err != nil {
 		Logger.Error("Error deleting tag file: %v", err)

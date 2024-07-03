@@ -45,7 +45,9 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = CreateTag(fileInfo, &fileBuffer)
+	// TODO Should be global?
+	fs := FileStorageImpl{}
+	err = fs.CreateTag(fileInfo, &fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return
@@ -137,7 +139,9 @@ func doPostStuff(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Received User: %+v\n", user)
 
-	CreateUser(user.Username)
+	// TODO Should be global?
+	fs := FileStorageImpl{}
+	fs.CreateUser(user.Username)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User created"))
