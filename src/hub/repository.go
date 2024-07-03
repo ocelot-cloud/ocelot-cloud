@@ -50,10 +50,10 @@ func initializeDatabase() {
 	// TODO Add initial schemes. With version number table.
 }
 
-type UserManager interface {
-	CreateRepoUser(user string, password string) error
+type Repository interface {
+	CreateUser(user string, password string) error
 	DoesUserExist(user string) bool
-	DeleteRepoUser(user string) error
+	DeleteUser(user string) error
 	IsPasswordCorrect(user string, password string) bool
 	DoesAppExist(user string, app string) bool
 	CreateApp(user string, app string) error
@@ -89,7 +89,7 @@ func (u *UserManagerSqlite) DoesUserExist(user string) bool {
 	return exists
 }
 
-func (u *UserManagerSqlite) CreateRepoUser(user string, password string) error {
+func (u *UserManagerSqlite) CreateUser(user string, password string) error {
 	hashedPassword, err := hashAndSaltPassword(password)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
@@ -110,7 +110,7 @@ func hashAndSaltPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (u *UserManagerSqlite) DeleteRepoUser(user string) error {
+func (u *UserManagerSqlite) DeleteUser(user string) error {
 	if !u.DoesUserExist(user) {
 		return Logger.LogAndReturnError("User %s does not exist", user)
 	}

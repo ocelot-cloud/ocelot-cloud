@@ -18,6 +18,10 @@ func init() {
 	setup()
 }
 
+// TODO
+type FileStorager interface {
+}
+
 func setup() {
 	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {

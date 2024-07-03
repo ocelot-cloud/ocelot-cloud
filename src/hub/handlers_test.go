@@ -79,7 +79,14 @@ func downloadFile(url string) ([]byte, error) {
 	return downloadedContent, nil
 }
 
+// TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
+
 func TestCreateUser(t *testing.T) {
+	createUser(t)
+
+}
+
+func createUser(t *testing.T) {
 	url := rootUrl + "/users"
 	user := User{
 		Username: "testuser",

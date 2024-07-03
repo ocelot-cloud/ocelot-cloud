@@ -7,7 +7,7 @@ import (
 )
 
 var samplePassword = "mypassword"
-var um UserManager = &UserManagerSqlite{}
+var um Repository = &UserManagerSqlite{}
 
 func init() {
 	resetDatabase()
@@ -16,16 +16,16 @@ func init() {
 func TestUserCreation(t *testing.T) {
 	defer resetDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.True(t, um.DoesUserExist(sampleUser))
 
-	assert.Nil(t, um.DeleteRepoUser(sampleUser))
+	assert.Nil(t, um.DeleteUser(sampleUser))
 	assert.False(t, um.DoesUserExist(sampleUser))
 }
 
 func TestCreateApp(t *testing.T) {
 	defer resetDatabase()
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
@@ -33,7 +33,7 @@ func TestCreateApp(t *testing.T) {
 
 func TestDeleteAppCascadingThroughUser(t *testing.T) {
 	defer resetDatabase()
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.DeleteApp(sampleUser, sampleApp))
@@ -42,23 +42,23 @@ func TestDeleteAppCascadingThroughUser(t *testing.T) {
 
 func TestDeleteAppDirectly(t *testing.T) {
 	defer resetDatabase()
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
-	assert.Nil(t, um.DeleteRepoUser(sampleUser))
+	assert.Nil(t, um.DeleteUser(sampleUser))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 }
 
 func TestCantCreateUserTwice(t *testing.T) {
 	defer resetDatabase()
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
-	assert.NotNil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
+	assert.NotNil(t, um.CreateUser(sampleUser, samplePassword))
 }
 
 func TestCantCreateAppTwiceForSameUser(t *testing.T) {
 	defer resetDatabase()
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.NotNil(t, um.CreateApp(sampleUser, sampleApp))
 }
@@ -71,8 +71,8 @@ func TestCantCreateAppWithoutUser(t *testing.T) {
 func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 	defer resetDatabase()
 	user2 := sampleUser + "2"
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
-	assert.Nil(t, um.CreateRepoUser(user2, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(user2, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(user2, samplePassword))
 }
@@ -80,8 +80,8 @@ func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 	defer resetDatabase()
 	user2 := sampleUser + "2"
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
-	assert.Nil(t, um.CreateRepoUser(user2, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(user2, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(user2, sampleApp))
 
@@ -95,14 +95,14 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 
 func TestPasswordVerification(t *testing.T) {
 	defer resetDatabase()
-	assert.Nil(t, um.CreateRepoUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.False(t, um.IsPasswordCorrect(sampleUser, samplePassword+"x"))
 }
 
 func TestSearch(t *testing.T) {
 	defer resetDatabase()
-	um.CreateRepoUser(sampleUser, samplePassword)
+	um.CreateUser(sampleUser, samplePassword)
 	app1 := "prefix_myapp_suffix"
 	app2 := "prefix_another-app_suffix"
 	um.CreateApp(sampleUser, app1)
@@ -124,7 +124,7 @@ func TestSearch(t *testing.T) {
 
 func TestSearchNegative(t *testing.T) {
 	defer resetDatabase()
-	um.CreateRepoUser(sampleUser, samplePassword)
+	um.CreateUser(sampleUser, samplePassword)
 	app := "prefix_myapp_suffix"
 	um.CreateApp(sampleUser, app)
 

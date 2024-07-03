@@ -114,9 +114,7 @@ type User struct {
 
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		// TODO
-	} else if r.Method == http.MethodPost {
+	if r.Method == http.MethodPost {
 		doPostStuff(w, r)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -138,6 +136,8 @@ func doPostStuff(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("Received User: %+v\n", user)
+
+	CreateUser(user.Username)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User created"))
