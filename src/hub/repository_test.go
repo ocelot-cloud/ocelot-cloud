@@ -13,7 +13,7 @@ func init() {
 	resetDatabase()
 }
 
-func TestUserCreation(t *testing.T) {
+func TestCreateRepoUser(t *testing.T) {
 	defer resetDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
@@ -23,7 +23,7 @@ func TestUserCreation(t *testing.T) {
 	assert.False(t, um.DoesUserExist(sampleUser))
 }
 
-func TestCreateApp(t *testing.T) {
+func TestCreateRepoApp(t *testing.T) {
 	defer resetDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))

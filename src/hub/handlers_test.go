@@ -83,9 +83,8 @@ func downloadFile(url string) ([]byte, error) {
 
 // TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
 
-func TestCreateUser(t *testing.T) {
+func TestCreateUserViaHttp(t *testing.T) {
 	createUser(t)
-
 }
 
 func createUser(t *testing.T) {
