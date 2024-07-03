@@ -114,3 +114,8 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 func tagHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO delete tag, getListOfTags(app)
 }
+
+// TODO Add security: auth, origin policy and according security tests
+// TODO auth: for required actions, some are public like findApps, reuse code from backend?
+// TODO origin policy: user creation requires "host" parameter, so all security relevant actions must have this "host" as "Origin" header
+// TODO changing the "host" parameter is not origin-protected, but requires password again.
