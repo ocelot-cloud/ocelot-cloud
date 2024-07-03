@@ -167,3 +167,8 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 // TODO Restrict maximum space used by user to 10MB
 // TODO logging: 1) make sure folder "data" exists. If so, store logs in "data/logs.txt"
 // TODO store sqlite.db in "data" folder
+// TODO Introduce ENV variable "DISABLE_EMAIL_VERIFICATION", default is false.
+//  Disable for development. If enabled, I think I should throw an error if it
+//  did not got email stuff. If it got them, It will run a test to check whether
+//  it works. If so, start normally. If not, it exits immediately.
+//  If it exits early, make a short explanation on why it does that. "printEmailExplanation"?
