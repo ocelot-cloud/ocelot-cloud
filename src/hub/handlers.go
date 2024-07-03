@@ -166,3 +166,4 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 // TODO Add input validation: usernames only lower letters, lengths etc. And test trying to break this with according error messages.
 // TODO Restrict maximum space used by user to 10MB
 // TODO logging: 1) make sure folder "data" exists. If so, store logs in "data/logs.txt"
+// TODO store sqlite.db in "data" folder
