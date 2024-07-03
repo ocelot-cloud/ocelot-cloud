@@ -7,11 +7,11 @@ import (
 
 var (
 	Logger       = shared.ProvideLogger()
-	tagPath      = "/api/tags"
+	tagPath      = "/tags"
 	uploadPath   = tagPath + "/upload"
 	downloadPath = tagPath + "/download/"
-	userPath     = "/api/users"
-	appPath      = "/api/apps"
+	userPath     = "/users"
+	appPath      = "/apps"
 	port         = "8082"
 	rootUrl      = "http://localhost:" + port
 )

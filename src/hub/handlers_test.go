@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/ocelot-cloud/shared/assert"
 	"io"
 	"mime/multipart"
@@ -79,5 +80,42 @@ func downloadFile(url string) ([]byte, error) {
 }
 
 func TestCreateUser(t *testing.T) {
-	// TODO implement
+	url := rootUrl + "/users"
+	user := User{
+		Username: "testuser",
+		Password: "password123",
+		Host:     "localhost",
+	}
+	payloadBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatalf("Failed to marshal user: %v", err)
+	}
+	payload := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		t.Fatalf("Failed to create request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("Failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Errorf("Expected status code %d, got %d", http.StatusCreated, resp.StatusCode)
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("Failed to read response body: %v", err)
+	}
+
+	expectedResponse := "User created"
+	if string(respBody) != expectedResponse {
+		t.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
+	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -102,9 +103,38 @@ type FileInfo struct {
 	FileName string
 }
 
+type User struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Host     string `json:"host"`
+}
+
 // TODO All functions below require auth
+// TODO There must be a "login" handler. When credentials are correct, set a cookie header. -> usually browsers then send that cookie for all subsequent but I have to do that manually
+
+// TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO create/delete user
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+
+	var user User
+	if err := json.Unmarshal(body, &user); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Printf("Received User: %+v\n", user)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("User created"))
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
