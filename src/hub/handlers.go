@@ -114,11 +114,17 @@ type User struct {
 
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method == http.MethodGet {
+		// TODO
+	} else if r.Method == http.MethodPost {
+		doPostStuff(w, r)
+	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+}
 
+func doPostStuff(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Unable to read request body", http.StatusBadRequest)
@@ -149,3 +155,5 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 // TODO auth: for required actions, some are public like findApps, reuse code from backend?
 // TODO origin policy: user creation requires "host" parameter, so all security relevant actions must have this "host" as "Origin" header
 // TODO changing the "host" parameter is not origin-protected, but requires password again.
+// TODO Add input validation: usernames only lower letters, lengths etc. And test trying to break this with according error messages.
+// TODO Restrict maximum space used by user to 10MB
