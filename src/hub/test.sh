@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -rf data
+rm -rf data sqlite.db
 go build
 
 ./hub &
@@ -9,4 +9,4 @@ go test -run TestCreateUser
 
 kill $PID
 ls data/users
-rm -rf data
+rm -rf data sqlite.db

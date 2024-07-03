@@ -111,6 +111,9 @@ type User struct {
 	Host     string `json:"host"`
 }
 
+var fs FileStorage = &FileStorageImpl{}
+var repo Repository = &SqliteRepository{}
+
 // TODO All functions below require auth
 // TODO There must be a "login" handler. When credentials are correct, set a cookie header. -> usually browsers then send that cookie for all subsequent but I have to do that manually
 
@@ -139,11 +142,12 @@ func doPostStuff(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Received User: %+v\n", user)
 
-	// TODO Should be global?
-	fs := FileStorageImpl{}
+	// TODO Handle error
 	fs.CreateUser(user.Username)
+	// TODO repo.CreateUser(user.Username, user.Password)
 
 	w.WriteHeader(http.StatusCreated)
+	// TODO Handle error
 	w.Write([]byte("User created"))
 }
 

@@ -19,8 +19,6 @@ var (
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 )
 
-var fs FileStorage = &FileStorageImpl{}
-
 func TestFilesystemManager(t *testing.T) {
 	setup()
 	defer cleanup()

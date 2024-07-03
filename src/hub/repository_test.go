@@ -7,7 +7,7 @@ import (
 )
 
 var samplePassword = "mypassword"
-var um Repository = &UserManagerSqlite{}
+var um Repository = &SqliteRepository{}
 
 func init() {
 	resetDatabase()

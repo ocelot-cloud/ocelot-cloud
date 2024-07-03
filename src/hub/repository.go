@@ -61,9 +61,9 @@ type Repository interface {
 	FindApps(query string) ([]App, error)
 }
 
-type UserManagerSqlite struct{}
+type SqliteRepository struct{}
 
-func (u *UserManagerSqlite) IsPasswordCorrect(user string, password string) bool {
+func (u *SqliteRepository) IsPasswordCorrect(user string, password string) bool {
 	var hashedPassword string
 	err := db.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
 	if err != nil {
@@ -79,7 +79,7 @@ func (u *UserManagerSqlite) IsPasswordCorrect(user string, password string) bool
 	return true
 }
 
-func (u *UserManagerSqlite) DoesUserExist(user string) bool {
+func (u *SqliteRepository) DoesUserExist(user string) bool {
 	var exists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
 	if err != nil {
@@ -89,7 +89,7 @@ func (u *UserManagerSqlite) DoesUserExist(user string) bool {
 	return exists
 }
 
-func (u *UserManagerSqlite) CreateUser(user string, password string) error {
+func (u *SqliteRepository) CreateUser(user string, password string) error {
 	hashedPassword, err := hashAndSaltPassword(password)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
@@ -110,7 +110,7 @@ func hashAndSaltPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (u *UserManagerSqlite) DeleteUser(user string) error {
+func (u *SqliteRepository) DeleteUser(user string) error {
 	if !u.DoesUserExist(user) {
 		return Logger.LogAndReturnError("User %s does not exist", user)
 	}
@@ -123,7 +123,7 @@ func (u *UserManagerSqlite) DeleteUser(user string) error {
 	return nil
 }
 
-func (u *UserManagerSqlite) CreateApp(user string, app string) error {
+func (u *SqliteRepository) CreateApp(user string, app string) error {
 	if !u.DoesUserExist(user) {
 		return Logger.LogAndReturnError("User '%s' does not exist", user)
 	}
@@ -143,7 +143,7 @@ func (u *UserManagerSqlite) CreateApp(user string, app string) error {
 	return nil
 }
 
-func (u *UserManagerSqlite) DoesAppExist(user string, app string) bool {
+func (u *SqliteRepository) DoesAppExist(user string, app string) bool {
 	var exists bool
 	err := db.QueryRow(`
 		SELECT EXISTS(
@@ -159,7 +159,7 @@ func (u *UserManagerSqlite) DoesAppExist(user string, app string) bool {
 	return exists
 }
 
-func (u *UserManagerSqlite) DeleteApp(user string, app string) error {
+func (u *SqliteRepository) DeleteApp(user string, app string) error {
 	_, err := db.Exec(`DELETE FROM apps WHERE user_id = (SELECT user_id FROM users WHERE user_name = ?) AND app_name = ?`, user, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
@@ -172,7 +172,7 @@ type App struct {
 	AppName  string
 }
 
-func (u *UserManagerSqlite) FindApps(query string) ([]App, error) {
+func (u *SqliteRepository) FindApps(query string) ([]App, error) {
 	var apps []App
 
 	rows, err := db.Query(`
