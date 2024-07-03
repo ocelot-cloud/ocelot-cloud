@@ -43,7 +43,7 @@ func (s *SecurityModule) applyAuthMiddleware(next http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 			}
 		} else {
-			Logger.Debug("a user requested the frontend")
+			Logger.Debug("a user requested the frontend resources")
 			next.ServeHTTP(w, r)
 		}
 	})

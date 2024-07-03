@@ -77,9 +77,10 @@ func (a *ApplicationInitializer) buildProxyHandler() func(w http.ResponseWriter,
 	return handler
 }
 
+// TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func (a *ApplicationInitializer) proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 	Logger.Trace("Proxying request with target host %s", r.Host)
-	targetContainer := strings.TrimSuffix(r.Host, ".localhost")
+	targetContainer := strings.TrimSuffix(r.Host, "."+a.config.RootDomain)
 	targetPort := a.stackConfigService.GetStackConfig(targetContainer).Port
 	targetURL, err := url.Parse("http://" + targetContainer + ":" + targetPort)
 	if err != nil {
@@ -88,6 +89,7 @@ func (a *ApplicationInitializer) proxyRequestToTheDockerContainer(w http.Respons
 		return
 	}
 
+	// the path of original request is preserved
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 	r.URL.Host = targetContainer
 	r.URL.Scheme = "http"
