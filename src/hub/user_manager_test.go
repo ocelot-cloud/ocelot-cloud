@@ -122,6 +122,17 @@ func TestSearch(t *testing.T) {
 	assert.Equal(t, app1, a[1].AppName)
 }
 
+func TestSearchNegative(t *testing.T) {
+	defer resetDatabase()
+	um.CreateRepoUser(sampleUser, samplePassword)
+	app := "prefix_myapp_suffix"
+	um.CreateApp(sampleUser, app)
+
+	a, err := um.FindApps("some")
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(a))
+}
+
 func resetDatabase() {
 	deleteIfExist(databaseFile)
 	initializeDatabase()
