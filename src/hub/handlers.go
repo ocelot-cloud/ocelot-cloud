@@ -227,16 +227,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO Add cookie + expiration time/date to sqlite to survive restarts.
 	// TODO Add cookie renewal logic when used in the middleware. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
 	// TODO In the tests, check that cookie has correct length and has different value when requesting a seconds one.
-	newCookie, err := generateCookie()
+	cookie, err := generateCookie()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:    "auth",
-		Value:   newCookie,
-		Expires: getTimeIn30Days(),
-	})
+	http.SetCookie(w, cookie)
 	w.Write([]byte("login successful"))
 }
 
@@ -244,11 +240,15 @@ func getTimeIn30Days() time.Time {
 	return time.Now().UTC().AddDate(0, 0, 30)
 }
 
-func generateCookie() (string, error) {
+func generateCookie() (*http.Cookie, error) {
 	bytes := make([]byte, 32)
 	if _, err := rand.Read(bytes); err != nil {
 		Logger.Error("Failed to generate cookie: %v", err)
-		return "", err
+		return nil, err
 	}
-	return hex.EncodeToString(bytes), nil
+	return &http.Cookie{
+		Name:    "auth",
+		Value:   hex.EncodeToString(bytes),
+		Expires: getTimeIn30Days(),
+	}, nil
 }
