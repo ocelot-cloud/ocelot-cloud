@@ -126,6 +126,10 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type User struct {
+	Name string `json:"name"`
+}
+
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -133,13 +137,22 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Only allowed, when the cookie belongs to the user. To be tested: try to delete a second/different user
-	var user string
+	// TODO Only allowed, when the cookie belongs to the username. To be tested: try to delete a second/different username
+	var user User
 	if err := json.Unmarshal(body, &user); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
+	// TODO Misses some functions like: Does(User/App/Tag)Exist?
+	fs.DeleteUser(user.Name) // TODO Shouldn't that return a potential error?
+	repo.DeleteUser(user.Name)
+
+	Logger.Info("Deleted user: %s", user.Name)
+
+	w.WriteHeader(http.StatusOK)
+	// TODO Handle error
+	w.Write([]byte("User deleted"))
 }
 
 func createReceivedUser(w http.ResponseWriter, r *http.Request) {
@@ -155,11 +168,10 @@ func createReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("Received User: %+v\n", user)
-
 	// TODO Handle error
 	fs.CreateUser(user.Username)
 	repo.CreateUser(user.Username, user.Password)
+	Logger.Info("Created user: %s", user.Username)
 
 	w.WriteHeader(http.StatusCreated)
 	// TODO Handle error
@@ -188,7 +200,7 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 //  it works. If so, start normally. If not, it exits immediately.
 //  If it exits early, make a short explanation on why it does that. "printEmailExplanation"?
 
-// TODO Should be be used in UserHandler
+// TODO Should be used in UserHandler
 type RegistrationForm struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

@@ -122,7 +122,7 @@ func TestDeleteUser(t *testing.T) {
 		Email:    "testuser@example.com",
 	}
 	assert.Nil(t, hub.createUser(form))
-	//assert.Nil(t, hub.deleteUser())
+	assert.Nil(t, hub.deleteUser())
 }
 
 // TODO Can just be done, when I have a protected endpoint
@@ -221,6 +221,40 @@ func (h *Hub) login() (*http.Cookie, error) {
 }
 
 func (h *Hub) deleteUser() error {
+	url := rootUrl + "/users"
+	user := User{
+		Name: "testuser2",
+	}
+	payloadBytes, err := json.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal payload: %v", err)
+	}
+	payload := bytes.NewReader(payloadBytes)
+	req, err := http.NewRequest("DELETE", url, payload)
+	if err != nil {
+		return fmt.Errorf("Failed to create request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
 
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("Failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("Failed to read response body: %v", err)
+	}
+
+	expectedResponse := "User deleted"
+	if string(respBody) != expectedResponse {
+		return fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
+	}
 	return nil
 }
