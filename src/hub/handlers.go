@@ -207,7 +207,7 @@ type RegistrationForm struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
-	Host     string `json:"host"`
+	Origin   string `json:"host"`
 }
 
 type LoginCredentials struct {

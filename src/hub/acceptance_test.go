@@ -15,10 +15,11 @@ import (
 // TODO There should be a one-liner to get a "hub" instance, that is already logged in, with cookie etc, to start functional testing
 
 var hub = Hub{
-	Username: "testuser",
-	Password: "password123",
-	Host:     "http://localhost:8082",
-	Email:    "testuser@example.com",
+	Username:        "testuser",
+	Password:        "password123",
+	Origin:          "http://localhost:8082",
+	Email:           "testuser@example.com",
+	SetOriginHeader: true,
 }
 
 func TestFileUploadDownload(t *testing.T) {
@@ -95,17 +96,18 @@ func downloadFile(url string) ([]byte, error) {
 // TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
 
 type Hub struct {
-	Username string
-	Password string
-	Host     string
-	Email    string
+	Username        string
+	Password        string
+	Origin          string
+	Email           string
+	SetOriginHeader bool
 }
 
 func getRegistrationForm() *RegistrationForm {
 	return &RegistrationForm{
 		Username: hub.Username,
 		Password: hub.Password,
-		Host:     hub.Host,
+		Origin:   hub.Origin,
 		Email:    hub.Email,
 	}
 }
@@ -131,10 +133,19 @@ func TestCreateUser(t *testing.T) {
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
 	form := getRegistrationForm()
-	form.Host = "http://non-existing-subdomain.localhost:8082"
-	hub.createUser(form)
-	//assert.NotNil(t, err)
-	//assert.Equal(t, "Origin policy ", err.Error())
+	fakeOrigin := "http://non-existing-subdomain.localhost:8082"
+	assert.Nil(t, hub.createUser(form))
+
+	// TODO
+	/*hub.SetOriginHeader = false
+	err := hub.deleteUser()
+	assert.NotNil(t, err)
+	expected := fmt.Sprintf("Security policy does not allow this request without 'Origin' header")
+	assert.Equal(t, expected, err.Error())
+	*/
+
+	form.Origin = fakeOrigin
+	// TODO expected := fmt.Sprintf("Security policy does not allow requests from origin: %s", fakeOrigin)
 }
 
 func (h *Hub) createUser(form *RegistrationForm) error {
@@ -176,6 +187,10 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 		return nil, fmt.Errorf("Failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
+
+	if hub.SetOriginHeader {
+		req.Header.Set("Origin", hub.Origin)
+	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
