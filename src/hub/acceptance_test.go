@@ -12,6 +12,13 @@ import (
 	"time"
 )
 
+var hub = Hub{
+	Username: "testuser",
+	Password: "password123",
+	Host:     "http://localhost:8082",
+	Email:    "testuser@example.com",
+}
+
 func TestFileUploadDownload(t *testing.T) {
 	defer cleanup()
 	// TODO Should be global?
@@ -85,16 +92,24 @@ func downloadFile(url string) ([]byte, error) {
 
 // TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
 
-type Hub struct{}
+type Hub struct {
+	Username string
+	Password string
+	Host     string
+	Email    string
+}
+
+func getRegistrationForm() *RegistrationForm {
+	return &RegistrationForm{
+		Username: hub.Username,
+		Password: hub.Password,
+		Host:     hub.Host,
+		Email:    hub.Email,
+	}
+}
 
 func TestCreateUser(t *testing.T) {
-	hub := Hub{}
-	form := &RegistrationForm{
-		Username: "testuser",
-		Password: "password123",
-		Host:     "http://localhost:8082",
-		Email:    "testuser@example.com",
-	}
+	form := getRegistrationForm()
 	assert.Nil(t, hub.createUser(form))
 	cookie, err := hub.login()
 	assert.Nil(t, err)
@@ -113,26 +128,14 @@ func TestCreateUser(t *testing.T) {
 // TODO Add a cleanup function after that.
 // TODO initialize hub with form, maybe in a setup function?
 func TestDeleteUser(t *testing.T) {
-	hub := Hub{}
-	form := &RegistrationForm{
-		Username: "testuser2",
-		Password: "password123",
-		Host:     "http://localhost:8082",
-		Email:    "testuser@example.com",
-	}
+	form := getRegistrationForm()
 	assert.Nil(t, hub.createUser(form))
 	assert.Nil(t, hub.deleteUser())
 }
 
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
-	hub := Hub{}
-	form := &RegistrationForm{
-		Username: "testuser3",
-		Password: "password123",
-		Host:     "http://non-existing-domain:8082",
-		Email:    "testuser@example.com",
-	}
+	form := getRegistrationForm()
 	hub.createUser(form)
 }
 
