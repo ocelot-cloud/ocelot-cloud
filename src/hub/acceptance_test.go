@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+// TODO There should be a one-liner to get a "hub" instance, that is already logged in, with cookie etc, to start functional testing
+
 var hub = Hub{
 	Username: "testuser",
 	Password: "password123",
