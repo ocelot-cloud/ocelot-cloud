@@ -7,7 +7,7 @@ var (
 	usersDir     = dataDir + "/users"
 	databaseFile = dataDir + "/sqlite.db"
 
-	Logger           = shared.ProvideLogger()
+	Logger           shared.Logger
 	tagPath          = "/tags"
 	uploadPath       = tagPath + "/upload"
 	downloadPath     = tagPath + "/download/"
