@@ -115,7 +115,7 @@ func getRegistrationForm() *RegistrationForm {
 func TestCreateUser(t *testing.T) {
 	defer assert.Nil(t, hub.deleteUser())
 	form := getRegistrationForm()
-	assert.Nil(t, hub.createUser(form))
+	assert.Nil(t, hub.registerUser(form))
 	cookie, err := hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
@@ -134,7 +134,7 @@ func TestCreateUser(t *testing.T) {
 func TestOriginPolicy(t *testing.T) {
 	form := getRegistrationForm()
 	fakeOrigin := "http://non-existing-subdomain.localhost:8082"
-	assert.Nil(t, hub.createUser(form))
+	assert.Nil(t, hub.registerUser(form))
 
 	// TODO
 	/*hub.SetOriginHeader = false
@@ -148,8 +148,8 @@ func TestOriginPolicy(t *testing.T) {
 	// TODO expected := fmt.Sprintf("Security policy does not allow requests from origin: %s", fakeOrigin)
 }
 
-func (h *Hub) createUser(form *RegistrationForm) error {
-	_, err := h.doRequest("/users", form, "User created", http.StatusCreated, "POST")
+func (h *Hub) registerUser(form *RegistrationForm) error {
+	_, err := h.doRequest("/registration", form, "User registered", http.StatusCreated, "POST")
 	return err
 }
 
@@ -209,7 +209,7 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 	}
 
 	if string(respBody) != expectedMessage {
-		return nil, fmt.Errorf("Expected response body %s, got %s", expectedMessage, string(respBody))
+		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
 	}
 	return resp, nil
 }

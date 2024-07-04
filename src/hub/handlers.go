@@ -116,14 +116,37 @@ var repo Repository = &SqliteRepository{}
 
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		createReceivedUser(w, r)
-	} else if r.Method == http.MethodDelete {
+	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func registrationHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var user RegistrationForm
+	if err := json.Unmarshal(body, &user); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// TODO Handle error
+	fs.CreateUser(user.Username)
+	repo.CreateUser(user.Username, user.Password)
+	Logger.Info("Created user: %s", user.Username)
+
+	// TODO Handle error
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("User registered"))
 }
 
 type User struct {
@@ -153,31 +176,6 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	// TODO Handle error
 	w.Write([]byte("User deleted"))
-}
-
-func createReceivedUser(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	var user RegistrationForm
-	if err := json.Unmarshal(body, &user); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// TODO Handle error
-	fs.CreateUser(user.Username)
-	repo.CreateUser(user.Username, user.Password)
-	Logger.Info("Created user: %s", user.Username)
-
-	// TODO Handle error
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("User created"))
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {

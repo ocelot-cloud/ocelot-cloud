@@ -6,15 +6,16 @@ import (
 )
 
 var (
-	Logger       = shared.ProvideLogger()
-	tagPath      = "/tags"
-	uploadPath   = tagPath + "/upload"
-	downloadPath = tagPath + "/download/"
-	userPath     = "/users"
-	appPath      = "/apps"
-	loginPath    = "/login"
-	port         = "8082"
-	rootUrl      = "http://localhost:" + port
+	Logger           = shared.ProvideLogger()
+	tagPath          = "/tags"
+	uploadPath       = tagPath + "/upload"
+	downloadPath     = tagPath + "/download/"
+	userPath         = "/users"
+	appPath          = "/apps"
+	loginPath        = "/login"
+	registrationPath = "/registration"
+	port             = "8082"
+	rootUrl          = "http://localhost:" + port
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)
 	http.HandleFunc(appPath, appHandler)
+	http.HandleFunc(registrationPath, registrationHandler)
 	http.HandleFunc(userPath, userHandler)
 	http.HandleFunc(loginPath, loginHandler)
 
