@@ -95,6 +95,7 @@ func (u *SqliteRepository) CreateUser(user string, password string) error {
 		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
 	}
 
+	// TODO Previously check whether user already exists? Here or in handler?
 	_, err = db.Exec("INSERT INTO users (user_name, hashed_password) VALUES (?, ?)", user, hashedPassword)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to create user: %v", err)
