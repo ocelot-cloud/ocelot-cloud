@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"io"
 	"mime/multipart"
@@ -84,10 +85,11 @@ func downloadFile(url string) ([]byte, error) {
 // TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
 
 func TestCreateUserViaHttp(t *testing.T) {
-	createUser(t)
+	err := createUser()
+	assert.Nil(t, err)
 }
 
-func createUser(t *testing.T) {
+func createUser() error {
 	url := rootUrl + "/users"
 	user := User{
 		Username: "testuser",
@@ -96,34 +98,35 @@ func createUser(t *testing.T) {
 	}
 	payloadBytes, err := json.Marshal(user)
 	if err != nil {
-		t.Fatalf("Failed to marshal user: %v", err)
+		return fmt.Errorf("Failed to marshal user: %v", err)
 	}
 	payload := bytes.NewReader(payloadBytes)
 
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
+		return fmt.Errorf("Failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Fatalf("Failed to send request: %v", err)
+		return fmt.Errorf("Failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		t.Errorf("Expected status code %d, got %d", http.StatusCreated, resp.StatusCode)
+		return fmt.Errorf("Expected status code %d, got %d", http.StatusCreated, resp.StatusCode)
 	}
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		t.Fatalf("Failed to read response body: %v", err)
+		return fmt.Errorf("Failed to read response body: %v", err)
 	}
 
 	expectedResponse := "User created"
 	if string(respBody) != expectedResponse {
-		t.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
+		return fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
 	}
+	return nil
 }
