@@ -5,7 +5,8 @@ go build
 
 ./hub &
 PID=$!
-go test -run TestHubRestApi
+go test -run TestCreateUser
+go test -run TestDeleteUser
 
 kill $PID
 ls data/users

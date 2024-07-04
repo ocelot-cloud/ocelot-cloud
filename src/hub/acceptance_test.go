@@ -87,9 +87,15 @@ func downloadFile(url string) ([]byte, error) {
 
 type Hub struct{}
 
-func TestHubRestApi(t *testing.T) {
+func TestCreateUser(t *testing.T) {
 	hub := Hub{}
-	err := hub.createUser()
+	form := &RegistrationForm{
+		Username: "testuser",
+		Password: "password123",
+		Host:     "http://localhost:8082",
+		Email:    "testuser@example.com",
+	}
+	err := hub.createUser(form)
 	assert.Nil(t, err)
 	cookie, err := hub.login()
 	assert.Nil(t, err)
@@ -105,15 +111,35 @@ func TestHubRestApi(t *testing.T) {
 	assert.NotEqual(t, cookie.Value, cookie2.Value)
 }
 
-func (h *Hub) createUser() error {
-	url := rootUrl + "/users"
-	user := RegistrationForm{
-		Username: "testuser",
+// TODO Add a cleanup function after that.
+// TODO initialize hub with form, maybe in a setup function?
+func TestDeleteUser(t *testing.T) {
+	hub := Hub{}
+	form := &RegistrationForm{
+		Username: "testuser2",
 		Password: "password123",
-		Host:     "localhost",
+		Host:     "http://localhost:8082",
 		Email:    "testuser@example.com",
 	}
-	payloadBytes, err := json.Marshal(user)
+	assert.Nil(t, hub.createUser(form))
+	//assert.Nil(t, hub.deleteUser())
+}
+
+// TODO Can just be done, when I have a protected endpoint
+func TestOriginPolicy(t *testing.T) {
+	hub := Hub{}
+	form := &RegistrationForm{
+		Username: "testuser3",
+		Password: "password123",
+		Host:     "http://non-existing-domain:8082",
+		Email:    "testuser@example.com",
+	}
+	hub.createUser(form)
+}
+
+func (h *Hub) createUser(form *RegistrationForm) error {
+	url := rootUrl + "/users"
+	payloadBytes, err := json.Marshal(form)
 	if err != nil {
 		return fmt.Errorf("Failed to marshal user: %v", err)
 	}
@@ -192,4 +218,9 @@ func (h *Hub) login() (*http.Cookie, error) {
 		return nil, fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
 	return cookies[0], nil // TODO return cookie for assertion
+}
+
+func (h *Hub) deleteUser() error {
+
+	return nil
 }

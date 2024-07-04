@@ -117,14 +117,32 @@ var repo Repository = &SqliteRepository{}
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		printReceivedUser(w, r)
+		createReceivedUser(w, r)
+	} else if r.Method == http.MethodDelete {
+		deleteReceivedUser(w, r)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 }
 
-func printReceivedUser(w http.ResponseWriter, r *http.Request) {
+func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+
+	// TODO Only allowed, when the cookie belongs to the user. To be tested: try to delete a second/different user
+	var user string
+	if err := json.Unmarshal(body, &user); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+}
+
+func createReceivedUser(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Unable to read request body", http.StatusBadRequest)

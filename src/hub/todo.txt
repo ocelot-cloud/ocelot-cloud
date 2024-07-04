@@ -28,3 +28,6 @@ TODO At the beginning always login in the local cloud. On first use of upload, l
 TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
 TODO Implement and refactor security of backend and hub, including CSRF protection.
 TODO In the end, add deploy script which only works on my device, since I have the correct SSH keys and config.
+
+TODO Make sure anyone can only delete his own stuff: his own user account/apps/tags etc.
+TODO if there is no origin, then deny request and put that info in response
