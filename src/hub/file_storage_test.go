@@ -1,22 +1,12 @@
+//go:build unit
+
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"os"
 	"testing"
-)
-
-var (
-	sampleUser                    = "myuser"
-	sampleApp                     = "myapp"
-	sampleTag                     = "v0.0.1"
-	singleUserDir                 = usersDir + "/" + sampleUser
-	appDir                        = singleUserDir + "/" + sampleApp
-	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
-	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
-	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 )
 
 func TestFilesystemManager(t *testing.T) {
@@ -153,14 +143,6 @@ func TestReadingTags(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(list))
 	assert.Equal(t, sampleTag, list[0])
-}
-
-func cleanup() {
-	err := deleteIfExist(dataDir)
-	if err != nil {
-		Logger.Error("Cleanup: Could not delete dir: %s", dataDir)
-		os.Exit(1)
-	}
 }
 
 func TestParentNotFound(t *testing.T) {
