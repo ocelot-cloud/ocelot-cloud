@@ -11,7 +11,6 @@ import (
 var db *sql.DB
 
 func initializeDatabase(dataSourceName string) {
-	createDataDir()
 	// TODO Add database scheme version?
 	var err error
 	db, err = sql.Open("sqlite3", dataSourceName)
