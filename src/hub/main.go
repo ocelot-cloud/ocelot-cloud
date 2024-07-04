@@ -1,21 +1,7 @@
 package main
 
 import (
-	"github.com/ocelot-cloud/shared"
 	"net/http"
-)
-
-var (
-	Logger           = shared.ProvideLogger()
-	tagPath          = "/tags"
-	uploadPath       = tagPath + "/upload"
-	downloadPath     = tagPath + "/download/"
-	userPath         = "/users"
-	appPath          = "/apps"
-	loginPath        = "/login"
-	registrationPath = "/registration"
-	port             = "8082"
-	rootUrl          = "http://localhost:" + port
 )
 
 func main() {

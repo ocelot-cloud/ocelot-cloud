@@ -9,13 +9,14 @@ import (
 	"strings"
 )
 
-var (
-	dataDir  = "data"
-	usersDir = dataDir + "/users"
-)
-
-func init() {
-	setup()
+// TODO Should be put in shared folder. Also necessary for logger files.
+func createDataDir() {
+	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
+			Logger.Error("Error creating users directory: %v. Terminating application.", err)
+			os.Exit(1)
+		}
+	}
 }
 
 // TODO
@@ -29,15 +30,6 @@ type FileStorage interface {
 }
 
 type FileStorageImpl struct{}
-
-func setup() {
-	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
-			Logger.Error("Error creating users directory: %v. Terminating application.", err)
-			os.Exit(1)
-		}
-	}
-}
 
 func (f *FileStorageImpl) CreateUser(username string) error {
 	userDir := filepath.Join(usersDir, username)

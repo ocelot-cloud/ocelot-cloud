@@ -20,7 +20,7 @@ var (
 )
 
 func TestFilesystemManager(t *testing.T) {
-	setup()
+	createDataDir()
 	defer cleanup()
 	assert.Nil(t, fs.CreateUser(sampleUser))
 	assert.True(t, doesFolderExist(singleUserDir))
@@ -94,7 +94,7 @@ func isFolderEmpty(relativePath string) bool {
 // limit to 100 elements? Allow search terms?
 
 func TestReadingUsers(t *testing.T) {
-	setup()
+	createDataDir()
 	defer cleanup()
 	assert.Equal(t, 0, len(GetUserList()))
 	assert.Nil(t, fs.CreateUser(sampleUser))
@@ -113,7 +113,7 @@ func TestReadingUsers(t *testing.T) {
 func TestSetup(t *testing.T) {
 	cleanup()
 	assert.False(t, doesFolderExist(usersDir))
-	setup()
+	createDataDir()
 	assert.True(t, doesFolderExist(usersDir))
 	cleanup()
 }
@@ -164,7 +164,7 @@ func cleanup() {
 }
 
 func TestParentNotFound(t *testing.T) {
-	setup()
+	createDataDir()
 	defer cleanup()
 
 	err := fs.CreateApp(sampleUser, sampleApp)

@@ -1,0 +1,20 @@
+package main
+
+import "github.com/ocelot-cloud/shared"
+
+var (
+	dataDir      = "data"
+	usersDir     = dataDir + "/users"
+	databaseFile = dataDir + "/sqlite.db"
+
+	Logger           = shared.ProvideLogger()
+	tagPath          = "/tags"
+	uploadPath       = tagPath + "/upload"
+	downloadPath     = tagPath + "/download/"
+	userPath         = "/users"
+	appPath          = "/apps"
+	loginPath        = "/login"
+	registrationPath = "/registration"
+	port             = "8082"
+	rootUrl          = "http://localhost:" + port
+)

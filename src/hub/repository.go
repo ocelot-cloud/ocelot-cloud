@@ -8,10 +8,10 @@ import (
 
 // TODO use sqlite to store users, apps (for search), password etc.
 
-var databaseFile = "sqlite.db"
 var db *sql.DB
 
 func initializeDatabase() {
+	createDataDir()
 	// TODO Add database scheme version?
 	var err error
 	db, err = sql.Open("sqlite3", databaseFile)
