@@ -8,10 +8,10 @@ import (
 func init() {
 	createDataDir()
 	Logger = shared.ProvideLogger() // TODO dataDir should be moved to "shared". ProvideLogger should create the logs.txt in dataDir
-	initializeDatabase()
 }
 
 func main() {
+	initializeDatabase(databaseFile)
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
 	http.HandleFunc(uploadPath, uploadHandler)     // TODO apply middleware
 	http.HandleFunc(downloadPath, downloadHandler) // TODO apply middleware

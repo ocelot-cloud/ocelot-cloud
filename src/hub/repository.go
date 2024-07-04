@@ -10,11 +10,11 @@ import (
 
 var db *sql.DB
 
-func initializeDatabase() {
+func initializeDatabase(dataSourceName string) {
 	createDataDir()
 	// TODO Add database scheme version?
 	var err error
-	db, err = sql.Open("sqlite3", databaseFile)
+	db, err = sql.Open("sqlite3", dataSourceName)
 	if err != nil {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}

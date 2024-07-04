@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"os"
 	"sort"
 	"testing"
 )
@@ -11,8 +12,13 @@ import (
 var samplePassword = "mypassword"
 var um Repository = &SqliteRepository{}
 
+func TestMain(m *testing.M) {
+	initializeDatabase(":memory:")
+	code := m.Run()
+	os.Exit(code)
+}
+
 func TestCreateRepoUser(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
@@ -23,7 +29,6 @@ func TestCreateRepoUser(t *testing.T) {
 }
 
 func TestCreateRepoApp(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
@@ -32,7 +37,6 @@ func TestCreateRepoApp(t *testing.T) {
 }
 
 func TestDeleteAppCascadingThroughUser(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
@@ -42,7 +46,6 @@ func TestDeleteAppCascadingThroughUser(t *testing.T) {
 }
 
 func TestDeleteAppDirectly(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
@@ -53,14 +56,12 @@ func TestDeleteAppDirectly(t *testing.T) {
 }
 
 func TestCantCreateUserTwice(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.NotNil(t, um.CreateUser(sampleUser, samplePassword))
 }
 
 func TestCantCreateAppTwiceForSameUser(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
@@ -68,13 +69,11 @@ func TestCantCreateAppTwiceForSameUser(t *testing.T) {
 }
 
 func TestCantCreateAppWithoutUser(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.NotNil(t, um.CreateApp(sampleUser, sampleApp))
 }
 
 func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
@@ -84,7 +83,6 @@ func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 }
 
 func TestTolerateSameAppsForTwoUsers(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
@@ -101,7 +99,6 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 }
 
 func TestPasswordVerification(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
@@ -109,7 +106,6 @@ func TestPasswordVerification(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	um.CreateUser(sampleUser, samplePassword)
 	app1 := "prefix_myapp_suffix"
@@ -132,7 +128,6 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchNegative(t *testing.T) {
-	initializeDatabase()
 	defer cleanupDatabase()
 	um.CreateUser(sampleUser, samplePassword)
 	app := "prefix_myapp_suffix"
