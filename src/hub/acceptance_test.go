@@ -84,12 +84,21 @@ func downloadFile(url string) ([]byte, error) {
 
 // TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
 
-func TestCreateUserViaHttp(t *testing.T) {
-	err := createUser()
+type Hub struct{}
+
+func TestHubRestApi(t *testing.T) {
+	hub := Hub{}
+	err := hub.createUser()
 	assert.Nil(t, err)
+	cookie, err := hub.login()
+	assert.Nil(t, err)
+	assert.NotNil(t, cookie)
+	assert.Equal(t, "auth", cookie.Name)
+	// TODO assert expiration date
+	println("cookie: " + cookie.Value)
 }
 
-func createUser() error {
+func (h *Hub) createUser() error {
 	url := rootUrl + "/users"
 	user := User{
 		Username: "testuser",
@@ -129,4 +138,50 @@ func createUser() error {
 		return fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
 	}
 	return nil
+}
+
+func (h *Hub) login() (*http.Cookie, error) {
+	url := rootUrl + "/login"
+	user := LoginCredentials{
+		Username: "testuser",
+		Password: "password123",
+	}
+	payloadBytes, err := json.Marshal(user)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to marshal credentials: %v", err)
+	}
+	payload := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Expected status code %d, got %d", http.StatusCreated, resp.StatusCode)
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read response body: %v", err)
+	}
+
+	expectedResponse := "login successful"
+	if string(respBody) != expectedResponse {
+		return nil, fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
+	}
+
+	cookies := resp.Cookies()
+	if len(cookies) != 1 {
+		return nil, fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
+	}
+	return cookies[0], nil // TODO return cookie for assertion
 }

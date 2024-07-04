@@ -120,14 +120,14 @@ var repo Repository = &SqliteRepository{}
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		doPostStuff(w, r)
+		printReceivedUser(w, r)
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 }
 
-func doPostStuff(w http.ResponseWriter, r *http.Request) {
+func printReceivedUser(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Unable to read request body", http.StatusBadRequest)
@@ -172,3 +172,38 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 //  did not got email stuff. If it got them, It will run a test to check whether
 //  it works. If so, start normally. If not, it exits immediately.
 //  If it exits early, make a short explanation on why it does that. "printEmailExplanation"?
+
+// TODO Should be be used in UserHandler
+type RegistrationForm struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Host     string `json:"host"`
+}
+
+type LoginCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	Logger.Debug("login logic called")
+	var creds LoginCredentials
+	err := json.NewDecoder(r.Body).Decode(&creds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// TODO verify username+password
+	// TODO Use safe, randomly generated cookies instead. I think gorilla provides some.
+	// TODO Add cookie + expiration time/date to sqlite to survive restarts.
+	// TODO Add cookie renewal logic when used in the middleware. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
+	// TODO In the tests, check that cookie has correct length and has different value when requesting a seconds one.
+	http.SetCookie(w, &http.Cookie{
+		Name:   "auth",
+		Value:  "valid", // TODO insecure
+		MaxAge: 3600,
+	})
+	w.Write([]byte("login successful"))
+}

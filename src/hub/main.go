@@ -12,6 +12,7 @@ var (
 	downloadPath = tagPath + "/download/"
 	userPath     = "/users"
 	appPath      = "/apps"
+	loginPath    = "/login"
 	port         = "8082"
 	rootUrl      = "http://localhost:" + port
 )
@@ -23,6 +24,7 @@ func main() {
 	http.HandleFunc(tagPath, tagHandler)
 	http.HandleFunc(appPath, appHandler)
 	http.HandleFunc(userPath, userHandler)
+	http.HandleFunc(loginPath, loginHandler)
 
 	Logger.Info("Server started on port %s", port)
 	err := http.ListenAndServe(":"+port, nil)
