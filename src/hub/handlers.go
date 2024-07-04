@@ -159,12 +159,14 @@ func createReceivedUser(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	var user RegistrationForm
 	if err := json.Unmarshal(body, &user); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -173,8 +175,8 @@ func createReceivedUser(w http.ResponseWriter, r *http.Request) {
 	repo.CreateUser(user.Username, user.Password)
 	Logger.Info("Created user: %s", user.Username)
 
-	w.WriteHeader(http.StatusCreated)
 	// TODO Handle error
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User created"))
 }
 

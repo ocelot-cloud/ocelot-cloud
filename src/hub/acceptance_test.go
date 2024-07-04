@@ -95,8 +95,7 @@ func TestCreateUser(t *testing.T) {
 		Host:     "http://localhost:8082",
 		Email:    "testuser@example.com",
 	}
-	err := hub.createUser(form)
-	assert.Nil(t, err)
+	assert.Nil(t, hub.createUser(form))
 	cookie, err := hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
@@ -138,40 +137,8 @@ func TestOriginPolicy(t *testing.T) {
 }
 
 func (h *Hub) createUser(form *RegistrationForm) error {
-	url := rootUrl + "/users"
-	payloadBytes, err := json.Marshal(form)
-	if err != nil {
-		return fmt.Errorf("Failed to marshal user: %v", err)
-	}
-	payload := bytes.NewReader(payloadBytes)
-
-	req, err := http.NewRequest("POST", url, payload)
-	if err != nil {
-		return fmt.Errorf("Failed to create request: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("Failed to send request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("Expected status code %d, got %d", http.StatusCreated, resp.StatusCode)
-	}
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("Failed to read response body: %v", err)
-	}
-
-	expectedResponse := "User created"
-	if string(respBody) != expectedResponse {
-		return fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
-	}
-	return nil
+	_, err := h.doPostRequest("/users", form, "User created", http.StatusCreated)
+	return err
 }
 
 func (h *Hub) login() (*http.Cookie, error) {
@@ -257,4 +224,39 @@ func (h *Hub) deleteUser() error {
 		return fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
 	}
 	return nil
+}
+
+func (h *Hub) doPostRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int) (*http.Response, error) {
+	url := rootUrl + path
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to marshal payload: %v", err)
+	}
+	payloadReader := bytes.NewReader(payloadBytes)
+	req, err := http.NewRequest("POST", url, payloadReader)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != expectedStatusCode {
+		return nil, fmt.Errorf("Expected status code %d, but got %d", expectedStatusCode, resp.StatusCode)
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read response body: %v", err)
+	}
+
+	if string(respBody) != expectedMessage {
+		return nil, fmt.Errorf("Expected response body %s, got %s", expectedMessage, string(respBody))
+	}
+	return resp, nil
 }
