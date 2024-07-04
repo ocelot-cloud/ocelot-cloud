@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestFileUploadDownload(t *testing.T) {
@@ -94,8 +95,14 @@ func TestHubRestApi(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
 	assert.Equal(t, "auth", cookie.Name)
-	// TODO assert expiration date
-	println("cookie: " + cookie.Value)
+	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(cookie.Expires))
+	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(cookie.Expires))
+	assert.Equal(t, 64, len(cookie.Value))
+
+	cookie2, err := hub.login()
+	assert.Nil(t, err)
+	assert.NotNil(t, cookie2)
+	assert.NotEqual(t, cookie.Value, cookie2.Value)
 }
 
 func (h *Hub) createUser() error {
