@@ -142,42 +142,13 @@ func (h *Hub) createUser(form *RegistrationForm) error {
 }
 
 func (h *Hub) login() (*http.Cookie, error) {
-	url := rootUrl + "/login"
-	user := LoginCredentials{
+	creds := LoginCredentials{
 		Username: "testuser",
 		Password: "password123",
 	}
-	payloadBytes, err := json.Marshal(user)
+	resp, err := h.doRequest("/login", creds, "login successful", http.StatusOK, "GET")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal credentials: %v", err)
-	}
-	payload := bytes.NewReader(payloadBytes)
-
-	req, err := http.NewRequest("POST", url, payload)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create request: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to send request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Expected status code %d, got %d", http.StatusCreated, resp.StatusCode)
-	}
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read response body: %v", err)
-	}
-
-	expectedResponse := "login successful"
-	if string(respBody) != expectedResponse {
-		return nil, fmt.Errorf("Expected response body %s, got %s", expectedResponse, string(respBody))
+		return nil, err
 	}
 
 	cookies := resp.Cookies()
