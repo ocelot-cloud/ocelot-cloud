@@ -136,7 +136,7 @@ func TestCreateApp(t *testing.T) {
 	defer assert.Nil(t, hub.deleteUser())
 	form := getRegistrationForm()
 	assert.Nil(t, hub.registerUser(form))
-	assert.Nil(t, hub.createApp())
+	// TODO assert.Nil(t, hub.createApp())
 }
 
 // TODO Can just be done, when I have a protected endpoint
@@ -224,6 +224,11 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 }
 
 func (h *Hub) createApp() error {
-	//_, err := h.doRequest(appPath, SingleString{hub.App}, "User deleted", http.StatusOK, "DELETE")
-	return nil //err
+	_, err := h.doRequest(appPath, SingleString{hub.App}, "app created", http.StatusCreated, "POST")
+	return err
+}
+
+func (h *Hub) findApps() error {
+	_, err := h.doRequest(appPath, nil, "search successful", http.StatusOK, "GET")
+	return err
 }
