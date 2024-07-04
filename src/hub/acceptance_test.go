@@ -100,10 +100,11 @@ func TestHubRestApi(t *testing.T) {
 
 func (h *Hub) createUser() error {
 	url := rootUrl + "/users"
-	user := User{
+	user := RegistrationForm{
 		Username: "testuser",
 		Password: "password123",
 		Host:     "localhost",
+		Email:    "testuser@example.com",
 	}
 	payloadBytes, err := json.Marshal(user)
 	if err != nil {

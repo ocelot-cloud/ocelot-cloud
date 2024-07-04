@@ -105,12 +105,6 @@ type FileInfo struct {
 	FileName string
 }
 
-type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-}
-
 var fs FileStorage = &FileStorageImpl{}
 var repo Repository = &SqliteRepository{}
 
@@ -134,7 +128,7 @@ func printReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
+	var user RegistrationForm
 	if err := json.Unmarshal(body, &user); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
