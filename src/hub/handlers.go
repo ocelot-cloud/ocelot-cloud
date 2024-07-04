@@ -159,7 +159,7 @@ func createReceivedUser(w http.ResponseWriter, r *http.Request) {
 
 	// TODO Handle error
 	fs.CreateUser(user.Username)
-	// TODO repo.CreateUser(user.Username, user.Password)
+	repo.CreateUser(user.Username, user.Password)
 
 	w.WriteHeader(http.StatusCreated)
 	// TODO Handle error

@@ -18,7 +18,9 @@ var (
 )
 
 func main() {
-	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it shared module.
+	initializeDatabase()
+
+	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
 	http.HandleFunc(uploadPath, uploadHandler)
 	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)

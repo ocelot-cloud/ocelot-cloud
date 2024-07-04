@@ -10,11 +10,12 @@ var samplePassword = "mypassword"
 var um Repository = &SqliteRepository{}
 
 func init() {
-	resetDatabase()
+	initializeDatabase()
+	cleanupDatabase()
 }
 
 func TestCreateRepoUser(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.True(t, um.DoesUserExist(sampleUser))
@@ -24,7 +25,7 @@ func TestCreateRepoUser(t *testing.T) {
 }
 
 func TestCreateRepoApp(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
@@ -32,7 +33,7 @@ func TestCreateRepoApp(t *testing.T) {
 }
 
 func TestDeleteAppCascadingThroughUser(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
@@ -41,7 +42,7 @@ func TestDeleteAppCascadingThroughUser(t *testing.T) {
 }
 
 func TestDeleteAppDirectly(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
@@ -51,25 +52,25 @@ func TestDeleteAppDirectly(t *testing.T) {
 }
 
 func TestCantCreateUserTwice(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.NotNil(t, um.CreateUser(sampleUser, samplePassword))
 }
 
 func TestCantCreateAppTwiceForSameUser(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.NotNil(t, um.CreateApp(sampleUser, sampleApp))
 }
 
 func TestCantCreateAppWithoutUser(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.NotNil(t, um.CreateApp(sampleUser, sampleApp))
 }
 
 func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateUser(user2, samplePassword))
@@ -78,7 +79,7 @@ func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 }
 
 func TestTolerateSameAppsForTwoUsers(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.Nil(t, um.CreateUser(user2, samplePassword))
@@ -94,14 +95,14 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 }
 
 func TestPasswordVerification(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.False(t, um.IsPasswordCorrect(sampleUser, samplePassword+"x"))
 }
 
 func TestSearch(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	um.CreateUser(sampleUser, samplePassword)
 	app1 := "prefix_myapp_suffix"
 	app2 := "prefix_another-app_suffix"
@@ -123,7 +124,7 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchNegative(t *testing.T) {
-	defer resetDatabase()
+	defer cleanupDatabase()
 	um.CreateUser(sampleUser, samplePassword)
 	app := "prefix_myapp_suffix"
 	um.CreateApp(sampleUser, app)
@@ -133,7 +134,22 @@ func TestSearchNegative(t *testing.T) {
 	assert.Equal(t, 0, len(a))
 }
 
-func resetDatabase() {
-	deleteIfExist(databaseFile)
-	initializeDatabase()
+func cleanupDatabase() {
+	users := getUsers()
+	for _, v := range users {
+		um.DeleteUser(v)
+	}
+}
+
+func getUsers() []string {
+	rows, _ := db.Query("SELECT user_name FROM users")
+	defer rows.Close()
+
+	var usernames []string
+	for rows.Next() {
+		var userName string
+		rows.Scan(&userName)
+		usernames = append(usernames, userName)
+	}
+	return usernames
 }

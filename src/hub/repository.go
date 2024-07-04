@@ -11,10 +11,6 @@ import (
 var databaseFile = "sqlite.db"
 var db *sql.DB
 
-func init() {
-	initializeDatabase()
-}
-
 func initializeDatabase() {
 	// TODO Add database scheme version?
 	var err error
@@ -47,6 +43,7 @@ func initializeDatabase() {
 		Logger.Fatal("Failed to create apps table: %v\n", err)
 	}
 
+	Logger.Info("Database initialized")
 	// TODO Add initial schemes. With version number table.
 }
 
