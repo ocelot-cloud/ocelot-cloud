@@ -111,6 +111,7 @@ func getRegistrationForm() *RegistrationForm {
 }
 
 func TestCreateUser(t *testing.T) {
+	defer assert.Nil(t, hub.deleteUser())
 	form := getRegistrationForm()
 	assert.Nil(t, hub.createUser(form))
 	cookie, err := hub.login()
@@ -127,18 +128,13 @@ func TestCreateUser(t *testing.T) {
 	assert.NotEqual(t, cookie.Value, cookie2.Value)
 }
 
-// TODO Add a cleanup function after that.
-// TODO initialize hub with form, maybe in a setup function?
-func TestDeleteUser(t *testing.T) {
-	form := getRegistrationForm()
-	assert.Nil(t, hub.createUser(form))
-	assert.Nil(t, hub.deleteUser())
-}
-
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
 	form := getRegistrationForm()
+	form.Host = "http://non-existing-subdomain.localhost:8082"
 	hub.createUser(form)
+	//assert.NotNil(t, err)
+	//assert.Equal(t, "Origin policy ", err.Error())
 }
 
 func (h *Hub) createUser(form *RegistrationForm) error {
