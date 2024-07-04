@@ -20,6 +20,7 @@ var hub = Hub{
 	Origin:          "http://localhost:8082",
 	Email:           "testuser@example.com",
 	SetOriginHeader: true,
+	App:             sampleApp,
 }
 
 func TestFileUploadDownload(t *testing.T) {
@@ -101,6 +102,7 @@ type Hub struct {
 	Origin          string
 	Email           string
 	SetOriginHeader bool
+	App             string
 }
 
 func getRegistrationForm() *RegistrationForm {
@@ -112,7 +114,7 @@ func getRegistrationForm() *RegistrationForm {
 	}
 }
 
-func TestCreateUser(t *testing.T) {
+func TestCookie(t *testing.T) {
 	defer assert.Nil(t, hub.deleteUser())
 	form := getRegistrationForm()
 	assert.Nil(t, hub.registerUser(form))
@@ -128,6 +130,13 @@ func TestCreateUser(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie2)
 	assert.NotEqual(t, cookie.Value, cookie2.Value)
+}
+
+func TestCreateApp(t *testing.T) {
+	defer assert.Nil(t, hub.deleteUser())
+	form := getRegistrationForm()
+	assert.Nil(t, hub.registerUser(form))
+	assert.Nil(t, hub.createApp())
 }
 
 // TODO Can just be done, when I have a protected endpoint
@@ -149,16 +158,16 @@ func TestOriginPolicy(t *testing.T) {
 }
 
 func (h *Hub) registerUser(form *RegistrationForm) error {
-	_, err := h.doRequest("/registration", form, "User registered", http.StatusCreated, "POST")
+	_, err := h.doRequest(registrationPath, form, "User registered", http.StatusCreated, "POST")
 	return err
 }
 
 func (h *Hub) login() (*http.Cookie, error) {
 	creds := LoginCredentials{
-		Username: "testuser",
-		Password: "password123",
+		Username: hub.Username,
+		Password: hub.Password,
 	}
-	resp, err := h.doRequest("/login", creds, "login successful", http.StatusOK, "GET")
+	resp, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +180,7 @@ func (h *Hub) login() (*http.Cookie, error) {
 }
 
 func (h *Hub) deleteUser() error {
-	_, err := h.doRequest("/users", User{"testuser2"}, "User deleted", http.StatusOK, "DELETE")
+	_, err := h.doRequest(userPath, SingleString{hub.Username}, "User deleted", http.StatusOK, "DELETE")
 	return err
 }
 
@@ -212,4 +221,9 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
 	}
 	return resp, nil
+}
+
+func (h *Hub) createApp() error {
+	//_, err := h.doRequest(appPath, SingleString{hub.App}, "User deleted", http.StatusOK, "DELETE")
+	return nil //err
 }

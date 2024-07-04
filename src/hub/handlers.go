@@ -149,8 +149,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User registered"))
 }
 
-type User struct {
-	Name string `json:"name"`
+type SingleString struct {
+	Value string `json:"name"`
 }
 
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
@@ -161,17 +161,17 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Only allowed, when the cookie belongs to the username. To be tested: try to delete a second/different username
-	var user User
-	if err := json.Unmarshal(body, &user); err != nil {
+	var singleString SingleString
+	if err := json.Unmarshal(body, &singleString); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// TODO Misses some functions like: Does(User/App/Tag)Exist?
-	fs.DeleteUser(user.Name) // TODO Shouldn't that return a potential error?
-	repo.DeleteUser(user.Name)
+	fs.DeleteUser(singleString.Value) // TODO Shouldn't that return a potential error?
+	repo.DeleteUser(singleString.Value)
 
-	Logger.Info("Deleted user: %s", user.Name)
+	Logger.Info("Deleted user: %s", singleString.Value)
 
 	w.WriteHeader(http.StatusOK)
 	// TODO Handle error
