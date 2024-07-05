@@ -60,6 +60,7 @@ type Repository interface {
 	FindApps(query string) ([]App, error)
 	SetCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieValid(cookie string) bool
+	GetUserWithCookie(cookie string) (string, error)
 }
 
 type SqliteRepository struct{}
@@ -233,4 +234,18 @@ func (u *SqliteRepository) IsCookieValid(cookie string) bool {
 	}
 
 	return time.Now().UTC().After(expirationDate)
+}
+
+func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
+	if cookie == "" {
+		return "", Logger.LogAndReturnError("Can't search for empty string cookies")
+	}
+
+	var user string
+	err := db.QueryRow("SELECT user_name FROM users WHERE cookie = ?", cookie).Scan(&user)
+	if err != nil {
+		return "", Logger.LogAndReturnError("Failed to fetch user with cookie because: %v", err)
+	}
+
+	return user, nil
 }

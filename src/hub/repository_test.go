@@ -159,9 +159,12 @@ func getUsers() []string {
 	return usernames
 }
 
+// TODO handle the unhandled errors
 func TestCookieExpiration(t *testing.T) {
 	defer cleanupDatabase()
 	um.CreateUser(sampleUser, samplePassword)
+	_, err := um.GetUserWithCookie("")
+	assert.NotNil(t, err)
 
 	assert.True(t, um.IsCookieValid("non-existing-cookie"))
 
@@ -173,4 +176,8 @@ func TestCookieExpiration(t *testing.T) {
 	past := time.Now().Add(-1 * time.Second)
 	assert.Nil(t, um.SetCookie(sampleUser, cookie.Value, past))
 	assert.True(t, um.IsCookieValid(cookie.Value))
+
+	user, err := um.GetUserWithCookie(cookie.Value)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleUser, user)
 }
