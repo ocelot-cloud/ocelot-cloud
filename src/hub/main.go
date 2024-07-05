@@ -13,13 +13,13 @@ func init() {
 func main() {
 	initializeDatabase(databaseFile)
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
-	http.HandleFunc(uploadPath, uploadHandler)     // TODO apply middleware
-	http.HandleFunc(downloadPath, downloadHandler) // TODO apply middleware
-
-	http.HandleFunc(tagPath, applyMiddleware(tagHandler))
-	http.HandleFunc(appPath, applyMiddleware(appHandler))
-	http.HandleFunc(userPath, applyMiddleware(userHandler))
-	http.HandleFunc(loginPath, applyMiddleware(loginHandler))
+	// TODO apply middleware?
+	http.HandleFunc(uploadPath, uploadHandler)
+	http.HandleFunc(downloadPath, downloadHandler)
+	http.HandleFunc(tagPath, tagHandler)
+	http.HandleFunc(appPath, appHandler)
+	http.HandleFunc(userPath, userHandler)
+	http.HandleFunc(loginPath, loginHandler)
 
 	// Registration process is excluded from security, so no middleware is used.
 	http.HandleFunc(registrationPath, registrationHandler)
@@ -37,9 +37,6 @@ func applyMiddleware(handler func(w http.ResponseWriter, r *http.Request)) func(
 		if r.Method == http.MethodGet {
 			handler(w, r)
 		} else {
-			handler(w, r)
-			return // TODO
-
 			cookie, err := r.Cookie(cookieName)
 			if err != nil {
 				// TODO
@@ -49,7 +46,7 @@ func applyMiddleware(handler func(w http.ResponseWriter, r *http.Request)) func(
 				// TODO
 			} else {
 				// TODO Take request -> get user -> check if origin is correct.
-				// TODO handler(w, r)
+				handler(w, r)
 			}
 		}
 	}

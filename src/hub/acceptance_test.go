@@ -172,6 +172,7 @@ func (h *Hub) login() (*http.Cookie, error) {
 		Username: hub.Username,
 		Password: hub.Password,
 	}
+
 	resp, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET")
 	if err != nil {
 		return nil, err
@@ -181,7 +182,7 @@ func (h *Hub) login() (*http.Cookie, error) {
 	if len(cookies) != 1 {
 		return nil, fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
-
+	h.Cookie = cookies[0]
 	return cookies[0], nil // TODO return cookie for assertion
 }
 
@@ -205,6 +206,10 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 
 	if hub.SetOriginHeader {
 		req.Header.Set("Origin", hub.Origin)
+	}
+
+	if hub.Cookie != nil {
+		req.Header.Set(hub.Cookie.Name, hub.Cookie.Value)
 	}
 
 	client := &http.Client{}
