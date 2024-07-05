@@ -144,12 +144,12 @@ func TestCreateApp(t *testing.T) {
 
 	Hub.login()
 	assert.Nil(t, Hub.createApp())
-	/*foundApps, err := Hub.findApps(sampleApp)
+	foundApps, err := Hub.findApps(sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundApps))
-	*/
-
-	// TODO finish
+	app := foundApps[0]
+	assert.Equal(t, Hub.Username, app.Username)
+	assert.Equal(t, Hub.App, app.AppName)
 }
 
 // TODO After running "ci-runner" hub tests, I still have a "testuser" folder in data. Should actually be deleted after the test creating it.
@@ -183,9 +183,14 @@ func (h *HubClient) login() (*http.Cookie, error) {
 		Password: Hub.Password,
 	}
 
-	resp, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET", Login)
+	result, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET", Login)
 	if err != nil {
 		return nil, err
+	}
+
+	resp, ok := result.(*http.Response)
+	if !ok {
+		return nil, fmt.Errorf("Failed to assert result to *http.Response")
 	}
 
 	cookies := resp.Cookies()
@@ -201,7 +206,7 @@ func (h *HubClient) deleteUser() error {
 	return err
 }
 
-func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string, operation Operation) (*http.Response, error) {
+func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string, operation Operation) (interface{}, error) {
 	url := rootUrl + path
 
 	/* TODO
@@ -232,9 +237,12 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	}
 	defer resp.Body.Close()
 
+	var bodyBuffer bytes.Buffer
+	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
+
 	if resp.StatusCode != expectedStatusCode {
 		// Attempt to read the response body for additional error information
-		respBody, err := io.ReadAll(resp.Body)
+		respBody, err := io.ReadAll(teeReader)
 		if err != nil {
 			return nil, fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", expectedStatusCode, resp.StatusCode, err)
 		}
@@ -249,7 +257,15 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	if expectedMessage != "" && string(respBody) != expectedMessage {
 		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
 	}
-	return resp, nil
+
+	if operation == Login {
+		return resp, nil
+	} else if operation == FindApps {
+		return respBody, nil
+	} else {
+		return nil, nil
+	}
+
 }
 
 func (h *HubClient) createApp() error {
@@ -258,14 +274,14 @@ func (h *HubClient) createApp() error {
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]App, error) {
-	resp, err := h.doRequest(appPath, SingleString{searchTerm}, "", http.StatusOK, "GET", FindApps)
+	result, err := h.doRequest(appPath, SingleString{searchTerm}, "", http.StatusOK, "GET", FindApps)
 	if err != nil {
 		return nil, err
 	}
 
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read response body: %v", err)
+	respBody, ok := result.([]byte)
+	if !ok {
+		return nil, fmt.Errorf("Failed to assert result to []byte")
 	}
 
 	var apps []App
