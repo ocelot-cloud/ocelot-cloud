@@ -204,14 +204,6 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	if Hub.SetOriginHeader {
-		req.Header.Set("Origin", Hub.Origin)
-	}
-
-	if Hub.Cookie != nil {
-		req.Header.Set(Hub.Cookie.Name, Hub.Cookie.Value)
-	}
-
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
