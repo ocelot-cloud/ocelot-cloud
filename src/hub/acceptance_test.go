@@ -141,8 +141,16 @@ func TestCreateApp(t *testing.T) {
 	defer assert.Nil(t, Hub.deleteUser())
 	form := getRegistrationForm()
 	assert.Nil(t, Hub.registerUser(form))
-	// TODO assert.Nil(t, Hub.createApp())
+
+	cookie, err := Hub.login()
+	assert.Nil(t, err)
+	assert.NotNil(t, cookie)
+	assert.Equal(t, Hub.Cookie.Value, cookie.Value)
+
+	assert.Nil(t, Hub.createApp())
 }
+
+// TODO After running "ci-runner" hub tests, I still have a "testuser" folder in data. Should actually be deleted after the test creating it.
 
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
@@ -211,6 +219,10 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	}
 	req.Header.Set("Content-Type", "application/json")
 
+	if Hub.Cookie != nil {
+		req.AddCookie(Hub.Cookie)
+	}
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -219,7 +231,12 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != expectedStatusCode {
-		return nil, fmt.Errorf("Expected status code %d, but got %d", expectedStatusCode, resp.StatusCode)
+		// Attempt to read the response body for additional error information
+		respBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", expectedStatusCode, resp.StatusCode, err)
+		}
+		return nil, fmt.Errorf("Expected status code %d, but got %d. Response body: %s", expectedStatusCode, resp.StatusCode, string(respBody))
 	}
 
 	respBody, err := io.ReadAll(resp.Body)
@@ -234,7 +251,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{Hub.App}, "app created", http.StatusCreated, "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{Hub.App}, "created app successfully", http.StatusCreated, "POST", CreateApp)
 	return err
 }
 

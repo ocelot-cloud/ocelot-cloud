@@ -179,7 +179,18 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
-	//TODO get the cookie from r; user := repo.getUserOfCookie(cookie)
+	cookie, err := r.Cookie(cookieName)
+	if err != nil || cookie == nil || cookie.Value == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Cookie not contained in request"))
+		return
+	}
+	user, err := repo.GetUserWithCookie(cookie.Value)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Cookie not found"))
+		return
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -192,8 +203,23 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+	app := singleString.Value
 
-	// TODO
+	if !repo.DoesUserExist(user) {
+		// TODO
+	}
+	if repo.DoesAppExist(user, app) {
+		// TODO
+	}
+	err = repo.CreateApp(user, app)
+	if err != nil {
+		// TODO
+	}
+	w.WriteHeader(http.StatusCreated)
+	_, err = w.Write([]byte("created app successfully"))
+	if err != nil {
+		// TODO
+	}
 	// TODO create/delete app, search for app: search
 }
 

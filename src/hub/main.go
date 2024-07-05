@@ -11,7 +11,7 @@ func init() {
 }
 
 func main() {
-	initializeDatabase(databaseFile)
+	initializeDatabase(":memory:") // TODO databaseFile
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
 	// TODO apply middleware?
 	http.HandleFunc(uploadPath, uploadHandler)
