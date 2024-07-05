@@ -7,6 +7,7 @@ fi
 
 echo "Installing required debian packages"
 sudo apt-get update
+# gcc is required to compile Go applications with sqlite3 support
 sudo apt-get install -y wget git curl sqlite3 gcc
 # The libraries are needed by cypress: https://docs.cypress.io/guides/getting-started/installing-cypress#UbuntuDebian
 sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2
