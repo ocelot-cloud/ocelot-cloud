@@ -16,7 +16,7 @@ import (
 
 // TODO There should be a one-liner to get a "hub" instance, that is already logged in, with cookie etc, to start functional testing
 // TODO this should be generated from anew for each test.
-var hub = Hub{
+var Hub = HubClient{
 	Username:        "testuser",
 	Password:        "password123",
 	Origin:          "http://localhost:8082",
@@ -98,7 +98,7 @@ func downloadFile(url string) ([]byte, error) {
 
 // TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
 
-type Hub struct {
+type HubClient struct {
 	Username        string
 	Password        string
 	Origin          string
@@ -110,20 +110,20 @@ type Hub struct {
 
 func getRegistrationForm() *RegistrationForm {
 	return &RegistrationForm{
-		Username: hub.Username,
-		Password: hub.Password,
-		Origin:   hub.Origin,
-		Email:    hub.Email,
+		Username: Hub.Username,
+		Password: Hub.Password,
+		Origin:   Hub.Origin,
+		Email:    Hub.Email,
 	}
 }
 
 // TODO Test if cookie expiration date updates when making a successful request.
 
 func TestCookie(t *testing.T) {
-	defer assert.Nil(t, hub.deleteUser())
+	defer assert.Nil(t, Hub.deleteUser())
 	form := getRegistrationForm()
-	assert.Nil(t, hub.registerUser(form))
-	cookie, err := hub.login()
+	assert.Nil(t, Hub.registerUser(form))
+	cookie, err := Hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
 	assert.Equal(t, cookieName, cookie.Name)
@@ -131,16 +131,16 @@ func TestCookie(t *testing.T) {
 	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(cookie.Expires))
 	assert.Equal(t, 64, len(cookie.Value))
 
-	cookie2, err := hub.login()
+	cookie2, err := Hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie2)
 	assert.NotEqual(t, cookie.Value, cookie2.Value)
 }
 
 func TestCreateApp(t *testing.T) {
-	defer assert.Nil(t, hub.deleteUser())
+	defer assert.Nil(t, Hub.deleteUser())
 	form := getRegistrationForm()
-	assert.Nil(t, hub.registerUser(form))
+	assert.Nil(t, Hub.registerUser(form))
 	// TODO assert.Nil(t, hub.createApp())
 }
 
@@ -148,7 +148,7 @@ func TestCreateApp(t *testing.T) {
 func TestOriginPolicy(t *testing.T) {
 	form := getRegistrationForm()
 	fakeOrigin := "http://non-existing-subdomain.localhost:8082"
-	assert.Nil(t, hub.registerUser(form))
+	assert.Nil(t, Hub.registerUser(form))
 
 	// TODO
 	/*hub.SetOriginHeader = false
@@ -162,15 +162,15 @@ func TestOriginPolicy(t *testing.T) {
 	// TODO expected := fmt.Sprintf("Security policy does not allow requests from origin: %s", fakeOrigin)
 }
 
-func (h *Hub) registerUser(form *RegistrationForm) error {
+func (h *HubClient) registerUser(form *RegistrationForm) error {
 	_, err := h.doRequest(registrationPath, form, "User registered", http.StatusCreated, "POST")
 	return err
 }
 
-func (h *Hub) login() (*http.Cookie, error) {
+func (h *HubClient) login() (*http.Cookie, error) {
 	creds := LoginCredentials{
-		Username: hub.Username,
-		Password: hub.Password,
+		Username: Hub.Username,
+		Password: Hub.Password,
 	}
 
 	resp, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET")
@@ -186,12 +186,12 @@ func (h *Hub) login() (*http.Cookie, error) {
 	return cookies[0], nil // TODO return cookie for assertion
 }
 
-func (h *Hub) deleteUser() error {
-	_, err := h.doRequest(userPath, SingleString{hub.Username}, "User deleted", http.StatusOK, "DELETE")
+func (h *HubClient) deleteUser() error {
+	_, err := h.doRequest(userPath, SingleString{Hub.Username}, "User deleted", http.StatusOK, "DELETE")
 	return err
 }
 
-func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string) (*http.Response, error) {
+func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string) (*http.Response, error) {
 	url := rootUrl + path
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -204,12 +204,12 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	if hub.SetOriginHeader {
-		req.Header.Set("Origin", hub.Origin)
+	if Hub.SetOriginHeader {
+		req.Header.Set("Origin", Hub.Origin)
 	}
 
-	if hub.Cookie != nil {
-		req.Header.Set(hub.Cookie.Name, hub.Cookie.Value)
+	if Hub.Cookie != nil {
+		req.Header.Set(Hub.Cookie.Name, Hub.Cookie.Value)
 	}
 
 	client := &http.Client{}
@@ -234,69 +234,14 @@ func (h *Hub) doRequest(path string, payload interface{}, expectedMessage string
 	return resp, nil
 }
 
-func (h *Hub) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{hub.App}, "app created", http.StatusCreated, "POST")
+func (h *HubClient) createApp() error {
+	_, err := h.doRequest(appPath, SingleString{Hub.App}, "app created", http.StatusCreated, "POST")
 	return err
 }
 
-func (h *Hub) findApps() error {
+func (h *HubClient) findApps() error {
 	_, err := h.doRequest(appPath, nil, "search successful", http.StatusOK, "GET")
 	return err
-}
-
-func applySecurityPolicy(policyName string, req *http.Request) *http.Request {
-	policyToApply := policy.getPolicyFor(policyName)
-	if policyToApply.IsCredentialsRequired {
-		creds := LoginCredentials{
-			Username: hub.Username,
-			Password: hub.Password,
-		}
-		payloadBytes, _ := json.Marshal(creds)
-		payloadReader := bytes.NewReader(payloadBytes)
-		req.Body = io.NopCloser(payloadReader)
-	}
-	if policyToApply.IsOriginRequired {
-		req.Header.Set("Origin", hub.Origin)
-	}
-	if policyToApply.IsCookieRequired {
-		req.Header.Set(hub.Cookie.Name, hub.Cookie.Value)
-	}
-	return req
-}
-
-var policy = getPolicy()
-
-func getPolicy() SecurityPolicyCollection {
-	return SecurityPolicyCollection{
-		policies: []*SecurityPolicy{
-			{false, false, false, []string{"findApps", "downloadApp"}},
-			{true, false, false, []string{"register", "changeOrigin", "changePassword"}},
-			{true, true, false, []string{"login"}},
-			{false, true, true, []string{"deleteUser", "createApp", "deleteApp", "uploadTag", "deleteTag"}},
-		},
-	}
-}
-
-type SecurityPolicyCollection struct {
-	policies []*SecurityPolicy
-}
-
-func (s *SecurityPolicyCollection) getPolicyFor(policyName string) *SecurityPolicy {
-	for _, policy := range s.policies {
-		for _, operation := range policy.OperationsAffected {
-			if operation == policyName {
-				return policy
-			}
-		}
-	}
-	return nil
-}
-
-type SecurityPolicy struct {
-	IsCredentialsRequired bool
-	IsOriginRequired      bool
-	IsCookieRequired      bool
-	OperationsAffected    []string
 }
 
 // TODO assert that no other object should be send in body, should be nil, when IsCredentialsRequired == true
