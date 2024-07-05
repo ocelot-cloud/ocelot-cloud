@@ -179,6 +179,21 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
+	//TODO get the cookie from r; user := repo.getUserOfCookie(cookie)
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+
+	var singleString SingleString
+	if err := json.Unmarshal(body, &singleString); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// TODO
 	// TODO create/delete app, search for app: search
 }
 

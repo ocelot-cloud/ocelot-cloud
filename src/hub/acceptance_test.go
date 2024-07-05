@@ -141,7 +141,7 @@ func TestCreateApp(t *testing.T) {
 	defer assert.Nil(t, Hub.deleteUser())
 	form := getRegistrationForm()
 	assert.Nil(t, Hub.registerUser(form))
-	// TODO assert.Nil(t, hub.createApp())
+	// TODO assert.Nil(t, Hub.createApp())
 }
 
 // TODO Can just be done, when I have a protected endpoint
