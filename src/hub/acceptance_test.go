@@ -243,3 +243,60 @@ func (h *Hub) findApps() error {
 	_, err := h.doRequest(appPath, nil, "search successful", http.StatusOK, "GET")
 	return err
 }
+
+func applySecurityPolicy(policyName string, req *http.Request) *http.Request {
+	policyToApply := policy.getPolicyFor(policyName)
+	if policyToApply.IsCredentialsRequired {
+		creds := LoginCredentials{
+			Username: hub.Username,
+			Password: hub.Password,
+		}
+		payloadBytes, _ := json.Marshal(creds)
+		payloadReader := bytes.NewReader(payloadBytes)
+		req.Body = io.NopCloser(payloadReader)
+	}
+	if policyToApply.IsOriginRequired {
+		req.Header.Set("Origin", hub.Origin)
+	}
+	if policyToApply.IsCookieRequired {
+		req.Header.Set(hub.Cookie.Name, hub.Cookie.Value)
+	}
+	return req
+}
+
+var policy = getPolicy()
+
+func getPolicy() SecurityPolicyCollection {
+	return SecurityPolicyCollection{
+		policies: []*SecurityPolicy{
+			{false, false, false, []string{"findApps", "downloadApp"}},
+			{true, false, false, []string{"register", "changeOrigin", "changePassword"}},
+			{true, true, false, []string{"login"}},
+			{false, true, true, []string{"deleteUser", "createApp", "deleteApp", "uploadTag", "deleteTag"}},
+		},
+	}
+}
+
+type SecurityPolicyCollection struct {
+	policies []*SecurityPolicy
+}
+
+func (s *SecurityPolicyCollection) getPolicyFor(policyName string) *SecurityPolicy {
+	for _, policy := range s.policies {
+		for _, operation := range policy.OperationsAffected {
+			if operation == policyName {
+				return policy
+			}
+		}
+	}
+	return nil
+}
+
+type SecurityPolicy struct {
+	IsCredentialsRequired bool
+	IsOriginRequired      bool
+	IsCookieRequired      bool
+	OperationsAffected    []string
+}
+
+// TODO assert that no other object should be send in body, should be nil, when IsCredentialsRequired == true
