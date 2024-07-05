@@ -33,3 +33,4 @@ TODO Make sure anyone can only delete his own stuff: his own user account/apps/t
 TODO if there is no origin, then deny request and put that info in response
 TODO During testing the log level should be DEBUG
 TODO I think I exaggerated with some error logs, e.g. when using logAndReturnError. Which often is just debug or info.
+TODO Add log rotation to the "shared" module

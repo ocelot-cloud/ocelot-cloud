@@ -28,15 +28,15 @@ When you contribute to Ocelot-Cloud, you retain ownership of your code. Since it
 
 ### What does that mean for me as a user of Ocelot-Cloud?
 
-If you use Ocelot-Cloud without modifying its code, you can use it just like any other open source software. However, if you modify the source code, your modifications must also be licensed under the AGPL, and you must make the source code available to all users of the modified version. If you are the only user, you do not need to take any action. Otherwise, there are two ways to do this:
+If you use Ocelot-Cloud without modifying its code, you can use it just like any other open source software. However, if you modify the source code, your modifications must also be licensed under the AGPL, and you must make the source code available to all users of the modified version. If you are the only user, you do not need to take any action. Otherwise, there are two ways to make the source code available:
 
 1. Contribute Back: If you enhance the software (e.g., new features, bug fixes), we recommend contributing your changes to this GitHub repository so that everyone can benefit from your efforts.
 
-2. Distribute Yourself: You can distribute the modified code for example through your own source code repository or by creating a software package.
+2. Distribute Yourself: You can distribute the modified code for example through your own source code repository.
 
 ### What does that mean for me as contributor of Ocelot-Cloud?
 
-All contributors are required to read and sign the [Ocelot-Cloud Contributor License Agreement](legal/cla.md) by copying and renaming the [CLA Signing Template](legal/cla-signing-template.md) to `legal/contributors/<your-github-name>.md`. Fill out the newly created signing template and submit it as part of your contribution. The CLA signing will automatically apply to all subsequent contributions, so it only needs to be done once for the first contribution. There is also a [sample file](legal/contributors/sample.md).
+All contributors are required to read the [Ocelot-Cloud Contributor License Agreement](../legal/cla.md) and sign it by copying and renaming the [CLA Signing Template](../legal/cla-signing-template.md) to `legal/contributors/<your-github-name>.md`. Fill out the newly created signing template and submit it as part of your contribution. The CLA signing will automatically apply to all subsequent contributions, so it only needs to be done once for the first contribution. There is also a [sample file](../legal/contributors/sample.md) of what your CLA signing should look like in the end.
 
 ## Developer Guide
 
@@ -81,12 +81,11 @@ If you work on another system, the script may still be helpful for guiding you t
 
 ### ci-runner
 
-The ci-runner is designed to make the testing process as easy as possible. Here is a quick start:
+The ci-runner is designed to make the testing process as easy as possible. Here is a quick start that prints the available options:
 
 ```bash
 cd src/ci-runner
-go build && ./ci-runner
-go build && ./ci-runner test-backend-fast
+go build && ./ci-runner --help
 ```
 
 There are a lot of options. Feel free to experiment with them to get familiar.
@@ -96,9 +95,9 @@ There are a lot of options. Feel free to experiment with them to get familiar.
 To facilitate the development of interactions between the frontend and the backend, the 'dev' mode has been introduced. This is a special setup in which the frontend and backend run separately, allowing Vue.js to run its own process that enables hot loading of source code changes, reducing development time. Open a console and run one of these commands to start the setup in development mode:
 
 ```bash
-cd src/cloud/backend/component && bash run-dev.sh
+cd src/cloud/backend           && bash run-dev.sh
 cd src/cloud/frontend          && bash run-dev.sh
-cd src/acceptance-tests  && bash run-dev.sh
+cd src/cloud/acceptance-tests  && bash run-dev.sh
 ```
 
 You can now visit the Vue.js GUI at `http://localhost.localdomain:8081/` and use the Cypress GUI to run acceptance tests if needed.
@@ -116,7 +115,7 @@ Only frequently and extensively tested features are stable features. And in this
 What should be tested?
 
 - 'happy path', if the execution of the production code flow works as expected
-- 'unhappy path' tests, when unexpected things or errors happen during execution. The production code must be robust, i.e. able to handle errors correctly.
+- 'unhappy path' tests, where invalid input, unexpected things, or errors occur during execution. The code must be able to handle errors correctly to be robust in production.
 - border cases such as nil/null, zero, negative numbers, empty strings, empty collections, etc.
 - Security and its testing must be built in from the beginning, where necessary. For example, a new REST API endpoint requires authentication, input validation etc.
 
@@ -128,6 +127,12 @@ Depending on the situation, one or more of the following types of tests may be n
 
 ### Coding Practices
 
-- The extensive test suite makes it unlikely that code changes will introduce new bugs. Therefore, we encourage you to apply any improvements by refactoring the code you read on the fly. Feel free to add any tests that may be missing.
+- The extensive test suite makes it unlikely that code changes will introduce new bugs. Therefore, any kind of code improvement is encouraged. If you accidentally break something, the tests will tell you, so you can fix it right away. Feel free to add any tests that may be missing.
 
-- Contributions must be refactored until they are clean code, i.e., readable and maintainable.
+- Contributions must be refactored until they are clean code, i.e.
+  
+  - readable: easy to understand
+  
+  - maintainable: easy to apply future changes, e.g. by avoiding duplications
+
+- 3rd party libraries must be wrapped.

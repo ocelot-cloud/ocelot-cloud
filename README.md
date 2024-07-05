@@ -40,6 +40,10 @@ bash build.sh
 bash run-demo.sh
 ```
 
+## Documentation
+
+For more information, such as the Contribution Guide and Code of Conduct, see the [docs](docs) folder.
+
 ## Contact
 
 To contact us, ask questions, or share ideas for improvements, please join our [Discord channel](https://discord.gg/RS85gNNZ).
