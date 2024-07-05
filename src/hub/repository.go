@@ -59,7 +59,7 @@ type Repository interface {
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]App, error)
 	SetCookie(user string, cookie string, expirationDate time.Time) error
-	IsCookieExpired(cookie string) bool
+	IsCookieValid(cookie string) bool
 }
 
 type SqliteRepository struct{}
@@ -214,7 +214,7 @@ func (u *SqliteRepository) SetCookie(user string, cookie string, expirationDate 
 	return nil
 }
 
-func (u *SqliteRepository) IsCookieExpired(cookie string) bool {
+func (u *SqliteRepository) IsCookieValid(cookie string) bool {
 	var expirationDateStr string
 	err := db.QueryRow("SELECT expiration_date FROM users WHERE cookie = ?", cookie).Scan(&expirationDateStr)
 	if err != nil {

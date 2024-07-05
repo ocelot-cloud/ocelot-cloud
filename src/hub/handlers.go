@@ -232,6 +232,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
+	// TODO Must be verified by a test:
+	err = repo.SetCookie(creds.Username, cookie.Value, cookie.Expires)
+	if err != nil {
+		// TODO
+	}
+
 	http.SetCookie(w, cookie)
 	w.Write([]byte("login successful"))
 }

@@ -163,14 +163,14 @@ func TestCookieExpiration(t *testing.T) {
 	defer cleanupDatabase()
 	um.CreateUser(sampleUser, samplePassword)
 
-	assert.True(t, um.IsCookieExpired("non-existing-cookie"))
+	assert.True(t, um.IsCookieValid("non-existing-cookie"))
 
 	timeIn30Days := getTimeIn30Days()
 	cookie, _ := generateCookie()
 	assert.Nil(t, um.SetCookie(sampleUser, cookie.Value, timeIn30Days))
-	assert.False(t, um.IsCookieExpired(cookie.Value))
+	assert.False(t, um.IsCookieValid(cookie.Value))
 
 	past := time.Now().Add(-1 * time.Second)
 	assert.Nil(t, um.SetCookie(sampleUser, cookie.Value, past))
-	assert.True(t, um.IsCookieExpired(cookie.Value))
+	assert.True(t, um.IsCookieValid(cookie.Value))
 }

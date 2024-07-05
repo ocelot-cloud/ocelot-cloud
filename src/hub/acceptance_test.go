@@ -105,6 +105,7 @@ type Hub struct {
 	Email           string
 	SetOriginHeader bool
 	App             string
+	Cookie          *http.Cookie
 }
 
 func getRegistrationForm() *RegistrationForm {
@@ -180,6 +181,7 @@ func (h *Hub) login() (*http.Cookie, error) {
 	if len(cookies) != 1 {
 		return nil, fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
+
 	return cookies[0], nil // TODO return cookie for assertion
 }
 

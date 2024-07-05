@@ -37,8 +37,20 @@ func applyMiddleware(handler func(w http.ResponseWriter, r *http.Request)) func(
 		if r.Method == http.MethodGet {
 			handler(w, r)
 		} else {
-			// TODO Take cookie -> get user -> check if origin is correct.
 			handler(w, r)
+			return // TODO
+
+			cookie, err := r.Cookie(cookieName)
+			if err != nil {
+				// TODO
+			} else if cookie == nil {
+				// TODO
+			} else if repo.IsCookieValid(cookie.Value) {
+				// TODO
+			} else {
+				// TODO Take request -> get user -> check if origin is correct.
+				// TODO handler(w, r)
+			}
 		}
 	}
 }
