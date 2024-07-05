@@ -1,2 +1,5 @@
 ci-runner
 **artifacts
+
+# used for frequently use ci-runner commands
+temporary.sh

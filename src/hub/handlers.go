@@ -247,7 +247,7 @@ func generateCookie() (*http.Cookie, error) {
 		return nil, err
 	}
 	return &http.Cookie{
-		Name:    "auth",
+		Name:    cookieName,
 		Value:   hex.EncodeToString(bytes),
 		Expires: getTimeIn30Days(),
 	}, nil

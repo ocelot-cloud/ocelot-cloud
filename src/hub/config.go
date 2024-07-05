@@ -17,4 +17,5 @@ var (
 	registrationPath = "/registration"
 	port             = "8082"
 	rootUrl          = "http://localhost:" + port
+	cookieName       = "auth"
 )

@@ -123,7 +123,7 @@ func TestCookie(t *testing.T) {
 	cookie, err := hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
-	assert.Equal(t, "auth", cookie.Name)
+	assert.Equal(t, cookieName, cookie.Name)
 	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(cookie.Expires))
 	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(cookie.Expires))
 	assert.Equal(t, 64, len(cookie.Value))
