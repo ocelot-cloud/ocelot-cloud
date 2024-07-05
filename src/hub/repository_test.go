@@ -14,7 +14,7 @@ var samplePassword = "mypassword"
 var um Repository = &SqliteRepository{}
 
 func TestMain(m *testing.M) {
-	initializeDatabase(":memory:")
+	initializeDatabaseWithSource(":memory:")
 	code := m.Run()
 	os.Exit(code)
 }

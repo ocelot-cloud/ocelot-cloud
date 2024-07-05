@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
+	"os"
 )
 
 func init() {
@@ -11,7 +12,8 @@ func init() {
 }
 
 func main() {
-	initializeDatabase(":memory:") // TODO databaseFile
+	initializeDatabase()
+
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
 	// TODO apply middleware?
 	http.HandleFunc(uploadPath, uploadHandler)
@@ -29,6 +31,18 @@ func main() {
 	if err != nil {
 		// TODO Is server stop sometimes normal, e.g. when gracefully shutdown?
 		Logger.Fatal("Server stopped: %v", err)
+	}
+}
+
+func initializeDatabase() {
+	// Strange phenomenon: When I run ./hub via terminal and run tests in separate terminal, everything works
+	// as expected. But when I run hub as a daemon process, via bash or ci-runner, the tests fail with
+	// this DB error: "attempt to write readonly database". So I use in-memory database for all tests.
+	useInMemoryDB := os.Getenv("USE_IN_MEMORY_DB")
+	if useInMemoryDB == "true" {
+		initializeDatabaseWithSource(":memory:")
+	} else {
+		initializeDatabaseWithSource(databaseFile)
 	}
 }
 
