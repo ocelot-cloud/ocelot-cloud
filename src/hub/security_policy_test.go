@@ -47,12 +47,13 @@ const (
 	DeleteApp
 	UploadTag
 	DeleteTag
+	GetTags
 )
 
 func getPolicy() SecurityPolicyCollection {
 	return SecurityPolicyCollection{
 		policies: []*SecurityPolicy{
-			{false, false, false, []Operation{FindApps, DownloadApp}},
+			{false, false, false, []Operation{FindApps, DownloadApp, GetTags}},
 			{true, false, false, []Operation{Register, ChangeOrigin, ChangePassword}},
 			{true, true, false, []Operation{Login}},
 			{false, true, true, []Operation{DeleteUser, CreateApp, DeleteApp, UploadTag, DeleteTag}},

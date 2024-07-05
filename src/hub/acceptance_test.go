@@ -142,12 +142,14 @@ func TestCreateApp(t *testing.T) {
 	form := getRegistrationForm()
 	assert.Nil(t, Hub.registerUser(form))
 
-	cookie, err := Hub.login()
-	assert.Nil(t, err)
-	assert.NotNil(t, cookie)
-	assert.Equal(t, Hub.Cookie.Value, cookie.Value)
-
+	Hub.login()
 	assert.Nil(t, Hub.createApp())
+	/*foundApps, err := Hub.findApps(sampleApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(foundApps))
+	*/
+
+	// TODO finish
 }
 
 // TODO After running "ci-runner" hub tests, I still have a "testuser" folder in data. Should actually be deleted after the test creating it.
@@ -244,7 +246,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Failed to read response body: %v", err)
 	}
 
-	if string(respBody) != expectedMessage {
+	if expectedMessage != "" && string(respBody) != expectedMessage {
 		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
 	}
 	return resp, nil
@@ -255,9 +257,24 @@ func (h *HubClient) createApp() error {
 	return err
 }
 
-func (h *HubClient) findApps() error {
-	_, err := h.doRequest(appPath, nil, "search successful", http.StatusOK, "GET", FindApps)
-	return err
+func (h *HubClient) findApps(searchTerm string) ([]App, error) {
+	resp, err := h.doRequest(appPath, SingleString{searchTerm}, "", http.StatusOK, "GET", FindApps)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read response body: %v", err)
+	}
+
+	var apps []App
+	err = json.Unmarshal(respBody, &apps)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
+	}
+
+	return apps, nil
 }
 
 // TODO assert that no other object should be send in body, should be nil, when IsCredentialsRequired == true

@@ -179,6 +179,53 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		findApps(w, r)
+	} else if r.Method == http.MethodPost {
+		createApp(w, r)
+	} else {
+		// TODO
+	}
+	// TODO create/delete app, search for app: search
+}
+
+// TODO Much duplication of the handler logic. Should be abstracted.
+
+func findApps(w http.ResponseWriter, r *http.Request) {
+	Logger.Debug("finding apps")
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+
+	var singleString SingleString
+	if err := json.Unmarshal(body, &singleString); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	searchTerm := singleString.Value
+
+	apps, err := repo.FindApps(searchTerm)
+	if err != nil {
+		Logger.Error("Finding apps failed: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error occurred when trying to find apps"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	jsonData, err := json.Marshal(apps)
+	if err != nil {
+		Logger.Error("Failed to marshal apps: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error occurred when trying to marshal apps"))
+		return
+	}
+	w.Write(jsonData)
+}
+
+func createApp(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil || cookie == nil || cookie.Value == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -220,7 +267,6 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// TODO
 	}
-	// TODO create/delete app, search for app: search
 }
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
