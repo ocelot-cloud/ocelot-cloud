@@ -59,7 +59,6 @@ type Repository interface {
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]App, error)
 	SetCookie(user string, cookie string, expirationDate time.Time) error
-	// TODO Dont set cookie expiration time in handler for the client. Just keep that info internal.
 	IsCookieExpired(cookie string) bool
 }
 

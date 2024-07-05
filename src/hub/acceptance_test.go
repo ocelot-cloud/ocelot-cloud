@@ -116,6 +116,8 @@ func getRegistrationForm() *RegistrationForm {
 	}
 }
 
+// TODO Test if cookie expiration date updates when making a successful request.
+
 func TestCookie(t *testing.T) {
 	defer assert.Nil(t, hub.deleteUser())
 	form := getRegistrationForm()
