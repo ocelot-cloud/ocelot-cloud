@@ -11,7 +11,7 @@ import (
 )
 
 func applySecurityPolicy(operation Operation, req *http.Request) *http.Request {
-	policyToApply := policy.getPolicyFor(operation)
+	policyToApply := securityPolicies.getPolicyFor(operation)
 	if policyToApply.IsCredentialsRequired {
 		creds := LoginCredentials{
 			Username: Hub.Username,
@@ -30,7 +30,7 @@ func applySecurityPolicy(operation Operation, req *http.Request) *http.Request {
 	return req
 }
 
-var policy = getPolicy()
+var securityPolicies = getPolicy()
 
 type Operation int
 

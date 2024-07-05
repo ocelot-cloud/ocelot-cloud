@@ -163,7 +163,7 @@ func TestOriginPolicy(t *testing.T) {
 }
 
 func (h *HubClient) registerUser(form *RegistrationForm) error {
-	_, err := h.doRequest(registrationPath, form, "User registered", http.StatusCreated, "POST")
+	_, err := h.doRequest(registrationPath, form, "User registered", http.StatusCreated, "POST", Register)
 	return err
 }
 
@@ -173,7 +173,7 @@ func (h *HubClient) login() (*http.Cookie, error) {
 		Password: Hub.Password,
 	}
 
-	resp, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET")
+	resp, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET", Login)
 	if err != nil {
 		return nil, err
 	}
@@ -187,12 +187,19 @@ func (h *HubClient) login() (*http.Cookie, error) {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, SingleString{Hub.Username}, "User deleted", http.StatusOK, "DELETE")
+	_, err := h.doRequest(userPath, SingleString{Hub.Username}, "User deleted", http.StatusOK, "DELETE", DeleteUser)
 	return err
 }
 
-func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string) (*http.Response, error) {
+func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string, operation Operation) (*http.Response, error) {
 	url := rootUrl + path
+
+	/* TODO
+	policy := securityPolicies.getPolicyFor(operation)
+	if policy.IsCredentialsRequired && payload != nil {
+		return nil, fmt.Errorf("Security policy uses credentials in json body, so you can't define an addition apyload.")
+	}*/
+
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to marshal payload: %v", err)
@@ -227,12 +234,12 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{Hub.App}, "app created", http.StatusCreated, "POST")
+	_, err := h.doRequest(appPath, SingleString{Hub.App}, "app created", http.StatusCreated, "POST", CreateApp)
 	return err
 }
 
 func (h *HubClient) findApps() error {
-	_, err := h.doRequest(appPath, nil, "search successful", http.StatusOK, "GET")
+	_, err := h.doRequest(appPath, nil, "search successful", http.StatusOK, "GET", FindApps)
 	return err
 }
 
