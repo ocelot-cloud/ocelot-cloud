@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 // TODO use sqlite to store users, apps (for search), password etc.
@@ -21,9 +22,11 @@ func initializeDatabase(dataSourceName string) {
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    		user_name TEXT UNIQUE,
-    		hashed_password TEXT
-		)
+			user_name TEXT UNIQUE NOT NULL,
+			hashed_password TEXT NOT NULL,
+			cookie TEXT,
+			expiration_date TEXT
+		);
 	`)
 	if err != nil {
 		Logger.Fatal("Failed to create users table: %v", err)
@@ -55,6 +58,9 @@ type Repository interface {
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]App, error)
+	SetCookie(user string, cookie string, expirationDate time.Time) error
+	// TODO Dont set cookie expiration time in handler for the client. Just keep that info internal.
+	IsCookieExpired(cookie string) bool
 }
 
 type SqliteRepository struct{}
@@ -199,4 +205,33 @@ func (u *SqliteRepository) FindApps(query string) ([]App, error) {
 	}
 
 	return apps, nil
+}
+
+func (u *SqliteRepository) SetCookie(user string, cookie string, expirationDate time.Time) error {
+	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", cookie, expirationDate.Format(time.RFC3339), user)
+	if err != nil {
+		return Logger.LogAndReturnError("Failed to set cookie: %v", err)
+	}
+	return nil
+}
+
+func (u *SqliteRepository) IsCookieExpired(cookie string) bool {
+	var expirationDateStr string
+	err := db.QueryRow("SELECT expiration_date FROM users WHERE cookie = ?", cookie).Scan(&expirationDateStr)
+	if err != nil {
+		Logger.Error("Failed to fetch expiration date: %v", err)
+		return true
+	}
+
+	if expirationDateStr == "" {
+		return true
+	}
+
+	expirationDate, err := time.Parse(time.RFC3339, expirationDateStr)
+	if err != nil {
+		Logger.Error("Failed to parse expiration date: %v\n", err)
+		return true
+	}
+
+	return time.Now().UTC().After(expirationDate)
 }
