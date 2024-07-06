@@ -279,7 +279,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Should be global?
-	fs := FileStorageImpl{}
 	err = fs.CreateTag(fileInfo, &fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
@@ -321,7 +320,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("login logic called")
 	creds, err := readBody[LoginCredentials](r)
 	if err != nil {
-		// TODO
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	// TODO verify username+password
@@ -331,13 +331,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO In the tests, check that cookie has correct length and has different value when requesting a seconds one.
 	cookie, err := generateCookie()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// TODO Must be verified by a test:
 	err = repo.SetCookie(creds.Username, cookie.Value, cookie.Expires)
 	if err != nil {
-		// TODO
+		logAndRespondDebug(w, err.Error(), http.StatusOK)
+		return
 	}
 
 	http.SetCookie(w, cookie)
