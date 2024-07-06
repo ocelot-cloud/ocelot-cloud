@@ -27,6 +27,7 @@ type FileStorage interface {
 	DeleteApp(username, app string) error
 	CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error
 	DeleteTag(user string, app string, tag string)
+	GetTags(user string, app string) (*[]FileInfo, error)
 }
 
 type FileStorageImpl struct{}
@@ -198,4 +199,8 @@ func getTagFileContent(path string) string {
 		return ""
 	}
 	return string(data)
+}
+
+func (f *FileStorageImpl) GetTags(user string, app string) (*[]FileInfo, error) {
+	return nil, nil
 }
