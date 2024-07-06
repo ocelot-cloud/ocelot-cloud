@@ -295,21 +295,16 @@ func (u *SqliteRepository) CreateTag(user string, app string, tag string) error 
 }
 
 func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error {
-	// Get user_id
-	var userID int
-	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	userID, err := getUserId(user)
 	if err != nil {
-		return fmt.Errorf("user not found: %w", err)
+		return err
 	}
 
-	// Get app_id
-	var appID int
-	err = db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
+	appID, err := getAppId(userID, app)
 	if err != nil {
-		return fmt.Errorf("app not found: %w", err)
+		return err
 	}
 
-	// Delete tag
 	_, err = db.Exec("DELETE FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag)
 	if err != nil {
 		return fmt.Errorf("failed to delete tag: %w", err)
