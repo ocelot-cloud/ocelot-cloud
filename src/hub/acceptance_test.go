@@ -83,6 +83,12 @@ func TestCreateTags(t *testing.T) {
 	assert.Equal(t, 0, len(tags))
 }
 
+func TestChangePassword(t *testing.T) {
+	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
+	// TODO
+}
+
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
 	/*hub := getHub()
