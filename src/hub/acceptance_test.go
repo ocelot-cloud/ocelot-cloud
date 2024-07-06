@@ -22,8 +22,7 @@ func TestFileUploadDownload(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, responseCode)
 
-	downloadURL := rootUrl + downloadPath + hub.TagFilename
-	downloadedContent, err := hub.downloadFile(downloadURL)
+	downloadedContent, err := hub.downloadFile()
 	assert.Nil(t, err)
 	assert.Equal(t, fileContent, downloadedContent)
 }

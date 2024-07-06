@@ -217,8 +217,9 @@ func (h *HubClient) uploadFile(url, filename string, fileBuffer *bytes.Buffer) (
 	return resp.StatusCode, nil
 }
 
-func (h *HubClient) downloadFile(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+func (h *HubClient) downloadFile() ([]byte, error) {
+	downloadURL := rootUrl + downloadPath + h.TagFilename
+	resp, err := http.Get(downloadURL)
 	if err != nil {
 		return nil, err
 	}
