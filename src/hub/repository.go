@@ -74,6 +74,8 @@ type Repository interface {
 	SetCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieValid(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
+	CreateTag(user string, app string) error
+	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
 }
 
@@ -265,6 +267,15 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 
 	return user, nil
 }
+
+func (u *SqliteRepository) CreateTag(user string, app string) error {
+	return nil
+}
+
+func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error {
+	return nil
+}
+
 func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
 	return nil, nil
 }

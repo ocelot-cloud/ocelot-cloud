@@ -180,3 +180,10 @@ func TestCookieExpiration(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, user)
 }
+
+func TestASD(t *testing.T) {
+	defer cleanupDatabase()
+	um.CreateUser(sampleUser, samplePassword)
+	um.CreateApp(sampleUser, sampleApp)
+	// TODO
+}
