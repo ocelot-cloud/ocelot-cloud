@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var (
@@ -40,6 +41,7 @@ type HubClient struct {
 	App             string
 	Cookie          *http.Cookie
 	Tag             string
+	TagFilename     string
 }
 
 func (h *HubClient) getRegistrationForm() *RegistrationForm {
@@ -60,6 +62,7 @@ func getHub() *HubClient {
 		SetOriginHeader: true,
 		App:             sampleApp,
 		Tag:             sampleTag,
+		TagFilename:     strings.Join([]string{sampleUser, sampleApp, sampleTag}, "_") + ".tar.gz",
 	}
 }
 
