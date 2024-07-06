@@ -35,7 +35,7 @@ func cleanup() {
 }
 
 type HubClient struct {
-	Username        string
+	User            string
 	Password        string
 	Origin          string
 	Email           string
@@ -48,7 +48,7 @@ type HubClient struct {
 
 func (h *HubClient) getRegistrationForm() *RegistrationForm {
 	return &RegistrationForm{
-		Username: h.Username,
+		Username: h.User,
 		Password: h.Password,
 		Origin:   h.Origin,
 		Email:    h.Email,
@@ -57,7 +57,7 @@ func (h *HubClient) getRegistrationForm() *RegistrationForm {
 
 func getHub() *HubClient {
 	return &HubClient{
-		Username:        sampleUser,
+		User:            sampleUser,
 		Password:        samplePassword,
 		Origin:          rootUrl,
 		Email:           sampleMail,
@@ -75,7 +75,7 @@ func (h *HubClient) registerUser(form *RegistrationForm) error {
 
 func (h *HubClient) login() (*http.Cookie, error) {
 	creds := LoginCredentials{
-		Username: h.Username,
+		Username: h.User,
 		Password: h.Password,
 	}
 
@@ -98,7 +98,7 @@ func (h *HubClient) login() (*http.Cookie, error) {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, SingleString{h.Username}, "User deleted", http.StatusOK, "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, SingleString{h.User}, "User deleted", http.StatusOK, "DELETE", DeleteUser)
 	return err
 }
 
@@ -169,7 +169,7 @@ func (h *HubClient) createApp() error {
 	return err
 }
 
-func (h *HubClient) findApps(searchTerm string) ([]App, error) {
+func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 	result, err := h.doRequest(appPath, SingleString{searchTerm}, "", http.StatusOK, "GET", FindApps)
 	if err != nil {
 		return nil, err
@@ -180,7 +180,7 @@ func (h *HubClient) findApps(searchTerm string) ([]App, error) {
 		return nil, fmt.Errorf("Failed to assert result to []byte")
 	}
 
-	var apps []App
+	var apps []AppInfo
 	err = json.Unmarshal(respBody, &apps)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
@@ -247,7 +247,7 @@ func (h *HubClient) downloadFile() ([]byte, error) {
 // TODO Resolve duplication
 func (h *HubClient) getTags() ([]string, error) {
 	usernameAndApp := &UsernameAndApp{
-		Username: h.Username,
+		Username: h.User,
 		App:      h.App,
 	}
 
@@ -272,19 +272,27 @@ func (h *HubClient) getTags() ([]string, error) {
 
 func (h *HubClient) deleteTag() error {
 	tagInfo := &TagInfo{
-		User: h.Username,
+		User: h.User,
 		App:  h.App,
 		Tag:  h.Tag,
 	}
+	// TODO check expected message
 	_, err := h.doRequest(tagPath, tagInfo, "", http.StatusOK, "DELETE", DeleteTag)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (h *HubClient) deleteApp() error {
+	appInfo := &AppInfo{
+		User: h.User,
+		App:  h.App,
+	}
+	_, err := h.doRequest(appPath, appInfo, "app deleted", http.StatusOK, "DELETE", DeleteApp)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

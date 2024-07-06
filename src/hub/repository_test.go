@@ -118,14 +118,14 @@ func TestSearch(t *testing.T) {
 	assert.Nil(t, err)
 
 	sort.Slice(a, func(i, j int) bool {
-		return a[i].AppName < a[j].AppName
+		return a[i].App < a[j].App
 	})
 
 	assert.Equal(t, 2, len(a))
-	assert.Equal(t, sampleUser, a[0].Username)
-	assert.Equal(t, sampleUser, a[1].Username)
-	assert.Equal(t, app2, a[0].AppName)
-	assert.Equal(t, app1, a[1].AppName)
+	assert.Equal(t, sampleUser, a[0].User)
+	assert.Equal(t, sampleUser, a[1].User)
+	assert.Equal(t, app2, a[0].App)
+	assert.Equal(t, app1, a[1].App)
 }
 
 func TestSearchNegative(t *testing.T) {
