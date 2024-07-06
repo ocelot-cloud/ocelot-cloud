@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/ocelot-cloud/shared/assert"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
+	"testing"
 )
 
 var (
@@ -240,4 +242,15 @@ func (h *HubClient) downloadFile() ([]byte, error) {
 	}
 
 	return downloadedContent, nil
+}
+
+func getHubAndLogin(t *testing.T) *HubClient {
+	hub := getHub()
+	form := hub.getRegistrationForm()
+	assert.Nil(t, hub.registerUser(form))
+
+	cookie, err := hub.login()
+	assert.Nil(t, err)
+	hub.Cookie = cookie
+	return hub
 }

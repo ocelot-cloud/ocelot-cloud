@@ -30,7 +30,6 @@ func TestCookie(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 
-	assert.NotNil(t, hub.Cookie)
 	assert.Equal(t, cookieName, hub.Cookie.Name)
 	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(hub.Cookie.Expires))
 	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(hub.Cookie.Expires))
@@ -51,20 +50,9 @@ func TestCreateApp(t *testing.T) {
 	foundApps, err := hub.findApps(sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundApps))
-	app := foundApps[0]
-	assert.Equal(t, hub.Username, app.Username)
-	assert.Equal(t, hub.App, app.AppName)
-}
-
-func getHubAndLogin(t *testing.T) *HubClient {
-	hub := getHub()
-	form := hub.getRegistrationForm()
-	assert.Nil(t, hub.registerUser(form))
-
-	cookie, err := hub.login()
-	assert.Nil(t, err)
-	hub.Cookie = cookie
-	return hub
+	foundApp := foundApps[0]
+	assert.Equal(t, hub.Username, foundApp.Username)
+	assert.Equal(t, hub.App, foundApp.AppName)
 }
 
 // TODO Can just be done, when I have a protected endpoint
