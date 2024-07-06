@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,10 +27,32 @@ type UsernameAndApp struct {
 
 // TODO Implement
 func handleTagList(w http.ResponseWriter, r *http.Request) {
-	_, err := readBody[UsernameAndApp](r)
+	usernameAndApp, err := readBody[UsernameAndApp](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+	tagsList, err := repo.GetTagList(usernameAndApp.Username, usernameAndApp.App)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sendJsonResponse(w, tagsList)
+}
+
+func sendJsonResponse(w http.ResponseWriter, data interface{}) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonData)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
