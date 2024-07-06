@@ -161,7 +161,6 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	} else {
 		return nil, nil
 	}
-
 }
 
 func (h *HubClient) createApp() error {
@@ -278,10 +277,7 @@ func (h *HubClient) deleteTag() error {
 	}
 	// TODO check expected message
 	_, err := h.doRequest(tagPath, tagInfo, "", http.StatusOK, "DELETE", DeleteTag)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (h *HubClient) deleteApp() error {
@@ -290,10 +286,7 @@ func (h *HubClient) deleteApp() error {
 		App:  h.App,
 	}
 	_, err := h.doRequest(appPath, appInfo, "app deleted", http.StatusOK, "DELETE", DeleteApp)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func getHubAndLogin(t *testing.T) *HubClient {
