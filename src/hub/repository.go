@@ -61,6 +61,7 @@ type Repository interface {
 	SetCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieValid(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
+	GetTagList(user string, app string) ([]string, error)
 }
 
 type SqliteRepository struct{}
@@ -250,4 +251,7 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 	}
 
 	return user, nil
+}
+func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
+	return nil, nil
 }
