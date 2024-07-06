@@ -324,11 +324,9 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 		return nil, err
 	}
 
-	// Get app_id
-	var appID int
-	err = db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
+	appID, err := getAppId(userID, app)
 	if err != nil {
-		return nil, fmt.Errorf("app not found: %w", err)
+		return nil, err
 	}
 
 	// Get tags
@@ -352,6 +350,15 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 	}
 
 	return tags, nil
+}
+
+func getAppId(userID int, app string) (int, error) {
+	var appID int
+	err := db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
+	if err != nil {
+		return 0, fmt.Errorf("app not found: %w", err)
+	}
+	return appID, nil
 }
 
 func getUserId(user string) (int, error) {
