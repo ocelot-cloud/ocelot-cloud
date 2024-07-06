@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
 )
 
@@ -31,13 +30,7 @@ func findApps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	jsonData, err := json.Marshal(apps)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write(jsonData)
+	sendJsonResponse(w, apps)
 }
 
 func createApp(w http.ResponseWriter, r *http.Request) {
