@@ -62,6 +62,17 @@ func TestCreateApp(t *testing.T) {
 	assert.Equal(t, hub.App, foundApp.AppName)
 }
 
+func TestCreateTags(t *testing.T) {
+	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
+	assert.Nil(t, hub.createApp())
+	assert.Nil(t, hub.uploadFile(sampleTaggedFileContentBuffer))
+	tags, err := hub.getTags()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(tags))
+	assert.Equal(t, hub.Tag, tags[0])
+}
+
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
 	/*hub := getHub()

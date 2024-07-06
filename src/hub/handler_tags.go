@@ -79,6 +79,12 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = repo.CreateTag(fileInfo.User, fileInfo.App, fileInfo.Tag)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	logAndRespondDebug(w, "file uploaded successfully", http.StatusOK)
 }
 

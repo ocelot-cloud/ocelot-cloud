@@ -156,7 +156,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 
 	if operation == Login {
 		return resp, nil
-	} else if operation == FindApps {
+	} else if operation == FindApps || operation == GetTags {
 		return respBody, nil
 	} else {
 		return nil, nil
@@ -245,7 +245,7 @@ func (h *HubClient) downloadFile() ([]byte, error) {
 }
 
 // TODO Resolve duplication
-func (h *HubClient) getTags() ([]FileInfo, error) {
+func (h *HubClient) getTags() ([]string, error) {
 	usernameAndApp := &UsernameAndApp{
 		Username: h.Username,
 		App:      h.App,
@@ -261,13 +261,13 @@ func (h *HubClient) getTags() ([]FileInfo, error) {
 		return nil, fmt.Errorf("Failed to assert result to []byte")
 	}
 
-	var fileInfos []FileInfo
-	err = json.Unmarshal(respBody, &fileInfos)
+	var tags []string
+	err = json.Unmarshal(respBody, &tags)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
 	}
 
-	return fileInfos, nil
+	return tags, nil
 }
 
 func getHubAndLogin(t *testing.T) *HubClient {
