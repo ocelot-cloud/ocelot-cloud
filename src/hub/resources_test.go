@@ -285,7 +285,7 @@ func (h *HubClient) deleteApp() error {
 		User: h.User,
 		App:  h.App,
 	}
-	_, err := h.doRequest(appPath, appInfo, "app deleted", http.StatusOK, "DELETE", DeleteApp)
+	_, err := h.doRequest(appPath, appInfo, "app deleted\n", http.StatusOK, "DELETE", DeleteApp)
 	return err
 }
 
