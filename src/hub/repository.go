@@ -45,6 +45,19 @@ func initializeDatabaseWithSource(dataSourceName string) {
 		Logger.Fatal("Failed to create apps table: %v\n", err)
 	}
 
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS tags (
+			tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			app_id INTEGER,
+			tag_name TEXT,
+			UNIQUE(app_id, tag_id),
+			FOREIGN KEY (app_id) REFERENCES apps(app_id) ON DELETE CASCADE
+		);
+	`)
+	if err != nil {
+		Logger.Fatal("Failed to create tags table: %v\n", err)
+	}
+
 	Logger.Info("Database initialized")
 	// TODO Add initial schemes. With version number table.
 }
