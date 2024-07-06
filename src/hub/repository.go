@@ -152,10 +152,12 @@ func (u *SqliteRepository) CreateApp(user string, app string) error {
 		return Logger.LogAndReturnError("App '%s' already exists for user '%s'", app, user)
 	}
 
-	_, err := db.Exec(`
-		INSERT INTO apps (user_id, app_name)
-		VALUES ((SELECT user_id FROM users WHERE user_name = ?), ?)
-	`, user, app)
+	userID, err := getUserId(user)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`INSERT INTO apps (user_id, app_name) VALUES (?, ?)`, userID, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
 	}
