@@ -111,10 +111,10 @@ func (h *HubClient) getRegistrationForm() *RegistrationForm {
 
 func getHub() *HubClient {
 	return &HubClient{
-		Username:        "testuser",
-		Password:        "password123",
-		Origin:          "http://localhost:8082",
-		Email:           "testuser@example.com",
+		Username:        sampleUser,
+		Password:        samplePassword,
+		Origin:          rootUrl,
+		Email:           sampleMail,
 		SetOriginHeader: true,
 		App:             sampleApp,
 	}
