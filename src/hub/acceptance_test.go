@@ -143,6 +143,7 @@ func TestCookie(t *testing.T) {
 
 func TestCreateApp(t *testing.T) {
 	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
 	foundApps, err := hub.findApps(sampleApp)
 	assert.Nil(t, err)
@@ -154,7 +155,6 @@ func TestCreateApp(t *testing.T) {
 
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
-	defer assert.Nil(t, hub.deleteUser())
 	form := getRegistrationForm(hub)
 	assert.Nil(t, hub.registerUser(form))
 
