@@ -16,8 +16,9 @@ func main() {
 
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
 	// TODO apply middleware?
-	http.HandleFunc(downloadPath, downloadHandler) // TODO belongs to tags
+	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)
+
 	http.HandleFunc(appPath, appHandler)
 	http.HandleFunc(userPath, userHandler)
 	http.HandleFunc(loginPath, loginHandler)

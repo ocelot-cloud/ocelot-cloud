@@ -9,7 +9,7 @@ var (
 
 	Logger           shared.Logger
 	tagPath          = "/tags"
-	downloadPath     = tagPath + "/download/"
+	downloadPath     = tagPath + "/"
 	userPath         = "/users"
 	appPath          = "/apps"
 	loginPath        = "/login"
