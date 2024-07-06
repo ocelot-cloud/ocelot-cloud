@@ -6,6 +6,7 @@ import (
 	"github.com/ocelot-cloud/shared/assert"
 	"os"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 )
@@ -181,9 +182,32 @@ func TestCookieExpiration(t *testing.T) {
 	assert.Equal(t, sampleUser, user)
 }
 
-func TestASD(t *testing.T) {
+func TestGetTagList(t *testing.T) {
 	defer cleanupDatabase()
-	um.CreateUser(sampleUser, samplePassword)
-	um.CreateApp(sampleUser, sampleApp)
-	// TODO
+	assert.Nil(t, um.CreateUser(sampleUser, samplePassword))
+	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
+	foundTags, err := um.GetTagList(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(foundTags))
+
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag))
+	foundTags, err = um.GetTagList(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(foundTags))
+	assert.Equal(t, sampleTag, foundTags[0])
+
+	assert.Nil(t, um.DeleteTag(sampleUser, sampleApp, sampleTag))
+	foundTags, err = um.GetTagList(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(foundTags))
+
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag))
+	foundTags, err = um.GetTagList(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(foundTags))
+	assert.Equal(t, sampleTag, foundTags[0])
+	assert.Nil(t, um.DeleteUser(sampleUser))
+	_, err = um.GetTagList(sampleUser, sampleApp)
+	assert.NotNil(t, err)
+	assert.True(t, strings.Contains(err.Error(), "user not found"))
 }

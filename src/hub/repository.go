@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -74,7 +75,7 @@ type Repository interface {
 	SetCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieValid(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
-	CreateTag(user string, app string) error
+	CreateTag(user string, app string, tag string) error
 	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
 }
@@ -268,14 +269,89 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 	return user, nil
 }
 
-func (u *SqliteRepository) CreateTag(user string, app string) error {
+// TODO Avoid duplication of "getIdOf(user/app) logic."
+func (u *SqliteRepository) CreateTag(user string, app string, tag string) error {
+	// Get user_id
+	var userID int
+	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	if err != nil {
+		return fmt.Errorf("user not found: %w", err)
+	}
+
+	// Get app_id
+	var appID int
+	err = db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
+	if err != nil {
+		return fmt.Errorf("app not found: %w", err)
+	}
+
+	// Insert tag
+	_, err = db.Exec("INSERT INTO tags (app_id, tag_name) VALUES (?, ?)", appID, tag)
+	if err != nil {
+		return fmt.Errorf("failed to create tag: %w", err)
+	}
+
 	return nil
 }
 
 func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error {
+	// Get user_id
+	var userID int
+	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	if err != nil {
+		return fmt.Errorf("user not found: %w", err)
+	}
+
+	// Get app_id
+	var appID int
+	err = db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
+	if err != nil {
+		return fmt.Errorf("app not found: %w", err)
+	}
+
+	// Delete tag
+	_, err = db.Exec("DELETE FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag)
+	if err != nil {
+		return fmt.Errorf("failed to delete tag: %w", err)
+	}
+
 	return nil
 }
 
 func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
-	return nil, nil
+	// Get user_id
+	var userID int
+	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	if err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+
+	// Get app_id
+	var appID int
+	err = db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
+	if err != nil {
+		return nil, fmt.Errorf("app not found: %w", err)
+	}
+
+	// Get tags
+	rows, err := db.Query("SELECT tag_name FROM tags WHERE app_id = ?", appID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tags: %w", err)
+	}
+	defer rows.Close()
+
+	var tags []string
+	for rows.Next() {
+		var tag string
+		if err := rows.Scan(&tag); err != nil {
+			return nil, fmt.Errorf("failed to scan tag: %w", err)
+		}
+		tags = append(tags, tag)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return tags, nil
 }
