@@ -179,9 +179,11 @@ func (u *SqliteRepository) FindApps(query string) ([]App, error) {
 	var apps []App
 
 	rows, err := db.Query(`
-		SELECT u.user_name, a.app_name FROM users u 
+		SELECT u.user_name, a.app_name 
+		FROM users u 
 		JOIN apps a ON u.user_id = a.user_id
 		WHERE u.user_name LIKE ? OR a.app_name LIKE ?
+		LIMIT 100
 	`, "%"+query+"%", "%"+query+"%")
 
 	if err != nil {

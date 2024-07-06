@@ -78,11 +78,6 @@ func isFolderEmpty(relativePath string) bool {
 	return len(files) == 0
 }
 
-// TODO Create methods:
-// getRepoList matching regex '*search-term*'
-// getTagList
-// limit to 100 elements? Allow search terms?
-
 func TestReadingUsers(t *testing.T) {
 	createDataDir()
 	defer cleanup()
