@@ -146,9 +146,7 @@ func (u *SqliteRepository) DeleteUser(user string) error {
 func (u *SqliteRepository) CreateApp(user string, app string) error {
 	if !u.DoesUserExist(user) {
 		return Logger.LogAndReturnError("User '%s' does not exist", user)
-	}
-
-	if u.DoesAppExist(user, app) {
+	} else if u.DoesAppExist(user, app) {
 		return Logger.LogAndReturnError("App '%s' already exists for user '%s'", app, user)
 	}
 
@@ -156,12 +154,10 @@ func (u *SqliteRepository) CreateApp(user string, app string) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = db.Exec(`INSERT INTO apps (user_id, app_name) VALUES (?, ?)`, userID, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
 	}
-
 	return nil
 }
 
@@ -170,7 +166,6 @@ func (u *SqliteRepository) DoesAppExist(user string, app string) bool {
 	if err != nil {
 		return false
 	}
-
 	var exists bool
 	err = db.QueryRow(`
 		SELECT EXISTS(
@@ -189,7 +184,6 @@ func (u *SqliteRepository) DeleteApp(user string, app string) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = db.Exec(`DELETE FROM apps WHERE user_id = ? AND app_name = ?`, userID, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
@@ -227,12 +221,10 @@ func (u *SqliteRepository) FindApps(query string) ([]App, error) {
 		}
 		apps = append(apps, app)
 	}
-
 	err = rows.Err()
 	if err != nil {
 		return nil, Logger.LogAndReturnError("Error iterating over app rows: %v\n", err)
 	}
-
 	return apps, nil
 }
 
@@ -250,9 +242,7 @@ func (u *SqliteRepository) IsCookieValid(cookie string) bool {
 	if err != nil {
 		Logger.Error("Failed to fetch expiration date: %v", err)
 		return true
-	}
-
-	if expirationDateStr == "" {
+	} else if expirationDateStr == "" {
 		return true
 	}
 
