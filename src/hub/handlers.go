@@ -139,8 +139,15 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = fs.CreateUser(user.Username)
+	if err != nil {
+		Logger.Error("error: %v", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Could not create user on filesystem"))
+		return
+	}
+
 	// TODO Handle error
-	fs.CreateUser(user.Username)
 	repo.CreateUser(user.Username, user.Password)
 	Logger.Info("Created user: %s", user.Username)
 
@@ -257,6 +264,11 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	}
 	if repo.DoesAppExist(user, app) {
 		// TODO
+	}
+	err = fs.CreateApp(user, app)
+	if err != nil {
+		// TODO
+		return
 	}
 	err = repo.CreateApp(user, app)
 	if err != nil {
