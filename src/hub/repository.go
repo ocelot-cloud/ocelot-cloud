@@ -180,7 +180,12 @@ func (u *SqliteRepository) DoesAppExist(user string, app string) bool {
 }
 
 func (u *SqliteRepository) DeleteApp(user string, app string) error {
-	_, err := db.Exec(`DELETE FROM apps WHERE user_id = (SELECT user_id FROM users WHERE user_name = ?) AND app_name = ?`, user, app)
+	userID, err := getUserId(user)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`DELETE FROM apps WHERE user_id = ? AND app_name = ?`, userID, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
 	}
