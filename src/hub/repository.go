@@ -322,12 +322,7 @@ func getAppIdFromUsername(user string, app string) (int, error) {
 }
 
 func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
-	userID, err := getUserId(user)
-	if err != nil {
-		return nil, err
-	}
-
-	appID, err := getAppId(userID, app)
+	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
 		return nil, err
 	}
