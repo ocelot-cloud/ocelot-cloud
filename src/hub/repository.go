@@ -319,11 +319,9 @@ func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error 
 }
 
 func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
-	// Get user_id
-	var userID int
-	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	userID, err := getUserId(user)
 	if err != nil {
-		return nil, fmt.Errorf("user not found: %w", err)
+		return nil, err
 	}
 
 	// Get app_id
@@ -354,4 +352,13 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 	}
 
 	return tags, nil
+}
+
+func getUserId(user string) (int, error) {
+	var userID int
+	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	if err != nil {
+		return 0, fmt.Errorf("user not found: %w", err)
+	}
+	return userID, nil
 }
