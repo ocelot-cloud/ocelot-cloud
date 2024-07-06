@@ -71,7 +71,11 @@ func TestCreateTags(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, hub.Tag, tags[0])
-	// TODO assert.Nil(t, hub.deleteTag())
+
+	assert.Nil(t, hub.deleteTag())
+	tags, err = hub.getTags()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(tags))
 }
 
 // TODO Can just be done, when I have a protected endpoint
