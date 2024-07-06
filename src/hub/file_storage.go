@@ -26,7 +26,7 @@ type FileStorage interface {
 	CreateApp(user, app string) error
 	DeleteApp(username, app string) error
 	CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error
-	DeleteTag(user string, app string, tag string)
+	DeleteTag(user string, app string, tag string) error
 }
 
 type FileStorageImpl struct{}
@@ -184,11 +184,12 @@ func (f *FileStorageImpl) CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) er
 	return nil
 }
 
-func (f *FileStorageImpl) DeleteTag(user string, app string, tag string) {
+func (f *FileStorageImpl) DeleteTag(user string, app string, tag string) error {
 	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
 	if err := deleteIfExist(tagFilePath); err != nil {
-		Logger.Error("Error deleting tag file: %v", err)
+		return Logger.LogAndReturnError("error deleting tag file: %v", err)
 	}
+	return nil
 }
 
 func getTagFileContent(path string) string {
