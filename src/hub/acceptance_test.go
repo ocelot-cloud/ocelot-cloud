@@ -123,22 +123,21 @@ func getHub() *HubClient {
 // TODO Test if cookie expiration date updates when making a successful request.
 
 func TestCookie(t *testing.T) {
-	hub := getHub()
-	defer assert.Nil(t, hub.deleteUser())
-	form := getRegistrationForm(hub)
-	assert.Nil(t, hub.registerUser(form))
-	cookie, err := hub.login()
-	assert.Nil(t, err)
-	assert.NotNil(t, cookie)
-	assert.Equal(t, cookieName, cookie.Name)
-	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(cookie.Expires))
-	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(cookie.Expires))
-	assert.Equal(t, 64, len(cookie.Value))
+	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
 
-	cookie2, err := hub.login()
+	assert.NotNil(t, hub.Cookie)
+	assert.Equal(t, cookieName, hub.Cookie.Name)
+	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(hub.Cookie.Expires))
+	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(hub.Cookie.Expires))
+	assert.Equal(t, 64, len(hub.Cookie.Value))
+
+	cookie1 := hub.Cookie
+	_, err := hub.login()
 	assert.Nil(t, err)
+	cookie2 := hub.Cookie
 	assert.NotNil(t, cookie2)
-	assert.NotEqual(t, cookie.Value, cookie2.Value)
+	assert.NotEqual(t, cookie1.Value, cookie2.Value)
 }
 
 func TestCreateApp(t *testing.T) {
