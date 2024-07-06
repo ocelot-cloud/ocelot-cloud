@@ -5,7 +5,6 @@ package main
 import (
 	"bytes"
 	"github.com/ocelot-cloud/shared/assert"
-	"net/http"
 	"testing"
 	"time"
 )
@@ -13,14 +12,12 @@ import (
 func TestFileUploadDownload(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
-	assert.Nil(t, hub.createApp())
 
+	assert.Nil(t, hub.createApp())
 	fileContent := []byte("hello")
 	fileBuffer := bytes.NewBuffer(fileContent)
 
-	responseCode, err := hub.uploadFile(fileBuffer)
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, responseCode)
+	assert.Nil(t, hub.uploadFile(fileBuffer))
 
 	downloadedContent, err := hub.downloadFile()
 	assert.Nil(t, err)

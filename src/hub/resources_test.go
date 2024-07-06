@@ -187,7 +187,7 @@ func (h *HubClient) findApps(searchTerm string) ([]App, error) {
 	return apps, nil
 }
 
-func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) (int, error) {
+func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) error {
 	url := rootUrl + tagPath
 	filename := h.TagFilename
 	body := &bytes.Buffer{}
@@ -195,28 +195,31 @@ func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) (int, error) {
 
 	part, err := writer.CreateFormFile("file", filename)
 	if err != nil {
-		return 0, Logger.LogAndReturnError("Error creating file header: %v\n", err)
+		return Logger.LogAndReturnError("Error creating file header: %v\n", err)
 	}
 
 	if _, err := io.Copy(part, fileBuffer); err != nil {
-		return 0, Logger.LogAndReturnError("Error copying content: %v\n", err)
+		return Logger.LogAndReturnError("Error copying content: %v\n", err)
 	}
 	writer.Close()
 
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	defer resp.Body.Close()
 
-	return resp.StatusCode, nil
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Expected status code %d, but got %d", http.StatusOK, resp.StatusCode)
+	}
+	return nil
 }
 
 func (h *HubClient) downloadFile() ([]byte, error) {
