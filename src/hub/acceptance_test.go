@@ -60,6 +60,7 @@ func TestCreateApp(t *testing.T) {
 	foundApp := foundApps[0]
 	assert.Equal(t, hub.Username, foundApp.Username)
 	assert.Equal(t, hub.App, foundApp.AppName)
+	// TODO	err := hub.deleteApp()
 }
 
 func TestCreateTags(t *testing.T) {

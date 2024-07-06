@@ -284,6 +284,10 @@ func (h *HubClient) deleteTag() error {
 	return nil
 }
 
+func (h *HubClient) deleteApp() error {
+	return nil
+}
+
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
 	form := hub.getRegistrationForm()
