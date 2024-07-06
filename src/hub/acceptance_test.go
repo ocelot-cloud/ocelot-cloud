@@ -100,12 +100,12 @@ type HubClient struct {
 	Cookie          *http.Cookie
 }
 
-func getRegistrationForm(hub *HubClient) *RegistrationForm {
+func (h *HubClient) getRegistrationForm() *RegistrationForm {
 	return &RegistrationForm{
-		Username: hub.Username,
-		Password: hub.Password,
-		Origin:   hub.Origin,
-		Email:    hub.Email,
+		Username: h.Username,
+		Password: h.Password,
+		Origin:   h.Origin,
+		Email:    h.Email,
 	}
 }
 
@@ -154,7 +154,7 @@ func TestCreateApp(t *testing.T) {
 
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
-	form := getRegistrationForm(hub)
+	form := hub.getRegistrationForm()
 	assert.Nil(t, hub.registerUser(form))
 
 	cookie, err := hub.login()
@@ -168,7 +168,7 @@ func getHubAndLogin(t *testing.T) *HubClient {
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
 	hub := getHub()
-	form := getRegistrationForm(hub)
+	form := hub.getRegistrationForm()
 	fakeOrigin := "http://non-existing-subdomain.localhost:8082"
 	assert.Nil(t, hub.registerUser(form))
 
