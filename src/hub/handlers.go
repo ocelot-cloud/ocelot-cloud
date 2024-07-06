@@ -108,10 +108,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Logger.Info("Registered user: %s", user.Username)
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("User registered"))
+	logAndRespondDebug(w, "User registered", http.StatusCreated)
 }
 
 type SingleString struct {
@@ -144,8 +142,7 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 
 	Logger.Info("Deleted user: %s", user)
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("User deleted"))
+	logAndRespondDebug(w, "User deleted", http.StatusOK)
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {

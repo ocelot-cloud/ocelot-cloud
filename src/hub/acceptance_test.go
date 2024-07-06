@@ -178,7 +178,7 @@ func TestOriginPolicy(t *testing.T) {
 }
 
 func (h *HubClient) registerUser(form *RegistrationForm) error {
-	_, err := h.doRequest(registrationPath, form, "User registered", http.StatusCreated, "POST", Register)
+	_, err := h.doRequest(registrationPath, form, "User registered\n", http.StatusCreated, "POST", Register)
 	return err
 }
 
