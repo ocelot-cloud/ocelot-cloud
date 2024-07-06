@@ -244,6 +244,32 @@ func (h *HubClient) downloadFile() ([]byte, error) {
 	return downloadedContent, nil
 }
 
+// TODO Resolve duplication
+func (h *HubClient) getTags() ([]FileInfo, error) {
+	usernameAndApp := &UsernameAndApp{
+		Username: h.Username,
+		App:      h.App,
+	}
+
+	result, err := h.doRequest(tagPath, usernameAndApp, "", http.StatusOK, "GET", GetTags)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, ok := result.([]byte)
+	if !ok {
+		return nil, fmt.Errorf("Failed to assert result to []byte")
+	}
+
+	var fileInfos []FileInfo
+	err = json.Unmarshal(respBody, &fileInfos)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
+	}
+
+	return fileInfos, nil
+}
+
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
 	form := hub.getRegistrationForm()

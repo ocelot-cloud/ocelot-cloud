@@ -12,6 +12,24 @@ import (
 func tagHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		handleUpload(w, r)
+	} else if r.Method == http.MethodGet {
+		handleTagList(w, r)
+	} else {
+		logAndRespondDebug(w, "method not implemented", http.StatusMethodNotAllowed)
+	}
+}
+
+type UsernameAndApp struct {
+	Username string `json:"username"`
+	App      string `json:"app"`
+}
+
+// TODO Implement
+func handleTagList(w http.ResponseWriter, r *http.Request) {
+	_, err := readBody[UsernameAndApp](r)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 }
 

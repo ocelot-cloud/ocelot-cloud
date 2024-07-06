@@ -19,6 +19,13 @@ func TestFileUploadDownload(t *testing.T) {
 
 	assert.Nil(t, hub.uploadFile(fileBuffer))
 
+	/* TODO Implement
+	asdf, err := hub.getTags()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(asdf))
+	// TODO verify fields of fileInfo
+	*/
+
 	downloadedContent, err := hub.downloadFile()
 	assert.Nil(t, err)
 	assert.Equal(t, fileContent, downloadedContent)
