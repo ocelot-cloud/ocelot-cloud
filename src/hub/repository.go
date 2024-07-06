@@ -271,21 +271,11 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 
 // TODO Avoid duplication of "getIdOf(user/app) logic."
 func (u *SqliteRepository) CreateTag(user string, app string, tag string) error {
-	// Get user_id
-	var userID int
-	err := db.QueryRow("SELECT user_id FROM users WHERE user_name = ?", user).Scan(&userID)
+	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
-		return fmt.Errorf("user not found: %w", err)
+		return err
 	}
 
-	// Get app_id
-	var appID int
-	err = db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
-	if err != nil {
-		return fmt.Errorf("app not found: %w", err)
-	}
-
-	// Insert tag
 	_, err = db.Exec("INSERT INTO tags (app_id, tag_name) VALUES (?, ?)", appID, tag)
 	if err != nil {
 		return fmt.Errorf("failed to create tag: %w", err)
