@@ -9,10 +9,31 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		findApps(w, r)
 	} else if r.Method == http.MethodPost {
 		createApp(w, r)
+	} else if r.Method == http.MethodDelete {
+		handleDeleteApp(w, r)
 	} else {
 		logAndRespondError(w, "method not implemented", http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
+	appInfo, err := readBody[AppInfo](r)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+	}
+
+	err = fs.DeleteApp(appInfo.User, appInfo.App)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = repo.DeleteApp(appInfo.User, appInfo.App)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	logAndRespondDebug(w, "app deleted", http.StatusOK)
 }
 
 func findApps(w http.ResponseWriter, r *http.Request) {

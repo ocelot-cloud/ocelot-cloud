@@ -32,14 +32,16 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	tagInfo, err := readBody[TagInfo](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	fs.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag) // TODO make it return an error.
 	err = repo.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	logAndRespondDebug(w, "tag delete", http.StatusOK)
+	logAndRespondDebug(w, "tag deleted", http.StatusOK)
 }
 
 type UsernameAndApp struct {
