@@ -84,8 +84,6 @@ func downloadFile(url string) ([]byte, error) {
 	return downloadedContent, nil
 }
 
-// TODO High level test: create myuser, create myapp, findApps -> One element {myuser, myapp}
-
 type HubClient struct {
 	Username        string
 	Password        string
@@ -161,8 +159,6 @@ func getHubAndLogin(t *testing.T) *HubClient {
 	return hub
 }
 
-// TODO After running "ci-runner" hub tests, I still have a "testuser" folder in data. Should actually be deleted after the test creating it.
-
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
 	/*hub := getHub()
@@ -208,7 +204,7 @@ func (h *HubClient) login() (*http.Cookie, error) {
 		return nil, fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
 	h.Cookie = cookies[0]
-	return cookies[0], nil // TODO return cookie for assertion
+	return cookies[0], nil
 }
 
 func (h *HubClient) deleteUser() error {
