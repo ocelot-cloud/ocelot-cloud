@@ -329,7 +329,6 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 		return nil, err
 	}
 
-	// Get tags
 	rows, err := db.Query("SELECT tag_name FROM tags WHERE app_id = ?", appID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tags: %w", err)
