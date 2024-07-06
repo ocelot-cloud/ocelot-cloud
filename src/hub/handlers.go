@@ -202,16 +202,9 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
+	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
-		return
-	}
-
-	var singleString SingleString
-	if err := json.Unmarshal(body, &singleString); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+		// TODO
 	}
 	app := singleString.Value
 
@@ -235,6 +228,22 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// TODO
 	}
+}
+
+func readBody[T any](r *http.Request) (T, error) {
+	var result T
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return result, fmt.Errorf("unable to read request body: %w", err)
+	}
+	defer r.Body.Close()
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		return result, fmt.Errorf("invalid request body: %w", err)
+	}
+
+	return result, nil
 }
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
