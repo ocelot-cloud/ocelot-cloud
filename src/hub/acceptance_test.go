@@ -188,7 +188,7 @@ func (h *HubClient) login() (*http.Cookie, error) {
 		Password: h.Password,
 	}
 
-	result, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET", Login)
+	result, err := h.doRequest(loginPath, creds, "login successful\n", http.StatusOK, "GET", Login)
 	if err != nil {
 		return nil, err
 	}

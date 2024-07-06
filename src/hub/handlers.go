@@ -80,7 +80,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
 	} else {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		logAndRespondDebug(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 }
@@ -341,7 +341,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
-	w.Write([]byte("login successful"))
+	logAndRespondDebug(w, "login successful", http.StatusOK)
 }
 
 func getTimeIn30Days() time.Time {
