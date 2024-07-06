@@ -116,13 +116,22 @@ type SingleString struct {
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		// TODO
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	user := singleString.Value
 
-	// TODO Misses some functions like: Does(User/App/Tag)Exist?
+	if !repo.DoesUserExist(user) {
+		logAndRespondError(w, "user does not exist", http.StatusNotFound)
+		return
+	}
+
 	fs.DeleteUser(user) // TODO Shouldn't that return a potential error?
-	repo.DeleteUser(user)
+	err = repo.DeleteUser(user)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	Logger.Info("Deleted user: %s", user)
 
