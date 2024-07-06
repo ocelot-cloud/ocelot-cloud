@@ -83,22 +83,28 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := readBody[RegistrationForm](r)
 	if err != nil {
-		// TODO
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	err = fs.CreateUser(user.Username)
 	if err != nil {
-		Logger.Error("error: %v", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Could not create user on filesystem"))
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// TODO Handle error
-	repo.CreateUser(user.Username, user.Password)
-	Logger.Info("Created user: %s", user.Username)
+	if repo.DoesUserExist(user.Username) {
+		logAndRespondError(w, "user already exists", http.StatusConflict)
+		return
+	}
 
-	// TODO Handle error
+	err = repo.CreateUser(user.Username, user.Password)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	Logger.Info("Registered user: %s", user.Username)
+
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User registered"))
 }
