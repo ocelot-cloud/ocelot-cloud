@@ -81,18 +81,9 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
+	user, err := readBody[RegistrationForm](r)
 	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	var user RegistrationForm
-	if err := json.Unmarshal(body, &user); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		// TODO
 	}
 
 	err = fs.CreateUser(user.Username)
