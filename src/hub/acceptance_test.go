@@ -142,12 +142,7 @@ func TestCookie(t *testing.T) {
 }
 
 func TestCreateApp(t *testing.T) {
-	hub := getHub()
-	defer assert.Nil(t, hub.deleteUser())
-	form := getRegistrationForm(hub)
-	assert.Nil(t, hub.registerUser(form))
-
-	hub.login()
+	hub := getHubAndLogin(t)
 	assert.Nil(t, hub.createApp())
 	foundApps, err := hub.findApps(sampleApp)
 	assert.Nil(t, err)
@@ -155,6 +150,18 @@ func TestCreateApp(t *testing.T) {
 	app := foundApps[0]
 	assert.Equal(t, hub.Username, app.Username)
 	assert.Equal(t, hub.App, app.AppName)
+}
+
+func getHubAndLogin(t *testing.T) *HubClient {
+	hub := getHub()
+	defer assert.Nil(t, hub.deleteUser())
+	form := getRegistrationForm(hub)
+	assert.Nil(t, hub.registerUser(form))
+
+	cookie, err := hub.login()
+	assert.Nil(t, err)
+	hub.Cookie = cookie
+	return hub
 }
 
 // TODO After running "ci-runner" hub tests, I still have a "testuser" folder in data. Should actually be deleted after the test creating it.
