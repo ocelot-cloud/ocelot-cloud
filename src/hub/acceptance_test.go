@@ -10,28 +10,26 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
-
-// TODO There should be a one-liner to get a "hub" instance, that is already logged in, with cookie etc, to start functional testing
-// TODO this should be generated from anew for each test.
 
 func TestFileUploadDownload(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
-	filename := "myuser_myapp_v0.1.0.tar.gz"
+	uploadFilename := strings.Join([]string{hub.Username, hub.App, hub.Tag}, "_") + ".tar.gz"
 
 	fileContent := []byte("hello")
 	fileBuffer := bytes.NewBuffer(fileContent)
 
 	uploadURL := rootUrl + uploadPath
-	responseCode, err := uploadFile(uploadURL, filename, fileBuffer)
+	responseCode, err := uploadFile(uploadURL, uploadFilename, fileBuffer)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, responseCode)
 
-	downloadURL := rootUrl + downloadPath + filename
+	downloadURL := rootUrl + downloadPath + uploadFilename
 	downloadedContent, err := downloadFile(downloadURL)
 	assert.Nil(t, err)
 	assert.Equal(t, fileContent, downloadedContent)
@@ -96,6 +94,7 @@ type HubClient struct {
 	SetOriginHeader bool
 	App             string
 	Cookie          *http.Cookie
+	Tag             string
 }
 
 func (h *HubClient) getRegistrationForm() *RegistrationForm {
@@ -115,6 +114,7 @@ func getHub() *HubClient {
 		Email:           sampleMail,
 		SetOriginHeader: true,
 		App:             sampleApp,
+		Tag:             sampleTag,
 	}
 }
 
