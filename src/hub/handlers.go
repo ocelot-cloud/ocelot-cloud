@@ -36,6 +36,11 @@ func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
 	http.Error(w, msg, httpStatus)
 }
 
+func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
+	Logger.Debug(msg)
+	http.Error(w, msg, httpStatus)
+}
+
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	uploadName := strings.TrimPrefix(r.URL.Path, downloadPath)
 	if uploadName == "" {
@@ -126,7 +131,11 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fs.DeleteUser(user) // TODO Shouldn't that return a potential error?
+	err = fs.DeleteUser(user)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	err = repo.DeleteUser(user)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
@@ -136,7 +145,6 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	Logger.Info("Deleted user: %s", user)
 
 	w.WriteHeader(http.StatusOK)
-	// TODO Handle error
 	w.Write([]byte("User deleted"))
 }
 
@@ -146,35 +154,30 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == http.MethodPost {
 		createApp(w, r)
 	} else {
-		// TODO
+		logAndRespondError(w, "method not implemented", http.StatusMethodNotAllowed)
+		return
 	}
-	// TODO create/delete app, search for app: search
 }
-
-// TODO Much duplication of the handler logic. Should be abstracted.
 
 func findApps(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("finding apps")
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		// TODO
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	searchTerm := singleString.Value
 
 	apps, err := repo.FindApps(searchTerm)
 	if err != nil {
-		Logger.Error("Finding apps failed: %s", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error occurred when trying to find apps"))
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	jsonData, err := json.Marshal(apps)
 	if err != nil {
-		Logger.Error("Failed to marshal apps: %s", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error occurred when trying to marshal apps"))
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Write(jsonData)
@@ -183,8 +186,7 @@ func findApps(w http.ResponseWriter, r *http.Request) {
 func createApp(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil || cookie == nil || cookie.Value == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Cookie not contained in request"))
+		logAndRespondDebug(w, "Cookie not contained in request", http.StatusBadRequest)
 		return
 	}
 	user, err := repo.GetUserWithCookie(cookie.Value)

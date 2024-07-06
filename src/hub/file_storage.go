@@ -22,7 +22,7 @@ func createDataDir() {
 // TODO
 type FileStorage interface {
 	CreateUser(username string) error
-	DeleteUser(username string)
+	DeleteUser(username string) error
 	CreateApp(user, app string) error
 	DeleteApp(username, app string) error
 	CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error
@@ -44,11 +44,13 @@ func (f *FileStorageImpl) CreateUser(username string) error {
 	return nil
 }
 
-func (f *FileStorageImpl) DeleteUser(username string) {
+func (f *FileStorageImpl) DeleteUser(username string) error {
 	userDir := filepath.Join(usersDir, username)
 	if err := deleteIfExist(userDir); err != nil {
 		Logger.Error("Error deleting user directory: %v", err)
+		return err
 	}
+	return nil
 }
 
 func (f *FileStorageImpl) CreateApp(user, app string) error {
