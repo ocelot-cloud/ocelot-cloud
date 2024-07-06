@@ -305,11 +305,9 @@ type LoginCredentials struct {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("login logic called")
-	var creds LoginCredentials
-	err := json.NewDecoder(r.Body).Decode(&creds)
+	creds, err := readBody[LoginCredentials](r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		// TODO
 	}
 
 	// TODO verify username+password
