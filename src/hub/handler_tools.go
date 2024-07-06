@@ -29,6 +29,21 @@ func createFileInfo(filename string) (*FileInfo, error) {
 	return info, nil
 }
 
+func sendJsonResponse(w http.ResponseWriter, data interface{}) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonData)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
 	Logger.Error(msg)
 	http.Error(w, msg, httpStatus)
