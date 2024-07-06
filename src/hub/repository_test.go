@@ -10,7 +10,6 @@ import (
 	"time"
 )
 
-var samplePassword = "mypassword"
 var um Repository = &SqliteRepository{}
 
 func TestMain(m *testing.M) {

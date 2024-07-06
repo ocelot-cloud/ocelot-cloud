@@ -15,6 +15,8 @@ var (
 	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
 	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
+	sampleMail                    = "testuser@example.com"
+	samplePassword                = "mypassword"
 )
 
 func cleanup() {
