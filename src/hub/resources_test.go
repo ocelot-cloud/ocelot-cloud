@@ -184,7 +184,7 @@ func (h *HubClient) findApps(searchTerm string) ([]App, error) {
 	return apps, nil
 }
 
-func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
+func (h *HubClient) uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -214,7 +214,7 @@ func uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
 	return resp.StatusCode, nil
 }
 
-func downloadFile(url string) ([]byte, error) {
+func (h *HubClient) downloadFile(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

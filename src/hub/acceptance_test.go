@@ -20,12 +20,12 @@ func TestFileUploadDownload(t *testing.T) {
 	fileContent := []byte("hello")
 	fileBuffer := bytes.NewBuffer(fileContent)
 
-	responseCode, err := uploadFile(rootUrl+tagPath, uploadFilename, fileBuffer)
+	responseCode, err := hub.uploadFile(rootUrl+tagPath, uploadFilename, fileBuffer)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, responseCode)
 
 	downloadURL := rootUrl + downloadPath + uploadFilename
-	downloadedContent, err := downloadFile(downloadURL)
+	downloadedContent, err := hub.downloadFile(downloadURL)
 	assert.Nil(t, err)
 	assert.Equal(t, fileContent, downloadedContent)
 }
