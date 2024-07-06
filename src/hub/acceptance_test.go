@@ -274,7 +274,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "created app successfully", http.StatusCreated, "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "app created\n", http.StatusCreated, "POST", CreateApp)
 	return err
 }
 

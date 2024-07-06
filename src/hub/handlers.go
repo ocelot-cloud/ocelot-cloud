@@ -188,37 +188,37 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Cookie not found"))
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		// TODO
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	app := singleString.Value
 
 	if !repo.DoesUserExist(user) {
-		// TODO
+		logAndRespondDebug(w, "user does not exists", http.StatusNotFound)
+		return
 	}
 	if repo.DoesAppExist(user, app) {
-		// TODO
+		logAndRespondDebug(w, "app already exists", http.StatusConflict)
+		return
 	}
 	err = fs.CreateApp(user, app)
 	if err != nil {
-		// TODO
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = repo.CreateApp(user, app)
 	if err != nil {
-		// TODO
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte("created app successfully"))
-	if err != nil {
-		// TODO
-	}
+
+	logAndRespondDebug(w, "app created", http.StatusCreated)
 }
 
 func readBody[T any](r *http.Request) (T, error) {
@@ -241,8 +241,6 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		handleUpload(w, r)
 	}
-
-	// TODO delete tag, getListOfTags(app)
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
@@ -278,15 +276,13 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Should be global?
 	err = fs.CreateTag(fileInfo, &fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	Logger.Info("File uploaded successfully: %s", header.Filename)
+	logAndRespondDebug(w, "file uploaded successfully", http.StatusOK)
 }
 
 // TODO Add security: auth, origin policy and according security tests
