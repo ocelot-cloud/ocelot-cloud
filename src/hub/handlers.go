@@ -140,16 +140,9 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 
 func findApps(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("finding apps")
-	body, err := io.ReadAll(r.Body)
+	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
-		return
-	}
-
-	var singleString SingleString
-	if err := json.Unmarshal(body, &singleString); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+		// TODO
 	}
 	searchTerm := singleString.Value
 
