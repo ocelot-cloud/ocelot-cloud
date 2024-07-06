@@ -187,7 +187,9 @@ func (h *HubClient) findApps(searchTerm string) ([]App, error) {
 	return apps, nil
 }
 
-func (h *HubClient) uploadFile(url, filename string, fileBuffer *bytes.Buffer) (int, error) {
+func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) (int, error) {
+	url := rootUrl + tagPath
+	filename := h.TagFilename
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
