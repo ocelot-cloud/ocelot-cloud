@@ -10,22 +10,22 @@ import (
 	"net/http"
 )
 
-func applySecurityPolicy(operation Operation, req *http.Request) *http.Request {
+func (h *HubClient) applySecurityPolicy(operation Operation, req *http.Request) *http.Request {
 	policyToApply := securityPolicies.getPolicyFor(operation)
 	if policyToApply.IsCredentialsRequired {
 		creds := LoginCredentials{
-			Username: Hub.Username,
-			Password: Hub.Password,
+			Username: h.Username,
+			Password: h.Password,
 		}
 		payloadBytes, _ := json.Marshal(creds)
 		payloadReader := bytes.NewReader(payloadBytes)
 		req.Body = io.NopCloser(payloadReader)
 	}
 	if policyToApply.IsOriginRequired {
-		req.Header.Set("Origin", Hub.Origin)
+		req.Header.Set("Origin", h.Origin)
 	}
 	if policyToApply.IsCookieRequired {
-		req.Header.Set(Hub.Cookie.Name, Hub.Cookie.Value)
+		req.Header.Set(h.Cookie.Name, h.Cookie.Value)
 	}
 	return req
 }

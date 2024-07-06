@@ -16,14 +16,6 @@ import (
 
 // TODO There should be a one-liner to get a "hub" instance, that is already logged in, with cookie etc, to start functional testing
 // TODO this should be generated from anew for each test.
-var Hub = HubClient{
-	Username:        "testuser",
-	Password:        "password123",
-	Origin:          "http://localhost:8082",
-	Email:           "testuser@example.com",
-	SetOriginHeader: true,
-	App:             sampleApp,
-}
 
 func TestFileUploadDownload(t *testing.T) {
 	defer cleanup()
@@ -108,22 +100,34 @@ type HubClient struct {
 	Cookie          *http.Cookie
 }
 
-func getRegistrationForm() *RegistrationForm {
+func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
-		Username: Hub.Username,
-		Password: Hub.Password,
-		Origin:   Hub.Origin,
-		Email:    Hub.Email,
+		Username: hub.Username,
+		Password: hub.Password,
+		Origin:   hub.Origin,
+		Email:    hub.Email,
+	}
+}
+
+func getHub() *HubClient {
+	return &HubClient{
+		Username:        "testuser",
+		Password:        "password123",
+		Origin:          "http://localhost:8082",
+		Email:           "testuser@example.com",
+		SetOriginHeader: true,
+		App:             sampleApp,
 	}
 }
 
 // TODO Test if cookie expiration date updates when making a successful request.
 
 func TestCookie(t *testing.T) {
-	defer assert.Nil(t, Hub.deleteUser())
-	form := getRegistrationForm()
-	assert.Nil(t, Hub.registerUser(form))
-	cookie, err := Hub.login()
+	hub := getHub()
+	defer assert.Nil(t, hub.deleteUser())
+	form := getRegistrationForm(hub)
+	assert.Nil(t, hub.registerUser(form))
+	cookie, err := hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
 	assert.Equal(t, cookieName, cookie.Name)
@@ -131,34 +135,36 @@ func TestCookie(t *testing.T) {
 	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(cookie.Expires))
 	assert.Equal(t, 64, len(cookie.Value))
 
-	cookie2, err := Hub.login()
+	cookie2, err := hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie2)
 	assert.NotEqual(t, cookie.Value, cookie2.Value)
 }
 
 func TestCreateApp(t *testing.T) {
-	defer assert.Nil(t, Hub.deleteUser())
-	form := getRegistrationForm()
-	assert.Nil(t, Hub.registerUser(form))
+	hub := getHub()
+	defer assert.Nil(t, hub.deleteUser())
+	form := getRegistrationForm(hub)
+	assert.Nil(t, hub.registerUser(form))
 
-	Hub.login()
-	assert.Nil(t, Hub.createApp())
-	foundApps, err := Hub.findApps(sampleApp)
+	hub.login()
+	assert.Nil(t, hub.createApp())
+	foundApps, err := hub.findApps(sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundApps))
 	app := foundApps[0]
-	assert.Equal(t, Hub.Username, app.Username)
-	assert.Equal(t, Hub.App, app.AppName)
+	assert.Equal(t, hub.Username, app.Username)
+	assert.Equal(t, hub.App, app.AppName)
 }
 
 // TODO After running "ci-runner" hub tests, I still have a "testuser" folder in data. Should actually be deleted after the test creating it.
 
 // TODO Can just be done, when I have a protected endpoint
 func TestOriginPolicy(t *testing.T) {
-	form := getRegistrationForm()
+	hub := getHub()
+	form := getRegistrationForm(hub)
 	fakeOrigin := "http://non-existing-subdomain.localhost:8082"
-	assert.Nil(t, Hub.registerUser(form))
+	assert.Nil(t, hub.registerUser(form))
 
 	// TODO
 	/*hub.SetOriginHeader = false
@@ -179,8 +185,8 @@ func (h *HubClient) registerUser(form *RegistrationForm) error {
 
 func (h *HubClient) login() (*http.Cookie, error) {
 	creds := LoginCredentials{
-		Username: Hub.Username,
-		Password: Hub.Password,
+		Username: h.Username,
+		Password: h.Password,
 	}
 
 	result, err := h.doRequest(loginPath, creds, "login successful", http.StatusOK, "GET", Login)
@@ -202,7 +208,7 @@ func (h *HubClient) login() (*http.Cookie, error) {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, SingleString{Hub.Username}, "User deleted", http.StatusOK, "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, SingleString{h.Username}, "User deleted", http.StatusOK, "DELETE", DeleteUser)
 	return err
 }
 
@@ -226,8 +232,8 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	if Hub.Cookie != nil {
-		req.AddCookie(Hub.Cookie)
+	if h.Cookie != nil {
+		req.AddCookie(h.Cookie)
 	}
 
 	client := &http.Client{}
@@ -269,7 +275,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{Hub.App}, "created app successfully", http.StatusCreated, "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "created app successfully", http.StatusCreated, "POST", CreateApp)
 	return err
 }
 
