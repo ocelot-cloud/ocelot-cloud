@@ -15,50 +15,6 @@ import (
 
 // TODO Requires Auth
 // TODO Only allowed when the target is the user itself. Cant upload stuff to other users.
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		logAndRespondError(w, "Failed to get file from request", http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
-
-	// TODO Add test
-	// TODO Make security test that user and repo are in the name correctly, and that both exist.
-	if !strings.HasSuffix(header.Filename, ".tar.gz") {
-		logAndRespondError(w, "Invalid file type", http.StatusBadRequest)
-		return
-	}
-
-	fileInfo, err := createFileInfo(header.Filename)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var fileBuffer bytes.Buffer
-	_, err = io.Copy(&fileBuffer, file)
-	if err != nil {
-		logAndRespondError(w, "Failed to read file content", http.StatusInternalServerError)
-		return
-	}
-
-	// TODO Should be global?
-	fs := FileStorageImpl{}
-	err = fs.CreateTag(fileInfo, &fileBuffer)
-	if err != nil {
-		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	Logger.Info("File uploaded successfully: %s", header.Filename)
-}
 
 // TODO Create unit tests
 func createFileInfo(filename string) (*FileInfo, error) {
@@ -282,7 +238,56 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		handleUpload(w, r)
+	}
+
 	// TODO delete tag, getListOfTags(app)
+}
+
+func handleUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		logAndRespondError(w, "Failed to get file from request", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// TODO Add test
+	// TODO Make security test that user and repo are in the name correctly, and that both exist.
+	if !strings.HasSuffix(header.Filename, ".tar.gz") {
+		logAndRespondError(w, "Invalid file type", http.StatusBadRequest)
+		return
+	}
+
+	fileInfo, err := createFileInfo(header.Filename)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var fileBuffer bytes.Buffer
+	_, err = io.Copy(&fileBuffer, file)
+	if err != nil {
+		logAndRespondError(w, "Failed to read file content", http.StatusInternalServerError)
+		return
+	}
+
+	// TODO Should be global?
+	fs := FileStorageImpl{}
+	err = fs.CreateTag(fileInfo, &fileBuffer)
+	if err != nil {
+		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	Logger.Info("File uploaded successfully: %s", header.Filename)
 }
 
 // TODO Add security: auth, origin policy and according security tests
