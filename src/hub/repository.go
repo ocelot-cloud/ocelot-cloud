@@ -164,14 +164,17 @@ func (u *SqliteRepository) CreateApp(user string, app string) error {
 }
 
 func (u *SqliteRepository) DoesAppExist(user string, app string) bool {
+	userID, err := getUserId(user)
+	if err != nil {
+		return false
+	}
+
 	var exists bool
-	err := db.QueryRow(`
+	err = db.QueryRow(`
 		SELECT EXISTS(
-			SELECT 1 FROM apps WHERE user_id = (
-				SELECT user_id FROM users WHERE user_name = ?
-		  	) AND app_name = ?
+			SELECT 1 FROM apps WHERE user_id = ? AND app_name = ?
    		);
-	`, user, app).Scan(&exists)
+	`, userID, app).Scan(&exists)
 	if err != nil {
 		Logger.Error("Failed to check app existence for user '%s' and app '%s': %v\n", user, app, err)
 		return false
