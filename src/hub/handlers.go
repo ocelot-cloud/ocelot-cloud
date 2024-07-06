@@ -108,24 +108,17 @@ type SingleString struct {
 }
 
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
+	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		http.Error(w, "Unable to read request body", http.StatusBadRequest)
-		return
+		// TODO
 	}
-
-	// TODO Only allowed, when the cookie belongs to the username. To be tested: try to delete a second/different username
-	var singleString SingleString
-	if err := json.Unmarshal(body, &singleString); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+	user := singleString.Value
 
 	// TODO Misses some functions like: Does(User/App/Tag)Exist?
-	fs.DeleteUser(singleString.Value) // TODO Shouldn't that return a potential error?
-	repo.DeleteUser(singleString.Value)
+	fs.DeleteUser(user) // TODO Shouldn't that return a potential error?
+	repo.DeleteUser(user)
 
-	Logger.Info("Deleted user: %s", singleString.Value)
+	Logger.Info("Deleted user: %s", user)
 
 	w.WriteHeader(http.StatusOK)
 	// TODO Handle error
