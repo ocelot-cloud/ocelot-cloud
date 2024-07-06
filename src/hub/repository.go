@@ -295,12 +295,7 @@ func (u *SqliteRepository) CreateTag(user string, app string, tag string) error 
 }
 
 func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error {
-	userID, err := getUserId(user)
-	if err != nil {
-		return err
-	}
-
-	appID, err := getAppId(userID, app)
+	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
 		return err
 	}
@@ -311,6 +306,19 @@ func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error 
 	}
 
 	return nil
+}
+
+func getAppIdFromUsername(user string, app string) (int, error) {
+	userID, err := getUserId(user)
+	if err != nil {
+		return 0, err
+	}
+
+	appID, err := getAppId(userID, app)
+	if err != nil {
+		return 0, err
+	}
+	return appID, nil
 }
 
 func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
