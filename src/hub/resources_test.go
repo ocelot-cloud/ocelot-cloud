@@ -271,6 +271,16 @@ func (h *HubClient) getTags() ([]string, error) {
 }
 
 func (h *HubClient) deleteTag() error {
+	tagInfo := &TagInfo{
+		User: h.Username,
+		App:  h.App,
+		Tag:  h.Tag,
+	}
+	_, err := h.doRequest(tagPath, tagInfo, "", http.StatusOK, "DELETE", DeleteTag)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

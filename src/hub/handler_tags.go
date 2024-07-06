@@ -14,9 +14,32 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 		handleUpload(w, r)
 	} else if r.Method == http.MethodGet {
 		handleTagList(w, r)
+	} else if r.Method == http.MethodDelete {
+		handleDeleteTag(w, r)
 	} else {
 		logAndRespondDebug(w, "method not implemented", http.StatusMethodNotAllowed)
 	}
+}
+
+// TODO My impression is there might be some duplication with other data structure. To be checked for abstration.
+type TagInfo struct {
+	User string `json:"user"`
+	App  string `json:"app"`
+	Tag  string `json:"tag"`
+}
+
+func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
+	tagInfo, err := readBody[TagInfo](r)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+	}
+
+	fs.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag) // TODO make it return an error.
+	err = repo.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+	}
+	logAndRespondDebug(w, "tag delete", http.StatusOK)
 }
 
 type UsernameAndApp struct {
