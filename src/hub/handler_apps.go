@@ -43,9 +43,13 @@ func findApps(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	searchTerm := singleString.Value
+	appSearchTerm := singleString.Value
+	if !isValidName(appSearchTerm) {
+		logAndRespondDebug(w, "invalid app search term", http.StatusBadRequest)
+		return
+	}
 
-	apps, err := repo.FindApps(searchTerm)
+	apps, err := repo.FindApps(appSearchTerm)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return

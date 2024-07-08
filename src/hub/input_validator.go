@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func validateName(input string) bool {
+func isValidName(input string) bool {
 	pattern := `^[a-z0-9]{3,20}$`
 	re := regexp.MustCompile(pattern)
 	return re.MatchString(input)

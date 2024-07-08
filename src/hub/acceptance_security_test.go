@@ -15,9 +15,13 @@ func TestFindAppsSecurity(t *testing.T) {
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
-	apps, err := hub.findApps("not-existing-app")
+	_, err := hub.findApps("notexistingapp")
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(apps))
+
+	_, err = hub.findApps("not-existing-app")
+	assert.NotNil(t, err)
+	// TODO Resolve duplication
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid app search term\n", err.Error())
 }
 
 func TestDownloadAppSecurity(t *testing.T) {

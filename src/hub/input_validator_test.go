@@ -6,12 +6,12 @@ import (
 )
 
 func TestValidateName(t *testing.T) {
-	assert.True(t, validateName("validusername"))
-	assert.True(t, validateName("user123"))
-	assert.False(t, validateName("InvalidUsername"))          // Contains uppercase
-	assert.False(t, validateName("user!@#"))                  // Contains special characters
-	assert.False(t, validateName("us"))                       // Too short
-	assert.False(t, validateName("thisusernameiswaytoolong")) // Too long
+	assert.True(t, isValidName("validusername"))
+	assert.True(t, isValidName("user123"))
+	assert.False(t, isValidName("InvalidUsername"))          // Contains uppercase
+	assert.False(t, isValidName("user!@#"))                  // Contains special characters
+	assert.False(t, isValidName("us"))                       // Too short
+	assert.False(t, isValidName("thisusernameiswaytoolong")) // Too long
 }
 
 func TestValidateTag(t *testing.T) {
