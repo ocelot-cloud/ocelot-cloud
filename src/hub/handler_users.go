@@ -42,24 +42,25 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := readBody[RegistrationForm](r)
+	// TODO Should return a pointer
+	form, err := readBody[RegistrationForm](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = fs.CreateUser(user.Username)
+	err = fs.CreateUser(form.Username)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if repo.DoesUserExist(user.Username) {
+	if repo.DoesUserExist(form.Username) {
 		logAndRespondError(w, "user already exists", http.StatusConflict)
 		return
 	}
 
-	err = repo.CreateUser(user.Username, user.Password)
+	err = repo.CreateUser(&form)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return

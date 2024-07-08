@@ -20,6 +20,7 @@ func initializeDatabaseWithSource(dataSourceName string) {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}
 
+	// TODO add: origin TEXT UNIQUE NOT NULL,
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +65,7 @@ func initializeDatabaseWithSource(dataSourceName string) {
 }
 
 type Repository interface {
-	CreateUser(user string, password string) error
+	CreateUser(form *RegistrationForm) error
 	DoesUserExist(user string) bool
 	DeleteUser(user string) error
 	IsPasswordCorrect(user string, password string) bool
@@ -110,14 +111,15 @@ func (u *SqliteRepository) DoesUserExist(user string) bool {
 	return exists
 }
 
-func (u *SqliteRepository) CreateUser(user string, password string) error {
-	hashedPassword, err := hashAndSaltPassword(password)
+func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
+
+	hashedPassword, err := hashAndSaltPassword(form.Password)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
 	}
 
 	// TODO Previously check whether user already exists? Here or in handler?
-	_, err = db.Exec("INSERT INTO users (user_name, hashed_password) VALUES (?, ?)", user, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password) VALUES (?, ?)", form.Username, hashedPassword)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to create user: %v", err)
 	}

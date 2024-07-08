@@ -24,6 +24,13 @@ var (
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 	sampleMail                    = "testuser@example.com"
 	samplePassword                = "mypassword"
+	sampleOrigin                  = rootUrl
+	sampleForm                    = &RegistrationForm{
+		sampleUser,
+		samplePassword,
+		sampleOrigin,
+		sampleMail,
+	}
 )
 
 func cleanup() {
