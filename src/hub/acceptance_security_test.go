@@ -3,7 +3,6 @@
 package main
 
 import (
-	"bytes"
 	"github.com/ocelot-cloud/shared/assert"
 	"testing"
 )
@@ -25,15 +24,13 @@ func TestDownloadAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
-	fileContent := []byte("hello")
-	fileBuffer := bytes.NewBuffer(fileContent)
-	assert.Nil(t, hub.uploadFile(fileBuffer))
+	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 	downloadedContent, err := hub.downloadApp()
 	assert.Nil(t, err)
-	assert.Equal(t, fileContent, downloadedContent)
+	assert.Equal(t, sampleTagFileContent, downloadedContent)
 }
 
 func TestGetTagsSecurity(t *testing.T) {
@@ -41,9 +38,7 @@ func TestGetTagsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
-	fileContent := []byte("hello")
-	fileBuffer := bytes.NewBuffer(fileContent)
-	assert.Nil(t, hub.uploadFile(fileBuffer))
+	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false

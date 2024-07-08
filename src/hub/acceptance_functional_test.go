@@ -3,7 +3,6 @@
 package main
 
 import (
-	"bytes"
 	"github.com/ocelot-cloud/shared/assert"
 	"testing"
 	"time"
@@ -14,9 +13,7 @@ func TestFileUploadDownload(t *testing.T) {
 	defer hub.deleteUser()
 
 	assert.Nil(t, hub.createApp())
-	fileContent := []byte("hello")
-	fileBuffer := bytes.NewBuffer(fileContent)
-	assert.Nil(t, hub.uploadFile(fileBuffer))
+	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 
 	/* TODO Implement
 	asdf, err := hub.getTags()
@@ -27,7 +24,7 @@ func TestFileUploadDownload(t *testing.T) {
 
 	downloadedContent, err := hub.downloadApp()
 	assert.Nil(t, err)
-	assert.Equal(t, fileContent, downloadedContent)
+	assert.Equal(t, sampleTagFileContent, downloadedContent)
 }
 
 // TODO Test if cookie expiration date updates when making a successful request.
@@ -70,7 +67,7 @@ func TestCreateTags(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
-	assert.Nil(t, hub.uploadFile(sampleTaggedFileContentBuffer))
+	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))

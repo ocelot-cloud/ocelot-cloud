@@ -20,7 +20,8 @@ var (
 	singleUserDir                 = usersDir + "/" + sampleUser
 	appDir                        = singleUserDir + "/" + sampleApp
 	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
-	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
+	sampleTagFileContent          = "hello"
+	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello")) // TODO To be deleted
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 	sampleMail                    = "testuser@example.com"
 	samplePassword                = "mypassword"
@@ -199,7 +200,10 @@ func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 	return apps, nil
 }
 
-func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) error {
+func (h *HubClient) uploadTag(content string) error {
+	fileContent := []byte(content)
+	fileBuffer := bytes.NewBuffer(fileContent)
+
 	url := rootUrl + tagPath
 	filename := h.TagFilename
 	body := &bytes.Buffer{}
@@ -234,24 +238,24 @@ func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) error {
 	return nil
 }
 
-func (h *HubClient) downloadApp() ([]byte, error) {
+func (h *HubClient) downloadApp() (string, error) {
 	downloadURL := rootUrl + downloadPath + h.TagFilename
 	resp, err := http.Get(downloadURL)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, Logger.LogAndReturnError("failed to download file, status code: %d", resp.StatusCode)
+		return "", Logger.LogAndReturnError("failed to download file, status code: %d", resp.StatusCode)
 	}
 
 	downloadedContent, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return downloadedContent, nil
+	return string(downloadedContent), nil
 }
 
 // TODO Resolve duplication
