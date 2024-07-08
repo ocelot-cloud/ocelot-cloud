@@ -21,7 +21,7 @@ var (
 	appDir                        = singleUserDir + "/" + sampleApp
 	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
 	sampleTagFileContent          = "hello"
-	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello")) // TODO To be deleted
+	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
 	sampleMail                    = "testuser@example.com"
 	samplePassword                = "mypassword"
