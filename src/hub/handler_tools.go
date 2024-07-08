@@ -122,6 +122,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !repo.IsPasswordCorrect(creds.Username, creds.Password) {
+		logAndRespondDebug(w, "wrong password", http.StatusUnauthorized)
+		return
+	}
+
 	// TODO verify username+password
 	// TODO Use safe, randomly generated cookies instead. I think gorilla provides some.
 	// TODO Add cookie + expiration time/date to sqlite to survive restarts.

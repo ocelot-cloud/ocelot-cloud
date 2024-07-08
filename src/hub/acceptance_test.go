@@ -87,8 +87,16 @@ func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	myNewPassword := "my-new-password"
+
 	assert.Nil(t, hub.ChangePassword(myNewPassword))
-	// TODO assert change via login
+	_, err := hub.login()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
+
+	hub.Password = myNewPassword
+	cookie, err := hub.login()
+	assert.Nil(t, err)
+	assert.NotNil(t, cookie)
 }
 
 func TestChangeOrigin(t *testing.T) {
