@@ -28,8 +28,8 @@ var (
 	sampleForm                    = &RegistrationForm{
 		sampleUser,
 		samplePassword,
-		sampleOrigin,
 		sampleMail,
+		sampleOrigin,
 	}
 )
 

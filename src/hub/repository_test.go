@@ -218,16 +218,20 @@ func TestGetTagList(t *testing.T) {
 
 func TestChangeRepoPassword(t *testing.T) {
 	defer cleanupDatabase()
-	um.CreateUser(sampleForm)
-	um.IsPasswordCorrect(sampleUser, samplePassword)
+	assert.Nil(t, um.CreateUser(sampleForm))
+	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	newPassword := samplePassword + "x"
-	um.ChangePassword(sampleUser, newPassword)
+	assert.Nil(t, um.ChangePassword(sampleUser, newPassword))
 	assert.False(t, um.IsPasswordCorrect(sampleUser, sampleForm.Password))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, newPassword))
 }
 
 func TestChangeRepoOrigin(t *testing.T) {
 	defer cleanupDatabase()
-	um.CreateUser(sampleForm)
-	// TODO
+	assert.Nil(t, um.CreateUser(sampleForm))
+	assert.True(t, um.IsOriginCorrect(sampleUser, sampleOrigin))
+	newOrigin := "http://my-new-domain.com:8080"
+	assert.Nil(t, um.ChangeOrigin(sampleUser, newOrigin))
+	assert.False(t, um.IsOriginCorrect(sampleUser, sampleForm.Origin))
+	assert.True(t, um.IsOriginCorrect(sampleUser, newOrigin))
 }

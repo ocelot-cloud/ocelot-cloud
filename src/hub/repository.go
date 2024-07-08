@@ -81,6 +81,7 @@ type Repository interface {
 	GetTagList(user string, app string) ([]string, error)
 	ChangePassword(user string, newPassword string) error
 	ChangeOrigin(user string, newOrigin string) error
+	IsOriginCorrect(user string, origin string) bool
 }
 
 type SqliteRepository struct{}
@@ -112,7 +113,6 @@ func (u *SqliteRepository) DoesUserExist(user string) bool {
 }
 
 func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
-
 	hashedPassword, err := hashAndSaltPassword(form.Password)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
@@ -363,6 +363,17 @@ func (u *SqliteRepository) ChangeOrigin(user string, newOrigin string) error {
 		return Logger.LogAndReturnError("failed to update origin: %w", err)
 	}
 	return nil
+}
+
+func (u *SqliteRepository) IsOriginCorrect(user string, origin string) bool {
+	var repoOrigin string
+	err := db.QueryRow("SELECT origin FROM users WHERE user_name = ?", user).Scan(&repoOrigin)
+	if err != nil {
+		Logger.Error("Failed to fetch hashed password: %v\n", err)
+		return false
+	}
+
+	return repoOrigin == origin
 }
 
 func getAppId(userID int, app string) (int, error) {
