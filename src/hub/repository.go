@@ -343,13 +343,25 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 	return tags, nil
 }
 
-// TODO
 func (u *SqliteRepository) ChangePassword(user string, newPassword string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return Logger.LogAndReturnError("failed to hash password: %w", err)
+	}
+
+	_, err = db.Exec("UPDATE users SET hashed_password = ? WHERE user_name = ?", hashedPassword, user)
+	if err != nil {
+		return Logger.LogAndReturnError("failed to update password: %w", err)
+	}
+
 	return nil
 }
 
-// TODO
 func (u *SqliteRepository) ChangeOrigin(user string, newOrigin string) error {
+	_, err := db.Exec("UPDATE users SET origin = ? WHERE user_name = ?", newOrigin, user)
+	if err != nil {
+		return Logger.LogAndReturnError("failed to update origin: %w", err)
+	}
 	return nil
 }
 

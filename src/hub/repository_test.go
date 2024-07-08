@@ -215,3 +215,19 @@ func TestGetTagList(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.True(t, strings.Contains(err.Error(), "user not found"))
 }
+
+func TestChangeRepoPassword(t *testing.T) {
+	defer cleanupDatabase()
+	um.CreateUser(sampleForm)
+	um.IsPasswordCorrect(sampleUser, samplePassword)
+	newPassword := samplePassword + "x"
+	um.ChangePassword(sampleUser, newPassword)
+	assert.False(t, um.IsPasswordCorrect(sampleUser, sampleForm.Password))
+	assert.True(t, um.IsPasswordCorrect(sampleUser, newPassword))
+}
+
+func TestChangeRepoOrigin(t *testing.T) {
+	defer cleanupDatabase()
+	um.CreateUser(sampleForm)
+	// TODO
+}
