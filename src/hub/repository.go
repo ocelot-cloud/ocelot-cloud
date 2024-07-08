@@ -78,6 +78,8 @@ type Repository interface {
 	CreateTag(user string, app string, tag string) error
 	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
+	ChangePassword(user string, newPassword string) error
+	ChangeOrigin(user string, newOrigin string) error
 }
 
 type SqliteRepository struct{}
@@ -337,6 +339,16 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 	}
 
 	return tags, nil
+}
+
+// TODO
+func (u *SqliteRepository) ChangePassword(user string, newPassword string) error {
+	return nil
+}
+
+// TODO
+func (u *SqliteRepository) ChangeOrigin(user string, newOrigin string) error {
+	return nil
 }
 
 func getAppId(userID int, app string) (int, error) {
