@@ -114,23 +114,4 @@ func TestChangeOrigin(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-// TODO Can just be done, when I have a protected endpoint
-func TestOriginPolicy(t *testing.T) {
-	/*hub := getHub()
-	form := hub.getRegistrationForm()
-	fakeOrigin := "http://non-existing-subdomain.localhost:8082"
-	assert.Nil(t, hub.registerUser(form))
-
-	hub.SetOriginHeader = false
-	err := hub.deleteUser()
-	assert.NotNil(t, err)
-	expected := fmt.Sprintf("Security policy does not allow this request without 'Origin' header")
-	assert.Equal(t, expected, err.Error())
-
-
-	form.Origin = fakeOrigin
-	*/
-	// TODO expected := fmt.Sprintf("Security policy does not allow requests from origin: %s", fakeOrigin)
-}
-
 // TODO assert that no other object should be send in body, should be nil, when IsCredentialsRequired == true
