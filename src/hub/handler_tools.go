@@ -87,6 +87,33 @@ func readBody[T any](r *http.Request) (T, error) {
 	return result, nil
 }
 
+type ValidationType int
+
+const (
+	Name ValidationType = iota
+	Tag
+)
+
+func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {
+	singleString, err := readBody[SingleString](r)
+	if err != nil {
+		return "", err
+	}
+	result := singleString.Value
+
+	if validationType == Name {
+		if !isValidName(result) {
+			return "", fmt.Errorf("invalid name")
+		}
+	} else if validationType == Tag {
+		if !isValidName(result) {
+			return "", fmt.Errorf("invalid tag")
+		}
+	}
+
+	return result, nil
+}
+
 // TODO Add security: auth, origin policy and according security tests
 // TODO auth: for required actions, some are public like findApps, reuse code from backend?
 // TODO origin policy: user creation requires "host" parameter, so all security relevant actions must have this "host" as "Origin" header
