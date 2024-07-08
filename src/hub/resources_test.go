@@ -296,6 +296,17 @@ func (h *HubClient) deleteApp() error {
 	return err
 }
 
+func (h *HubClient) ChangePassword(newPassword string) error {
+	form := ChangePasswordForm{
+		User:        h.User,
+		OldPassword: h.Password,
+		NewPassword: newPassword,
+	}
+
+	_, err := h.doRequest(changePasswordPath, form, "password changed\n", http.StatusOK, "POST", ChangePassword)
+	return err
+}
+
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
 	form := hub.getRegistrationForm()

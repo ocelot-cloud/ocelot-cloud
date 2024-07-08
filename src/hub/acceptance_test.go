@@ -86,7 +86,15 @@ func TestCreateTags(t *testing.T) {
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
-	// TODO
+	myNewPassword := "my-new-password"
+	assert.Nil(t, hub.ChangePassword(myNewPassword))
+	// TODO assert change via login
+}
+
+func TestChangeOrigin(t *testing.T) {
+	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
+	// TODO Makes sense to implement when security, namely origin checks, are implemented.
 }
 
 // TODO Can just be done, when I have a protected endpoint

@@ -7,14 +7,15 @@ var (
 	usersDir     = dataDir + "/users"
 	databaseFile = dataDir + "/sqlite.db"
 
-	Logger           shared.Logger
-	tagPath          = "/tags"
-	downloadPath     = tagPath + "/"
-	userPath         = "/users"
-	appPath          = "/apps"
-	loginPath        = "/login"
-	registrationPath = "/registration"
-	port             = "8082"
-	rootUrl          = "http://localhost:" + port
-	cookieName       = "auth"
+	Logger             shared.Logger
+	tagPath            = "/tags"
+	downloadPath       = tagPath + "/"
+	userPath           = "/users"
+	appPath            = "/apps"
+	loginPath          = "/login"
+	registrationPath   = "/registration"
+	port               = "8082"
+	rootUrl            = "http://localhost:" + port
+	cookieName         = "auth"
+	changePasswordPath = userPath + "/password"
 )

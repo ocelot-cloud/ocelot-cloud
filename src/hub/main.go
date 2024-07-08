@@ -18,6 +18,7 @@ func main() {
 	// TODO apply middleware?
 	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)
+	http.HandleFunc(changePasswordPath, changePasswordHandler)
 
 	http.HandleFunc(appPath, appHandler)
 	http.HandleFunc(userPath, userHandler)

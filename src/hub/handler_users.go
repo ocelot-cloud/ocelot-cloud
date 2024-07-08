@@ -68,3 +68,40 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 	logAndRespondDebug(w, "User registered", http.StatusCreated)
 }
+
+type ChangePasswordForm struct {
+	User        string `json:"user"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
+	}
+
+	// TODO Should return a pointer
+	form, err := readBody[ChangePasswordForm](r)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !repo.DoesUserExist(form.User) {
+		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.IsPasswordCorrect(form.User, form.OldPassword) {
+		logAndRespondDebug(w, "Password is not correct", http.StatusUnauthorized)
+		return
+	}
+
+	err = repo.ChangePassword(form.User, form.NewPassword)
+	if err != nil {
+		logAndRespondError(w, "User does not match old password", http.StatusUnauthorized)
+		return
+	}
+
+	logAndRespondDebug(w, "password changed", http.StatusOK)
+}
