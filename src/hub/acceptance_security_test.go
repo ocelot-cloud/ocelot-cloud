@@ -7,8 +7,6 @@ import (
 	"testing"
 )
 
-// TODO Input validation missing for the first three operations.
-
 func TestFindAppsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
@@ -24,6 +22,7 @@ func TestFindAppsSecurity(t *testing.T) {
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid app search term\n", err.Error())
 }
 
+// TODO Input validation missing
 func TestDownloadAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
@@ -37,6 +36,7 @@ func TestDownloadAppSecurity(t *testing.T) {
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 }
 
+// TODO Input validation missing
 func TestGetTagsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
