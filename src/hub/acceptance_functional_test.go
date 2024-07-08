@@ -16,7 +16,6 @@ func TestFileUploadDownload(t *testing.T) {
 	assert.Nil(t, hub.createApp())
 	fileContent := []byte("hello")
 	fileBuffer := bytes.NewBuffer(fileContent)
-
 	assert.Nil(t, hub.uploadFile(fileBuffer))
 
 	/* TODO Implement

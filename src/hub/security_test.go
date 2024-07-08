@@ -32,7 +32,6 @@ var securityPolicies = getPolicy()
 
 type Operation int
 
-// Define constants for DaysOfWeek
 const (
 	FindApps Operation = iota
 	DownloadApp

@@ -46,11 +46,12 @@ type HubClient struct {
 	Password        string
 	Origin          string
 	Email           string
-	SetOriginHeader bool
 	App             string
 	Cookie          *http.Cookie
 	Tag             string
 	TagFilename     string
+	SetOriginHeader bool
+	SetCookieHeader bool
 }
 
 func (h *HubClient) getRegistrationForm() *RegistrationForm {
@@ -68,10 +69,11 @@ func getHub() *HubClient {
 		Password:        samplePassword,
 		Origin:          rootUrl,
 		Email:           sampleMail,
-		SetOriginHeader: true,
 		App:             sampleApp,
 		Tag:             sampleTag,
 		TagFilename:     strings.Join([]string{sampleUser, sampleApp, sampleTag}, "_") + ".tar.gz",
+		SetOriginHeader: true,
+		SetCookieHeader: true,
 	}
 }
 
@@ -128,9 +130,10 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Origin", h.Origin)
-
-	if h.Cookie != nil {
+	if h.SetOriginHeader {
+		req.Header.Set("Origin", h.Origin)
+	}
+	if h.SetCookieHeader && h.Cookie != nil {
 		req.AddCookie(h.Cookie)
 	}
 
