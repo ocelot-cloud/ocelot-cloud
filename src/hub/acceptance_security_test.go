@@ -39,7 +39,7 @@ func TestDownloadAppSecurity(t *testing.T) {
 	hub.TagFilename = getTagFileName(sampleUser, sampleApp, hub.Tag)
 	downloadedContent, err = hub.downloadApp()
 	assert.NotNil(t, err)
-	// TODO Should fail, but because of input validation: assert.Equal(t, "asd", err.Error())
+	assert.Equal(t, "asd", err.Error())
 }
 
 // TODO Input validation missing

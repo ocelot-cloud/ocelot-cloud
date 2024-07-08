@@ -14,6 +14,7 @@ const (
 	Tag
 	Password
 	Origin
+	TagFile
 )
 
 var (
@@ -36,11 +37,21 @@ func validate(input string, validationType ValidationType) bool {
 		re = passwordPattern
 	case Origin:
 		return validateOrigin(input)
+	case TagFile:
+		return validateTagFile(input)
 	default:
 		return false
 	}
 
 	return re.MatchString(input)
+}
+
+func validateTagFile(input string) bool {
+	fileInfo, err := createFileInfo(input)
+	if err != nil {
+		return false
+	}
+	return validate(fileInfo.User, User) && validate(fileInfo.App, App) && validate(fileInfo.Tag, Tag)
 }
 
 func validateOrigin(input string) bool {

@@ -251,7 +251,8 @@ func (h *HubClient) downloadApp() (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", Logger.LogAndReturnError("failed to download file, status code: %d", resp.StatusCode)
+		// TODO improve message, take from response body
+		return "", Logger.LogAndReturnError("asd")
 	}
 
 	downloadedContent, err := io.ReadAll(resp.Body)
