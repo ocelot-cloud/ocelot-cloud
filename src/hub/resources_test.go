@@ -128,6 +128,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Origin", h.Origin)
 
 	if h.Cookie != nil {
 		req.AddCookie(h.Cookie)
@@ -304,6 +305,17 @@ func (h *HubClient) ChangePassword(newPassword string) error {
 	}
 
 	_, err := h.doRequest(changePasswordPath, form, "password changed\n", http.StatusOK, "POST", ChangePassword)
+	return err
+}
+
+func (h *HubClient) ChangeOrigin(newOrigin string) interface{} {
+	form := ChangeOriginForm{
+		User:      h.User,
+		Password:  h.Password,
+		NewOrigin: newOrigin,
+	}
+
+	_, err := h.doRequest(changeOriginPath, form, "origin changed\n", http.StatusOK, "POST", ChangeOrigin)
 	return err
 }
 

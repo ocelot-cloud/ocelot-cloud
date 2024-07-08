@@ -18,4 +18,5 @@ var (
 	rootUrl            = "http://localhost:" + port
 	cookieName         = "auth"
 	changePasswordPath = userPath + "/password"
+	changeOriginPath   = userPath + "/origin"
 )

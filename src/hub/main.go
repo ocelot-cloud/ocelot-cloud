@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)
 	http.HandleFunc(changePasswordPath, changePasswordHandler)
+	http.HandleFunc(changeOriginPath, changeOriginHandler)
 
 	http.HandleFunc(appPath, appHandler)
 	http.HandleFunc(userPath, userHandler)

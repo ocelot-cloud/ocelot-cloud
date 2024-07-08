@@ -86,14 +86,14 @@ func TestCreateTags(t *testing.T) {
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
-	myNewPassword := "my-new-password"
+	newPassword := "new-password"
 
-	assert.Nil(t, hub.ChangePassword(myNewPassword))
+	assert.Nil(t, hub.ChangePassword(newPassword))
 	_, err := hub.login()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
 
-	hub.Password = myNewPassword
+	hub.Password = newPassword
 	cookie, err := hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, cookie)
@@ -102,7 +102,16 @@ func TestChangePassword(t *testing.T) {
 func TestChangeOrigin(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
-	// TODO Makes sense to implement when security, namely origin checks, are implemented.
+	newOrigin := "new-origin"
+
+	assert.Nil(t, hub.ChangeOrigin(newOrigin))
+	err := hub.createApp()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 201, but got 401. Response body: wrong origin\n", err.Error())
+
+	hub.Origin = newOrigin
+	err = hub.createApp()
+	assert.Nil(t, err)
 }
 
 // TODO Can just be done, when I have a protected endpoint

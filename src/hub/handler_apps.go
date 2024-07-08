@@ -66,6 +66,12 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO Should be used by security policy logic, maybe?
+	if !repo.IsOriginCorrect(user, r.Header.Get("Origin")) {
+		logAndRespondDebug(w, "wrong origin", http.StatusUnauthorized)
+		return
+	}
+
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)

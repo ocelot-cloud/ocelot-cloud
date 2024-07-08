@@ -99,9 +99,46 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = repo.ChangePassword(form.User, form.NewPassword)
 	if err != nil {
-		logAndRespondError(w, "User does not match old password", http.StatusUnauthorized)
+		logAndRespondError(w, "error when trying to change password", http.StatusInternalServerError)
 		return
 	}
 
 	logAndRespondDebug(w, "password changed", http.StatusOK)
+}
+
+type ChangeOriginForm struct {
+	User      string `json:"user"`
+	Password  string `json:"password"`
+	NewOrigin string `json:"new_origin"`
+}
+
+func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
+	}
+
+	// TODO Should return a pointer
+	form, err := readBody[ChangeOriginForm](r)
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !repo.DoesUserExist(form.User) {
+		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.IsPasswordCorrect(form.User, form.Password) {
+		logAndRespondDebug(w, "Password is not correct", http.StatusUnauthorized)
+		return
+	}
+
+	err = repo.ChangeOrigin(form.User, form.NewOrigin)
+	if err != nil {
+		logAndRespondError(w, "error when trying to change origin", http.StatusInternalServerError)
+		return
+	}
+
+	logAndRespondDebug(w, "origin changed", http.StatusOK)
 }
