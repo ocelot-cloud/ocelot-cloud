@@ -72,10 +72,14 @@ func getHub() *HubClient {
 		Email:           sampleMail,
 		App:             sampleApp,
 		Tag:             sampleTag,
-		TagFilename:     strings.Join([]string{sampleUser, sampleApp, sampleTag}, "_") + ".tar.gz",
+		TagFilename:     getTagFileName(sampleUser, sampleApp, sampleTag),
 		SetOriginHeader: true,
 		SetCookieHeader: true,
 	}
+}
+
+func getTagFileName(user string, app string, tag string) string {
+	return strings.Join([]string{user, app, tag}, "_") + ".tar.gz"
 }
 
 func (h *HubClient) registerUser(form *RegistrationForm) error {
