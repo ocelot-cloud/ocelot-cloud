@@ -20,7 +20,6 @@ func TestFindAppsSecurity(t *testing.T) {
 }
 
 func TestDownloadAppSecurity(t *testing.T) {
-	// TODO duplication
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
@@ -34,7 +33,6 @@ func TestDownloadAppSecurity(t *testing.T) {
 }
 
 func TestGetTagsSecurity(t *testing.T) {
-	// TODO duplication
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
 	assert.Nil(t, hub.createApp())
