@@ -9,9 +9,11 @@ import (
 type ValidationType int
 
 const (
-	Name ValidationType = iota
+	User ValidationType = iota
+	App
 	Tag
 	Password
+	Origin
 )
 
 var (
@@ -24,12 +26,16 @@ func validate(input string, validationType ValidationType) bool {
 	var re *regexp.Regexp
 
 	switch validationType {
-	case Name:
+	case User:
+		re = namePattern
+	case App:
 		re = namePattern
 	case Tag:
 		re = tagPattern
 	case Password:
 		re = passwordPattern
+	case Origin:
+		return validateOrigin(input)
 	default:
 		return false
 	}

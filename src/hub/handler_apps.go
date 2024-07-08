@@ -38,7 +38,7 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 
 func findApps(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("finding apps")
-	appSearchTerm, err := readBodyAsSingleString(r, Name)
+	appSearchTerm, err := readBodyAsSingleString(r, User)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return

@@ -6,12 +6,12 @@ import (
 )
 
 func TestValidateName(t *testing.T) {
-	assert.True(t, validate("validusername", Name))
-	assert.True(t, validate("user123", Name))
-	assert.False(t, validate("InvalidUsername", Name))          // Contains uppercase
-	assert.False(t, validate("user!@#", Name))                  // Contains special characters
-	assert.False(t, validate("us", Name))                       // Too short
-	assert.False(t, validate("thisusernameiswaytoolong", Name)) // Too long
+	assert.True(t, validate("validusername", User))
+	assert.True(t, validate("user123", User))
+	assert.False(t, validate("InvalidUsername", User))          // Contains uppercase
+	assert.False(t, validate("user!@#", User))                  // Contains special characters
+	assert.False(t, validate("us", User))                       // Too short
+	assert.False(t, validate("thisusernameiswaytoolong", User)) // Too long
 }
 
 func TestValidateTag(t *testing.T) {
@@ -33,14 +33,14 @@ func TestValidatePassword(t *testing.T) {
 }
 
 func TestValidateOrigin(t *testing.T) {
-	assert.True(t, validateOrigin("http://example.com"))
-	assert.True(t, validateOrigin("https://example.com"))
-	assert.True(t, validateOrigin("http://example.com:8080"))
-	assert.False(t, validateOrigin("http://example.com/path"))      // Contains path
-	assert.False(t, validateOrigin("ftp://example.com"))            // Invalid scheme
-	assert.False(t, validateOrigin("https://example.com:99999"))    // Invalid port
-	assert.False(t, validateOrigin("https://example.com?query=1"))  // Contains query
-	assert.False(t, validateOrigin("https://example.com#fragment")) // Contains fragment
-	assert.False(t, validateOrigin("http://"))                      // Missing hostname
-	assert.False(t, validateOrigin("http://:8080"))                 // Missing hostname
+	assert.True(t, validate("http://example.com", Origin))
+	assert.True(t, validate("https://example.com", Origin))
+	assert.True(t, validate("http://example.com:8080", Origin))
+	assert.False(t, validate("http://example.com/path", Origin))      // Contains path
+	assert.False(t, validate("ftp://example.com", Origin))            // Invalid scheme
+	assert.False(t, validate("https://example.com:99999", Origin))    // Invalid port
+	assert.False(t, validate("https://example.com?query=1", Origin))  // Contains query
+	assert.False(t, validate("https://example.com#fragment", Origin)) // Contains fragment
+	assert.False(t, validate("http://", Origin))                      // Missing hostname
+	assert.False(t, validate("http://:8080", Origin))                 // Missing hostname
 }
