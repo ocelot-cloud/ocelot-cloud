@@ -87,13 +87,6 @@ func readBody[T any](r *http.Request) (T, error) {
 	return result, nil
 }
 
-type ValidationType int
-
-const (
-	Name ValidationType = iota
-	Tag
-)
-
 func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
@@ -101,14 +94,8 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	}
 	result := singleString.Value
 
-	if validationType == Name {
-		if !isValidName(result) {
-			return "", fmt.Errorf("invalid name")
-		}
-	} else if validationType == Tag {
-		if !isValidName(result) {
-			return "", fmt.Errorf("invalid tag")
-		}
+	if !validate(result, validationType) {
+		return "", fmt.Errorf("invalid input")
 	}
 
 	return result, nil

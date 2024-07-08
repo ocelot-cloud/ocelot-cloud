@@ -6,21 +6,34 @@ import (
 	"strconv"
 )
 
-func isValidName(input string) bool {
-	pattern := `^[a-z0-9]{3,20}$`
-	re := regexp.MustCompile(pattern)
-	return re.MatchString(input)
-}
+type ValidationType int
 
-func validateTag(input string) bool {
-	pattern := `^[a-z0-9.]{3,20}$`
-	re := regexp.MustCompile(pattern)
-	return re.MatchString(input)
-}
+const (
+	Name ValidationType = iota
+	Tag
+	Password
+)
 
-func validatePasswords(input string) bool {
-	pattern := `^[a-z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':",.<>\/?\\|` + "`" + `~]{3,20}$`
-	re := regexp.MustCompile(pattern)
+var (
+	namePattern     = regexp.MustCompile(`^[a-z0-9]{3,20}$`)
+	tagPattern      = regexp.MustCompile(`^[a-z0-9.]{3,20}$`)
+	passwordPattern = regexp.MustCompile(`^[a-z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':",.<>\/?\\|` + "`" + `~]{3,20}$`)
+)
+
+func validate(input string, validationType ValidationType) bool {
+	var re *regexp.Regexp
+
+	switch validationType {
+	case Name:
+		re = namePattern
+	case Tag:
+		re = tagPattern
+	case Password:
+		re = passwordPattern
+	default:
+		return false
+	}
+
 	return re.MatchString(input)
 }
 

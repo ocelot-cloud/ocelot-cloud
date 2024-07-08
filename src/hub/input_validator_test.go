@@ -6,30 +6,30 @@ import (
 )
 
 func TestValidateName(t *testing.T) {
-	assert.True(t, isValidName("validusername"))
-	assert.True(t, isValidName("user123"))
-	assert.False(t, isValidName("InvalidUsername"))          // Contains uppercase
-	assert.False(t, isValidName("user!@#"))                  // Contains special characters
-	assert.False(t, isValidName("us"))                       // Too short
-	assert.False(t, isValidName("thisusernameiswaytoolong")) // Too long
+	assert.True(t, validate("validusername", Name))
+	assert.True(t, validate("user123", Name))
+	assert.False(t, validate("InvalidUsername", Name))          // Contains uppercase
+	assert.False(t, validate("user!@#", Name))                  // Contains special characters
+	assert.False(t, validate("us", Name))                       // Too short
+	assert.False(t, validate("thisusernameiswaytoolong", Name)) // Too long
 }
 
 func TestValidateTag(t *testing.T) {
-	assert.True(t, validateTag("valid.tagname"))
-	assert.True(t, validateTag("tag123"))
-	assert.True(t, validateTag("tag.name123"))
-	assert.False(t, validateTag("invalid.tagname!"))             // Contains special characters other than dot
-	assert.False(t, validateTag("ta"))                           // Too short
-	assert.False(t, validateTag("this.tagname.is.way.too.long")) // Too long
+	assert.True(t, validate("valid.tagname", Tag))
+	assert.True(t, validate("tag123", Tag))
+	assert.True(t, validate("tag.name123", Tag))
+	assert.False(t, validate("invalid.tagname!", Tag))             // Contains special characters other than dot
+	assert.False(t, validate("ta", Tag))                           // Too short
+	assert.False(t, validate("this.tagname.is.way.too.long", Tag)) // Too long
 }
 
-func TestValidatePasswords(t *testing.T) {
-	assert.True(t, validatePasswords("validpassword!"))
-	assert.True(t, validatePasswords("valid_pass123"))
-	assert.False(t, validatePasswords("InvalidPassword"))           // Contains uppercase
-	assert.True(t, validatePasswords("valid!@#"))                   // Contains special characters
-	assert.False(t, validatePasswords("vp"))                        // Too short
-	assert.False(t, validatePasswords("thispasswordiswaytoolong!")) // Too long
+func TestValidatePassword(t *testing.T) {
+	assert.True(t, validate("validpassword!", Password))
+	assert.True(t, validate("valid_pass123", Password))
+	assert.False(t, validate("InvalidPassword", Password))           // Contains uppercase
+	assert.True(t, validate("valid!@#", Password))                   // Contains special characters
+	assert.False(t, validate("vp", Password))                        // Too short
+	assert.False(t, validate("thispasswordiswaytoolong!", Password)) // Too long
 }
 
 func TestValidateOrigin(t *testing.T) {

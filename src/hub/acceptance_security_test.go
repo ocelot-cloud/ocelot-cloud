@@ -19,7 +19,7 @@ func TestFindAppsSecurity(t *testing.T) {
 	_, err = hub.findApps("not-existing-app")
 	assert.NotNil(t, err)
 	// TODO Resolve duplication
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid name\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 }
 
 // TODO Input validation missing
