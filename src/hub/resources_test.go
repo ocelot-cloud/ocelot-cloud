@@ -234,7 +234,7 @@ func (h *HubClient) uploadFile(fileBuffer *bytes.Buffer) error {
 	return nil
 }
 
-func (h *HubClient) downloadFile() ([]byte, error) {
+func (h *HubClient) downloadApp() ([]byte, error) {
 	downloadURL := rootUrl + downloadPath + h.TagFilename
 	resp, err := http.Get(downloadURL)
 	if err != nil {

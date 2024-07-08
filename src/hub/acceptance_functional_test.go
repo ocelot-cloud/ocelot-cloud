@@ -25,7 +25,7 @@ func TestFileUploadDownload(t *testing.T) {
 	// TODO verify fields of fileInfo
 	*/
 
-	downloadedContent, err := hub.downloadFile()
+	downloadedContent, err := hub.downloadApp()
 	assert.Nil(t, err)
 	assert.Equal(t, fileContent, downloadedContent)
 }
