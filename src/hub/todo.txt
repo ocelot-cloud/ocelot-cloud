@@ -31,6 +31,7 @@ TODO In the end, add deploy script which only works on my device, since I have t
 
 TODO Make sure anyone can only delete his own stuff: his own user account/apps/tags etc.
 TODO if there is no origin, then deny request and put that info in response
-TODO During testing the log level should be DEBUG
+TODO During testing the log level should be DEBUG, by default, it should be INFO
 TODO I think I exaggerated with some error logs, e.g. when using logAndReturnError. Which often is just debug or info.
 TODO Add log rotation to the "shared" module
+TODO Deny requests that are bigger than 1MB?

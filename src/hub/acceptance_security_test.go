@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+// TODO Input validation missing for the first three operations.
+
 func TestFindAppsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
@@ -16,7 +18,6 @@ func TestFindAppsSecurity(t *testing.T) {
 	apps, err := hub.findApps("not-existing-app")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(apps))
-
 }
 
 func TestDownloadAppSecurity(t *testing.T) {
@@ -44,4 +45,10 @@ func TestGetTagsSecurity(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
+}
+
+func TestRegisterSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
+	// TODO cases: wrong password, input validation
 }
