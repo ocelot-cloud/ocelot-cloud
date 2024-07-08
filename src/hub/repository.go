@@ -20,12 +20,12 @@ func initializeDatabaseWithSource(dataSourceName string) {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}
 
-	// TODO add: origin TEXT UNIQUE NOT NULL,
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name TEXT UNIQUE NOT NULL,
 			hashed_password TEXT NOT NULL,
+			origin TEXT NOT NULL,
 			cookie TEXT,
 			expiration_date TEXT
 		);
@@ -119,7 +119,7 @@ func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 	}
 
 	// TODO Previously check whether user already exists? Here or in handler?
-	_, err = db.Exec("INSERT INTO users (user_name, hashed_password) VALUES (?, ?)", form.Username, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin) VALUES (?, ?, ?)", form.Username, hashedPassword, form.Origin)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to create user: %v", err)
 	}
