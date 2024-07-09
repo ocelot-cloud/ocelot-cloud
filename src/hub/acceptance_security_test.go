@@ -9,7 +9,7 @@ import (
 
 func TestFindAppsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
@@ -21,7 +21,7 @@ func TestFindAppsSecurity(t *testing.T) {
 
 func TestDownloadAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 
@@ -36,7 +36,7 @@ func TestDownloadAppSecurity(t *testing.T) {
 
 func TestGetTagsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 
@@ -81,7 +81,7 @@ func TestChangeOriginSecurity(t *testing.T) {
 
 func TestChangePasswordSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
@@ -109,7 +109,6 @@ func TestLoginSecurity(t *testing.T) {
 	hub := getHub()
 	err := hub.registerUser()
 	assert.Nil(t, err)
-	defer hub.deleteUser()
 
 	assert.Nil(t, hub.Cookie)
 	cookie, err := hub.login()
@@ -131,7 +130,6 @@ func TestLoginSecurity(t *testing.T) {
 
 func TestDeleteUserSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
 
 	hub.User = sampleUser + "x"
 	err := hub.deleteUser()
