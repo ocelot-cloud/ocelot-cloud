@@ -61,9 +61,9 @@ func TestGetTagsSecurity(t *testing.T) {
 	_, err = hub.getTags()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
-
 	hub.deleteUser()
 	hub.User = sampleUser
+
 	hub.App = "invalid-app"
 	hub.registerUser()
 	hub.createApp()
@@ -81,6 +81,15 @@ func TestRegisterSecurity(t *testing.T) {
 	err := hub.registerUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+	hub.deleteUser()
+	hub.Password = samplePassword
+
+	hub.User = "invalid-username"
+	err = hub.registerUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+	hub.deleteUser()
+	hub.User = sampleUser
 
 	// TODO cases: wrong password, input validation
 }
