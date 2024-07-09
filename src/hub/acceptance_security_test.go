@@ -65,6 +65,13 @@ func TestChangeOriginSecurity(t *testing.T) {
 	hub.SetOriginHeader = false
 	assert.Nil(t, hub.ChangeOrigin(sampleOrigin))
 
+	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
+	hub.Password = correctlyFormattedButNotMatchingPassword
+	err := hub.ChangeOrigin(sampleOrigin)
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: Password is not correct\n", err.Error())
+	hub.Password = samplePassword
+
 	testInputInvalidation(t, hub, "invalid-origin", OriginField, ChangeOrigin)
 	testInputInvalidation(t, hub, "invalid-user", UserField, ChangeOrigin)
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangeOrigin)
