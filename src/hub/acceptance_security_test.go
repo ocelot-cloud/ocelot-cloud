@@ -78,12 +78,19 @@ func TestChangePasswordSecurity(t *testing.T) {
 
 	assert.Nil(t, hub.ChangePassword(samplePassword))
 
+	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
+	hub.Password = correctlyFormattedButNotMatchingPassword
+	err := hub.ChangePassword(samplePassword)
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: Password is not correct\n", err.Error())
+	hub.Password = samplePassword
+
 	testInputInvalidation(t, hub, "invalid-user", UserField, ChangePassword)
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
 
 	oldPassword := hub.Password
 	hub.Password = "invalid-old-password-ä"
-	err := hub.ChangePassword("new-valid-password")
+	err = hub.ChangePassword("new-valid-password")
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	hub.Password = oldPassword
