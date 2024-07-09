@@ -72,6 +72,7 @@ func TestChangeOriginSecurity(t *testing.T) {
 
 func TestChangePasswordSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
@@ -86,7 +87,6 @@ func TestChangePasswordSecurity(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	hub.Password = oldPassword
-	hub.deleteUser()
 }
 
 type FieldType int
