@@ -41,7 +41,6 @@ func TestDownloadAppSecurity(t *testing.T) {
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: file name is invalid\n", err.Error())
 }
 
-// TODO Input validation missing
 func TestGetTagsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
@@ -55,13 +54,23 @@ func TestGetTagsSecurity(t *testing.T) {
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
 
-	/* TODO
+	hub.deleteUser()
 	hub.User = "invalid-user"
 	hub.registerUser()
 	hub.createApp()
 	_, err = hub.getTags()
 	assert.NotNil(t, err)
-	*/
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+
+	hub.deleteUser()
+	hub.User = sampleUser
+	hub.App = "invalid-app"
+	hub.registerUser()
+	hub.createApp()
+	_, err = hub.getTags()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+
 }
 
 func TestRegisterSecurity(t *testing.T) {
