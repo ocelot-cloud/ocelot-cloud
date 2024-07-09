@@ -90,7 +90,7 @@ func (h *HubClient) registerUser() error {
 
 func (h *HubClient) login() (*http.Cookie, error) {
 	creds := LoginCredentials{
-		Username: h.User,
+		User:     h.User,
 		Password: h.Password,
 	}
 

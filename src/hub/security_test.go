@@ -12,7 +12,7 @@ func (h *HubClient) applySecurityPolicy(operation Operation, req *http.Request) 
 	policyToApply := securityPolicies.getPolicyFor(operation)
 	if policyToApply.IsCredentialsRequired {
 		creds := LoginCredentials{
-			Username: h.User,
+			User:     h.User,
 			Password: h.Password,
 		}
 		payloadBytes, _ := json.Marshal(creds)

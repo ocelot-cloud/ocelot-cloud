@@ -101,6 +101,10 @@ func readBody[T any](r *http.Request) (T, error) {
 		if !validate(v.User, User) || !validate(v.OldPassword, Password) || !validate(v.NewPassword, Password) {
 			return result, fmt.Errorf("invalid input")
 		}
+	case LoginCredentials:
+		if !validate(v.User, User) || !validate(v.Password, Password) {
+			return result, fmt.Errorf("invalid input")
+		}
 	}
 
 	return result, nil
@@ -143,7 +147,7 @@ type RegistrationForm struct {
 }
 
 type LoginCredentials struct {
-	Username string `json:"username"`
+	User     string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -155,7 +159,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.IsPasswordCorrect(creds.Username, creds.Password) {
+	if !repo.IsPasswordCorrect(creds.User, creds.Password) {
 		logAndRespondDebug(w, "wrong password", http.StatusUnauthorized)
 		return
 	}
@@ -171,7 +175,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Must be verified by a test:
-	err = repo.SetCookie(creds.Username, cookie.Value, cookie.Expires)
+	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusOK)
 		return

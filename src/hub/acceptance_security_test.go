@@ -105,6 +105,25 @@ func TestChangePasswordSecurity(t *testing.T) {
 	hub.Password = oldPassword
 }
 
+func TestLoginSecurity(t *testing.T) {
+	hub := getHub()
+	err := hub.registerUser()
+	assert.Nil(t, err)
+	defer hub.deleteUser()
+
+	assert.Nil(t, hub.Cookie)
+	cookie, err := hub.login()
+	assert.Nil(t, err)
+	assert.NotNil(t, cookie)
+	assert.NotNil(t, hub.Cookie)
+	hub.Cookie = nil
+
+	testInputInvalidation(t, hub, "invalid-user", UserField, Login)
+	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, Login)
+
+	// TODO, invalid username, invalid password, incorrect password
+}
+
 type FieldType int
 
 const (
@@ -143,6 +162,10 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	case ChangePassword:
 		err := hub.ChangePassword(hub.Password)
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	case Login:
+		_, err := hub.login()
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	default:
