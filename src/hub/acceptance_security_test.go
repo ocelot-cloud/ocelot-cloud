@@ -74,7 +74,13 @@ func TestGetTagsSecurity(t *testing.T) {
 }
 
 func TestRegisterSecurity(t *testing.T) {
-	hub := getHubAndLogin(t)
+	hub := getHub()
 	defer hub.deleteUser()
+
+	hub.Password = "invalid-password-with-letter-ä"
+	err := hub.registerUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+
 	// TODO cases: wrong password, input validation
 }

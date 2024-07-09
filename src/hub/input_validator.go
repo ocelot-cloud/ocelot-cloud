@@ -15,12 +15,14 @@ const (
 	Password
 	Origin
 	TagFile
+	Email
 )
 
 var (
 	namePattern     = regexp.MustCompile(`^[a-z0-9]{3,20}$`)
 	tagPattern      = regexp.MustCompile(`^[a-z0-9.]{3,20}$`)
 	passwordPattern = regexp.MustCompile(`^[a-z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':",.<>\/?\\|` + "`" + `~]{3,20}$`)
+	emailPattern    = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 )
 
 func validate(input string, validationType ValidationType) bool {
@@ -39,6 +41,8 @@ func validate(input string, validationType ValidationType) bool {
 		return validateOrigin(input)
 	case TagFile:
 		return validateTagFile(input)
+	case Email:
+		re = emailPattern
 	default:
 		return false
 	}

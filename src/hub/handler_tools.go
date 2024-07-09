@@ -89,6 +89,10 @@ func readBody[T any](r *http.Request) (T, error) {
 		if !validate(v.User, User) || !validate(v.App, App) {
 			return result, fmt.Errorf("invalid input")
 		}
+	case RegistrationForm:
+		if !validate(v.Username, User) || !validate(v.Password, Password) || !validate(v.Email, Email) || !validate(v.Origin, Origin) {
+			return result, fmt.Errorf("invalid input")
+		}
 	}
 
 	return result, nil
