@@ -267,9 +267,9 @@ func (h *HubClient) downloadApp() (string, error) {
 
 // TODO Resolve duplication
 func (h *HubClient) getTags() ([]string, error) {
-	usernameAndApp := &UsernameAndApp{
-		Username: h.User,
-		App:      h.App,
+	usernameAndApp := &UserAndApp{
+		User: h.User,
+		App:  h.App,
 	}
 
 	result, err := h.doRequest(tagPath, usernameAndApp, "", http.StatusOK, "GET", GetTags)

@@ -84,6 +84,13 @@ func readBody[T any](r *http.Request) (T, error) {
 		return result, fmt.Errorf("invalid request body: %w", err)
 	}
 
+	switch v := any(result).(type) {
+	case UserAndApp:
+		if !validate(v.User, User) || !validate(v.App, App) {
+			return result, fmt.Errorf("invalid input")
+		}
+	}
+
 	return result, nil
 }
 

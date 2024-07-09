@@ -44,19 +44,20 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	logAndRespondDebug(w, "tag deleted", http.StatusOK)
 }
 
-type UsernameAndApp struct {
-	Username string `json:"username"`
-	App      string `json:"app"`
+type UserAndApp struct {
+	User string `json:"username"`
+	App  string `json:"app"`
 }
 
 // TODO Implement
 func handleTagList(w http.ResponseWriter, r *http.Request) {
-	usernameAndApp, err := readBody[UsernameAndApp](r)
+	usernameAndApp, err := readBody[UserAndApp](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	tagsList, err := repo.GetTagList(usernameAndApp.Username, usernameAndApp.App)
+
+	tagsList, err := repo.GetTagList(usernameAndApp.User, usernameAndApp.App)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
 		return
