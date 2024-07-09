@@ -34,11 +34,7 @@ func TestDownloadAppSecurity(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 
-	hub.Tag = "invalid-tag"
-	hub.TagFilename = getTagFileName(sampleUser, sampleApp, hub.Tag)
-	downloadedContent, err = hub.downloadApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: file name is invalid\n", err.Error())
+	testInputInvalidation(t, hub, "invalid-tag", TagField, DownloadApp)
 }
 
 func TestGetTagsSecurity(t *testing.T) {
@@ -74,6 +70,7 @@ const (
 	EmailField
 	OriginField
 	AppField
+	TagField
 )
 
 func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fieldType FieldType, operation Operation) {
@@ -88,6 +85,10 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		_, err := hub.getTags()
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	case DownloadApp:
+		_, err := hub.downloadApp()
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: file name is invalid\n", err.Error())
 	}
 
 	hub.deleteUser()
@@ -112,6 +113,10 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case AppField:
 		originalValue = hub.App
 		hub.App = value
+	case TagField:
+		originalValue = hub.Tag
+		hub.Tag = value
+		hub.TagFilename = getTagFileName(sampleUser, sampleApp, value)
 	}
 	return originalValue
 }
