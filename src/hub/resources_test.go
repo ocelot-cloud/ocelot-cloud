@@ -55,12 +55,12 @@ type HubClient struct {
 	SetCookieHeader bool
 }
 
-func (h *HubClient) getRegistrationForm() *RegistrationForm {
+func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
-		Username: h.User,
-		Password: h.Password,
-		Origin:   h.Origin,
-		Email:    h.Email,
+		Username: hub.User,
+		Password: hub.Password,
+		Origin:   hub.Origin,
+		Email:    hub.Email,
 	}
 }
 
@@ -82,7 +82,8 @@ func getTagFileName(user string, app string, tag string) string {
 	return strings.Join([]string{user, app, tag}, "_") + ".tar.gz"
 }
 
-func (h *HubClient) registerUser(form *RegistrationForm) error {
+func (h *HubClient) registerUser() error {
+	form := getRegistrationForm(h)
 	_, err := h.doRequest(registrationPath, form, "User registered\n", http.StatusCreated, "POST", Register)
 	return err
 }
@@ -335,8 +336,7 @@ func (h *HubClient) ChangeOrigin(newOrigin string) interface{} {
 
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
-	form := hub.getRegistrationForm()
-	assert.Nil(t, hub.registerUser(form))
+	assert.Nil(t, hub.registerUser())
 
 	cookie, err := hub.login()
 	assert.Nil(t, err)
