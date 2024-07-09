@@ -78,16 +78,10 @@ func TestRegisterSecurity(t *testing.T) {
 	defer hub.deleteUser()
 
 	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", samplePassword, PasswordField, Register)
-
-	hub.User = "invalid-username"
-	err := hub.registerUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
-	hub.deleteUser()
-	hub.User = sampleUser
+	testInputInvalidation(t, hub, "invalid-username", sampleUser, UserField, Register)
 
 	hub.Email = "asd@asd.d"
-	err = hub.registerUser()
+	err := hub.registerUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
 	hub.deleteUser()
@@ -104,17 +98,14 @@ func TestRegisterSecurity(t *testing.T) {
 type FieldType int
 
 const (
-	NameField FieldType = iota
+	UserField FieldType = iota
 	PasswordField
 	EmailField
 	OriginField
 )
 
 func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, validValue string, fieldType FieldType, operation Operation) {
-	switch fieldType {
-	case PasswordField:
-		hub.Password = invalidValue
-	}
+	setField(hub, fieldType, invalidValue)
 
 	switch operation {
 	case Register:
@@ -124,8 +115,14 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, va
 	}
 
 	hub.deleteUser()
+	setField(hub, fieldType, validValue)
+}
+
+func setField(hub *HubClient, fieldType FieldType, value string) {
 	switch fieldType {
 	case PasswordField:
-		hub.Password = validValue
+		hub.Password = value
+	case UserField:
+		hub.User = value
 	}
 }
