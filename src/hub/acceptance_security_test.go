@@ -121,7 +121,12 @@ func TestLoginSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-user", UserField, Login)
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, Login)
 
-	// TODO, invalid username, invalid password, incorrect password
+	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
+	hub.Password = correctlyFormattedButNotMatchingPassword
+	_, err = hub.login()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
+	hub.Password = samplePassword
 }
 
 type FieldType int
