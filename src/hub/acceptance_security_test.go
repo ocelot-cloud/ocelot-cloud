@@ -53,6 +53,8 @@ func TestGetTagsSecurity(t *testing.T) {
 
 func TestRegisterSecurity(t *testing.T) {
 	hub := getHub()
+	hub.SetCookieHeader = false
+	hub.SetOriginHeader = false
 	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", PasswordField, Register)
 	testInputInvalidation(t, hub, "invalid-username", UserField, Register)
 	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
