@@ -65,7 +65,7 @@ func getRegistrationForm(hub *HubClient) *RegistrationForm {
 }
 
 func getHub() *HubClient {
-	return &HubClient{
+	hub := &HubClient{
 		User:            sampleUser,
 		Password:        samplePassword,
 		Origin:          rootUrl,
@@ -76,6 +76,10 @@ func getHub() *HubClient {
 		SetOriginHeader: true,
 		SetCookieHeader: true,
 	}
+	hub.login()
+	hub.deleteUser()
+	hub.Cookie = nil
+	return hub
 }
 
 func getTagFileName(user string, app string, tag string) string {
@@ -336,8 +340,6 @@ func (h *HubClient) ChangeOrigin(newOrigin string) error {
 
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
-	hub.login()
-	hub.deleteUser()
 
 	assert.Nil(t, hub.registerUser())
 
