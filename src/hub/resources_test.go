@@ -147,23 +147,10 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to send request: %v", err)
 	}
-	defer resp.Body.Close()
 
-	var bodyBuffer bytes.Buffer
-	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
-
-	if resp.StatusCode != expectedStatusCode {
-		// Attempt to read the response body for additional error information
-		respBody, err := io.ReadAll(teeReader)
-		if err != nil {
-			return nil, fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", expectedStatusCode, resp.StatusCode, err)
-		}
-		return nil, fmt.Errorf("Expected status code %d, but got %d. Response body: %s", expectedStatusCode, resp.StatusCode, string(respBody))
-	}
-
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err := processResponse(resp, expectedStatusCode)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read response body: %v", err)
+		return nil, err
 	}
 
 	if expectedMessage != "" && string(respBody) != expectedMessage {
@@ -177,6 +164,28 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	} else {
 		return nil, nil
 	}
+}
+
+func processResponse(resp *http.Response, expectedStatusCode int) ([]byte, error) {
+	defer resp.Body.Close()
+
+	var bodyBuffer bytes.Buffer
+	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
+
+	if resp.StatusCode != expectedStatusCode {
+		respBody, err := io.ReadAll(teeReader)
+		if err != nil {
+			return nil, fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", expectedStatusCode, resp.StatusCode, err)
+		}
+		return nil, fmt.Errorf("Expected status code %d, but got %d. Response body: %s", expectedStatusCode, resp.StatusCode, string(respBody))
+	}
+
+	respBody, err := io.ReadAll(teeReader)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read response body: %v", err)
+	}
+
+	return respBody, nil
 }
 
 func (h *HubClient) createApp() error {
@@ -248,24 +257,8 @@ func (h *HubClient) downloadApp() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
 
-	// TODO Resolve duplication.
-	var bodyBuffer bytes.Buffer
-	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
-
-	if resp.StatusCode != http.StatusOK {
-		respBody, err := io.ReadAll(teeReader)
-		if err != nil {
-			return "", fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", http.StatusOK, resp.StatusCode, err)
-		}
-		return "", fmt.Errorf("Expected status code %d, but got %d. Response body: %s", http.StatusOK, resp.StatusCode, string(respBody))
-
-		// TODO improve message, take from response body
-		return "", Logger.LogAndReturnError("asd")
-	}
-
-	downloadedContent, err := io.ReadAll(teeReader)
+	downloadedContent, err := processResponse(resp, http.StatusOK)
 	if err != nil {
 		return "", err
 	}
