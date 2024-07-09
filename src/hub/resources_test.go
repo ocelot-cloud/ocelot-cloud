@@ -159,7 +159,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 
 	if operation == Login {
 		return resp, nil
-	} else if operation == FindApps || operation == GetTags {
+	} else if operation == FindApps || operation == GetTags || operation == DownloadApp {
 		return respBody, nil
 	} else {
 		return nil, nil
@@ -252,15 +252,14 @@ func (h *HubClient) uploadTag(content string) error {
 }
 
 func (h *HubClient) downloadApp() (string, error) {
-	downloadURL := rootUrl + downloadPath + h.TagFilename
-	resp, err := http.Get(downloadURL)
+	result, err := h.doRequest(downloadPath+h.TagFilename, nil, "", http.StatusOK, "GET", DownloadApp)
 	if err != nil {
 		return "", err
 	}
 
-	downloadedContent, err := processResponse(resp, http.StatusOK)
-	if err != nil {
-		return "", err
+	downloadedContent, ok := result.([]byte)
+	if !ok {
+		return "", fmt.Errorf("Failed to assert result to []byte")
 	}
 
 	return string(downloadedContent), nil
