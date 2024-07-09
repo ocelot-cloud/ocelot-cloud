@@ -39,7 +39,7 @@ func TestDownloadAppSecurity(t *testing.T) {
 	hub.TagFilename = getTagFileName(sampleUser, sampleApp, hub.Tag)
 	downloadedContent, err = hub.downloadApp()
 	assert.NotNil(t, err)
-	assert.Equal(t, "asd", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: file name is invalid\n", err.Error())
 }
 
 // TODO Input validation missing

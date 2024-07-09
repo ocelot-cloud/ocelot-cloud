@@ -250,12 +250,22 @@ func (h *HubClient) downloadApp() (string, error) {
 	}
 	defer resp.Body.Close()
 
+	// TODO Resolve duplication.
+	var bodyBuffer bytes.Buffer
+	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
+
 	if resp.StatusCode != http.StatusOK {
+		respBody, err := io.ReadAll(teeReader)
+		if err != nil {
+			return "", fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", http.StatusOK, resp.StatusCode, err)
+		}
+		return "", fmt.Errorf("Expected status code %d, but got %d. Response body: %s", http.StatusOK, resp.StatusCode, string(respBody))
+
 		// TODO improve message, take from response body
 		return "", Logger.LogAndReturnError("asd")
 	}
 
-	downloadedContent, err := io.ReadAll(resp.Body)
+	downloadedContent, err := io.ReadAll(teeReader)
 	if err != nil {
 		return "", err
 	}
