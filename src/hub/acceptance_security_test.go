@@ -70,6 +70,25 @@ func TestChangeOriginSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangeOrigin)
 }
 
+func TestChangePasswordSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	hub.SetCookieHeader = false
+	hub.SetOriginHeader = false
+
+	assert.Nil(t, hub.ChangePassword(samplePassword))
+
+	testInputInvalidation(t, hub, "invalid-user", UserField, ChangePassword)
+	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
+
+	oldPassword := hub.Password
+	hub.Password = "invalid-password-ä" // TODO Need up to 30 characters for passwords
+	err := hub.ChangePassword("new-valid-password")
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	hub.Password = oldPassword
+	hub.deleteUser()
+}
+
 type FieldType int
 
 const (
@@ -106,6 +125,10 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		err := hub.ChangeOrigin(hub.Origin)
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	case ChangePassword:
+		err := hub.ChangePassword(hub.Password)
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	default:
 		panic("Unsupported operation")
 	}
@@ -136,6 +159,8 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 		originalValue = hub.Tag
 		hub.Tag = value
 		hub.TagFilename = getTagFileName(sampleUser, sampleApp, value)
+	default:
+		panic("Unsupported field type")
 	}
 	return originalValue
 }
