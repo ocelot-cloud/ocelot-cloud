@@ -77,15 +77,10 @@ func TestRegisterSecurity(t *testing.T) {
 	hub := getHub()
 	defer hub.deleteUser()
 
-	hub.Password = "invalid-password-with-letter-ä"
-	err := hub.registerUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
-	hub.deleteUser()
-	hub.Password = samplePassword
+	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", samplePassword, PasswordField, Register)
 
 	hub.User = "invalid-username"
-	err = hub.registerUser()
+	err := hub.registerUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
 	hub.deleteUser()
@@ -104,4 +99,33 @@ func TestRegisterSecurity(t *testing.T) {
 	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
 	hub.deleteUser()
 	hub.Origin = sampleMail
+}
+
+type FieldType int
+
+const (
+	NameField FieldType = iota
+	PasswordField
+	EmailField
+	OriginField
+)
+
+func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, validValue string, fieldType FieldType, operation Operation) {
+	switch fieldType {
+	case PasswordField:
+		hub.Password = invalidValue
+	}
+
+	switch operation {
+	case Register:
+		err := hub.registerUser()
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+	}
+
+	hub.deleteUser()
+	switch fieldType {
+	case PasswordField:
+		hub.Password = validValue
+	}
 }
