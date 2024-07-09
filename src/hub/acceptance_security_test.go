@@ -53,23 +53,9 @@ func TestGetTagsSecurity(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
-	hub.deleteUser()
 
-	hub.User = "invalid-user"
-	hub.registerUser()
-	hub.createApp()
-	_, err = hub.getTags()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
-	hub.deleteUser()
-	hub.User = sampleUser
-
-	hub.App = "invalid-app"
-	hub.registerUser()
-	hub.createApp()
-	_, err = hub.getTags()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	testInputInvalidation(t, hub, "invalid-user", UserField, GetTags)
+	testInputInvalidation(t, hub, "invalid-app", AppField, GetTags)
 }
 
 func TestRegisterSecurity(t *testing.T) {
@@ -87,6 +73,7 @@ const (
 	PasswordField
 	EmailField
 	OriginField
+	AppField
 )
 
 func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fieldType FieldType, operation Operation) {
@@ -97,6 +84,10 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		err := hub.registerUser()
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+	case GetTags:
+		_, err := hub.getTags()
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	}
 
 	hub.deleteUser()
@@ -118,6 +109,9 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case OriginField:
 		originalValue = hub.Origin
 		hub.Origin = value
+	case AppField:
+		originalValue = hub.App
+		hub.App = value
 	}
 	return originalValue
 }
