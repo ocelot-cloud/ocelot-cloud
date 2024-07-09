@@ -77,10 +77,10 @@ func TestRegisterSecurity(t *testing.T) {
 	hub := getHub()
 	defer hub.deleteUser()
 
-	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", samplePassword, PasswordField, Register)
-	testInputInvalidation(t, hub, "invalid-username", sampleUser, UserField, Register)
-	testInputInvalidation(t, hub, "asd@asd.d", sampleEmail, EmailField, Register)
-	testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", sampleOrigin, OriginField, Register)
+	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", PasswordField, Register)
+	testInputInvalidation(t, hub, "invalid-username", UserField, Register)
+	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
+	testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", OriginField, Register)
 }
 
 type FieldType int
@@ -92,8 +92,8 @@ const (
 	OriginField
 )
 
-func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, validValue string, fieldType FieldType, operation Operation) {
-	setField(hub, fieldType, invalidValue)
+func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fieldType FieldType, operation Operation) {
+	originalValue := returnCurrentValueAndSetField(hub, fieldType, invalidValue)
 
 	switch operation {
 	case Register:
@@ -103,18 +103,24 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, va
 	}
 
 	hub.deleteUser()
-	setField(hub, fieldType, validValue)
+	returnCurrentValueAndSetField(hub, fieldType, originalValue)
 }
 
-func setField(hub *HubClient, fieldType FieldType, value string) {
+func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value string) string {
+	var originalValue string
 	switch fieldType {
 	case PasswordField:
+		originalValue = hub.Password
 		hub.Password = value
 	case UserField:
+		originalValue = hub.User
 		hub.User = value
 	case EmailField:
+		originalValue = hub.Email
 		hub.Email = value
 	case OriginField:
+		originalValue = hub.Origin
 		hub.Origin = value
 	}
+	return originalValue
 }
