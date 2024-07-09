@@ -96,7 +96,7 @@ func TestChangePassword(t *testing.T) {
 func TestChangeOrigin(t *testing.T) {
 	hub := getHubAndLogin(t)
 	defer hub.deleteUser()
-	newOrigin := "new-origin"
+	newOrigin := "http://wrong-origin.de"
 
 	assert.Nil(t, hub.ChangeOrigin(newOrigin))
 	err := hub.createApp()

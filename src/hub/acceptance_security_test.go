@@ -65,11 +65,7 @@ func TestChangeOriginSecurity(t *testing.T) {
 	hub.SetOriginHeader = false
 	assert.Nil(t, hub.ChangeOrigin(sampleOrigin))
 
-	/*
-		err := hub.ChangeOrigin("http:/single-slash-invalid-domain.com")
-		assert.NotNil(t, err)
-		assert.Equal(t, "asfg", err.Error())
-	*/
+	testInputInvalidation(t, hub, "invalid-origin", OriginField, ChangeOrigin)
 }
 
 type FieldType int
@@ -104,6 +100,12 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assert.NotNil(t, err)
 		// TODO Resolve duplication
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	case ChangeOrigin:
+		err := hub.ChangeOrigin(hub.Origin)
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	default:
+		panic("Unsupported operation")
 	}
 
 	hub.deleteUser()
