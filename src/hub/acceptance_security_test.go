@@ -66,6 +66,8 @@ func TestChangeOriginSecurity(t *testing.T) {
 	assert.Nil(t, hub.ChangeOrigin(sampleOrigin))
 
 	testInputInvalidation(t, hub, "invalid-origin", OriginField, ChangeOrigin)
+	testInputInvalidation(t, hub, "invalid-user", UserField, ChangeOrigin)
+	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangeOrigin)
 }
 
 type FieldType int
