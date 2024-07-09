@@ -323,7 +323,7 @@ func (h *HubClient) ChangePassword(newPassword string) error {
 	return err
 }
 
-func (h *HubClient) ChangeOrigin(newOrigin string) interface{} {
+func (h *HubClient) ChangeOrigin(newOrigin string) error {
 	form := ChangeOriginForm{
 		User:      h.User,
 		Password:  h.Password,

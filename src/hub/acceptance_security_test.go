@@ -59,6 +59,19 @@ func TestRegisterSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", OriginField, Register)
 }
 
+func TestChangeOriginSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	hub.SetCookieHeader = false
+	hub.SetOriginHeader = false
+	assert.Nil(t, hub.ChangeOrigin(sampleOrigin))
+
+	/*
+		err := hub.ChangeOrigin("http:/single-slash-invalid-domain.com")
+		assert.NotNil(t, err)
+		assert.Equal(t, "asfg", err.Error())
+	*/
+}
+
 type FieldType int
 
 const (

@@ -1,6 +1,7 @@
 package src
 
 func TestHub() {
+	ExecuteInDir(hubDir, "rm -rf data")
 	testHubUnits()
 	testHubAcceptance()
 }
