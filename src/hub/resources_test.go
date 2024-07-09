@@ -23,13 +23,13 @@ var (
 	sampleTagFileContent          = "hello"
 	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
 	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
-	sampleMail                    = "testuser@example.com"
+	sampleEmail                   = "testuser@example.com"
 	samplePassword                = "mypassword"
 	sampleOrigin                  = rootUrl
 	sampleForm                    = &RegistrationForm{
 		sampleUser,
 		samplePassword,
-		sampleMail,
+		sampleEmail,
 		sampleOrigin,
 	}
 )
@@ -69,7 +69,7 @@ func getHub() *HubClient {
 		User:            sampleUser,
 		Password:        samplePassword,
 		Origin:          rootUrl,
-		Email:           sampleMail,
+		Email:           sampleEmail,
 		App:             sampleApp,
 		Tag:             sampleTag,
 		TagFilename:     getTagFileName(sampleUser, sampleApp, sampleTag),

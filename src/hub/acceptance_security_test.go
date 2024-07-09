@@ -79,20 +79,8 @@ func TestRegisterSecurity(t *testing.T) {
 
 	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", samplePassword, PasswordField, Register)
 	testInputInvalidation(t, hub, "invalid-username", sampleUser, UserField, Register)
-
-	hub.Email = "asd@asd.d"
-	err := hub.registerUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
-	hub.deleteUser()
-	hub.Email = sampleMail
-
-	hub.Origin = "https:/only-single-slash-invalid-domain.de"
-	err = hub.registerUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
-	hub.deleteUser()
-	hub.Origin = sampleMail
+	testInputInvalidation(t, hub, "asd@asd.d", sampleEmail, EmailField, Register)
+	testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", sampleOrigin, OriginField, Register)
 }
 
 type FieldType int
@@ -124,5 +112,9 @@ func setField(hub *HubClient, fieldType FieldType, value string) {
 		hub.Password = value
 	case UserField:
 		hub.User = value
+	case EmailField:
+		hub.Email = value
+	case OriginField:
+		hub.Origin = value
 	}
 }
