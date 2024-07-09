@@ -336,6 +336,9 @@ func (h *HubClient) ChangeOrigin(newOrigin string) error {
 
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
+	hub.login()
+	hub.deleteUser()
+
 	assert.Nil(t, hub.registerUser())
 
 	cookie, err := hub.login()

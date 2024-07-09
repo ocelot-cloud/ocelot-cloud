@@ -13,30 +13,48 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
-	singleString, err := readBody[SingleString](r)
+	singleString, err := readBody[SingleString](r) // TODO username validation
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user := singleString.Value
+	userToDelete := singleString.Value
 
-	if !repo.DoesUserExist(user) {
+	cookie, err := r.Cookie("auth")
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	// TODO cookie validation here
+
+	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if authenticatedUser != userToDelete {
+		logAndRespondDebug(w, "deletion of other users not allowed", http.StatusUnauthorized)
+		return
+	}
+
+	if !repo.DoesUserExist(userToDelete) {
 		logAndRespondError(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	err = fs.DeleteUser(user)
+	err = fs.DeleteUser(userToDelete)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = repo.DeleteUser(user)
+	err = repo.DeleteUser(userToDelete)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("Deleted user: %s", user)
+	Logger.Info("Deleted user: %s", userToDelete)
 
 	logAndRespondDebug(w, "User deleted", http.StatusOK)
 }

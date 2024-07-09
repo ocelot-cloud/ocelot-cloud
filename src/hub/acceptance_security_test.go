@@ -103,6 +103,10 @@ func TestChangePasswordSecurity(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	hub.Password = oldPassword
+
+	// TODO Should be removed. Ensure user is delete when doing "getHub" etc
+	hub.SetCookieHeader = true
+	hub.SetOriginHeader = true
 }
 
 func TestLoginSecurity(t *testing.T) {
@@ -127,6 +131,23 @@ func TestLoginSecurity(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
 	hub.Password = samplePassword
+
+	hub.SetCookieHeader = true
+	hub.SetOriginHeader = true
+}
+
+func TestDeleteUserSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	defer hub.deleteUser()
+
+	hub.User = sampleUser + "x"
+	err := hub.deleteUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: deletion of other users not allowed\n", err.Error())
+	hub.User = sampleUser
+
+	hub.SetCookieHeader = true
+	hub.SetOriginHeader = true
 }
 
 type FieldType int
