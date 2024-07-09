@@ -16,10 +16,7 @@ func TestFindAppsSecurity(t *testing.T) {
 	_, err := hub.findApps("notexistingapp")
 	assert.Nil(t, err)
 
-	_, err = hub.findApps("not-existing-app")
-	assert.NotNil(t, err)
-	// TODO Resolve duplication
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	testInputInvalidation(t, hub, "not-existing-app", AppField, FindApps)
 }
 
 func TestDownloadAppSecurity(t *testing.T) {
@@ -89,6 +86,11 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		_, err := hub.downloadApp()
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: file name is invalid\n", err.Error())
+	case FindApps:
+		_, err := hub.findApps(hub.App)
+		assert.NotNil(t, err)
+		// TODO Resolve duplication
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	}
 
 	hub.deleteUser()
