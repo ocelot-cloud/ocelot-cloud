@@ -81,7 +81,7 @@ func TestChangePasswordSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
 
 	oldPassword := hub.Password
-	hub.Password = "invalid-password-ä" // TODO Need up to 30 characters for passwords
+	hub.Password = "invalid-old-password-ä"
 	err := hub.ChangePassword("new-valid-password")
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
