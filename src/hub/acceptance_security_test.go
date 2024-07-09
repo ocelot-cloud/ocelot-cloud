@@ -91,5 +91,17 @@ func TestRegisterSecurity(t *testing.T) {
 	hub.deleteUser()
 	hub.User = sampleUser
 
-	// TODO cases: wrong password, input validation
+	hub.Email = "asd@asd.d"
+	err = hub.registerUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+	hub.deleteUser()
+	hub.Email = sampleMail
+
+	hub.Origin = "https:/only-single-slash-invalid-domain.de"
+	err = hub.registerUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+	hub.deleteUser()
+	hub.Origin = sampleMail
 }
