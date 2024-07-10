@@ -174,12 +174,15 @@ func TestCookieAndHostProtection(t *testing.T) {
 	err = hub.deleteUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
+	hub.Origin = sampleOrigin
 
-	/*
-		hub.Cookie.Expires = time.Now().UTC().AddDate(0, 0, -31)
-		err = hub.deleteUser()
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
+	/* TODO
+	hub.User = "expirationtestuser"
+	hub.Password = "password"
+	hub.login()
+	err = hub.deleteUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
 	*/
 
 	/*
