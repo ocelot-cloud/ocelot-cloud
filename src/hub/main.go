@@ -79,7 +79,7 @@ func applyMiddleware(handler func(w http.ResponseWriter, r *http.Request)) func(
 				// TODO
 			} else if cookie == nil {
 				// TODO
-			} else if repo.IsCookieValid(cookie.Value) {
+			} else if repo.IsCookieExpired(cookie.Value) {
 				// TODO
 			} else {
 				// TODO Take request -> get user -> check if origin is correct.

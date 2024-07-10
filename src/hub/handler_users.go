@@ -51,8 +51,7 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO rename to "IsCookieExpired" and inverse the boolean result
-	if !repo.IsCookieValid(cookie.Value) {
+	if repo.IsCookieExpired(cookie.Value) {
 		logAndRespondDebug(w, "cookie expired", http.StatusBadRequest)
 		return
 	}
