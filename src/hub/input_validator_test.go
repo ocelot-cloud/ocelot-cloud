@@ -36,6 +36,7 @@ func TestValidateOrigin(t *testing.T) {
 	assert.True(t, validate("http://example.com", Origin))
 	assert.True(t, validate("https://example.com", Origin))
 	assert.True(t, validate("http://example.com:8080", Origin))
+	assert.False(t, validate("ftp://example.com", Origin))
 	assert.False(t, validate("http://example.com/path", Origin))      // Contains path
 	assert.False(t, validate("ftp://example.com", Origin))            // Invalid scheme
 	assert.False(t, validate("https://example.com:99999", Origin))    // Invalid port

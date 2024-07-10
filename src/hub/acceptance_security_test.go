@@ -139,7 +139,8 @@ func TestDeleteUserSecurity(t *testing.T) {
 	hub.User = sampleUser
 }
 
-// TODO cover three cases: 1) missing cookie header, 2) invalid cookie value, 3) missing origin header, 4) validate origin header, 5) check cookie expiration date, 6) update expiration date (maybe use add ms to expiration date to make it more testable?)
+// TODO check cookie expiration date
+// TODO update expiration date (maybe use add ms to expiration date to make it more testable?)
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 	hub.SetCookieHeader = false
@@ -162,6 +163,12 @@ func TestCookieAndHostProtection(t *testing.T) {
 	err = hub.deleteUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin\n", err.Error())
+
+	hub.SetOriginHeader = true
+	hub.Origin = "http://valid-but-incorrect-origin.com"
+	err = hub.deleteUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
 
 	/*
 		DeleteUser
