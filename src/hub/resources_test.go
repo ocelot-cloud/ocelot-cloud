@@ -117,7 +117,7 @@ func (h *HubClient) login() (*http.Cookie, error) {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, SingleString{h.User}, "User deleted", http.StatusOK, "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, SingleString{h.User}, "User deleted\n", http.StatusOK, "DELETE", DeleteUser)
 	return err
 }
 

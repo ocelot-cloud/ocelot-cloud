@@ -143,10 +143,15 @@ func TestDeleteUserSecurity(t *testing.T) {
 // TODO update expiration date (maybe use add ms to expiration date to make it more testable?)
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
+
+	err := hub.deleteUser()
+	assert.Nil(t, err)
+	assert.Nil(t, hub.registerUser())
+
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
-	err := hub.deleteUser()
+	err = hub.deleteUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
 
