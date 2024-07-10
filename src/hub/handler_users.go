@@ -56,6 +56,15 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	newExpirationTime := getTimeIn30Days() // TODO Also set exp time request.
+	err = repo.SetCookie(authenticatedUser, cookie.Value, newExpirationTime)
+	if err != nil {
+		logAndRespondDebug(w, "updating cookie failed", http.StatusInternalServerError)
+		return
+	}
+	cookie.Expires = newExpirationTime
+	http.SetCookie(w, cookie)
+
 	// TODO Most of the code above this line can be put into a single security policy function.
 
 	if authenticatedUser != userToDelete {

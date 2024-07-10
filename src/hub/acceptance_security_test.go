@@ -5,6 +5,7 @@ package main
 import (
 	"github.com/ocelot-cloud/shared/assert"
 	"testing"
+	"time"
 )
 
 func TestFindAppsSecurity(t *testing.T) {
@@ -139,7 +140,7 @@ func TestDeleteUserSecurity(t *testing.T) {
 	hub.User = sampleUser
 }
 
-// TODO update expiration date
+// TODO test: update expiration date when calling middleware
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 
@@ -175,6 +176,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
 	hub.Origin = sampleOrigin
 
+	// There is some specific logic for this user in the production code when handling cookie.
 	hub = getHub()
 	hub.User = "expirationtestuser" // TODO Abstract duplication
 	hub.Password = samplePassword
@@ -184,6 +186,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	err = hub.deleteUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
+	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
 
 	/*
 		DeleteUser
