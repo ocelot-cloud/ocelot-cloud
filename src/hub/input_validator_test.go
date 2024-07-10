@@ -46,11 +46,11 @@ func TestValidateOrigin(t *testing.T) {
 }
 
 func TestValidateCookie(t *testing.T) {
-	thirtyOneHexDecimalLetters := "1234567890abcdef1234567890abcde"
+	sixtyOneHexDecimalLetters := "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcde"
 
-	assert.False(t, validate(thirtyOneHexDecimalLetters, Cookie))
-	assert.True(t, validate(thirtyOneHexDecimalLetters+"f", Cookie))
-	assert.False(t, validate(thirtyOneHexDecimalLetters+"ff", Cookie))
-	assert.False(t, validate(thirtyOneHexDecimalLetters+"g", Cookie))
+	assert.False(t, validate(sixtyOneHexDecimalLetters, Cookie))
+	assert.True(t, validate(sixtyOneHexDecimalLetters+"f", Cookie))
+	assert.False(t, validate(sixtyOneHexDecimalLetters+"ff", Cookie))
+	assert.False(t, validate(sixtyOneHexDecimalLetters+"g", Cookie))
 	assert.False(t, validate("", Cookie))
 }
