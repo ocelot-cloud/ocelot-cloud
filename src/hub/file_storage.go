@@ -19,7 +19,6 @@ func createDataDir() {
 	}
 }
 
-// TODO
 type FileStorage interface {
 	CreateUser(username string) error
 	DeleteUser(username string) error
@@ -27,6 +26,7 @@ type FileStorage interface {
 	DeleteApp(username, app string) error
 	CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error
 	DeleteTag(user string, app string, tag string) error
+	WipeStorage()
 }
 
 type FileStorageImpl struct{}
@@ -76,6 +76,14 @@ func (f *FileStorageImpl) DeleteApp(username, app string) error {
 		return Logger.LogAndReturnError("Error deleting app directory: %v", err)
 	}
 	return nil
+}
+
+// TODO Maybe use this in the tests?
+func (f *FileStorageImpl) WipeStorage() {
+	users := GetUserList()
+	for _, v := range users {
+		fs.DeleteUser(v)
+	}
 }
 
 func deleteIfExist(path string) error {
