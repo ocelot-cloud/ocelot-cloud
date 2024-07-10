@@ -90,7 +90,7 @@ func (h *HubClient) registerUser() error {
 	return err
 }
 
-func (h *HubClient) login() (*http.Cookie, error) {
+func (h *HubClient) login() error {
 	creds := LoginCredentials{
 		User:     h.User,
 		Password: h.Password,
@@ -98,20 +98,20 @@ func (h *HubClient) login() (*http.Cookie, error) {
 
 	result, err := h.doRequest(loginPath, creds, "login successful\n", http.StatusOK, "GET", Login)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	resp, ok := result.(*http.Response)
 	if !ok {
-		return nil, fmt.Errorf("Failed to assert result to *http.Response")
+		return fmt.Errorf("Failed to assert result to *http.Response")
 	}
 
 	cookies := resp.Cookies()
 	if len(cookies) != 1 {
-		return nil, fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
+		return fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
 	h.Cookie = cookies[0]
-	return cookies[0], nil
+	return nil
 }
 
 func (h *HubClient) deleteUser() error {
@@ -341,9 +341,8 @@ func getHubAndLogin(t *testing.T) *HubClient {
 
 	assert.Nil(t, hub.registerUser())
 
-	cookie, err := hub.login()
+	err := hub.login()
 	assert.Nil(t, err)
-	hub.Cookie = cookie
 	return hub
 }
 

@@ -35,7 +35,7 @@ func TestCookie(t *testing.T) {
 	assert.Equal(t, 64, len(hub.Cookie.Value))
 
 	cookie1 := hub.Cookie
-	_, err := hub.login()
+	err := hub.login()
 	assert.Nil(t, err)
 	cookie2 := hub.Cookie
 	assert.NotNil(t, cookie2)
@@ -81,14 +81,14 @@ func TestChangePassword(t *testing.T) {
 	newPassword := "new-password"
 
 	assert.Nil(t, hub.ChangePassword(newPassword))
-	_, err := hub.login()
+	err := hub.login()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
 
 	hub.Password = newPassword
-	cookie, err := hub.login()
+	err = hub.login()
 	assert.Nil(t, err)
-	assert.NotNil(t, cookie)
+	assert.NotNil(t, hub.Cookie)
 }
 
 func TestChangeOrigin(t *testing.T) {

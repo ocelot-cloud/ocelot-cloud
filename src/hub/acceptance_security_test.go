@@ -112,9 +112,8 @@ func TestLoginSecurity(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Nil(t, hub.Cookie)
-	cookie, err := hub.login()
+	err = hub.login()
 	assert.Nil(t, err)
-	assert.NotNil(t, cookie)
 	assert.NotNil(t, hub.Cookie)
 	hub.Cookie = nil
 
@@ -123,7 +122,7 @@ func TestLoginSecurity(t *testing.T) {
 
 	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
 	hub.Password = correctlyFormattedButNotMatchingPassword
-	_, err = hub.login()
+	err = hub.login()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
 	hub.Password = samplePassword
@@ -162,7 +161,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie\n", err.Error())
 
-	_, err = hub.login()
+	err = hub.login()
 	assert.Nil(t, err)
 	hub.Origin = "http:/single-slash-invalid-origin"
 	err = hub.deleteUser()
@@ -181,7 +180,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	hub.User = "expirationtestuser" // TODO Abstract duplication
 	hub.Password = samplePassword
 	assert.Nil(t, hub.registerUser())
-	_, err = hub.login()
+	err = hub.login()
 	assert.Nil(t, err)
 	err = hub.deleteUser()
 	assert.NotNil(t, err)
@@ -238,7 +237,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	case Login:
-		_, err := hub.login()
+		err := hub.login()
 		assert.NotNil(t, err)
 		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	default:
