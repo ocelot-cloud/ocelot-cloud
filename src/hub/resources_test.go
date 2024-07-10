@@ -76,9 +76,7 @@ func getHub() *HubClient {
 		SetOriginHeader: true,
 		SetCookieHeader: true,
 	}
-	hub.login()
-	hub.deleteUser()
-	hub.Cookie = nil
+	hub.wipeData()
 	return hub
 }
 

@@ -10,7 +10,6 @@ import (
 
 func TestFileUploadDownload(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
 
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
@@ -29,7 +28,6 @@ func TestFileUploadDownload(t *testing.T) {
 
 func TestCookie(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
 
 	assert.Equal(t, cookieName, hub.Cookie.Name)
 	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(hub.Cookie.Expires))
@@ -46,7 +44,7 @@ func TestCookie(t *testing.T) {
 
 func TestCreateApp(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	assert.Nil(t, hub.createApp())
 	foundApps, err := hub.findApps(sampleApp)
 	assert.Nil(t, err)
@@ -63,7 +61,7 @@ func TestCreateApp(t *testing.T) {
 
 func TestCreateTags(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
 	tags, err := hub.getTags()
@@ -79,7 +77,7 @@ func TestCreateTags(t *testing.T) {
 
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	newPassword := "new-password"
 
 	assert.Nil(t, hub.ChangePassword(newPassword))
@@ -95,7 +93,7 @@ func TestChangePassword(t *testing.T) {
 
 func TestChangeOrigin(t *testing.T) {
 	hub := getHubAndLogin(t)
-	defer hub.deleteUser()
+
 	newOrigin := "http://wrong-origin.de"
 
 	assert.Nil(t, hub.ChangeOrigin(newOrigin))
