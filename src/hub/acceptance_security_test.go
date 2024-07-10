@@ -139,7 +139,6 @@ func TestDeleteUserSecurity(t *testing.T) {
 	hub.User = sampleUser
 }
 
-// TODO check cookie expiration date
 // TODO update expiration date
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
@@ -177,7 +176,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	hub.Origin = sampleOrigin
 
 	hub = getHub()
-	hub.User = "expirationtestuser"
+	hub.User = "expirationtestuser" // TODO Abstract duplication
 	hub.Password = samplePassword
 	assert.Nil(t, hub.registerUser())
 	_, err = hub.login()
