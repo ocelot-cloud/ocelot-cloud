@@ -54,19 +54,19 @@ func findApps(w http.ResponseWriter, r *http.Request) {
 }
 
 func createApp(w http.ResponseWriter, r *http.Request) {
+	authenticatedUser, err := middleware(w, r)
+	if err != nil {
+		return
+	}
+
 	cookie, err := r.Cookie(cookieName)
 	if err != nil || cookie == nil || cookie.Value == "" {
 		logAndRespondDebug(w, "Cookie not contained in request", http.StatusBadRequest)
 		return
 	}
-	user, err := repo.GetUserWithCookie(cookie.Value)
-	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
 	// TODO Should be used by security policy logic, maybe?
-	if !repo.IsOriginCorrect(user, r.Header.Get("Origin")) {
+	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get("Origin")) {
 		logAndRespondDebug(w, "wrong origin", http.StatusUnauthorized)
 		return
 	}
@@ -78,24 +78,24 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	}
 	app := singleString.Value
 
-	if !repo.DoesUserExist(user) {
+	if !repo.DoesUserExist(authenticatedUser) {
 		logAndRespondDebug(w, "user does not exists", http.StatusNotFound)
 		return
 	}
-	if repo.DoesAppExist(user, app) {
+	if repo.DoesAppExist(authenticatedUser, app) {
 		logAndRespondDebug(w, "app already exists", http.StatusConflict)
 		return
 	}
-	err = fs.CreateApp(user, app)
+	err = fs.CreateApp(authenticatedUser, app)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = repo.CreateApp(user, app)
+	err = repo.CreateApp(authenticatedUser, app)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	logAndRespondDebug(w, "app created", http.StatusCreated)
+	logAndRespondDebug(w, "app created", http.StatusOK)
 }

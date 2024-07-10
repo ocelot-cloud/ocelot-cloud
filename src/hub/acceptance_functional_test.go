@@ -99,7 +99,7 @@ func TestChangeOrigin(t *testing.T) {
 	assert.Nil(t, hub.ChangeOrigin(newOrigin))
 	err := hub.createApp()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 201, but got 401. Response body: wrong origin\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
 
 	hub.Origin = newOrigin
 	err = hub.createApp()

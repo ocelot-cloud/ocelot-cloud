@@ -192,7 +192,7 @@ func processResponse(resp *http.Response, expectedStatusCode int) ([]byte, error
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "app created\n", http.StatusCreated, "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "app created\n", http.StatusOK, "POST", CreateApp)
 	return err
 }
 
