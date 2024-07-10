@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
@@ -12,60 +15,67 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
-	singleString, err := readBody[SingleString](r) // TODO username validation
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	userToDelete := singleString.Value
-
+func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
 	// TODO Everywhere: replace "auth" by cookieName
 
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusUnauthorized)
-		return
+		return "", err
 	}
 
 	if !validate(cookie.Value, Cookie) {
 		logAndRespondDebug(w, "invalid cookie", http.StatusBadRequest)
-		return
+		return "", fmt.Errorf("")
 	}
 
 	if !validate(r.Header.Get("Origin"), Origin) {
 		logAndRespondDebug(w, "invalid origin", http.StatusBadRequest)
-		return
+		return "", fmt.Errorf("")
 	}
 
 	// TODO everytime I use "GetUserWithCookie" I should do validation previously. Everytime I do sth with the cookie in general.
 	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
-		return
+		return "", err
 	}
 
 	// TODO there should be a global variable "originHeader"
 	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get("Origin")) {
 		logAndRespondDebug(w, "origin not matching", http.StatusBadRequest)
-		return
+		return "", fmt.Errorf("")
 	}
 
 	if repo.IsCookieExpired(cookie.Value) {
 		logAndRespondDebug(w, "cookie expired", http.StatusBadRequest)
-		return
+		return "", fmt.Errorf("")
 	}
 
 	newExpirationTime := getTimeIn30Days() // TODO Also set exp time request.
 	err = repo.SetCookie(authenticatedUser, cookie.Value, newExpirationTime)
 	if err != nil {
 		logAndRespondDebug(w, "updating cookie failed", http.StatusInternalServerError)
-		return
+		return "", err
 	}
 	cookie.Expires = newExpirationTime
 	http.SetCookie(w, cookie)
 
-	// TODO Most of the code above this line can be put into a single security policy function.
+	return authenticatedUser, nil
+}
+
+func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
+	authenticatedUser, err := middleware(w, r)
+	if err != nil {
+		return
+	}
+
+	singleString, err := readBody[SingleString](r) // TODO username validation
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	userToDelete := singleString.Value
 
 	if authenticatedUser != userToDelete {
 		logAndRespondDebug(w, "deletion of other users not allowed", http.StatusUnauthorized)
