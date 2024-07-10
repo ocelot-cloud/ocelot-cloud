@@ -40,6 +40,19 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !validate(r.Header.Get("Origin"), Origin) {
+		logAndRespondDebug(w, "invalid origin", http.StatusBadRequest)
+		return
+	}
+
+	// TODO there should be a global variable "originHeader"
+	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get("Origin")) {
+		logAndRespondDebug(w, "origin not matching", http.StatusBadRequest)
+		return
+	}
+
+	// TODO Most of the code above this line can be put into a single security policy function.
+
 	if authenticatedUser != userToDelete {
 		logAndRespondDebug(w, "deletion of other users not allowed", http.StatusUnauthorized)
 		return
