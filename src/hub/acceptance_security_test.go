@@ -140,7 +140,7 @@ func TestDeleteUserSecurity(t *testing.T) {
 }
 
 // TODO check cookie expiration date
-// TODO update expiration date (maybe use add ms to expiration date to make it more testable?)
+// TODO update expiration date
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 
@@ -174,6 +174,13 @@ func TestCookieAndHostProtection(t *testing.T) {
 	err = hub.deleteUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
+
+	/*
+		hub.Cookie.Expires = time.Now().UTC().AddDate(0, 0, -31)
+		err = hub.deleteUser()
+		assert.NotNil(t, err)
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
+	*/
 
 	/*
 		DeleteUser
