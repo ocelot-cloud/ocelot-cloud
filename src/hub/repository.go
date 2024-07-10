@@ -82,6 +82,7 @@ type Repository interface {
 	ChangePassword(user string, newPassword string) error
 	ChangeOrigin(user string, newOrigin string) error
 	IsOriginCorrect(user string, origin string) bool
+	WipeDatabase()
 }
 
 type SqliteRepository struct{}
@@ -392,4 +393,24 @@ func getUserId(user string) (int, error) {
 		return 0, fmt.Errorf("user not found: %w", err)
 	}
 	return userID, nil
+}
+
+func (u *SqliteRepository) WipeDatabase() {
+	users := getUsers()
+	for _, v := range users {
+		u.DeleteUser(v)
+	}
+}
+
+func getUsers() []string {
+	rows, _ := db.Query("SELECT user_name FROM users")
+	defer rows.Close()
+
+	var usernames []string
+	for rows.Next() {
+		var userName string
+		rows.Scan(&userName)
+		usernames = append(usernames, userName)
+	}
+	return usernames
 }

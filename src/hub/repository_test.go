@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCreateRepoUser(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.False(t, um.DoesUserExist(sampleUser))
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.True(t, um.DoesUserExist(sampleUser))
@@ -30,7 +30,7 @@ func TestCreateRepoUser(t *testing.T) {
 }
 
 func TestCreateRepoApp(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
@@ -38,7 +38,7 @@ func TestCreateRepoApp(t *testing.T) {
 }
 
 func TestDeleteAppCascadingThroughUser(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.True(t, um.DoesAppExist(sampleUser, sampleApp))
@@ -47,7 +47,7 @@ func TestDeleteAppCascadingThroughUser(t *testing.T) {
 }
 
 func TestDeleteAppDirectly(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.False(t, um.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
@@ -57,25 +57,25 @@ func TestDeleteAppDirectly(t *testing.T) {
 }
 
 func TestCantCreateUserTwice(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.NotNil(t, um.CreateUser(sampleForm))
 }
 
 func TestCantCreateAppTwiceForSameUser(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.NotNil(t, um.CreateApp(sampleUser, sampleApp))
 }
 
 func TestCantCreateAppWithoutUser(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.NotNil(t, um.CreateApp(sampleUser, sampleApp))
 }
 
 func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleForm))
 	newForm := *sampleForm
@@ -86,7 +86,7 @@ func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 }
 
 func TestTolerateSameAppsForTwoUsers(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleForm))
 	newForm := *sampleForm
@@ -104,14 +104,14 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 }
 
 func TestPasswordVerification(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.False(t, um.IsPasswordCorrect(sampleUser, samplePassword+"x"))
 }
 
 func TestSearch(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	um.CreateUser(sampleForm)
 	app1 := "prefix_myapp_suffix"
 	app2 := "prefix_another-app_suffix"
@@ -133,7 +133,7 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchNegative(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	um.CreateUser(sampleForm)
 	app := "prefix_myapp_suffix"
 	um.CreateApp(sampleUser, app)
@@ -143,29 +143,9 @@ func TestSearchNegative(t *testing.T) {
 	assert.Equal(t, 0, len(a))
 }
 
-func cleanupDatabase() {
-	users := getUsers()
-	for _, v := range users {
-		um.DeleteUser(v)
-	}
-}
-
-func getUsers() []string {
-	rows, _ := db.Query("SELECT user_name FROM users")
-	defer rows.Close()
-
-	var usernames []string
-	for rows.Next() {
-		var userName string
-		rows.Scan(&userName)
-		usernames = append(usernames, userName)
-	}
-	return usernames
-}
-
 // TODO handle the unhandled errors
 func TestCookieExpiration(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	um.CreateUser(sampleForm)
 	_, err := um.GetUserWithCookie("")
 	assert.NotNil(t, err)
@@ -187,7 +167,7 @@ func TestCookieExpiration(t *testing.T) {
 }
 
 func TestGetTagList(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	foundTags, err := um.GetTagList(sampleUser, sampleApp)
@@ -217,7 +197,7 @@ func TestGetTagList(t *testing.T) {
 }
 
 func TestChangeRepoPassword(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	newPassword := samplePassword + "x"
@@ -227,7 +207,7 @@ func TestChangeRepoPassword(t *testing.T) {
 }
 
 func TestChangeRepoOrigin(t *testing.T) {
-	defer cleanupDatabase()
+	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
 	assert.True(t, um.IsOriginCorrect(sampleUser, sampleOrigin))
 	newOrigin := "http://my-new-domain.com:8080"
