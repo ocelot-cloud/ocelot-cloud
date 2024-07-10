@@ -52,12 +52,10 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO rename to "IsCookieExpired" and inverse the boolean result
-	// TODO Research: Uncommenting this causes many tests to fail. I assume some other tests did not provide cookie properly.
-	/*if !repo.IsCookieValid(cookie.Value) {
+	if !repo.IsCookieValid(cookie.Value) {
 		logAndRespondDebug(w, "cookie expired", http.StatusBadRequest)
 		return
 	}
-	*/
 
 	// TODO Most of the code above this line can be put into a single security policy function.
 

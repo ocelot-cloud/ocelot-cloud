@@ -257,7 +257,7 @@ func (u *SqliteRepository) IsCookieValid(cookie string) bool {
 		return true
 	}
 
-	return time.Now().UTC().After(expirationDate)
+	return time.Now().UTC().Before(expirationDate)
 }
 
 func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {

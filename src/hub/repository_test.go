@@ -155,11 +155,11 @@ func TestCookieExpiration(t *testing.T) {
 	timeIn30Days := getTimeIn30Days()
 	cookie, _ := generateCookie()
 	assert.Nil(t, um.SetCookie(sampleUser, cookie.Value, timeIn30Days))
-	assert.False(t, um.IsCookieValid(cookie.Value))
+	assert.True(t, um.IsCookieValid(cookie.Value))
 
 	past := time.Now().Add(-1 * time.Second)
 	assert.Nil(t, um.SetCookie(sampleUser, cookie.Value, past))
-	assert.True(t, um.IsCookieValid(cookie.Value))
+	assert.False(t, um.IsCookieValid(cookie.Value))
 
 	user, err := um.GetUserWithCookie(cookie.Value)
 	assert.Nil(t, err)
