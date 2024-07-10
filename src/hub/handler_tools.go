@@ -174,6 +174,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	// TODO And the global profile TEST must be activated.
+	if creds.User == "expirationtestuser" {
+		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
+	}
+
 	// TODO Must be verified by a test:
 	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {

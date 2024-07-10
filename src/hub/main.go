@@ -4,7 +4,6 @@ import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"os"
-	"time"
 )
 
 func init() {
@@ -52,25 +51,7 @@ func initializeDatabase() {
 	useInMemoryDB := os.Getenv("PROFILE")
 	if useInMemoryDB == "test" {
 		initializeDatabaseWithSource(":memory:")
-		// TODO extract to subfunction for readability?
-		expirationTestUser := "expirationtestuser"
-		if !repo.DoesUserExist(expirationTestUser) {
-			form := &RegistrationForm{
-				Username: expirationTestUser,
-				Password: "password",
-				Email:    "somemail@example.com",
-				Origin:   "http://localhost:8082", // TODO duplication
-			}
-			err := repo.CreateUser(form)
-			if err != nil {
-				Logger.Fatal("Failed to create user: %v, error: %v", expirationTestUser, err)
-			}
-			expirationDateInThePast := time.Now().UTC().Add(-1 * time.Second)
-			err = repo.SetCookie(expirationTestUser, "some-cookie", expirationDateInThePast)
-			if err != nil {
-				Logger.Fatal("Failed to set cookie of users '%s', error: %v", expirationTestUser, err)
-			}
-		}
+		Logger.Warn("initializing database only in-memory")
 	} else {
 		initializeDatabaseWithSource(databaseFile)
 	}
