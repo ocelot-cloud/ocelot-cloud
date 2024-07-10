@@ -139,6 +139,7 @@ func TestDeleteUserSecurity(t *testing.T) {
 	hub.User = sampleUser
 }
 
+// TODO cover three cases: 1) missing cookie header, 2) invalid cookie value, 3) missing origin header
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 	hub.SetCookieHeader = false
@@ -147,6 +148,12 @@ func TestCookieAndHostProtection(t *testing.T) {
 	err := hub.deleteUser()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
+
+	hub.SetCookieHeader = true
+
+	err = hub.deleteUser()
+	assert.NotNil(t, err)
+	// TODO assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
 
 	// TODO Check cookies first
 	// TODO If cookie is okay, check host

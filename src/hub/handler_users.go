@@ -25,8 +25,9 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		logAndRespondDebug(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	// TODO cookie validation here
+	// TODO cookie.Value validation here
 
+	// TODO everytime I use "GetUserWithCookie" I should do validation previously. Everytime I do sth with the cookie in general.
 	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
