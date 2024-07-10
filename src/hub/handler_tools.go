@@ -204,5 +204,7 @@ func generateCookie() (*http.Cookie, error) {
 
 // TODO Add acceptance test checking that this endpoint is not available when using production profile.
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO Implement wipe methods for fs and repo.
+	fs.WipeStorage()
+	repo.WipeDatabase()
+	logAndRespondDebug(w, "wipe completed", http.StatusOK)
 }

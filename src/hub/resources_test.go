@@ -348,3 +348,8 @@ func getHubAndLogin(t *testing.T) *HubClient {
 	hub.Cookie = cookie
 	return hub
 }
+
+func (h *HubClient) wipeData() error {
+	_, err := h.doRequest(wipeDataPath, nil, "wipe completed\n", http.StatusOK, "GET", WipeData)
+	return err
+}

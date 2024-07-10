@@ -45,6 +45,7 @@ const (
 	UploadTag
 	DeleteTag
 	GetTags
+	WipeData
 )
 
 func getPolicy() SecurityPolicyCollection {
