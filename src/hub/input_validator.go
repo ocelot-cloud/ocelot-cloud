@@ -16,6 +16,7 @@ const (
 	Origin
 	TagFile
 	Email
+	Cookie
 )
 
 var (
@@ -23,6 +24,7 @@ var (
 	tagPattern      = regexp.MustCompile(`^[a-z0-9.]{3,20}$`)
 	passwordPattern = regexp.MustCompile(`^[a-z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};':",.<>\/?\\|` + "`" + `~]{3,30}$`)
 	emailPattern    = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	cookiePattern   = regexp.MustCompile(`^[a-f0-9]{32}$`)
 )
 
 func validate(input string, validationType ValidationType) bool {
@@ -43,6 +45,8 @@ func validate(input string, validationType ValidationType) bool {
 		return validateTagFile(input)
 	case Email:
 		re = emailPattern
+	case Cookie:
+		re = cookiePattern
 	default:
 		return false
 	}

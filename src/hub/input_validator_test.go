@@ -44,3 +44,13 @@ func TestValidateOrigin(t *testing.T) {
 	assert.False(t, validate("http://", Origin))                      // Missing hostname
 	assert.False(t, validate("http://:8080", Origin))                 // Missing hostname
 }
+
+func TestValidateCookie(t *testing.T) {
+	thirtyOneHexDecimalLetters := "1234567890abcdef1234567890abcde"
+
+	assert.False(t, validate(thirtyOneHexDecimalLetters, Cookie))
+	assert.True(t, validate(thirtyOneHexDecimalLetters+"f", Cookie))
+	assert.False(t, validate(thirtyOneHexDecimalLetters+"ff", Cookie))
+	assert.False(t, validate(thirtyOneHexDecimalLetters+"g", Cookie))
+	assert.False(t, validate("", Cookie))
+}
