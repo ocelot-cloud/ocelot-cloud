@@ -52,6 +52,7 @@ func initializeDatabase() {
 	useInMemoryDB := os.Getenv("PROFILE")
 	if useInMemoryDB == "test" {
 		initializeDatabaseWithSource(":memory:")
+		// TODO extract to subfunction for readability?
 		expirationTestUser := "expirationtestuser"
 		if !repo.DoesUserExist(expirationTestUser) {
 			form := &RegistrationForm{
@@ -60,9 +61,15 @@ func initializeDatabase() {
 				Email:    "somemail@example.com",
 				Origin:   "http://localhost:8082", // TODO duplication
 			}
-			repo.CreateUser(form)
+			err := repo.CreateUser(form)
+			if err != nil {
+				Logger.Fatal("Failed to create user: %v, error: %v", expirationTestUser, err)
+			}
 			expirationDateInThePast := time.Now().UTC().Add(-1 * time.Second)
-			repo.SetCookie(expirationTestUser, "some-cookie", expirationDateInThePast)
+			err = repo.SetCookie(expirationTestUser, "some-cookie", expirationDateInThePast)
+			if err != nil {
+				Logger.Fatal("Failed to set cookie of users '%s', error: %v", expirationTestUser, err)
+			}
 		}
 	} else {
 		initializeDatabaseWithSource(databaseFile)
