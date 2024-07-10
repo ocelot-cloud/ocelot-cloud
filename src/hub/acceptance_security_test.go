@@ -128,6 +128,7 @@ func TestLoginSecurity(t *testing.T) {
 	hub.Password = samplePassword
 }
 
+// TODO Not finished yet.
 func TestDeleteUserSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
@@ -136,6 +137,26 @@ func TestDeleteUserSecurity(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 401. Response body: deletion of other users not allowed\n", err.Error())
 	hub.User = sampleUser
+}
+
+func TestCookieAndHostProtection(t *testing.T) {
+	hub := getHubAndLogin(t)
+	hub.SetCookieHeader = false
+	hub.SetOriginHeader = false
+
+	err := hub.deleteUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
+
+	// TODO Check cookies first
+	// TODO If cookie is okay, check host
+	/*
+		DeleteUser
+		CreateApp
+		DeleteApp
+		UploadTag
+		DeleteTag
+	*/
 }
 
 type FieldType int
