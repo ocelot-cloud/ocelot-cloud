@@ -29,6 +29,13 @@ func main() {
 	// Registration process is excluded from security, so no middleware is used.
 	http.HandleFunc(registrationPath, registrationHandler)
 
+	// TODO Maybe unify the GetEnv duplication
+	useInMemoryDB := os.Getenv("PROFILE")
+	if useInMemoryDB == "test" {
+		Logger.Warn("as") //TODO
+		http.HandleFunc(wipeDataPath, wipeDataHandler)
+	}
+
 	Logger.Info("Server started on port %s", port)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
@@ -42,8 +49,8 @@ func initializeDatabase() {
 	// as expected. But when I run hub as a daemon process, via bash or ci-runner, the tests fail with
 	// this DB error: "attempt to write readonly database". So I use in-memory database for all tests.
 	// TODO Maybe rename that variable to USE_TEST_DB or PROFILE="test" or so
-	useInMemoryDB := os.Getenv("USE_IN_MEMORY_DB")
-	if useInMemoryDB == "true" {
+	useInMemoryDB := os.Getenv("PROFILE")
+	if useInMemoryDB == "test" {
 		initializeDatabaseWithSource(":memory:")
 		expirationTestUser := "expirationtestuser"
 		if !repo.DoesUserExist(expirationTestUser) {

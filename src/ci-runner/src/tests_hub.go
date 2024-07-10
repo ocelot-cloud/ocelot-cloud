@@ -15,7 +15,7 @@ func testHubUnits() {
 func testHubAcceptance() {
 	printTestDescription("Testing hub acceptance")
 	defer Cleanup()
-	StartDaemon(hubDir, "go run .", "USE_IN_MEMORY_DB=true")
+	StartDaemon(hubDir, "go run .", "PROFILE=test")
 	WaitUntilPortIsReady("localhost:8082")
 	ExecuteInDir(hubDir, "go test -tags=acceptance ./...")
 }

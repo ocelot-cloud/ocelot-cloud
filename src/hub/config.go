@@ -14,6 +14,7 @@ var (
 	appPath            = "/apps"
 	loginPath          = "/login"
 	registrationPath   = "/registration"
+	wipeDataPath       = "/wipe-data"
 	port               = "8082"
 	rootUrl            = "http://localhost:" + port
 	cookieName         = "auth"
