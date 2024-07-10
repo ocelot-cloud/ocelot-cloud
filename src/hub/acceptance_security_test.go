@@ -139,7 +139,7 @@ func TestDeleteUserSecurity(t *testing.T) {
 	hub.User = sampleUser
 }
 
-// TODO cover three cases: 1) missing cookie header, 2) invalid cookie value, 3) missing origin header
+// TODO cover three cases: 1) missing cookie header, 2) invalid cookie value, 3) missing origin header, 4) update expiration date (maybe use add ms to expiration date to make it more testable?)
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 	hub.SetCookieHeader = false
