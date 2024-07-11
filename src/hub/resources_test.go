@@ -53,6 +53,7 @@ type HubClient struct {
 	TagFilename     string
 	SetOriginHeader bool
 	SetCookieHeader bool
+	UploadContent   string
 }
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
@@ -75,6 +76,7 @@ func getHub() *HubClient {
 		TagFilename:     getTagFileName(sampleUser, sampleApp, sampleTag),
 		SetOriginHeader: true,
 		SetCookieHeader: true,
+		UploadContent:   sampleTagFileContent,
 	}
 	hub.wipeData()
 	return hub
@@ -216,8 +218,8 @@ func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 	return apps, nil
 }
 
-func (h *HubClient) uploadTag(content string) error {
-	fileContent := []byte(content)
+func (h *HubClient) uploadTag() error {
+	fileContent := []byte(h.UploadContent)
 	fileBuffer := bytes.NewBuffer(fileContent)
 
 	url := rootUrl + tagPath

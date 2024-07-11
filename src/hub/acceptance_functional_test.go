@@ -12,7 +12,7 @@ func TestFileUploadDownload(t *testing.T) {
 	hub := getHubAndLogin(t)
 
 	assert.Nil(t, hub.createApp())
-	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
+	assert.Nil(t, hub.uploadTag())
 
 	foundTags, err := hub.getTags()
 	assert.Nil(t, err)
@@ -63,7 +63,7 @@ func TestCreateTags(t *testing.T) {
 	hub := getHubAndLogin(t)
 
 	assert.Nil(t, hub.createApp())
-	assert.Nil(t, hub.uploadTag(sampleTagFileContent))
+	assert.Nil(t, hub.uploadTag())
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
