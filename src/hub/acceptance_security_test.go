@@ -147,18 +147,13 @@ func TestCookieAndHostProtection(t *testing.T) {
 	assert.Nil(t, hub.registerUser())
 	hub.User = sampleUser
 
+	// TODO Check if anything is missing.
+	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
 	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag)
-
-	/*
-		DeleteUser
-		CreateApp
-		DeleteApp
-		UploadTag
-		DeleteTag
-	*/
+	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
 }
 
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {

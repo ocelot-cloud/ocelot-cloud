@@ -29,6 +29,11 @@ type TagInfo struct {
 }
 
 func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
+	_, err := middleware(w, r)
+	if err != nil {
+		return
+	}
+
 	tagInfo, err := readBody[TagInfo](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
