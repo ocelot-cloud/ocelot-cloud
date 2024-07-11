@@ -151,7 +151,6 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// TODO Maybe only give the file info pointer to getTagFilename function for simplification.
 
 	path := fmt.Sprintf("%s/%s/%s/%s", usersDir, fileInfo.User, fileInfo.App, fileInfo.Tag+".tar.gz")
 	if _, err = os.Stat(path); os.IsNotExist(err) {
