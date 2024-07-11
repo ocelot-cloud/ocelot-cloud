@@ -160,7 +160,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.IsPasswordCorrect(creds.User, creds.Password) {
-		logAndRespondDebug(w, "wrong password", http.StatusUnauthorized)
+		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 

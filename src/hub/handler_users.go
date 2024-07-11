@@ -156,7 +156,7 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.IsPasswordCorrect(form.User, form.OldPassword) {
-		logAndRespondDebug(w, "Password is not correct", http.StatusUnauthorized)
+		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
@@ -193,7 +193,7 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.IsPasswordCorrect(form.User, form.Password) {
-		logAndRespondDebug(w, "Password is not correct", http.StatusUnauthorized)
+		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 

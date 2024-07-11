@@ -83,7 +83,7 @@ func TestChangePassword(t *testing.T) {
 	assert.Nil(t, hub.ChangePassword(newPassword))
 	err := hub.login()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "wrong password"), err.Error())
+	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
 
 	hub.Password = newPassword
 	err = hub.login()
@@ -99,7 +99,7 @@ func TestChangeOrigin(t *testing.T) {
 	assert.Nil(t, hub.ChangeOrigin(newOrigin))
 	err := hub.createApp()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching", err.Error())
+	assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
 
 	hub.Origin = newOrigin
 	err = hub.createApp()
