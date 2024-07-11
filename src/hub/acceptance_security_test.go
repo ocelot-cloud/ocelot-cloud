@@ -159,6 +159,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
 }
 
+// TODO Re-check if those tests are also needed/applied by the other hub client functions above.
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
