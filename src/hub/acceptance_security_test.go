@@ -156,7 +156,9 @@ func TestDeleteAppSecurity(t *testing.T) {
 func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// TODO
-	print(hub)
+	testInputInvalidation(t, hub, "invalid-user", UserField, UploadTag)
+	//testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
+	//testInputInvalidation(t, hub, "invalid-tag", TagField, UploadTag)
 }
 
 func TestDeleteTagSecurity(t *testing.T) {
@@ -264,6 +266,8 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assertInvalidInputError(t, hub.login())
 	case DeleteApp:
 		assertInvalidInputError(t, hub.deleteApp())
+	case UploadTag:
+		assertInvalidInputError(t, hub.uploadTag())
 	default:
 		panic("Unsupported operation")
 	}
@@ -285,6 +289,7 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case UserField:
 		originalValue = hub.User
 		hub.User = value
+		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
 	case EmailField:
 		originalValue = hub.Email
 		hub.Email = value
@@ -294,6 +299,7 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case AppField:
 		originalValue = hub.App
 		hub.App = value
+		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
 	case TagField, TagFilenameField:
 		originalValue = hub.Tag
 		hub.Tag = value
