@@ -143,24 +143,25 @@ func TestCreateAppSecurity(t *testing.T) {
 
 func TestDeleteAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	hub.User += "x"
-	err := hub.deleteApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "deletion of apps not belonging to you is not allowed"), err.Error())
-	hub.User = sampleUser
+
+	disallowActionOnOtherUsers(t, hub, hub.deleteApp, "deletion of apps not belonging to you is not allowed")
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, DeleteApp)
 	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
 }
 
+func disallowActionOnOtherUsers(t *testing.T, hub *HubClient, operation func() error, expectedRespMsg string) {
+	hub.User += "x"
+	err := operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(401, expectedRespMsg), err.Error())
+	hub.User = sampleUser
+}
+
 func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	hub.User += "x"
-	err := hub.uploadTag()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "upload of tags not belonging to you is not allowed"), err.Error())
-	hub.User = sampleUser
+	disallowActionOnOtherUsers(t, hub, hub.uploadTag, "upload of tags not belonging to you is not allowed")
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, UploadTag)
 	testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
@@ -170,11 +171,7 @@ func TestUploadTagSecurity(t *testing.T) {
 func TestDeleteTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	hub.User += "x"
-	err := hub.deleteTag()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "deleting tags not belonging to you is not allowed"), err.Error())
-	hub.User = sampleUser
+	disallowActionOnOtherUsers(t, hub, hub.deleteTag, "deleting tags not belonging to you is not allowed")
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, DeleteTag)
 	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteTag)
