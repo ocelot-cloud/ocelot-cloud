@@ -157,7 +157,6 @@ func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
 	hub.User += "x"
-	// TODO I think it is easier to get rid of that hub.field, and build it only when necessary.
 	err := hub.uploadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "upload of tags not belonging to you is not allowed"), err.Error())
