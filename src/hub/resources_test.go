@@ -88,7 +88,7 @@ func getTagFileName(user string, app string, tag string) string {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "User registered\n", http.StatusOK, "POST", Register)
+	_, err := h.doRequest(registrationPath, form, "User registered\n", "POST", Register)
 	return err
 }
 
@@ -98,7 +98,7 @@ func (h *HubClient) login() error {
 		Password: h.Password,
 	}
 
-	result, err := h.doRequest(loginPath, creds, "login successful\n", http.StatusOK, "GET", Login)
+	result, err := h.doRequest(loginPath, creds, "login successful\n", "GET", Login)
 	if err != nil {
 		return err
 	}
@@ -117,11 +117,11 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, SingleString{h.User}, "User deleted\n", http.StatusOK, "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, SingleString{h.User}, "User deleted\n", "DELETE", DeleteUser)
 	return err
 }
 
-func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, expectedStatusCode int, method string, operation Operation) (interface{}, error) {
+func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, method string, operation Operation) (interface{}, error) {
 	url := rootUrl + path
 
 	/* TODO
@@ -148,7 +148,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Failed to send request: %v", err)
 	}
 
-	respBody, err := processResponse(resp, expectedStatusCode)
+	respBody, err := processResponse(resp, http.StatusOK)
 	if err != nil {
 		return nil, err
 	}
@@ -198,12 +198,12 @@ func processResponse(resp *http.Response, expectedStatusCode int) ([]byte, error
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "app created\n", http.StatusOK, "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "app created\n", "POST", CreateApp)
 	return err
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
-	result, err := h.doRequest(appPath, SingleString{searchTerm}, "", http.StatusOK, "GET", FindApps)
+	result, err := h.doRequest(appPath, SingleString{searchTerm}, "", "GET", FindApps)
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +269,7 @@ func (h *HubClient) uploadTag() error {
 }
 
 func (h *HubClient) downloadApp() (string, error) {
-	result, err := h.doRequest(downloadPath+h.TagFilename, nil, "", http.StatusOK, "GET", DownloadApp)
+	result, err := h.doRequest(downloadPath+h.TagFilename, nil, "", "GET", DownloadApp)
 	if err != nil {
 		return "", err
 	}
@@ -289,7 +289,7 @@ func (h *HubClient) getTags() ([]string, error) {
 		App:  h.App,
 	}
 
-	result, err := h.doRequest(tagPath, usernameAndApp, "", http.StatusOK, "GET", GetTags)
+	result, err := h.doRequest(tagPath, usernameAndApp, "", "GET", GetTags)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +315,7 @@ func (h *HubClient) deleteTag() error {
 		Tag:  h.Tag,
 	}
 	// TODO check expected message
-	_, err := h.doRequest(tagPath, tagInfo, "", http.StatusOK, "DELETE", DeleteTag)
+	_, err := h.doRequest(tagPath, tagInfo, "", "DELETE", DeleteTag)
 	return err
 }
 
@@ -324,7 +324,7 @@ func (h *HubClient) deleteApp() error {
 		User: h.User,
 		App:  h.App,
 	}
-	_, err := h.doRequest(appPath, appInfo, "app deleted\n", http.StatusOK, "DELETE", DeleteApp)
+	_, err := h.doRequest(appPath, appInfo, "app deleted\n", "DELETE", DeleteApp)
 	return err
 }
 
@@ -335,7 +335,7 @@ func (h *HubClient) ChangePassword(newPassword string) error {
 		NewPassword: newPassword,
 	}
 
-	_, err := h.doRequest(changePasswordPath, form, "password changed\n", http.StatusOK, "POST", ChangePassword)
+	_, err := h.doRequest(changePasswordPath, form, "password changed\n", "POST", ChangePassword)
 	return err
 }
 
@@ -346,7 +346,7 @@ func (h *HubClient) ChangeOrigin(newOrigin string) error {
 		NewOrigin: newOrigin,
 	}
 
-	_, err := h.doRequest(changeOriginPath, form, "origin changed\n", http.StatusOK, "POST", ChangeOrigin)
+	_, err := h.doRequest(changeOriginPath, form, "origin changed\n", "POST", ChangeOrigin)
 	return err
 }
 
@@ -361,6 +361,6 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.doRequest(wipeDataPath, nil, "wipe completed\n", http.StatusOK, "GET", WipeData)
+	_, err := h.doRequest(wipeDataPath, nil, "wipe completed\n", "GET", WipeData)
 	return err
 }
