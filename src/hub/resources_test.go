@@ -88,7 +88,7 @@ func getTagFileName(user string, app string, tag string) string {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "User registered\n", http.StatusCreated, "POST", Register)
+	_, err := h.doRequest(registrationPath, form, "User registered\n", http.StatusOK, "POST", Register)
 	return err
 }
 

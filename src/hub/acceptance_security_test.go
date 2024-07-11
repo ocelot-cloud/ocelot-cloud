@@ -214,7 +214,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 	case Register:
 		err := hub.registerUser()
 		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 201, but got 400. Response body: invalid input\n", err.Error())
+		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 	case GetTags:
 		_, err := hub.getTags()
 		assert.NotNil(t, err)

@@ -128,7 +128,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logAndRespondDebug(w, "User registered", http.StatusCreated)
+	logAndRespondDebug(w, "User registered", http.StatusOK)
 }
 
 type ChangePasswordForm struct {
