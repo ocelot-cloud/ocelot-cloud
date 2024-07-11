@@ -40,6 +40,11 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !validate(tagInfo.User, User) || !validate(tagInfo.App, App) || !validate(tagInfo.Tag, Tag) {
+		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
 	fs.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag) // TODO make it return an error.
 	err = repo.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	if err != nil {

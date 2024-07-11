@@ -169,8 +169,12 @@ func TestUploadTagSecurity(t *testing.T) {
 
 func TestDeleteTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	// TODO
-	print(hub)
+
+	// TODO check if owner of tag is equal to the cookie user
+
+	testInputInvalidation(t, hub, "invalid-user", UserField, DeleteTag)
+	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteTag)
+	testInputInvalidation(t, hub, "invalid-tag", TagField, DeleteTag)
 }
 
 // TODO test: update expiration date when calling middleware
@@ -273,6 +277,8 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assertInvalidInputError(t, hub.deleteApp())
 	case UploadTag:
 		assertInvalidInputError(t, hub.uploadTag())
+	case DeleteTag:
+		assertInvalidInputError(t, hub.deleteTag())
 	default:
 		panic("Unsupported operation")
 	}
