@@ -50,7 +50,6 @@ type HubClient struct {
 	App             string
 	Cookie          *http.Cookie
 	Tag             string
-	TagFilename     string
 	SetOriginHeader bool
 	SetCookieHeader bool
 	UploadContent   string
@@ -73,7 +72,6 @@ func getHub() *HubClient {
 		Email:           sampleEmail,
 		App:             sampleApp,
 		Tag:             sampleTag,
-		TagFilename:     getTagFileName(sampleUser, sampleApp, sampleTag),
 		SetOriginHeader: true,
 		SetCookieHeader: true,
 		UploadContent:   sampleTagFileContent,
@@ -233,7 +231,7 @@ func (h *HubClient) uploadTag() error {
 	fileBuffer := bytes.NewBuffer(fileContent)
 
 	url := rootUrl + tagPath
-	filename := h.TagFilename
+	filename := getTagFileName(h.User, h.App, h.Tag)
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -275,7 +273,8 @@ func (h *HubClient) uploadTag() error {
 }
 
 func (h *HubClient) downloadApp() (string, error) {
-	result, err := h.doRequest(downloadPath+h.TagFilename, nil, "", "GET", DownloadApp)
+	tagFileName := getTagFileName(h.User, h.App, h.Tag)
+	result, err := h.doRequest(downloadPath+tagFileName, nil, "", "GET", DownloadApp)
 	if err != nil {
 		return "", err
 	}

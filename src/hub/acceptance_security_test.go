@@ -158,12 +158,10 @@ func TestUploadTagSecurity(t *testing.T) {
 
 	hub.User += "x"
 	// TODO I think it is easier to get rid of that hub.field, and build it only when necessary.
-	hub.TagFilename = getTagFileName(hub.User, hub.App, hub.Tag)
 	err := hub.uploadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "upload of tags not belonging to you is not allowed"), err.Error())
 	hub.User = sampleUser
-	hub.TagFilename = getTagFileName(sampleUser, sampleApp, sampleTag)
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, UploadTag)
 	testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
@@ -297,7 +295,6 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case UserField:
 		originalValue = hub.User
 		hub.User = value
-		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
 	case EmailField:
 		originalValue = hub.Email
 		hub.Email = value
@@ -307,11 +304,9 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case AppField:
 		originalValue = hub.App
 		hub.App = value
-		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
 	case TagField:
 		originalValue = hub.Tag
 		hub.Tag = value
-		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
 	default:
 		panic("Unsupported field type")
 	}
