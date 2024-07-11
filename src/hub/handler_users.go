@@ -17,11 +17,13 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 
 // TODO Everywhere: replace "auth" by cookieName
 
+// TODO put it in handler_tools
 func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusUnauthorized)
-		return "", err
+		Logger.Debug("cookie not set in request: %s", err.Error())
+		logAndRespondDebug(w, "cookie not set in request", http.StatusUnauthorized)
+		return "", fmt.Errorf("")
 	}
 
 	if !validate(cookie.Value, Cookie) {

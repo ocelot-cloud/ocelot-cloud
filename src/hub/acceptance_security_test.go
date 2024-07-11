@@ -147,6 +147,10 @@ func TestDeleteAppSecurity(t *testing.T) {
 	err := hub.deleteApp()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "deletion of apps not belonging to you is not allowed"), err.Error())
+	hub.User = sampleUser
+
+	//testInputInvalidation(t, hub, "invalid-user", UserField, DeleteApp)
+	//testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
 }
 
 // TODO test: update expiration date when calling middleware
@@ -174,7 +178,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 
 	err := operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "http: named cookie not present"), err.Error())
+	assert.Equal(t, getErrMsg(401, "cookie not set in request"), err.Error())
 
 	hub.SetCookieHeader = true
 	hub.Cookie.Value = "some-invalid-cookie-value"
@@ -245,6 +249,8 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assertInvalidInputError(t, hub.ChangePassword(hub.Password))
 	case Login:
 		assertInvalidInputError(t, hub.login())
+	case DeleteApp:
+		assertInvalidInputError(t, hub.deleteApp())
 	default:
 		panic("Unsupported operation")
 	}
