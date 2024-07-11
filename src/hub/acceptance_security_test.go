@@ -141,88 +141,13 @@ func TestDeleteUserSecurity(t *testing.T) {
 
 // TODO test: update expiration date when calling middleware
 func TestCookieAndHostProtection(t *testing.T) {
-	hub := getHubAndLogin(t)
-
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
-
-	err := hub.deleteUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
-
-	hub.SetCookieHeader = true
-	hub.Cookie.Value = "some-invalid-cookie-value"
-
-	err = hub.deleteUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie\n", err.Error())
-
-	err = hub.login()
-	assert.Nil(t, err)
-	hub.Origin = "http:/single-slash-invalid-origin"
-	err = hub.deleteUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin\n", err.Error())
-
-	hub.SetOriginHeader = true
-	hub.Origin = "http://valid-but-incorrect-origin.com"
-	err = hub.deleteUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
-	hub.Origin = sampleOrigin
-
+	var hub *HubClient = getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.
-	hub = getHub()
 	hub.User = "expirationtestuser" // TODO Abstract duplication
-	hub.Password = samplePassword
 	assert.Nil(t, hub.registerUser())
-	err = hub.login()
-	assert.Nil(t, err)
-	err = hub.deleteUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
-	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
-
-	// TODO second function test, almost identical, to be abstracted
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
-
-	err = hub.createApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
-
-	hub.SetCookieHeader = true
-	hub.Cookie.Value = "some-invalid-cookie-value"
-
-	err = hub.createApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie\n", err.Error())
-
-	err = hub.login()
-	assert.Nil(t, err)
-	hub.Origin = "http:/single-slash-invalid-origin"
-	err = hub.createApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin\n", err.Error())
-
-	hub.SetOriginHeader = true
-	hub.Origin = "http://valid-but-incorrect-origin.com"
-	err = hub.createApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
-	hub.Origin = sampleOrigin
-
-	// There is some specific logic for this user in the production code when handling cookie.
-	hub = getHub()
-	hub.User = "expirationtestuser" // TODO Abstract duplication
-	hub.Password = samplePassword
-	assert.Nil(t, hub.registerUser())
-	err = hub.login()
-	assert.Nil(t, err)
-	err = hub.createApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
-	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
+	hub.User = sampleUser
+	executeAndCheckError(t, hub, hub.deleteUser)
+	executeAndCheckError(t, hub, hub.createApp)
 
 	/*
 		DeleteUser
@@ -231,6 +156,45 @@ func TestCookieAndHostProtection(t *testing.T) {
 		UploadTag
 		DeleteTag
 	*/
+}
+
+func executeAndCheckError(t *testing.T, hub *HubClient, operation func() error) {
+	hub.SetCookieHeader = false
+	hub.SetOriginHeader = false
+
+	err := operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
+
+	hub.SetCookieHeader = true
+	hub.Cookie.Value = "some-invalid-cookie-value"
+
+	err = operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie\n", err.Error())
+
+	err = hub.login()
+	assert.Nil(t, err)
+	hub.Origin = "http:/single-slash-invalid-origin"
+	err = operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin\n", err.Error())
+
+	hub.SetOriginHeader = true
+	hub.Origin = "http://valid-but-incorrect-origin.com"
+	err = operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
+	hub.Origin = sampleOrigin
+
+	hub.User = "expirationtestuser"
+	err = hub.login()
+	assert.Nil(t, err)
+	err = operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
+	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
+	hub.User = sampleUser
 }
 
 type FieldType int
