@@ -140,6 +140,8 @@ func TestCreateAppSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-app", AppField, CreateApp)
 }
 
+// TODO I think I dont need to send the user to the hub at all, since his name can be recovered from DB via cookie.
+
 func TestDeleteAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
