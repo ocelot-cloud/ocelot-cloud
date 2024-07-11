@@ -358,9 +358,7 @@ func (h *HubClient) ChangeOrigin(newOrigin string) error {
 
 func getHubAndLogin(t *testing.T) *HubClient {
 	hub := getHub()
-
 	assert.Nil(t, hub.registerUser())
-
 	err := hub.login()
 	assert.Nil(t, err)
 	return hub

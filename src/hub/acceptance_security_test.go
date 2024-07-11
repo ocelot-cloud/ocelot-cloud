@@ -155,7 +155,16 @@ func TestDeleteAppSecurity(t *testing.T) {
 
 func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	// TODO
+
+	hub.User += "x"
+	// TODO I think it is easier to get rid of that hub.field, and build it only when necessary.
+	hub.TagFilename = getTagFileName(hub.User, hub.App, hub.Tag)
+	err := hub.uploadTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(401, "upload of tags not belonging to you is not allowed"), err.Error())
+	hub.User = sampleUser
+	hub.TagFilename = getTagFileName(sampleUser, sampleApp, sampleTag)
+
 	testInputInvalidation(t, hub, "invalid-user", UserField, UploadTag)
 	testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
 	testInputInvalidation(t, hub, "invalid-tag", TagField, UploadTag)

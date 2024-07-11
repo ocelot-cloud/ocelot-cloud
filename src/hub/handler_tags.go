@@ -72,7 +72,7 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
-	_, err := middleware(w, r)
+	authenticatedUser, err := middleware(w, r)
 	if err != nil {
 		return
 	}
@@ -105,6 +105,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// TODO Remove filename from info? Then no validation necessary.
 	if !validate(fileInfo.User, User) || !validate(fileInfo.App, App) || !validate(fileInfo.Tag, Tag) {
 		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if authenticatedUser != fileInfo.User {
+		logAndRespondDebug(w, "upload of tags not belonging to you is not allowed", http.StatusUnauthorized)
 		return
 	}
 
