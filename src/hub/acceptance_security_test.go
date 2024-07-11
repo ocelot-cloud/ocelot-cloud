@@ -149,8 +149,8 @@ func TestDeleteAppSecurity(t *testing.T) {
 	assert.Equal(t, getErrMsg(401, "deletion of apps not belonging to you is not allowed"), err.Error())
 	hub.User = sampleUser
 
-	//testInputInvalidation(t, hub, "invalid-user", UserField, DeleteApp)
-	//testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
+	testInputInvalidation(t, hub, "invalid-user", UserField, DeleteApp)
+	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
 }
 
 // TODO test: update expiration date when calling middleware
@@ -255,7 +255,6 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		panic("Unsupported operation")
 	}
 
-	hub.deleteUser()
 	returnCurrentValueAndSetField(hub, fieldType, originalValue)
 }
 
