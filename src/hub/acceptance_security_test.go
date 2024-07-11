@@ -149,6 +149,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 
 	executeAndCheckError(t, hub, hub.deleteUser)
 	executeAndCheckError(t, hub, hub.createApp)
+	executeAndCheckError(t, hub, hub.deleteApp)
 
 	/*
 		DeleteUser
