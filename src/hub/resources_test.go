@@ -140,12 +140,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if h.SetOriginHeader {
-		req.Header.Set("Origin", h.Origin)
-	}
-	if h.SetCookieHeader && h.Cookie != nil {
-		req.AddCookie(h.Cookie)
-	}
+	setCookieAndOriginHeaders(req, h)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -168,6 +163,15 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return respBody, nil
 	} else {
 		return nil, nil
+	}
+}
+
+func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
+	if h.SetOriginHeader {
+		req.Header.Set("Origin", h.Origin)
+	}
+	if h.SetCookieHeader && h.Cookie != nil {
+		req.AddCookie(h.Cookie)
 	}
 }
 
@@ -242,6 +246,7 @@ func (h *HubClient) uploadTag() error {
 		return err
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
+	setCookieAndOriginHeaders(req, h)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -250,9 +255,16 @@ func (h *HubClient) uploadTag() error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Expected status code %d, but got %d", http.StatusOK, resp.StatusCode)
+	respBody, err := processResponse(resp, http.StatusOK)
+	if err != nil {
+		return err
 	}
+
+	expectedMessage := "file uploaded successfully\n"
+	if string(respBody) != expectedMessage {
+		return fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
+	}
+
 	return nil
 }
 

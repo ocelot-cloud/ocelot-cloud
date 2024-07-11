@@ -67,6 +67,11 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
+	_, err := middleware(w, r)
+	if err != nil {
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return

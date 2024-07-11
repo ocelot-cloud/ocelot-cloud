@@ -147,9 +147,10 @@ func TestCookieAndHostProtection(t *testing.T) {
 	assert.Nil(t, hub.registerUser())
 	hub.User = sampleUser
 
-	executeAndCheckError(t, hub, hub.deleteUser)
-	executeAndCheckError(t, hub, hub.createApp)
-	executeAndCheckError(t, hub, hub.deleteApp)
+	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
+	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
+	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
+	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag)
 
 	/*
 		DeleteUser
@@ -160,7 +161,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	*/
 }
 
-func executeAndCheckError(t *testing.T, hub *HubClient, operation func() error) {
+func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
