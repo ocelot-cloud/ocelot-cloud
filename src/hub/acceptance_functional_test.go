@@ -4,7 +4,6 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
-	"net/http"
 	"testing"
 	"time"
 )
@@ -84,7 +83,7 @@ func TestChangePassword(t *testing.T) {
 	assert.Nil(t, hub.ChangePassword(newPassword))
 	err := hub.login()
 	assert.NotNil(t, err)
-	assert.Equal(t, getRequestErrorMsg(http.StatusUnauthorized, "wrong password"), err.Error())
+	assert.Equal(t, getErrMsg(401, "wrong password"), err.Error())
 
 	hub.Password = newPassword
 	err = hub.login()

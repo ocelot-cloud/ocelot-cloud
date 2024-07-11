@@ -186,7 +186,7 @@ func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Expected status code 200, but got %d. Also failed to read response body: %v", resp.StatusCode, err)
 		}
-		errorMessage := getRequestErrorMsg(resp.StatusCode, string(respBody))
+		errorMessage := getErrMsg(resp.StatusCode, string(respBody))
 		trimmedStr := strings.TrimSuffix(errorMessage, "\n")
 		return nil, fmt.Errorf(trimmedStr)
 	}
@@ -199,7 +199,7 @@ func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
 	return respBody, nil
 }
 
-func getRequestErrorMsg(actualStatusCode int, respBodyMsg string) string {
+func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 	return fmt.Sprintf("Expected status code 200, but got %d. Response body: %s", actualStatusCode, respBodyMsg)
 }
 
