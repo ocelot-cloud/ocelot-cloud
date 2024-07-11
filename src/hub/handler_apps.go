@@ -19,7 +19,7 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	// TODO Only authenticated user can delete his own app + security test
-	_, err := middleware(w, r)
+	authenticatedUser, err := middleware(w, r)
 	if err != nil {
 		return
 	}
@@ -27,6 +27,12 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	appInfo, err := readBody[AppInfo](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if authenticatedUser != appInfo.User {
+		logAndRespondDebug(w, "deletion of apps not belonging to you is not allowed", http.StatusUnauthorized)
+		return
 	}
 
 	err = fs.DeleteApp(appInfo.User, appInfo.App)

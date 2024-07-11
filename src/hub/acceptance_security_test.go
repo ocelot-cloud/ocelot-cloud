@@ -141,6 +141,14 @@ func TestCreateAppSecurity(t *testing.T) {
 	print(hub)
 }
 
+func TestDeleteAppSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	hub.User += "x"
+	err := hub.deleteApp()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(401, "deletion of apps not belonging to you is not allowed"), err.Error())
+}
+
 // TODO test: update expiration date when calling middleware
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
