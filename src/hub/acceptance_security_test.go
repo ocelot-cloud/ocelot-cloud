@@ -157,8 +157,8 @@ func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// TODO
 	testInputInvalidation(t, hub, "invalid-user", UserField, UploadTag)
-	//testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
-	//testInputInvalidation(t, hub, "invalid-tag", TagField, UploadTag)
+	testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
+	testInputInvalidation(t, hub, "invalid-tag", TagField, UploadTag)
 }
 
 func TestDeleteTagSecurity(t *testing.T) {
@@ -240,7 +240,6 @@ const (
 	OriginField
 	AppField
 	TagField
-	TagFilenameField
 )
 
 func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fieldType FieldType, operation Operation) {
@@ -300,7 +299,7 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 		originalValue = hub.App
 		hub.App = value
 		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
-	case TagField, TagFilenameField:
+	case TagField:
 		originalValue = hub.Tag
 		hub.Tag = value
 		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
