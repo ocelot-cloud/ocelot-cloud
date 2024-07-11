@@ -29,7 +29,7 @@ type TagInfo struct {
 }
 
 func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
-	_, err := middleware(w, r)
+	authenticatedUser, err := middleware(w, r)
 	if err != nil {
 		return
 	}
@@ -42,6 +42,11 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 
 	if !validate(tagInfo.User, User) || !validate(tagInfo.App, App) || !validate(tagInfo.Tag, Tag) {
 		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if authenticatedUser != tagInfo.User {
+		logAndRespondDebug(w, "deleting tags not belonging to you is not allowed", http.StatusUnauthorized)
 		return
 	}
 

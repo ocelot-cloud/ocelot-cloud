@@ -170,7 +170,11 @@ func TestUploadTagSecurity(t *testing.T) {
 func TestDeleteTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	// TODO check if owner of tag is equal to the cookie user
+	hub.User += "x"
+	err := hub.deleteTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(401, "deleting tags not belonging to you is not allowed"), err.Error())
+	hub.User = sampleUser
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, DeleteTag)
 	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteTag)
