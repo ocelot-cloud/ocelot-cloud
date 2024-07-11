@@ -23,8 +23,6 @@ func createFileInfo(filename string) (*FileInfo, error) {
 	var info = &FileInfo{}
 	info.User = infos[0]
 	info.App = infos[1]
-	// TODO consider error here and test it.
-	info.FileName = infos[2]
 	info.Tag, _ = strings.CutSuffix(infos[2], ".tar.gz")
 	return info, nil
 }
@@ -55,10 +53,9 @@ func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
 }
 
 type FileInfo struct {
-	User     string
-	App      string
-	Tag      string
-	FileName string
+	User string
+	App  string
+	Tag  string
 }
 
 var fs FileStorage = &FileStorageImpl{}

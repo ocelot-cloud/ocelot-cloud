@@ -102,7 +102,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Remove filename from info? Then no validation necessary.
 	if !validate(fileInfo.User, User) || !validate(fileInfo.App, App) || !validate(fileInfo.Tag, Tag) {
 		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
 		return
