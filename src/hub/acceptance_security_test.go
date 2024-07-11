@@ -141,11 +141,12 @@ func TestDeleteUserSecurity(t *testing.T) {
 
 // TODO test: update expiration date when calling middleware
 func TestCookieAndHostProtection(t *testing.T) {
-	var hub *HubClient = getHubAndLogin(t)
+	hub := getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.
 	hub.User = "expirationtestuser" // TODO Abstract duplication
 	assert.Nil(t, hub.registerUser())
 	hub.User = sampleUser
+
 	executeAndCheckError(t, hub, hub.deleteUser)
 	executeAndCheckError(t, hub, hub.createApp)
 
