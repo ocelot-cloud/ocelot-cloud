@@ -150,6 +150,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	// TODO Check if anything is missing.
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
 	// TODO authorization checks missing for these functions:authenticated user can only apply this to entities he owns
+	// TODO input validation missing
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
@@ -167,7 +168,6 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 
 	hub.SetCookieHeader = true
 	hub.Cookie.Value = "some-invalid-cookie-value"
-
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie", err.Error())
@@ -185,6 +185,13 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.NotNil(t, err)
 	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching", err.Error())
 	hub.Origin = sampleOrigin
+
+	validButNonExistentCookie := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+	hub.Cookie.Value = validButNonExistentCookie
+	err = operation()
+	assert.NotNil(t, err)
+	assert.Equal(t, "Expected status code 200, but got 404. Response body: cookie not found", err.Error())
+	assert.Nil(t, hub.login())
 
 	hub.User = "expirationtestuser"
 	err = hub.login()

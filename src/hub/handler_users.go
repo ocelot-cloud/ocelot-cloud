@@ -15,9 +15,9 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
-	// TODO Everywhere: replace "auth" by cookieName
+// TODO Everywhere: replace "auth" by cookieName
 
+func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusUnauthorized)
@@ -37,8 +37,9 @@ func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
 	// TODO everytime I use "GetUserWithCookie" I should do validation previously. Everytime I do sth with the cookie in general.
 	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
-		return "", err
+		Logger.Debug("error when getting cookie of user: %s", err.Error())
+		http.Error(w, "cookie not found", http.StatusNotFound)
+		return "", fmt.Errorf("")
 	}
 
 	// TODO there should be a global variable "originHeader"
