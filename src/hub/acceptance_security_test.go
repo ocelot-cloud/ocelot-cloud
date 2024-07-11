@@ -198,7 +198,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Nil(t, err)
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired", err.Error())
+	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
 	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
 	hub.User = sampleUser
 }
