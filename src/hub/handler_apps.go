@@ -59,18 +59,6 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := r.Cookie(cookieName)
-	if err != nil || cookie == nil || cookie.Value == "" {
-		logAndRespondDebug(w, "Cookie not contained in request", http.StatusBadRequest)
-		return
-	}
-
-	// TODO Should be used by security policy logic, maybe?
-	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get("Origin")) {
-		logAndRespondDebug(w, "wrong origin", http.StatusUnauthorized)
-		return
-	}
-
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
