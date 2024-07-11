@@ -72,7 +72,7 @@ func TestChangeOriginSecurity(t *testing.T) {
 	hub.Password = correctlyFormattedButNotMatchingPassword
 	err := hub.ChangeOrigin(sampleOrigin)
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: Password is not correct\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: Password is not correct", err.Error())
 	hub.Password = samplePassword
 
 	testInputInvalidation(t, hub, "invalid-origin", OriginField, ChangeOrigin)
@@ -92,7 +92,7 @@ func TestChangePasswordSecurity(t *testing.T) {
 	hub.Password = correctlyFormattedButNotMatchingPassword
 	err := hub.ChangePassword(samplePassword)
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: Password is not correct\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: Password is not correct", err.Error())
 	hub.Password = samplePassword
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, ChangePassword)
@@ -102,7 +102,7 @@ func TestChangePasswordSecurity(t *testing.T) {
 	hub.Password = "invalid-old-password-ä"
 	err = hub.ChangePassword("new-valid-password")
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input", err.Error())
 	hub.Password = oldPassword
 }
 
@@ -124,7 +124,7 @@ func TestLoginSecurity(t *testing.T) {
 	hub.Password = correctlyFormattedButNotMatchingPassword
 	err = hub.login()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password", err.Error())
 	hub.Password = samplePassword
 }
 
@@ -135,7 +135,7 @@ func TestDeleteUserSecurity(t *testing.T) {
 	hub.User = sampleUser + "x"
 	err := hub.deleteUser()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: deletion of other users not allowed\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: deletion of other users not allowed", err.Error())
 	hub.User = sampleUser
 }
 
@@ -163,27 +163,27 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 
 	err := operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present", err.Error())
 
 	hub.SetCookieHeader = true
 	hub.Cookie.Value = "some-invalid-cookie-value"
 
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie", err.Error())
 
 	err = hub.login()
 	assert.Nil(t, err)
 	hub.Origin = "http:/single-slash-invalid-origin"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin", err.Error())
 
 	hub.SetOriginHeader = true
 	hub.Origin = "http://valid-but-incorrect-origin.com"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching", err.Error())
 	hub.Origin = sampleOrigin
 
 	hub.User = "expirationtestuser"
@@ -191,7 +191,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Nil(t, err)
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: cookie expired", err.Error())
 	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
 	hub.User = sampleUser
 }
@@ -239,7 +239,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 func assertInvalidInputError(t *testing.T, err error) {
 	assert.NotNil(t, err)
 	// TODO Resolve duplication.
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input", err.Error())
 }
 
 func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value string) string {

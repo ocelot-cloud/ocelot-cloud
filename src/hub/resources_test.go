@@ -186,7 +186,9 @@ func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Expected status code 200, but got %d. Also failed to read response body: %v", resp.StatusCode, err)
 		}
-		return nil, getRequestErrorMsg(resp.StatusCode, string(respBody))
+		errorMessage := getRequestErrorMsg(resp.StatusCode, string(respBody))
+		trimmedStr := strings.TrimSuffix(errorMessage, "\n")
+		return nil, fmt.Errorf(trimmedStr)
 	}
 
 	respBody, err := io.ReadAll(teeReader)
@@ -197,8 +199,8 @@ func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
 	return respBody, nil
 }
 
-func getRequestErrorMsg(actualStatusCode int, respBodyMsg string) error {
-	return fmt.Errorf("Expected status code 200, but got %d. Response body: %s", actualStatusCode, respBodyMsg)
+func getRequestErrorMsg(actualStatusCode int, respBodyMsg string) string {
+	return fmt.Sprintf("Expected status code 200, but got %d. Response body: %s", actualStatusCode, respBodyMsg)
 }
 
 func (h *HubClient) createApp() error {

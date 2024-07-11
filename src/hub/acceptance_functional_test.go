@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -83,7 +84,7 @@ func TestChangePassword(t *testing.T) {
 	assert.Nil(t, hub.ChangePassword(newPassword))
 	err := hub.login()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: wrong password\n", err.Error())
+	assert.Equal(t, getRequestErrorMsg(http.StatusUnauthorized, "wrong password"), err.Error())
 
 	hub.Password = newPassword
 	err = hub.login()
@@ -99,7 +100,7 @@ func TestChangeOrigin(t *testing.T) {
 	assert.Nil(t, hub.ChangeOrigin(newOrigin))
 	err := hub.createApp()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching\n", err.Error())
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching", err.Error())
 
 	hub.Origin = newOrigin
 	err = hub.createApp()
