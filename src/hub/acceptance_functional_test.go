@@ -105,5 +105,3 @@ func TestChangeOrigin(t *testing.T) {
 	err = hub.createApp()
 	assert.Nil(t, err)
 }
-
-// TODO assert that no other object should be send in body, should be nil, when IsCredentialsRequired == true
