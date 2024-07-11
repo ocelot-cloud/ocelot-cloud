@@ -164,33 +164,33 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 
 	err := operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 401. Response body: http: named cookie not present", err.Error())
+	assert.Equal(t, getErrMsg(401, "http: named cookie not present"), err.Error())
 
 	hub.SetCookieHeader = true
 	hub.Cookie.Value = "some-invalid-cookie-value"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid cookie", err.Error())
+	assert.Equal(t, getErrMsg(400, "invalid cookie"), err.Error())
 
 	err = hub.login()
 	assert.Nil(t, err)
 	hub.Origin = "http:/single-slash-invalid-origin"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid origin", err.Error())
+	assert.Equal(t, getErrMsg(400, "invalid origin"), err.Error())
 
 	hub.SetOriginHeader = true
 	hub.Origin = "http://valid-but-incorrect-origin.com"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 400. Response body: origin not matching", err.Error())
+	assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
 	hub.Origin = sampleOrigin
 
 	validButNonExistentCookie := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
 	hub.Cookie.Value = validButNonExistentCookie
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, "Expected status code 200, but got 404. Response body: cookie not found", err.Error())
+	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
 	assert.Nil(t, hub.login())
 
 	hub.User = "expirationtestuser"
