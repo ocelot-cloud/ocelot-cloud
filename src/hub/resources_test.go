@@ -186,7 +186,7 @@ func processResponse(resp *http.Response, expectedStatusCode int) ([]byte, error
 		if err != nil {
 			return nil, fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", expectedStatusCode, resp.StatusCode, err)
 		}
-		return nil, fmt.Errorf("Expected status code %d, but got %d. Response body: %s", expectedStatusCode, resp.StatusCode, string(respBody))
+		return nil, getRequestErrorMsg(resp.StatusCode, string(respBody))
 	}
 
 	respBody, err := io.ReadAll(teeReader)
@@ -195,6 +195,10 @@ func processResponse(resp *http.Response, expectedStatusCode int) ([]byte, error
 	}
 
 	return respBody, nil
+}
+
+func getRequestErrorMsg(actualStatusCode int, respBodyMsg string) error {
+	return fmt.Errorf("Expected status code 200, but got %d. Response body: %s", actualStatusCode, respBodyMsg)
 }
 
 func (h *HubClient) createApp() error {
