@@ -149,6 +149,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 
 	// TODO Check if anything is missing.
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
+	// TODO authorization checks missing for these functions:authenticated user can only apply this to entities he owns
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
