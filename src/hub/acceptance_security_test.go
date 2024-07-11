@@ -153,6 +153,18 @@ func TestDeleteAppSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
 }
 
+func TestUploadTagSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	// TODO
+	print(hub)
+}
+
+func TestDeleteTagSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	// TODO
+	print(hub)
+}
+
 // TODO test: update expiration date when calling middleware
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
@@ -226,6 +238,7 @@ const (
 	OriginField
 	AppField
 	TagField
+	TagFilenameField
 )
 
 func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fieldType FieldType, operation Operation) {
@@ -281,10 +294,10 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case AppField:
 		originalValue = hub.App
 		hub.App = value
-	case TagField:
+	case TagField, TagFilenameField:
 		originalValue = hub.Tag
 		hub.Tag = value
-		hub.TagFilename = getTagFileName(sampleUser, sampleApp, value)
+		hub.TagFilename = getTagFileName(hub.User, hub.App, value)
 	default:
 		panic("Unsupported field type")
 	}
