@@ -212,40 +212,34 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 
 	switch operation {
 	case Register:
-		err := hub.registerUser()
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+		assertInvalidInputError(t, hub.registerUser())
 	case GetTags:
 		_, err := hub.getTags()
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+		assertInvalidInputError(t, err)
 	case DownloadApp:
 		_, err := hub.downloadApp()
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: file name is invalid\n", err.Error())
+		assertInvalidInputError(t, err)
 	case FindApps:
 		_, err := hub.findApps(hub.App)
-		assert.NotNil(t, err)
-		// TODO Resolve duplication
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+		assertInvalidInputError(t, err)
 	case ChangeOrigin:
-		err := hub.ChangeOrigin(hub.Origin)
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+		assertInvalidInputError(t, hub.ChangeOrigin(hub.Origin))
 	case ChangePassword:
-		err := hub.ChangePassword(hub.Password)
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+		assertInvalidInputError(t, hub.ChangePassword(hub.Password))
 	case Login:
-		err := hub.login()
-		assert.NotNil(t, err)
-		assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
+		assertInvalidInputError(t, hub.login())
 	default:
 		panic("Unsupported operation")
 	}
 
 	hub.deleteUser()
 	returnCurrentValueAndSetField(hub, fieldType, originalValue)
+}
+
+func assertInvalidInputError(t *testing.T, err error) {
+	assert.NotNil(t, err)
+	// TODO Resolve duplication.
+	assert.Equal(t, "Expected status code 200, but got 400. Response body: invalid input\n", err.Error())
 }
 
 func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value string) string {

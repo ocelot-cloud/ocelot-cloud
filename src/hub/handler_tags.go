@@ -132,7 +132,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !validate(uploadName, TagFile) {
-		logAndRespondError(w, "file name is invalid", http.StatusBadRequest)
+		logAndRespondError(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
