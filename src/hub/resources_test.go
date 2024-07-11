@@ -19,10 +19,10 @@ var (
 	sampleTag                     = "v0.0.1"
 	singleUserDir                 = usersDir + "/" + sampleUser
 	appDir                        = singleUserDir + "/" + sampleApp
-	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag)
+	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag) // TODO To delete
 	sampleTagFileContent          = "hello"
 	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte("hello"))
-	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag, sampleFile}
+	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag}
 	sampleEmail                   = "testuser@example.com"
 	samplePassword                = "mypassword"
 	sampleOrigin                  = rootUrl
@@ -78,10 +78,6 @@ func getHub() *HubClient {
 	}
 	hub.wipeData()
 	return hub
-}
-
-func getTagFileName(user string, app string, tag string) string {
-	return strings.Join([]string{user, app, tag}, "_") + ".tar.gz"
 }
 
 func (h *HubClient) registerUser() error {

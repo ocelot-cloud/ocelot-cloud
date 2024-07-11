@@ -16,6 +16,9 @@ import (
 
 // TODO Create unit tests
 func createFileInfo(filename string) (*FileInfo, error) {
+	if !strings.HasSuffix(filename, ".tar.gz") {
+		return nil, fmt.Errorf("error, filename must end with .tar.gz")
+	}
 	infos := strings.Split(filename, "_")
 	if len(infos) != 3 {
 		return nil, fmt.Errorf("error, filenames should have exactly two underscores: %s", filename)
