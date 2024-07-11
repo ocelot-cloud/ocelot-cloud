@@ -128,17 +128,16 @@ func TestLoginSecurity(t *testing.T) {
 	hub.Password = samplePassword
 }
 
-// TODO Not finished yet.
 func TestDeleteUserSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	// TODO
+	// TODO I don't see any further security test cases, yet.
 	print(hub)
 }
 
 func TestCreateAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-	// TODO
-	print(hub)
+
+	testInputInvalidation(t, hub, "invalid-app", AppField, CreateApp)
 }
 
 func TestDeleteAppSecurity(t *testing.T) {
@@ -280,6 +279,8 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		assertInvalidInputError(t, hub.uploadTag())
 	case DeleteTag:
 		assertInvalidInputError(t, hub.deleteTag())
+	case CreateApp:
+		assertInvalidInputError(t, hub.createApp())
 	default:
 		panic("Unsupported operation")
 	}
