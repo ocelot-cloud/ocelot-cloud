@@ -71,35 +71,23 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	singleString, err := readBody[SingleString](r) // TODO username validation
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	userToDelete := singleString.Value
-
-	if authenticatedUser != userToDelete {
-		logAndRespondDebug(w, "deletion of other users not allowed", http.StatusUnauthorized)
-		return
-	}
-
-	if !repo.DoesUserExist(userToDelete) {
+	if !repo.DoesUserExist(authenticatedUser) {
 		logAndRespondError(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	err = fs.DeleteUser(userToDelete)
+	err = fs.DeleteUser(authenticatedUser)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = repo.DeleteUser(userToDelete)
+	err = repo.DeleteUser(authenticatedUser)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("Deleted user: %s", userToDelete)
+	Logger.Info("Deleted user: %s", authenticatedUser)
 
 	logAndRespondDebug(w, "User deleted", http.StatusOK)
 }

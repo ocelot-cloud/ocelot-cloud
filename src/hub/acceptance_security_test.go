@@ -131,12 +131,14 @@ func TestLoginSecurity(t *testing.T) {
 // TODO Not finished yet.
 func TestDeleteUserSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
+	// TODO
+	print(hub)
+}
 
-	hub.User = sampleUser + "x"
-	err := hub.deleteUser()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "deletion of other users not allowed"), err.Error())
-	hub.User = sampleUser
+func TestCreateAppSecurity(t *testing.T) {
+	hub := getHubAndLogin(t)
+	// TODO
+	print(hub)
 }
 
 // TODO test: update expiration date when calling middleware
@@ -147,9 +149,8 @@ func TestCookieAndHostProtection(t *testing.T) {
 	assert.Nil(t, hub.registerUser())
 	hub.User = sampleUser
 
-	// TODO Check if anything is missing.
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
-	// TODO authorization checks missing for these functions:authenticated user can only apply this to entities he owns
+	// TODO authorization checks missing for these functions: authenticated user can only apply this to entities he owns
 	// TODO input validation missing
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
@@ -245,7 +246,6 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 
 func assertInvalidInputError(t *testing.T, err error) {
 	assert.NotNil(t, err)
-	// TODO Resolve duplication.
 	assert.Equal(t, getErrMsg(400, "invalid input"), err.Error())
 }
 
