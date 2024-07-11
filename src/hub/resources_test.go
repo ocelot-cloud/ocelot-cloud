@@ -148,7 +148,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Failed to send request: %v", err)
 	}
 
-	respBody, err := processResponse(resp, http.StatusOK)
+	respBody, err := assertOkStatusAndExtractBody(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -175,16 +175,16 @@ func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
 	}
 }
 
-func processResponse(resp *http.Response, expectedStatusCode int) ([]byte, error) {
+func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
 	defer resp.Body.Close()
 
 	var bodyBuffer bytes.Buffer
 	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
 
-	if resp.StatusCode != expectedStatusCode {
+	if resp.StatusCode != http.StatusOK {
 		respBody, err := io.ReadAll(teeReader)
 		if err != nil {
-			return nil, fmt.Errorf("Expected status code %d, but got %d. Also failed to read response body: %v", expectedStatusCode, resp.StatusCode, err)
+			return nil, fmt.Errorf("Expected status code 200, but got %d. Also failed to read response body: %v", resp.StatusCode, err)
 		}
 		return nil, getRequestErrorMsg(resp.StatusCode, string(respBody))
 	}
@@ -259,7 +259,7 @@ func (h *HubClient) uploadTag() error {
 	}
 	defer resp.Body.Close()
 
-	respBody, err := processResponse(resp, http.StatusOK)
+	respBody, err := assertOkStatusAndExtractBody(resp)
 	if err != nil {
 		return err
 	}
