@@ -222,6 +222,7 @@ func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 }
 
 // TODO In this commit I deleted some TODOs. Restore them.
+// TODO Use h.DoRequest for abstraction
 func (h *HubClient) uploadTag() error {
 	payload := &TagUpload{
 		App:     h.App,
@@ -265,8 +266,13 @@ func (h *HubClient) uploadTag() error {
 }
 
 func (h *HubClient) downloadApp() (string, error) {
-	tagFileName := getDownloadFileName(h.User, h.App, h.Tag)
-	result, err := h.doRequest(downloadPath+tagFileName, nil, "", "GET", DownloadApp)
+	fileInfo := &FileInfo{
+		User: h.User,
+		App:  h.App,
+		Tag:  h.Tag,
+	}
+
+	result, err := h.doRequest(downloadPath, fileInfo, "", "GET", DownloadApp)
 	if err != nil {
 		return "", err
 	}

@@ -131,6 +131,10 @@ func readBody[T any](r *http.Request) (T, error) {
 		if !validate(v.User, User) || !validate(v.App, App) {
 			return result, fmt.Errorf("invalid input")
 		}
+	case FileInfo:
+		if !validate(v.User, User) || !validate(v.App, App) || !validate(v.Tag, Tag) {
+			return result, fmt.Errorf("invalid input")
+		}
 	}
 
 	return result, nil

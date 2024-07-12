@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,22 +140,13 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	uploadName := strings.TrimPrefix(r.URL.Path, downloadPath)
-	if uploadName == "" {
-		logAndRespondError(w, "File name is missing", http.StatusBadRequest)
-		return
-	}
-
-	// TODO I think this should be handled via json, not a upload path.
-	fileInfo, err := createFileDownloadInfo(uploadName)
+	fileInfo, err := readBody[FileInfo](r)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		logAndRespondError(w, "Invalid JSON request body", http.StatusBadRequest)
 		return
 	}
 
-	// TODO Validate and re-enable test
-
-	path := fmt.Sprintf("%s/%s/%s/%s", usersDir, fileInfo.User, fileInfo.App, fileInfo.Tag+".tar.gz")
+	path := fmt.Sprintf("%s/%s/%s/%s.tar.gz", usersDir, fileInfo.User, fileInfo.App, fileInfo.Tag)
 	if _, err = os.Stat(path); os.IsNotExist(err) {
 		logAndRespondError(w, "File not found", http.StatusNotFound)
 		return
