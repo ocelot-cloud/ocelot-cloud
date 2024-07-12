@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
@@ -52,7 +51,7 @@ type HubClient struct {
 	Tag             string
 	SetOriginHeader bool
 	SetCookieHeader bool
-	UploadContent   string
+	UploadContent   []byte
 }
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
@@ -74,7 +73,7 @@ func getHub() *HubClient {
 		Tag:             sampleTag,
 		SetOriginHeader: true,
 		SetCookieHeader: true,
-		UploadContent:   sampleTagFileContent,
+		UploadContent:   []byte(sampleTagFileContent),
 	}
 	hub.wipeData()
 	return hub
@@ -222,30 +221,27 @@ func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 	return apps, nil
 }
 
+// TODO In this commit I deleted some TODOs. Restore them.
 func (h *HubClient) uploadTag() error {
-	fileContent := []byte(h.UploadContent)
-	fileBuffer := bytes.NewBuffer(fileContent)
+	payload := &TagUpload{
+		App:     h.App,
+		Tag:     h.Tag,
+		Content: h.UploadContent,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return Logger.LogAndReturnError("Error marshalling JSON payload: %v\n", err)
+	}
 
 	url := rootUrl + tagPath
-	filename := getUploadFileName(h.App, h.Tag)
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	part, err := writer.CreateFormFile("file", filename)
-	if err != nil {
-		return Logger.LogAndReturnError("Error creating file header: %v\n", err)
-	}
-
-	if _, err := io.Copy(part, fileBuffer); err != nil {
-		return Logger.LogAndReturnError("Error copying content: %v\n", err)
-	}
-	writer.Close()
+	body := bytes.NewBuffer(payloadBytes)
 
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", "application/json")
 	setCookieAndOriginHeaders(req, h)
 
 	client := &http.Client{}

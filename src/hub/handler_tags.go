@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -81,6 +81,12 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 	sendJsonResponse(w, tagsList)
 }
 
+type TagUpload struct {
+	App     string `json:"app"`
+	Tag     string `json:"tag"`
+	Content []byte `json:"content"`
+}
+
 func handleUpload(w http.ResponseWriter, r *http.Request) {
 	authenticatedUser, err := middleware(w, r)
 	if err != nil {
@@ -92,58 +98,38 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO I think this should be done when the other formalities like app/tag extraction/validation are done.
-	file, header, err := r.FormFile("file")
+	var tagUpload TagUpload
+	err = json.NewDecoder(r.Body).Decode(&tagUpload)
 	if err != nil {
-		logAndRespondError(w, "Failed to get file from request", http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
-
-	// TODO Add test
-	// TODO Make security test that user and repo are in the name correctly, and that both exist.
-	if !strings.HasSuffix(header.Filename, ".tar.gz") {
-		logAndRespondError(w, "Invalid file type", http.StatusBadRequest)
+		logAndRespondError(w, "Failed to decode JSON request", http.StatusBadRequest)
 		return
 	}
 
-	appAndTag, err := createAppAndTag(header.Filename)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if !validate(appAndTag.App, App) || !validate(appAndTag.Tag, Tag) {
+	if !validate(tagUpload.App, App) || !validate(tagUpload.Tag, Tag) {
 		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
-	if !repo.DoesAppExist(authenticatedUser, appAndTag.App) {
+	if !repo.DoesAppExist(authenticatedUser, tagUpload.App) {
 		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	if repo.DoesTagExist(authenticatedUser, appAndTag.App, appAndTag.Tag) {
+	if repo.DoesTagExist(authenticatedUser, tagUpload.App, tagUpload.Tag) {
 		logAndRespondDebug(w, "tag already exists", http.StatusConflict)
 		return
 	}
 
-	var fileBuffer bytes.Buffer
-	_, err = io.Copy(&fileBuffer, file)
-	if err != nil {
-		logAndRespondError(w, "Failed to read file content", http.StatusInternalServerError)
-		return
-	}
+	fileBuffer := bytes.NewBuffer(tagUpload.Content)
 
-	fileInfo := &FileInfo{authenticatedUser, appAndTag.App, appAndTag.Tag}
-	err = fs.CreateTag(fileInfo, &fileBuffer)
+	fileInfo := &FileInfo{authenticatedUser, tagUpload.App, tagUpload.Tag}
+	err = fs.CreateTag(fileInfo, fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return
 	}
 
-	// TODO Should take fileInfo structure as arg
-	err = repo.CreateTag(authenticatedUser, appAndTag.App, appAndTag.Tag)
+	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
