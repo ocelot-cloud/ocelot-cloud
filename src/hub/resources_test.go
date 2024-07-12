@@ -227,7 +227,7 @@ func (h *HubClient) uploadTag() error {
 	fileBuffer := bytes.NewBuffer(fileContent)
 
 	url := rootUrl + tagPath
-	filename := getTagFileName(h.User, h.App, h.Tag)
+	filename := getUploadFileName(h.App, h.Tag)
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -269,7 +269,7 @@ func (h *HubClient) uploadTag() error {
 }
 
 func (h *HubClient) downloadApp() (string, error) {
-	tagFileName := getTagFileName(h.User, h.App, h.Tag)
+	tagFileName := getDownloadFileName(h.User, h.App, h.Tag)
 	result, err := h.doRequest(downloadPath+tagFileName, nil, "", "GET", DownloadApp)
 	if err != nil {
 		return "", err

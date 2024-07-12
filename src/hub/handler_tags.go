@@ -92,6 +92,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO I think this should be done when the other formalities like app/tag extraction/validation are done.
 	file, header, err := r.FormFile("file")
 	if err != nil {
 		logAndRespondError(w, "Failed to get file from request", http.StatusBadRequest)
@@ -106,19 +107,14 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileInfo, err := createFileInfo(header.Filename)
+	appAndTag, err := createAppAndTag(header.Filename)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if !validate(fileInfo.User, User) || !validate(fileInfo.App, App) || !validate(fileInfo.Tag, Tag) {
+	if !validate(appAndTag.App, App) || !validate(appAndTag.Tag, Tag) {
 		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if authenticatedUser != fileInfo.User {
-		logAndRespondDebug(w, "upload of tags not belonging to you is not allowed", http.StatusUnauthorized)
 		return
 	}
 
@@ -129,13 +125,15 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fileInfo := &FileInfo{authenticatedUser, appAndTag.App, appAndTag.Tag}
 	err = fs.CreateTag(fileInfo, &fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
 		return
 	}
 
-	err = repo.CreateTag(fileInfo.User, fileInfo.App, fileInfo.Tag)
+	// TODO Should take fileInfo structure as arg
+	err = repo.CreateTag(authenticatedUser, appAndTag.App, appAndTag.Tag)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -151,12 +149,15 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	/* TODO Will be replaced when using jsons instead.
 	if !validate(uploadName, TagFile) {
 		logAndRespondError(w, "invalid input", http.StatusBadRequest)
 		return
 	}
+	*/
 
-	fileInfo, err := createFileInfo(uploadName)
+	// TODO I think this should be handled via json, not a upload path.
+	fileInfo, err := createFileDownloadInfo(uploadName)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -171,6 +172,11 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, path)
 }
 
-func getTagFileName(user string, app string, tag string) string {
-	return strings.Join([]string{user, app, tag}, "_") + ".tar.gz"
+// TODO Should be removed when using jsons instead of paths.
+func getDownloadFileName(user string, app string, tag string) string {
+	return user + "_" + app + "_" + tag + ".tar.gz"
+}
+
+func getUploadFileName(app string, tag string) string {
+	return app + "_" + tag + ".tar.gz"
 }

@@ -15,7 +15,29 @@ import (
 // TODO Only allowed when the target is the user itself. Cant upload stuff to other users.
 
 // TODO Create unit tests
-func createFileInfo(filename string) (*FileInfo, error) {
+func createAppAndTag(filename string) (*AppAndTag, error) {
+	if !strings.HasSuffix(filename, ".tar.gz") {
+		return nil, fmt.Errorf("error, filename must end with .tar.gz")
+	}
+	infos := strings.Split(filename, "_")
+	if len(infos) != 2 {
+		return nil, fmt.Errorf("error, filenames should have exactly two underscores: %s", filename)
+	}
+	var info = &AppAndTag{}
+	info.App = infos[0]
+	info.Tag, _ = strings.CutSuffix(infos[1], ".tar.gz")
+	return info, nil
+}
+
+// TODO To be removed, Should be "tag" info instead?
+type FileInfo struct {
+	User string `json:"user"`
+	App  string `json:"app"`
+	Tag  string `json:"tag"`
+}
+
+// TODO To be removed
+func createFileDownloadInfo(filename string) (*FileInfo, error) {
 	if !strings.HasSuffix(filename, ".tar.gz") {
 		return nil, fmt.Errorf("error, filename must end with .tar.gz")
 	}
@@ -55,10 +77,10 @@ func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
 	http.Error(w, msg, httpStatus)
 }
 
-type FileInfo struct {
-	User string
-	App  string
-	Tag  string
+// TODO Better name is TagName but this seems to already exist?
+type AppAndTag struct {
+	App string
+	Tag string
 }
 
 var fs FileStorage = &FileStorageImpl{}

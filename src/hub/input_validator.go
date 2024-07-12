@@ -54,12 +54,13 @@ func validate(input string, validationType ValidationType) bool {
 	return re.MatchString(input)
 }
 
+// TODO Where is this used? Is this necessary? -> validate(fileInfo.User, User)
 func validateTagFile(input string) bool {
-	fileInfo, err := createFileInfo(input)
+	fileInfo, err := createAppAndTag(input)
 	if err != nil {
 		return false
 	}
-	return validate(fileInfo.User, User) && validate(fileInfo.App, App) && validate(fileInfo.Tag, Tag)
+	return validate(fileInfo.App, App) && validate(fileInfo.Tag, Tag)
 }
 
 func validateOrigin(input string) bool {
