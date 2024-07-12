@@ -45,6 +45,10 @@ func TestCookie(t *testing.T) {
 func TestCreateApp(t *testing.T) {
 	hub := getHubAndLogin(t)
 
+	err := hub.deleteApp()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+
 	assert.Nil(t, hub.createApp())
 	foundApps, err := hub.findApps(sampleApp)
 	assert.Nil(t, err)
@@ -52,6 +56,10 @@ func TestCreateApp(t *testing.T) {
 	foundApp := foundApps[0]
 	assert.Equal(t, hub.User, foundApp.User)
 	assert.Equal(t, hub.App, foundApp.App)
+
+	err = hub.createApp()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(409, "app already exists"), err.Error())
 
 	assert.Nil(t, hub.deleteApp())
 	foundApps, err = hub.findApps(sampleApp)

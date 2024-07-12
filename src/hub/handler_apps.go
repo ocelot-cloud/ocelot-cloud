@@ -36,6 +36,13 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !repo.DoesAppExist(user, app) {
+		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	// Replace all "authenticatedUser" simply with "user"
+
 	err = fs.DeleteApp(user, app)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
