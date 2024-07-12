@@ -70,7 +70,18 @@ func TestCreateApp(t *testing.T) {
 func TestCreateTags(t *testing.T) {
 	hub := getHubAndLogin(t)
 
+	err := hub.uploadTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+
+	/* TODO
+	err = hub.deleteTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+	*/
+
 	assert.Nil(t, hub.createApp())
+
 	assert.Nil(t, hub.uploadTag())
 	tags, err := hub.getTags()
 	assert.Nil(t, err)

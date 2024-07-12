@@ -118,6 +118,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !doesAppExist(authenticatedUser, appAndTag.App) {
+		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
 	var fileBuffer bytes.Buffer
 	_, err = io.Copy(&fileBuffer, file)
 	if err != nil {
@@ -149,19 +154,14 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* TODO Will be replaced when using jsons instead.
-	if !validate(uploadName, TagFile) {
-		logAndRespondError(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-	*/
-
 	// TODO I think this should be handled via json, not a upload path.
 	fileInfo, err := createFileDownloadInfo(uploadName)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// TODO Validate and re-enable test
 
 	path := fmt.Sprintf("%s/%s/%s/%s", usersDir, fileInfo.User, fileInfo.App, fileInfo.Tag+".tar.gz")
 	if _, err = os.Stat(path); os.IsNotExist(err) {
