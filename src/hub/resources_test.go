@@ -224,45 +224,13 @@ func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 // TODO In this commit I deleted some TODOs. Restore them.
 // TODO Use h.DoRequest for abstraction
 func (h *HubClient) uploadTag() error {
-	payload := &TagUpload{
+	tapUpload := &TagUpload{
 		App:     h.App,
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return Logger.LogAndReturnError("Error marshalling JSON payload: %v\n", err)
-	}
-
-	url := rootUrl + tagPath
-	body := bytes.NewBuffer(payloadBytes)
-
-	req, err := http.NewRequest("POST", url, body)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	setCookieAndOriginHeaders(req, h)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := assertOkStatusAndExtractBody(resp)
-	if err != nil {
-		return err
-	}
-
-	expectedMessage := "file uploaded successfully\n"
-	if string(respBody) != expectedMessage {
-		return fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
-	}
-
-	return nil
+	_, err := h.doRequest(tagPath, tapUpload, "file uploaded successfully\n", "POST", UploadTag)
+	return err
 }
 
 func (h *HubClient) downloadApp() (string, error) {
