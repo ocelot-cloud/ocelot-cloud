@@ -128,15 +128,10 @@ func TestLoginSecurity(t *testing.T) {
 	hub.Password = samplePassword
 }
 
-func TestDeleteUserSecurity(t *testing.T) {
-	hub := getHubAndLogin(t)
-	// TODO I don't see any further security test cases, yet.
-	print(hub)
-}
+// TestDeleteUserSecurity is not necessary, since there are no further tests to conducted.
 
 func TestCreateAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-
 	testInputInvalidation(t, hub, "invalid-app", AppField, CreateApp)
 }
 
