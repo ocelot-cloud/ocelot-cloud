@@ -154,12 +154,3 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.ServeFile(w, r, path)
 }
-
-// TODO Should be removed when using jsons instead of paths.
-func getDownloadFileName(user string, app string, tag string) string {
-	return user + "_" + app + "_" + tag + ".tar.gz"
-}
-
-func getUploadFileName(app string, tag string) string {
-	return app + "_" + tag + ".tar.gz"
-}
