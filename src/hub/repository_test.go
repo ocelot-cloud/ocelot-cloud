@@ -173,27 +173,32 @@ func TestGetTagList(t *testing.T) {
 	foundTags, err := um.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
+	assert.False(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
 	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag))
 	foundTags, err = um.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
 	assert.Equal(t, sampleTag, foundTags[0])
+	assert.True(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
 	assert.Nil(t, um.DeleteTag(sampleUser, sampleApp, sampleTag))
 	foundTags, err = um.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
+	assert.False(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
 	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag))
 	foundTags, err = um.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
 	assert.Equal(t, sampleTag, foundTags[0])
+	assert.True(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 	assert.Nil(t, um.DeleteUser(sampleUser))
 	_, err = um.GetTagList(sampleUser, sampleApp)
 	assert.NotNil(t, err)
 	assert.True(t, strings.Contains(err.Error(), "user not found"))
+	assert.False(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 }
 
 func TestChangeRepoPassword(t *testing.T) {

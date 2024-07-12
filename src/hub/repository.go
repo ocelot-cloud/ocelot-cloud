@@ -82,6 +82,7 @@ type Repository interface {
 	ChangePassword(user string, newPassword string) error
 	ChangeOrigin(user string, newOrigin string) error
 	IsOriginCorrect(user string, origin string) bool
+	DoesTagExist(user string, app string, tag string) bool
 	WipeDatabase()
 }
 
@@ -413,4 +414,30 @@ func getUsers() []string {
 		usernames = append(usernames, userName)
 	}
 	return usernames
+}
+
+func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) bool {
+	userID, err := getUserId(user)
+	if err != nil {
+		Logger.Debug("getting user id failed")
+		return false
+	}
+
+	appID, err := getAppId(userID, app)
+	if err != nil {
+		Logger.Debug("getting app id failed")
+		return false
+	}
+
+	var exists bool
+	err = db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM tags WHERE app_id = ? AND tag_name = ?
+		);
+	`, appID, tag).Scan(&exists)
+	if err != nil {
+		Logger.Debug("error checking if tag exists")
+		return false
+	}
+	return exists
 }
