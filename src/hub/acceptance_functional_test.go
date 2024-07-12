@@ -8,8 +8,14 @@ import (
 	"time"
 )
 
-func TestFileUploadDownload(t *testing.T) {
+func TestTagDownload(t *testing.T) {
 	hub := getHubAndLogin(t)
+
+	/* TODO
+	_, err := hub.downloadApp()
+	assert.Nil(t, err)
+	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+	*/
 
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag())
