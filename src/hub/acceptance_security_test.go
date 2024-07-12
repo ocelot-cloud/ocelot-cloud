@@ -139,10 +139,6 @@ func TestCreateAppSecurity(t *testing.T) {
 
 func TestDeleteAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-
-	disallowActionOnOtherUsers(t, hub, hub.deleteApp, "deletion of apps not belonging to you is not allowed")
-
-	testInputInvalidation(t, hub, "invalid-user", UserField, DeleteApp)
 	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
 }
 

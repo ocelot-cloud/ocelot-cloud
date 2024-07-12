@@ -321,11 +321,7 @@ func (h *HubClient) deleteTag() error {
 }
 
 func (h *HubClient) deleteApp() error {
-	appInfo := &AppInfo{
-		User: h.User,
-		App:  h.App,
-	}
-	_, err := h.doRequest(appPath, appInfo, "app deleted\n", "DELETE", DeleteApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "app deleted\n", "DELETE", DeleteApp)
 	return err
 }
 
