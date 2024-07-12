@@ -123,6 +123,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if repo.DoesTagExist(authenticatedUser, appAndTag.App, appAndTag.Tag) {
+		logAndRespondDebug(w, "tag already exists", http.StatusConflict)
+		return
+	}
+
 	var fileBuffer bytes.Buffer
 	_, err = io.Copy(&fileBuffer, file)
 	if err != nil {

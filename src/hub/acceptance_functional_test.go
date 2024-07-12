@@ -77,11 +77,9 @@ func TestUploadTag(t *testing.T) {
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag())
 
-	/* TODO Previously, implement repo.DoesTagExist(...)
 	err = hub.uploadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(409, "tag already exists"), err.Error())
-	*/
 
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
