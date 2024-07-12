@@ -118,7 +118,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !doesAppExist(authenticatedUser, appAndTag.App) {
+	if !repo.DoesAppExist(authenticatedUser, appAndTag.App) {
 		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
 		return
 	}

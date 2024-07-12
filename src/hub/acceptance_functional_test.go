@@ -67,22 +67,22 @@ func TestCreateApp(t *testing.T) {
 	assert.Equal(t, 0, len(foundApps))
 }
 
-func TestCreateTags(t *testing.T) {
+func TestUploadTag(t *testing.T) {
 	hub := getHubAndLogin(t)
 
 	err := hub.uploadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
 
-	/* TODO
-	err = hub.deleteTag()
+	assert.Nil(t, hub.createApp())
+	assert.Nil(t, hub.uploadTag())
+
+	/* TODO Previously, implement repo.DoesTagExist(...)
+	err = hub.uploadTag()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+	assert.Equal(t, getErrMsg(409, "tag already exists"), err.Error())
 	*/
 
-	assert.Nil(t, hub.createApp())
-
-	assert.Nil(t, hub.uploadTag())
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
