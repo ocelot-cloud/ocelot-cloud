@@ -146,6 +146,16 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !repo.DoesAppExist(fileInfo.User, fileInfo.App) {
+		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesTagExist(fileInfo.User, fileInfo.App, fileInfo.Tag) {
+		logAndRespondDebug(w, "tag does not exist", http.StatusNotFound)
+		return
+	}
+
 	path := fmt.Sprintf("%s/%s/%s/%s.tar.gz", usersDir, fileInfo.User, fileInfo.App, fileInfo.Tag)
 	if _, err = os.Stat(path); os.IsNotExist(err) {
 		logAndRespondError(w, "File not found", http.StatusNotFound)
