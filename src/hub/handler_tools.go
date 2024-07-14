@@ -7,27 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 )
-
-// TODO Requires Auth
-// TODO Only allowed when the target is the user itself. Cant upload stuff to other users.
-
-// TODO Create unit tests
-func createAppAndTag(filename string) (*AppAndTag, error) {
-	if !strings.HasSuffix(filename, ".tar.gz") {
-		return nil, fmt.Errorf("error, filename must end with .tar.gz")
-	}
-	infos := strings.Split(filename, "_")
-	if len(infos) != 2 {
-		return nil, fmt.Errorf("error, filenames should have exactly two underscores: %s", filename)
-	}
-	var info = &AppAndTag{}
-	info.App = infos[0]
-	info.Tag, _ = strings.CutSuffix(infos[1], ".tar.gz")
-	return info, nil
-}
 
 func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	jsonData, err := json.Marshal(data)

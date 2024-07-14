@@ -41,8 +41,6 @@ func validate(input string, validationType ValidationType) bool {
 		re = passwordPattern
 	case Origin:
 		return validateOrigin(input)
-	case TagFile:
-		return validateTagFile(input)
 	case Email:
 		re = emailPattern
 	case Cookie:
@@ -52,15 +50,6 @@ func validate(input string, validationType ValidationType) bool {
 	}
 
 	return re.MatchString(input)
-}
-
-// TODO Where is this used? Is this necessary? -> validate(fileInfo.User, User)
-func validateTagFile(input string) bool {
-	fileInfo, err := createAppAndTag(input)
-	if err != nil {
-		return false
-	}
-	return validate(fileInfo.App, App) && validate(fileInfo.Tag, Tag)
 }
 
 func validateOrigin(input string) bool {
