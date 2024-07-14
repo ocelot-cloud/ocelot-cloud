@@ -54,7 +54,6 @@ func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
 	http.Error(w, msg, httpStatus)
 }
 
-// TODO Better name is TagName but this seems to already exist?
 type AppAndTag struct {
 	App string
 	Tag string
@@ -62,9 +61,6 @@ type AppAndTag struct {
 
 var fs FileStorage = &FileStorageImpl{}
 var repo Repository = &SqliteRepository{}
-
-// TODO All functions below require auth
-// TODO There must be a "login" handler. When credentials are correct, set a cookie header. -> usually browsers then send that cookie for all subsequent but I have to do that manually
 
 type SingleString struct {
 	Value string `json:"name"`
@@ -131,14 +127,7 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	return result, nil
 }
 
-// TODO Add security: auth, origin policy and according security tests
-// TODO auth: for required actions, some are public like findApps, reuse code from backend?
-// TODO origin policy: user creation requires "host" parameter, so all security relevant actions must have this "host" as "Origin" header
-// TODO changing the "host" parameter is not origin-protected, but requires password again.
-// TODO Add input validation: usernames only lower letters, lengths etc. And test trying to break this with according error messages.
 // TODO Restrict maximum space used by user to 10MB
-// TODO logging: 1) make sure folder "data" exists. If so, store logs in "data/logs.txt"
-// TODO store sqlite.db in "data" folder
 // TODO Introduce ENV variable "DISABLE_EMAIL_VERIFICATION", default is false.
 //  Disable for development. If enabled, I think I should throw an error if it
 //  did not got email stuff. If it got them, It will run a test to check whether
