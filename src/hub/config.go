@@ -7,7 +7,6 @@ import (
 
 var (
 	dataDir      = "data"
-	usersDir     = dataDir + "/users"
 	databaseFile = dataDir + "/sqlite.db"
 
 	Logger             shared.Logger

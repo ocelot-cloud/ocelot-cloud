@@ -7,19 +7,16 @@ import (
 )
 
 func init() {
-	createDataDir()
+	if _, err := os.Stat(dataDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
+			Logger.Error("Error creating data directory: %v. Terminating application.", err)
+			os.Exit(1)
+		}
+	}
 	Logger = shared.ProvideLogger() // TODO dataDir should be moved to "shared". ProvideLogger should create the logs.txt in dataDir
 }
 
 // TODO Should be put in shared folder. Also necessary for logger files.
-func createDataDir() {
-	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
-			Logger.Error("Error creating users directory: %v. Terminating application.", err)
-			os.Exit(1)
-		}
-	}
-}
 
 func main() {
 	initializeDatabase()
