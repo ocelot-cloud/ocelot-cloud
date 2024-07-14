@@ -21,7 +21,7 @@ var (
 	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag) // TODO To delete
 	sampleTagFileContent          = "hello"
 	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte(sampleTagFileContent))
-	sampleFileInfo                = &FileInfo{sampleUser, sampleApp, sampleTag}
+	sampleFileInfo                = &TagInfo{sampleUser, sampleApp, sampleTag}
 	sampleEmail                   = "testuser@example.com"
 	samplePassword                = "mypassword"
 	sampleOrigin                  = rootUrl
@@ -232,7 +232,7 @@ func (h *HubClient) uploadTag() error {
 }
 
 func (h *HubClient) downloadApp() (string, error) {
-	fileInfo := &FileInfo{
+	fileInfo := &TagInfo{
 		User: h.User,
 		App:  h.App,
 		Tag:  h.Tag,

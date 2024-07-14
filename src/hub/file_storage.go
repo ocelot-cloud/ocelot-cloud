@@ -24,7 +24,7 @@ type FileStorage interface {
 	DeleteUser(username string) error
 	CreateApp(user, app string) error
 	DeleteApp(username, app string) error
-	CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error
+	CreateTag(fileInfo *TagInfo, buffer *bytes.Buffer) error
 	DeleteTag(user string, app string, tag string) error
 	WipeStorage()
 }
@@ -168,7 +168,7 @@ func doesUserExist(username string) bool {
 }
 
 // TODO Instead, this function should be connected with the file system manager.
-func (f *FileStorageImpl) CreateTag(fileInfo *FileInfo, buffer *bytes.Buffer) error {
+func (f *FileStorageImpl) CreateTag(fileInfo *TagInfo, buffer *bytes.Buffer) error {
 	tagFilePath := filepath.Join(usersDir, fileInfo.User, fileInfo.App, fmt.Sprintf("%s.tar.gz", fileInfo.Tag))
 
 	if !doesAppExist(fileInfo.User, fileInfo.App) {

@@ -29,29 +29,6 @@ func createAppAndTag(filename string) (*AppAndTag, error) {
 	return info, nil
 }
 
-// TODO To be removed, Should be "tag" info instead?
-type FileInfo struct {
-	User string `json:"user"`
-	App  string `json:"app"`
-	Tag  string `json:"tag"`
-}
-
-// TODO To be removed
-func createFileDownloadInfo(filename string) (*FileInfo, error) {
-	if !strings.HasSuffix(filename, ".tar.gz") {
-		return nil, fmt.Errorf("error, filename must end with .tar.gz")
-	}
-	infos := strings.Split(filename, "_")
-	if len(infos) != 3 {
-		return nil, fmt.Errorf("error, filenames should have exactly two underscores: %s", filename)
-	}
-	var info = &FileInfo{}
-	info.User = infos[0]
-	info.App = infos[1]
-	info.Tag, _ = strings.CutSuffix(infos[2], ".tar.gz")
-	return info, nil
-}
-
 func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -131,7 +108,7 @@ func readBody[T any](r *http.Request) (T, error) {
 		if !validate(v.User, User) || !validate(v.App, App) {
 			return result, fmt.Errorf("invalid input")
 		}
-	case FileInfo:
+	case TagInfo:
 		if !validate(v.User, User) || !validate(v.App, App) || !validate(v.Tag, Tag) {
 			return result, fmt.Errorf("invalid input")
 		}

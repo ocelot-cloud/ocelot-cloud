@@ -122,7 +122,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	fileBuffer := bytes.NewBuffer(tagUpload.Content)
 
-	fileInfo := &FileInfo{authenticatedUser, tagUpload.App, tagUpload.Tag}
+	fileInfo := &TagInfo{authenticatedUser, tagUpload.App, tagUpload.Tag}
 	err = fs.CreateTag(fileInfo, fileBuffer)
 	if err != nil {
 		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
@@ -140,7 +140,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	fileInfo, err := readBody[FileInfo](r)
+	fileInfo, err := readBody[TagInfo](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
