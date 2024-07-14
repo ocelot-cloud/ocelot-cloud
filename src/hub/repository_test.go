@@ -223,3 +223,26 @@ func TestChangeRepoOrigin(t *testing.T) {
 	assert.False(t, um.IsOriginCorrect(sampleUser, sampleForm.Origin))
 	assert.True(t, um.IsOriginCorrect(sampleUser, newOrigin))
 }
+
+func TestUsedSpace(t *testing.T) {
+	defer um.WipeDatabase()
+	assert.Nil(t, um.CreateUser(sampleForm))
+	space, err := um.GetCurrentSpace(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, space)
+
+	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
+
+	bytes := []byte("hello")
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag, bytes))
+	space, err = um.GetCurrentSpace(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, len(bytes), space)
+
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag+"x", bytes))
+	space, err = um.GetCurrentSpace(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 2*len(bytes), space)
+
+	// TODO delete and re-check
+}

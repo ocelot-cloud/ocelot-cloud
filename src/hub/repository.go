@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-// TODO Get rid of file storage and put tar.gz bytes into database.
-
 var db *sql.DB
 
 func initializeDatabaseWithSource(dataSourceName string) {
@@ -27,7 +25,8 @@ func initializeDatabaseWithSource(dataSourceName string) {
 			hashed_password TEXT NOT NULL,
 			origin TEXT NOT NULL,
 			cookie TEXT,
-			expiration_date TEXT
+			expiration_date TEXT,
+		    used_space BIGINT NOT NULL
 		);
 	`)
 	if err != nil {
@@ -85,6 +84,7 @@ type Repository interface {
 	IsOriginCorrect(user string, origin string) bool
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
+	GetCurrentSpace(user string) (int, error)
 	WipeDatabase()
 }
 
@@ -142,7 +142,7 @@ func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 	}
 
 	// TODO Previously check whether user already exists? Here or in handler?
-	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin) VALUES (?, ?, ?)", form.Username, hashedPassword, form.Origin)
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin, used_space) VALUES (?, ?, ?, ?)", form.Username, hashedPassword, form.Origin, 0)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to create user: %v", err)
 	}
@@ -308,6 +308,12 @@ func (u *SqliteRepository) CreateTag(user string, app string, tag string, data [
 		return fmt.Errorf("failed to create tag: %w", err)
 	}
 
+	dataSize := len(data)
+	_, err = db.Exec("UPDATE users SET used_space = used_space + ? WHERE user_name = ?", dataSize, user)
+	if err != nil {
+		return fmt.Errorf("failed to update user space: %w", err)
+	}
+
 	return nil
 }
 
@@ -461,4 +467,13 @@ func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) boo
 		return false
 	}
 	return exists
+}
+
+func (u *SqliteRepository) GetCurrentSpace(user string) (int, error) {
+	var userSpace int
+	err := db.QueryRow(`SELECT used_space FROM users WHERE user_name = ?`, user).Scan(&userSpace)
+	if err != nil {
+		return 0, Logger.LogAndReturnError("failed to get current space: %w", err)
+	}
+	return userSpace, nil
 }
