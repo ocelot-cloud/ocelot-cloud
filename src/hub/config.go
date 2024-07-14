@@ -1,6 +1,9 @@
 package main
 
-import "github.com/ocelot-cloud/shared"
+import (
+	"github.com/ocelot-cloud/shared"
+	"os"
+)
 
 var (
 	dataDir      = "data"
@@ -20,4 +23,14 @@ var (
 	cookieName         = "auth"
 	changePasswordPath = userPath + "/password"
 	changeOriginPath   = userPath + "/origin"
+	profile            = getProfile()
 )
+
+func getProfile() string {
+	envProfile := os.Getenv("PROFILE")
+	if envProfile == "" {
+		return "PROD"
+	} else {
+		return envProfile
+	}
+}
