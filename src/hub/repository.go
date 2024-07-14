@@ -323,9 +323,20 @@ func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error 
 		return err
 	}
 
+	data, err := u.GetTagContent(user, app, tag)
+	if err != nil {
+		return err
+	}
+	dataSize := len(data)
+
 	_, err = db.Exec("DELETE FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag)
 	if err != nil {
 		return fmt.Errorf("failed to delete tag: %w", err)
+	}
+
+	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_name = ?", dataSize, user)
+	if err != nil {
+		return fmt.Errorf("failed to update user space: %w", err)
 	}
 
 	return nil

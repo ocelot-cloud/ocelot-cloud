@@ -224,6 +224,7 @@ func TestChangeRepoOrigin(t *testing.T) {
 	assert.True(t, um.IsOriginCorrect(sampleUser, newOrigin))
 }
 
+// TODO Input validation for such bytes?
 func TestUsedSpace(t *testing.T) {
 	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
@@ -234,15 +235,21 @@ func TestUsedSpace(t *testing.T) {
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 
 	bytes := []byte("hello")
+	bytes2 := []byte(" world")
 	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag, bytes))
 	space, err = um.GetCurrentSpace(sampleUser)
 	assert.Nil(t, err)
-	assert.Equal(t, len(bytes), space)
+	assert.Equal(t, 5, space)
 
-	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag+"x", bytes))
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag+"x", bytes2))
 	space, err = um.GetCurrentSpace(sampleUser)
 	assert.Nil(t, err)
-	assert.Equal(t, 2*len(bytes), space)
+	assert.Equal(t, 11, space)
 
-	// TODO delete and re-check
+	assert.Nil(t, um.DeleteTag(sampleUser, sampleApp, sampleTag))
+	space, err = um.GetCurrentSpace(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 6, space)
+
+	// TODO Deleting an app also leads to updates of the counter.
 }
