@@ -256,10 +256,8 @@ func TestUsedSpace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 12, space)
 
-	/* TODO
 	assert.Nil(t, um.DeleteApp(sampleUser, sampleApp))
 	space, err = um.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, space)
-	*/
 }

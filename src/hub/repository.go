@@ -211,11 +211,44 @@ func (u *SqliteRepository) DeleteApp(user string, app string) error {
 	if err != nil {
 		return err
 	}
+
+	appID, err := getAppId(userID, app)
+	if err != nil {
+		return err
+	}
+
+	totalDataSize, err := u.sumBlobSizes(appID)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(`DELETE FROM apps WHERE user_id = ? AND app_name = ?`, userID, app)
 	if err != nil {
 		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
 	}
+
+	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_name = ?", totalDataSize, user)
+	if err != nil {
+		return fmt.Errorf("failed to update user space: %w", err)
+	}
+
 	return nil
+}
+
+// TODO Use 64 int, and Test with up to 1MB blobs and try to exceed 10MB limit.
+
+func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
+	var totalSize sql.NullInt64
+	err := db.QueryRow("SELECT SUM(LENGTH(data)) FROM tags WHERE app_id = ?", appID).Scan(&totalSize)
+	if err != nil {
+		return 0, fmt.Errorf("failed to calculate total BLOB size: %w", err)
+	}
+
+	if !totalSize.Valid {
+		return 0, nil // If there are no tags and the result is NULL, return 0
+	}
+
+	return totalSize.Int64, nil
 }
 
 type AppInfo struct {
