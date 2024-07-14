@@ -26,11 +26,18 @@ var (
 	profile            = getProfile()
 )
 
-func getProfile() string {
+type PROFILE int
+
+const (
+	PROD PROFILE = iota
+	TEST
+)
+
+func getProfile() PROFILE {
 	envProfile := os.Getenv("PROFILE")
 	if envProfile == "" {
-		return "PROD"
+		return PROD
 	} else {
-		return envProfile
+		return TEST
 	}
 }

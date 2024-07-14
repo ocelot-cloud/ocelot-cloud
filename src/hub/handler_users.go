@@ -37,7 +37,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	if creds.User == "expirationtestuser" && profile == "TEST" {
+	if profile == TEST && creds.User == "expirationtestuser" {
 		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
 	}
 
