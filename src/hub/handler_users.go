@@ -31,11 +31,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO verify username+password
-	// TODO Use safe, randomly generated cookies instead. I think gorilla provides some.
-	// TODO Add cookie + expiration time/date to sqlite to survive restarts.
 	// TODO Add cookie renewal logic when used in the middleware. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
-	// TODO In the tests, check that cookie has correct length and has different value when requesting a seconds one.
 	cookie, err := generateCookie()
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
