@@ -142,7 +142,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	fileInfo, err := readBody[FileInfo](r)
 	if err != nil {
-		logAndRespondError(w, "Invalid JSON request body", http.StatusBadRequest)
+		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

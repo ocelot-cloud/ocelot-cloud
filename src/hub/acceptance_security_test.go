@@ -32,7 +32,9 @@ func TestDownloadAppSecurity(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 
-	// TODO redo when using jsons: testInputInvalidation(t, hub, "invalid-tag", TagField, DownloadApp)
+	testInputInvalidation(t, hub, "invalid-user", UserField, DownloadApp)
+	testInputInvalidation(t, hub, "invalid-app", AppField, DownloadApp)
+	testInputInvalidation(t, hub, "invalid-tag", TagField, DownloadApp)
 }
 
 func TestGetTagsSecurity(t *testing.T) {
@@ -176,8 +178,6 @@ func TestCookieAndHostProtection(t *testing.T) {
 	hub.User = sampleUser
 
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
-	// TODO authorization checks missing for these functions: authenticated user can only apply this to entities he owns
-	// TODO input validation missing
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
@@ -185,7 +185,6 @@ func TestCookieAndHostProtection(t *testing.T) {
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
 }
 
-// TODO Re-check if those tests are also needed/applied by the other hub client functions above.
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
