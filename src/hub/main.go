@@ -3,11 +3,22 @@ package main
 import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
+	"os"
 )
 
 func init() {
 	createDataDir()
 	Logger = shared.ProvideLogger() // TODO dataDir should be moved to "shared". ProvideLogger should create the logs.txt in dataDir
+}
+
+// TODO Should be put in shared folder. Also necessary for logger files.
+func createDataDir() {
+	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(usersDir, os.ModePerm); err != nil {
+			Logger.Error("Error creating users directory: %v. Terminating application.", err)
+			os.Exit(1)
+		}
+	}
 }
 
 func main() {

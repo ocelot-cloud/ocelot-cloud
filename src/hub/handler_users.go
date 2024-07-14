@@ -125,11 +125,6 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = fs.DeleteUser(authenticatedUser)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	err = repo.DeleteUser(authenticatedUser)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
@@ -146,12 +141,6 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	form, err := readBody[RegistrationForm](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = fs.CreateUser(form.Username)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

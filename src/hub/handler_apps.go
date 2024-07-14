@@ -41,13 +41,8 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Replace all "authenticatedUser" simply with "user"
+	// TODO Replace all "authenticatedUser" simply with "user"
 
-	err = fs.DeleteApp(user, app)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	err = repo.DeleteApp(user, app)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
@@ -97,11 +92,6 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	}
 	if repo.DoesAppExist(authenticatedUser, app) {
 		logAndRespondDebug(w, "app already exists", http.StatusConflict)
-		return
-	}
-	err = fs.CreateApp(authenticatedUser, app)
-	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = repo.CreateApp(authenticatedUser, app)

@@ -35,12 +35,6 @@ func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
 	http.Error(w, msg, httpStatus)
 }
 
-type AppAndTag struct {
-	App string
-	Tag string
-}
-
-var fs FileStorage = &FileStorageImpl{}
 var repo Repository = &SqliteRepository{}
 
 type SingleString struct {
@@ -134,7 +128,6 @@ func generateCookie() (*http.Cookie, error) {
 
 // TODO Add acceptance test checking that this endpoint is not available when using production profile.
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
-	fs.WipeStorage()
 	repo.WipeDatabase()
 	logAndRespondDebug(w, "wipe completed", http.StatusOK)
 }

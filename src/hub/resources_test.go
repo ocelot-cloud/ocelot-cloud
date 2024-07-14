@@ -7,39 +7,25 @@ import (
 	"github.com/ocelot-cloud/shared/assert"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 )
 
 var (
-	sampleUser                    = "myuser"
-	sampleApp                     = "myapp"
-	sampleTag                     = "v0.0.1"
-	singleUserDir                 = usersDir + "/" + sampleUser
-	appDir                        = singleUserDir + "/" + sampleApp
-	sampleFile                    = appDir + fmt.Sprintf("/%s.tar.gz", sampleTag) // TODO To delete
-	sampleTagFileContent          = "hello"
-	sampleTaggedFileContentBuffer = bytes.NewBuffer([]byte(sampleTagFileContent))
-	sampleFileInfo                = &TagInfo{sampleUser, sampleApp, sampleTag}
-	sampleEmail                   = "testuser@example.com"
-	samplePassword                = "mypassword"
-	sampleOrigin                  = rootUrl
-	sampleForm                    = &RegistrationForm{
+	sampleUser           = "myuser"
+	sampleApp            = "myapp"
+	sampleTag            = "v0.0.1"
+	sampleTagFileContent = "hello"
+	sampleEmail          = "testuser@example.com"
+	samplePassword       = "mypassword"
+	sampleOrigin         = rootUrl
+	sampleForm           = &RegistrationForm{
 		sampleUser,
 		samplePassword,
 		sampleEmail,
 		sampleOrigin,
 	}
 )
-
-func cleanup() {
-	err := deleteIfExist(dataDir)
-	if err != nil {
-		Logger.Error("Cleanup: Could not delete dir: %s", dataDir)
-		os.Exit(1)
-	}
-}
 
 type HubClient struct {
 	User            string
