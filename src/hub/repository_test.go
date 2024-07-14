@@ -181,6 +181,9 @@ func TestGetTagList(t *testing.T) {
 	assert.Equal(t, 1, len(foundTags))
 	assert.Equal(t, sampleTag, foundTags[0])
 	assert.True(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
+	data, err := um.GetTagContent(sampleUser, sampleApp, sampleTag)
+	assert.Nil(t, err)
+	assert.Equal(t, []byte("asdf"), data)
 
 	assert.Nil(t, um.DeleteTag(sampleUser, sampleApp, sampleTag))
 	foundTags, err = um.GetTagList(sampleUser, sampleApp)
