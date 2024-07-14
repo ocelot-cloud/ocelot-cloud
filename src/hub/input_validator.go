@@ -14,7 +14,6 @@ const (
 	Tag
 	Password
 	Origin
-	TagFile
 	Email
 	Cookie
 )
