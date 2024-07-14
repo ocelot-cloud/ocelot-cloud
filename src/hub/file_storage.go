@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,8 +22,6 @@ type FileStorage interface {
 	DeleteUser(username string) error
 	CreateApp(user, app string) error
 	DeleteApp(username, app string) error
-	CreateTag(fileInfo *TagInfo, buffer *bytes.Buffer) error
-	DeleteTag(user string, app string, tag string) error
 	WipeStorage()
 }
 
@@ -165,39 +161,6 @@ func doesUserExist(username string) bool {
 		}
 	}
 	return false
-}
-
-// TODO Instead, this function should be connected with the file system manager.
-func (f *FileStorageImpl) CreateTag(fileInfo *TagInfo, buffer *bytes.Buffer) error {
-	tagFilePath := filepath.Join(usersDir, fileInfo.User, fileInfo.App, fmt.Sprintf("%s.tar.gz", fileInfo.Tag))
-
-	if !doesAppExist(fileInfo.User, fileInfo.App) {
-		return Logger.LogAndReturnError("App '%s' of user '%s' does not exist", fileInfo.App, fileInfo.User)
-	}
-
-	if _, err := os.Stat(tagFilePath); err == nil {
-		return Logger.LogAndReturnError("Tag '%s' of app '%s' of user '%s' already exists", fileInfo.Tag, fileInfo.App, fileInfo.User)
-	}
-
-	file, err := os.Create(tagFilePath)
-
-	if err != nil {
-		return Logger.LogAndReturnError("Error creating tag file: %v", err)
-	}
-	defer file.Close()
-
-	if _, err := io.Copy(file, buffer); err != nil {
-		return Logger.LogAndReturnError("Error writing to tag file: %v", err)
-	}
-	return nil
-}
-
-func (f *FileStorageImpl) DeleteTag(user string, app string, tag string) error {
-	tagFilePath := filepath.Join(usersDir, user, app, fmt.Sprintf("%s.tar.gz", tag))
-	if err := deleteIfExist(tagFilePath); err != nil {
-		return Logger.LogAndReturnError("error deleting tag file: %v", err)
-	}
-	return nil
 }
 
 func getTagFileContent(path string) string {

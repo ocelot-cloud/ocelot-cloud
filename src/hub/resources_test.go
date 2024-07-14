@@ -231,7 +231,7 @@ func (h *HubClient) uploadTag() error {
 	return err
 }
 
-func (h *HubClient) downloadApp() (string, error) {
+func (h *HubClient) downloadTag() (string, error) {
 	fileInfo := &TagInfo{
 		User: h.User,
 		App:  h.App,

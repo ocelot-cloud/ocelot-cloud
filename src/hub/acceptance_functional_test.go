@@ -11,12 +11,12 @@ import (
 func TestTagDownload(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	_, err := hub.downloadApp()
+	_, err := hub.downloadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
 
 	assert.Nil(t, hub.createApp())
-	_, err = hub.downloadApp()
+	_, err = hub.downloadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(404, "tag does not exist"), err.Error())
 
@@ -26,7 +26,7 @@ func TestTagDownload(t *testing.T) {
 	assert.Equal(t, 1, len(foundTags))
 	assert.Equal(t, sampleTag, foundTags[0])
 
-	downloadedContent, err := hub.downloadApp()
+	downloadedContent, err := hub.downloadTag()
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 }

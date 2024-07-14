@@ -28,7 +28,7 @@ func TestDownloadAppSecurity(t *testing.T) {
 
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
-	downloadedContent, err := hub.downloadApp()
+	downloadedContent, err := hub.downloadTag()
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 
@@ -251,7 +251,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		_, err := hub.getTags()
 		assertInvalidInputError(t, err)
 	case DownloadApp:
-		_, err := hub.downloadApp()
+		_, err := hub.downloadTag()
 		assertInvalidInputError(t, err)
 	case FindApps:
 		_, err := hub.findApps(hub.App)

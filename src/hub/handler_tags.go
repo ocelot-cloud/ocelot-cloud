@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"os"
 )
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +46,6 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fs.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag) // TODO make it return an error.
 	err = repo.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
@@ -120,17 +116,8 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileBuffer := bytes.NewBuffer(tagUpload.Content)
-
-	fileInfo := &TagInfo{authenticatedUser, tagUpload.App, tagUpload.Tag}
-	err = fs.CreateTag(fileInfo, fileBuffer)
-	if err != nil {
-		logAndRespondError(w, "Failed to write content to local file", http.StatusInternalServerError)
-		return
-	}
-
 	// TODO Should take fileInfo structure as arg
-	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag, []byte("asdf"))
+	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -156,11 +143,13 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s/%s/%s.tar.gz", usersDir, fileInfo.User, fileInfo.App, fileInfo.Tag)
-	if _, err = os.Stat(path); os.IsNotExist(err) {
-		logAndRespondError(w, "File not found", http.StatusNotFound)
+	content, err := repo.GetTagContent(fileInfo.User, fileInfo.App, fileInfo.Tag)
+	if err != nil {
+		logAndRespondError(w, "error when accessing tag content", http.StatusInternalServerError)
 		return
 	}
 
-	http.ServeFile(w, r, path)
+	w.Header().Set("Content-Type", "application/gzip")
+	w.WriteHeader(http.StatusOK)
+	w.Write(content)
 }
