@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// TODO Should be put in shared module
 func init() {
 	if _, err := os.Stat(dataDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
@@ -15,8 +16,6 @@ func init() {
 	}
 	Logger = shared.ProvideLogger() // TODO dataDir should be moved to "shared". ProvideLogger should create the logs.txt in dataDir
 }
-
-// TODO Should be put in shared folder. Also necessary for logger files.
 
 func main() {
 	initializeDatabase()
