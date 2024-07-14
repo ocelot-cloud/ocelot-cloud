@@ -3,7 +3,59 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
+
+type RegistrationForm struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Origin   string `json:"host"`
+}
+
+type LoginCredentials struct {
+	User     string `json:"username"`
+	Password string `json:"password"`
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	Logger.Debug("login logic called")
+	creds, err := readBody[LoginCredentials](r)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !repo.IsPasswordCorrect(creds.User, creds.Password) {
+		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
+		return
+	}
+
+	// TODO verify username+password
+	// TODO Use safe, randomly generated cookies instead. I think gorilla provides some.
+	// TODO Add cookie + expiration time/date to sqlite to survive restarts.
+	// TODO Add cookie renewal logic when used in the middleware. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
+	// TODO In the tests, check that cookie has correct length and has different value when requesting a seconds one.
+	cookie, err := generateCookie()
+	if err != nil {
+		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// TODO And the global profile TEST must be activated.
+	if creds.User == "expirationtestuser" {
+		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
+	}
+
+	// TODO Must be verified by a test:
+	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
+	if err != nil {
+		logAndRespondDebug(w, err.Error(), http.StatusOK)
+		return
+	}
+
+	http.SetCookie(w, cookie)
+	logAndRespondDebug(w, "login successful", http.StatusOK)
+}
 
 // TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
