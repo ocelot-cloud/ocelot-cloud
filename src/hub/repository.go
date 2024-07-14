@@ -84,10 +84,30 @@ type Repository interface {
 	ChangeOrigin(user string, newOrigin string) error
 	IsOriginCorrect(user string, origin string) bool
 	DoesTagExist(user string, app string, tag string) bool
+	GetTagContent(user string, app string, tag string) ([]byte, error)
 	WipeDatabase()
 }
 
 type SqliteRepository struct{}
+
+func (u *SqliteRepository) GetTagContent(user string, app string, tag string) ([]byte, error) {
+	userID, err := getUserId(user)
+	if err != nil {
+		return nil, err
+	}
+
+	appID, err := getAppId(userID, app)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []byte
+	err = db.QueryRow("SELECT data FROM tags WHERE app_id = ? and tag_name = ?", appID, tag).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
 
 func (u *SqliteRepository) IsPasswordCorrect(user string, password string) bool {
 	var hashedPassword string
