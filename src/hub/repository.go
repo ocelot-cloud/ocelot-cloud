@@ -84,7 +84,7 @@ type Repository interface {
 	IsOriginCorrect(user string, origin string) bool
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
-	GetCurrentSpace(user string) (int, error)
+	GetUsedSpaceInBytes(user string) (int, error)
 	WipeDatabase()
 }
 
@@ -323,11 +323,10 @@ func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error 
 		return err
 	}
 
-	data, err := u.GetTagContent(user, app, tag)
+	dataSize, err := getBlobSize(appID, tag)
 	if err != nil {
 		return err
 	}
-	dataSize := len(data)
 
 	_, err = db.Exec("DELETE FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag)
 	if err != nil {
@@ -340,6 +339,15 @@ func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error 
 	}
 
 	return nil
+}
+
+func getBlobSize(appID int, tag string) (int64, error) {
+	var dataSize int64
+	err := db.QueryRow("SELECT LENGTH(data) FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag).Scan(&dataSize)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get BLOB size: %w", err)
+	}
+	return dataSize, nil
 }
 
 func getAppIdFromUsername(user string, app string) (int, error) {
@@ -480,7 +488,7 @@ func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) boo
 	return exists
 }
 
-func (u *SqliteRepository) GetCurrentSpace(user string) (int, error) {
+func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
 	var userSpace int
 	err := db.QueryRow(`SELECT used_space FROM users WHERE user_name = ?`, user).Scan(&userSpace)
 	if err != nil {

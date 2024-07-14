@@ -228,7 +228,7 @@ func TestChangeRepoOrigin(t *testing.T) {
 func TestUsedSpace(t *testing.T) {
 	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))
-	space, err := um.GetCurrentSpace(sampleUser)
+	space, err := um.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, space)
 
@@ -237,19 +237,29 @@ func TestUsedSpace(t *testing.T) {
 	bytes := []byte("hello")
 	bytes2 := []byte(" world")
 	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag, bytes))
-	space, err = um.GetCurrentSpace(sampleUser)
+	space, err = um.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 5, space)
 
 	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag+"x", bytes2))
-	space, err = um.GetCurrentSpace(sampleUser)
+	space, err = um.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 11, space)
 
 	assert.Nil(t, um.DeleteTag(sampleUser, sampleApp, sampleTag))
-	space, err = um.GetCurrentSpace(sampleUser)
+	space, err = um.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 6, space)
 
-	// TODO Deleting an app also leads to updates of the counter.
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag, bytes2))
+	space, err = um.GetUsedSpaceInBytes(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 12, space)
+
+	/* TODO
+	assert.Nil(t, um.DeleteApp(sampleUser, sampleApp))
+	space, err = um.GetUsedSpaceInBytes(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, space)
+	*/
 }
