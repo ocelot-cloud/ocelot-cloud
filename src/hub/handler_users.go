@@ -37,8 +37,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	// TODO And the global profile TEST must be activated.
-	if creds.User == "expirationtestuser" {
+	if creds.User == "expirationtestuser" && profile == "TEST" {
 		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
 	}
 

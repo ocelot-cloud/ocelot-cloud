@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
-	"os"
 )
 
 func init() {
@@ -28,9 +27,7 @@ func main() {
 	// Registration process is excluded from security, so no middleware is used.
 	http.HandleFunc(registrationPath, registrationHandler)
 
-	// TODO Maybe unify the GetEnv duplication
-	useInMemoryDB := os.Getenv("PROFILE")
-	if useInMemoryDB == "test" {
+	if profile == "TEST" {
 		Logger.Warn("as") //TODO
 		http.HandleFunc(wipeDataPath, wipeDataHandler)
 	}
@@ -47,9 +44,8 @@ func initializeDatabase() {
 	// Strange phenomenon: When I run ./hub via terminal and run tests in separate terminal, everything works
 	// as expected. But when I run hub as a daemon process, via bash or ci-runner, the tests fail with
 	// this DB error: "attempt to write readonly database". So I use in-memory database for all tests.
-	// TODO Maybe rename that variable to USE_TEST_DB or PROFILE="test" or so
-	useInMemoryDB := os.Getenv("PROFILE")
-	if useInMemoryDB == "test" {
+	// TODO profile should have an enum as value
+	if profile == "TEST" {
 		initializeDatabaseWithSource(":memory:")
 		Logger.Warn("initializing database only in-memory")
 	} else {
