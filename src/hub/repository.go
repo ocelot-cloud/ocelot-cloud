@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TODO use sqlite to store users, apps (for search), password etc.
+// TODO Get rid of file storage and put tar.gz bytes into database.
 
 var db *sql.DB
 
@@ -50,8 +50,9 @@ func initializeDatabaseWithSource(dataSourceName string) {
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS tags (
 			tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
-			app_id INTEGER,
-			tag_name TEXT,
+			app_id INTEGER NOT NULL,
+			tag_name TEXT NOT NULL,
+			data BLOB NOT NULL,
 			UNIQUE(app_id, tag_id),
 			FOREIGN KEY (app_id) REFERENCES apps(app_id) ON DELETE CASCADE
 		);
@@ -76,7 +77,7 @@ type Repository interface {
 	SetCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieExpired(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
-	CreateTag(user string, app string, tag string) error
+	CreateTag(user string, app string, tag string, data []byte) error
 	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
 	ChangePassword(user string, newPassword string) error
@@ -276,13 +277,13 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 }
 
 // TODO Avoid duplication of "getIdOf(user/app) logic."
-func (u *SqliteRepository) CreateTag(user string, app string, tag string) error {
+func (u *SqliteRepository) CreateTag(user string, app string, tag string, data []byte) error {
 	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("INSERT INTO tags (app_id, tag_name) VALUES (?, ?)", appID, tag)
+	_, err = db.Exec("INSERT INTO tags (app_id, tag_name, data) VALUES (?, ?, ?)", appID, tag, data)
 	if err != nil {
 		return fmt.Errorf("failed to create tag: %w", err)
 	}

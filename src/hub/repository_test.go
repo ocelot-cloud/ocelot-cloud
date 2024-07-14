@@ -175,7 +175,7 @@ func TestGetTagList(t *testing.T) {
 	assert.Equal(t, 0, len(foundTags))
 	assert.False(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
-	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag))
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag, []byte("asdf")))
 	foundTags, err = um.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
@@ -188,7 +188,7 @@ func TestGetTagList(t *testing.T) {
 	assert.Equal(t, 0, len(foundTags))
 	assert.False(t, um.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
-	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag))
+	assert.Nil(t, um.CreateTag(sampleUser, sampleApp, sampleTag, []byte("asdf")))
 	foundTags, err = um.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))

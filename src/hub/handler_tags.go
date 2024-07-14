@@ -130,7 +130,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Should take fileInfo structure as arg
-	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag)
+	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag, []byte("asdf"))
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
