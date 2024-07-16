@@ -103,12 +103,6 @@ func (h *HubClient) deleteUser() error {
 func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, method string, operation Operation) (interface{}, error) {
 	url := rootUrl + path
 
-	/* TODO
-	policy := securityPolicies.getPolicyFor(operation)
-	if policy.IsCredentialsRequired && payload != nil {
-		return nil, fmt.Errorf("Security policy uses credentials in json body, so you can't define an addition apyload.")
-	}*/
-
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to marshal payload: %v", err)

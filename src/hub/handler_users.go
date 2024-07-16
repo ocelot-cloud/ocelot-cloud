@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const expirationTestUser = "expirationtestuser"
+
 type RegistrationForm struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -37,7 +39,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	if profile == TEST && creds.User == "expirationtestuser" {
+	if profile == TEST && creds.User == expirationTestUser {
 		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
 	}
 

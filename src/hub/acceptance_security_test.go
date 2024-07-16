@@ -137,8 +137,6 @@ func TestCreateAppSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-app", AppField, CreateApp)
 }
 
-// TODO I think I dont need to send the user to the hub at all, since his name can be recovered from DB via cookie.
-
 func TestDeleteAppSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
@@ -173,7 +171,7 @@ func TestDeleteTagSecurity(t *testing.T) {
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.
-	hub.User = "expirationtestuser" // TODO Abstract duplication
+	hub.User = expirationTestUser
 	assert.Nil(t, hub.registerUser())
 	hub.User = sampleUser
 
@@ -220,7 +218,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
 	assert.Nil(t, hub.login())
 
-	hub.User = "expirationtestuser"
+	hub.User = expirationTestUser
 	err = hub.login()
 	assert.Nil(t, err)
 	err = operation()
