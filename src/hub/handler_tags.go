@@ -59,7 +59,6 @@ type UserAndApp struct {
 	App  string `json:"app"`
 }
 
-// TODO Implement
 func handleTagList(w http.ResponseWriter, r *http.Request) {
 	usernameAndApp, err := readBody[UserAndApp](r)
 	if err != nil {

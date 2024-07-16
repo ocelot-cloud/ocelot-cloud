@@ -187,18 +187,12 @@ func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
 		return nil, err
 	}
 
-	respBody, ok := result.([]byte)
-	if !ok {
-		return nil, fmt.Errorf("Failed to assert result to []byte")
-	}
-
-	var apps []AppInfo
-	err = json.Unmarshal(respBody, &apps)
+	apps, err := unpackResponse[[]AppInfo](result)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
+		return nil, err
 	}
 
-	return apps, nil
+	return *apps, nil
 }
 
 func (h *HubClient) uploadTag() error {
@@ -231,7 +225,6 @@ func (h *HubClient) downloadTag() (string, error) {
 	return string(downloadedContent), nil
 }
 
-// TODO Resolve duplication
 func (h *HubClient) getTags() ([]string, error) {
 	usernameAndApp := &UserAndApp{
 		User: h.User,
@@ -243,18 +236,26 @@ func (h *HubClient) getTags() ([]string, error) {
 		return nil, err
 	}
 
-	respBody, ok := result.([]byte)
+	tags, err := unpackResponse[[]string](result)
+	if err != nil {
+		return nil, err
+	}
+
+	return *tags, nil
+}
+
+func unpackResponse[T any](object interface{}) (*T, error) {
+	respBody, ok := object.([]byte)
 	if !ok {
 		return nil, fmt.Errorf("Failed to assert result to []byte")
 	}
 
-	var tags []string
-	err = json.Unmarshal(respBody, &tags)
+	var result T
+	err := json.Unmarshal(respBody, &result)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
 	}
-
-	return tags, nil
+	return &result, nil
 }
 
 func (h *HubClient) deleteTag() error {
