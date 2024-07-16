@@ -269,8 +269,7 @@ func (h *HubClient) deleteTag() error {
 		App:  h.App,
 		Tag:  h.Tag,
 	}
-	// TODO check expected message
-	_, err := h.doRequest(tagPath, tagInfo, "", "DELETE", DeleteTag)
+	_, err := h.doRequest(tagPath, tagInfo, "tag deleted\n", "DELETE", DeleteTag)
 	return err
 }
 
