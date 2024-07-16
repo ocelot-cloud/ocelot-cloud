@@ -18,7 +18,7 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthentication(w, r)
+	authenticatedUser, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}
@@ -35,14 +35,12 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesAppExist(user, app) {
+	if !repo.DoesAppExist(authenticatedUser, app) {
 		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	// TODO Replace all "authenticatedUser" simply with "user"
-
-	err = repo.DeleteApp(user, app)
+	err = repo.DeleteApp(authenticatedUser, app)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
