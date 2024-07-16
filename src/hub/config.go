@@ -6,6 +6,8 @@ import (
 )
 
 var (
+	currentSchemaVersion = "0.1.0"
+
 	dataDir      = "data"
 	databaseFile = dataDir + "/sqlite.db"
 

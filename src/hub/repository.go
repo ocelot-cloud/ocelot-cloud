@@ -11,12 +11,13 @@ import (
 var db *sql.DB
 
 func initializeDatabaseWithSource(dataSourceName string) {
-	// TODO Add database scheme version?
 	var err error
 	db, err = sql.Open("sqlite3", dataSourceName)
 	if err != nil {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}
+
+	EnsureSchemaVersionTable()
 
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
@@ -61,7 +62,6 @@ func initializeDatabaseWithSource(dataSourceName string) {
 	}
 
 	Logger.Info("Database initialized")
-	// TODO Add initial schemes. With version number table.
 }
 
 type Repository interface {
