@@ -18,8 +18,7 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
-	// TODO Only authenticated user can delete his own app + security test
-	user, err := middleware(w, r)
+	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}
@@ -69,7 +68,7 @@ func findApps(w http.ResponseWriter, r *http.Request) {
 }
 
 func createApp(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := middleware(w, r)
+	authenticatedUser, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}

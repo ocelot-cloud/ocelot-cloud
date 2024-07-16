@@ -167,7 +167,6 @@ func TestDeleteTagSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-tag", TagField, DeleteTag)
 }
 
-// TODO test: update expiration date when calling middleware
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.

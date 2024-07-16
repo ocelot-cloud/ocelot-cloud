@@ -33,7 +33,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Add cookie renewal logic when used in the middleware. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
+	// TODO Add cookie renewal logic when used in the checkAuthentication. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
 	cookie, err := generateCookie()
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
@@ -67,7 +67,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 // TODO Everywhere: replace "auth" by cookieName
 
 // TODO put it in handler_tools
-func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
+func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		Logger.Debug("cookie not set in request: %s", err.Error())
@@ -117,7 +117,7 @@ func middleware(w http.ResponseWriter, r *http.Request) (string, error) {
 }
 
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := middleware(w, r)
+	authenticatedUser, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}

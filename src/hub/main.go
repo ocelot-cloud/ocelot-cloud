@@ -21,7 +21,7 @@ func main() {
 	initializeDatabase()
 
 	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
-	// TODO apply middleware?
+	// TODO apply checkAuthentication?
 	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)
 	http.HandleFunc(changePasswordPath, changePasswordHandler)
@@ -31,7 +31,7 @@ func main() {
 	http.HandleFunc(userPath, userHandler)
 	http.HandleFunc(loginPath, loginHandler)
 
-	// Registration process is excluded from security, so no middleware is used.
+	// Registration process is excluded from security, so no checkAuthentication is used.
 	http.HandleFunc(registrationPath, registrationHandler)
 
 	if profile == TEST {
