@@ -108,20 +108,20 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesAppExist(user, tagUpload.App) {
-		// TODO Log
+		Logger.Info("user '%s' tried to upload tag '%s', but the app '%s' does not exist", user, tagUpload.Tag, tagUpload.App)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
 	if repo.DoesTagExist(user, tagUpload.App, tagUpload.Tag) {
-		// TODO Log
+		Logger.Info("user '%s' tried to upload a new tag to app '%s' with tag '%s', but the tag already exists", user, tagUpload.App, tagUpload.Tag)
 		http.Error(w, "tag already exists", http.StatusConflict)
 		return
 	}
 
 	err = repo.CreateTag(user, tagUpload.App, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
-		// TODO Log error
+		Logger.Error("creating tag '%s' for user '%s' failed: %v", tagUpload.App, user, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -139,26 +139,26 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(tagInfo.User) {
-		// TODO Log
+		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but user does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.DoesAppExist(tagInfo.User, tagInfo.App) {
-		// TODO Log
+		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but app does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.DoesTagExist(tagInfo.User, tagInfo.App, tagInfo.Tag) {
-		// TODO Log
+		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but tag does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
 	content, err := repo.GetTagContent(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	if err != nil {
-		// TODO Log error
+		Logger.Error("getting tag content failed for user='%s', app='%s' and tag='%s': %v", tagInfo.User, tagInfo.App, tagInfo.Tag, err)
 		http.Error(w, "error when accessing tag content", http.StatusInternalServerError)
 		return
 	}
