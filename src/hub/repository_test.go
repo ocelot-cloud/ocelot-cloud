@@ -224,7 +224,7 @@ func TestChangeRepoOrigin(t *testing.T) {
 	assert.True(t, um.IsOriginCorrect(sampleUser, newOrigin))
 }
 
-// TODO Input validation for such bytes?
+// TODO Input validation for such bytes? -> I should test that when I unpack this tar.gz, there should be at least a docker-compose.yml, optionally a app.yml, nothing else. How to do security checks on that file?
 func TestUsedSpace(t *testing.T) {
 	defer um.WipeDatabase()
 	assert.Nil(t, um.CreateUser(sampleForm))

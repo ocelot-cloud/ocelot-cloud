@@ -91,12 +91,7 @@ type Repository interface {
 type SqliteRepository struct{}
 
 func (u *SqliteRepository) GetTagContent(user string, app string, tag string) ([]byte, error) {
-	userID, err := getUserId(user)
-	if err != nil {
-		return nil, err
-	}
-
-	appID, err := getAppId(userID, app)
+	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
 		return nil, err
 	}
@@ -329,7 +324,6 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 	return user, nil
 }
 
-// TODO Avoid duplication of "getIdOf(user/app) logic."
 func (u *SqliteRepository) CreateTag(user string, app string, tag string, data []byte) error {
 	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
@@ -496,15 +490,8 @@ func getUsers() []string {
 }
 
 func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) bool {
-	userID, err := getUserId(user)
+	appID, err := getAppIdFromUsername(user, app)
 	if err != nil {
-		Logger.Debug("getting user id failed")
-		return false
-	}
-
-	appID, err := getAppId(userID, app)
-	if err != nil {
-		Logger.Debug("getting app id failed")
 		return false
 	}
 
