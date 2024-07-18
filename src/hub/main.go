@@ -33,21 +33,20 @@ func main() {
 	http.HandleFunc(registrationPath, registrationHandler)
 
 	if profile == TEST {
-		Logger.Warn("as") //TODO
+		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
 		http.HandleFunc(wipeDataPath, wipeDataHandler)
 	}
 
 	Logger.Info("Server started on port %s", port)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		// TODO Is server stop sometimes normal, e.g. when gracefully shutdown?
 		Logger.Fatal("Server stopped: %v", err)
 	}
 }
 
 func initializeDatabase() {
 	// Strange phenomenon: When I run ./hub via terminal and run tests in separate terminal, everything works
-	// as expected. But when I run hub as a daemon process, via bash or ci-runner, the tests fail with
+	// as expected. But when I run hub as a daemon process, via bash (&) or ci-runner, the tests fail with
 	// this DB error: "attempt to write readonly database". So I use in-memory database for all tests.
 	if profile == TEST {
 		initializeDatabaseWithSource(":memory:")
