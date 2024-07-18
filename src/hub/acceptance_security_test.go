@@ -180,11 +180,7 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 }
 
 func TestCookieAndHostProtection(t *testing.T) {
-	hub := getHubAndLogin(t)
-	// This user is used for subsequent tests.
-	hub.User = testUserWithExpiredCookie
-	assert.Nil(t, hub.registerUser())
-
+	hub := getHub()
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
@@ -194,6 +190,10 @@ func TestCookieAndHostProtection(t *testing.T) {
 }
 
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
+	defer hub.wipeData()
+	assert.Nil(t, hub.registerUser())
+	assert.Nil(t, hub.login())
+
 	hub.SetCookieHeader = false
 	hub.SetOriginHeader = false
 
@@ -229,8 +229,8 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Nil(t, hub.login())
 
 	hub.User = testUserWithExpiredCookie
-	err = hub.login()
-	assert.Nil(t, err)
+	assert.Nil(t, hub.registerUser())
+	assert.Nil(t, hub.login())
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
