@@ -148,12 +148,12 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 	}
 
 	if !validate(cookie.Value, Cookie) {
-		logAndRespondDebug(w, "invalid cookie", http.StatusBadRequest)
+		http.Error(w, "invalid cookie", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
 
 	if !validate(r.Header.Get(OriginHeader), Origin) {
-		logAndRespondDebug(w, "invalid origin", http.StatusBadRequest)
+		http.Error(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
 

@@ -81,7 +81,7 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	app := singleString.Value
 
 	if !validate(authenticatedUser, User) || !validate(app, App) {
-		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 

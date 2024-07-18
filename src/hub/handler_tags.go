@@ -30,7 +30,7 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !validate(tagInfo.App, App) || !validate(tagInfo.Tag, Tag) {
-		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -92,7 +92,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !validate(tagUpload.App, App) || !validate(tagUpload.Tag, Tag) {
-		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
