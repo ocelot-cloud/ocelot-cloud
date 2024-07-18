@@ -80,7 +80,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if repo.DoesUserExist(form.User) {
-		logAndRespondError(w, "user already exists", http.StatusConflict)
+		Logger.Info("user '%s' tried to register but he already exists", form.User)
+		http.Error(w, "user already exists", http.StatusConflict)
 		return
 	}
 
