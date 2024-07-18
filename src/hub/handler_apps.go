@@ -36,13 +36,15 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesAppExist(user, app) {
-		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		Logger.Info("user '%s' tried to delete app '%s' but it does not exist", user, app)
+		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
 	err = repo.DeleteApp(user, app)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("user '%s' tried to delete app '%s' but it failed", user, app)
+		http.Error(w, "app deletion failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -53,13 +55,15 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 func findApps(w http.ResponseWriter, r *http.Request) {
 	appSearchTerm, err := readBodyAsSingleString(r, User)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
 	apps, err := repo.FindApps(appSearchTerm)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		Logger.Warn("error finding apps: %v", err)
+		http.Error(w, "error finding apps", http.StatusInternalServerError)
 		return
 	}
 
@@ -75,7 +79,8 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 	app := singleString.Value
