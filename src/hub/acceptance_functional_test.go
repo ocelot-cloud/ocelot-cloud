@@ -97,12 +97,16 @@ func TestUploadTag(t *testing.T) {
 	tags, err = hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(tags))
+
+	err = hub.deleteTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "tag does not exist"), err.Error())
 }
 
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	newPassword := "new-password"
+	newPassword := hub.Password + "x"
 
 	assert.Nil(t, hub.ChangePassword(newPassword))
 	err := hub.login()
@@ -130,8 +134,6 @@ func TestChangeOrigin(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-// TODO I think I did not cover all cases like AlreadyExisting/NotFound etc here.
-
 func TestRegistration(t *testing.T) {
 	hub := getHub()
 	assert.Nil(t, hub.registerUser())
@@ -139,3 +141,5 @@ func TestRegistration(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(409, "user already exists"), err.Error())
 }
+
+// TODO test case: user does not exist?

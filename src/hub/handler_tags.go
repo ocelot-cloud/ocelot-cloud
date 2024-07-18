@@ -41,8 +41,14 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO Don't send a "user", just take the one from the json.
 	if authenticatedUser != tagInfo.User {
 		logAndRespondDebug(w, "deleting tags not belonging to you is not allowed", http.StatusUnauthorized)
+		return
+	}
+
+	if !repo.DoesTagExist(authenticatedUser, tagInfo.App, tagInfo.Tag) {
+		logAndRespondDebug(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
