@@ -151,7 +151,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	newExpirationTime := getTimeIn30Days() // TODO Also set exp time request.
+	newExpirationTime := getTimeIn30Days()
 	err = repo.SetCookie(user, cookie.Value, newExpirationTime)
 	if err != nil {
 		Logger.Error("setting new cookie failed: %v", err)

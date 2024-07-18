@@ -24,7 +24,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Add cookie renewal logic when used in the checkAuthentication. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
 	cookie, err := generateCookie()
 	if err != nil {
 		Logger.Error("cookie generation failed: %v", err)

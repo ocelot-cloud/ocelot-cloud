@@ -38,8 +38,6 @@ func TestTagDownload(t *testing.T) {
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 }
 
-// TODO Test if cookie expiration date updates when making a successful request.
-
 func TestCookie(t *testing.T) {
 	hub := getHubAndLogin(t)
 
