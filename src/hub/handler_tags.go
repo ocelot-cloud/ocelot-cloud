@@ -13,7 +13,9 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == http.MethodDelete {
 		handleDeleteTag(w, r)
 	} else {
-		logAndRespondDebug(w, "method not implemented", http.StatusMethodNotAllowed)
+		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, tagPath)
+		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
@@ -36,16 +38,19 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesTagExist(authenticatedUser, tagInfo.App, tagInfo.Tag) {
-		logAndRespondDebug(w, "tag does not exist", http.StatusNotFound)
+		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", authenticatedUser, tagInfo.App, tagInfo.Tag)
+		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
 	err = repo.DeleteTag(authenticatedUser, tagInfo.App, tagInfo.Tag)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", authenticatedUser, tagInfo.App, tagInfo.Tag)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	logAndRespondDebug(w, "tag deleted", http.StatusOK)
+	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", authenticatedUser, tagInfo.App, tagInfo.Tag)
+	http.Error(w, "tag deleted", http.StatusOK)
 }
 
 func handleTagList(w http.ResponseWriter, r *http.Request) {
@@ -57,18 +62,21 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(userAndApp.User) {
-		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		Logger.Info("someone tried to list tags but user '%s' does not exist", userAndApp.User)
+		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.DoesAppExist(userAndApp.User, userAndApp.App) {
-		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		Logger.Info("someone tried to list tags but app '%s' does not exist", userAndApp.App)
+		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
 	tagsList, err := repo.GetTagList(userAndApp.User, userAndApp.App)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.User, userAndApp.App)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -76,20 +84,22 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := checkAuthentication(w, r)
+	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}
 
 	if r.Method != http.MethodPost {
-		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
+		Logger.Warn("invalid request method '%s' used for endpoint '%s'", r.Method, tagPath)
+		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var tagUpload TagUpload
 	err = json.NewDecoder(r.Body).Decode(&tagUpload)
 	if err != nil {
-		logAndRespondError(w, "Failed to decode JSON request", http.StatusBadRequest)
+		Logger.Info("tag upload request body of user '%s' was invalid: %v", user, err)
+		http.Error(w, "could not decode request body", http.StatusBadRequest)
 		return
 	}
 
@@ -98,23 +108,26 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesAppExist(authenticatedUser, tagUpload.App) {
-		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+	if !repo.DoesAppExist(user, tagUpload.App) {
+		// TODO Log
+		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	if repo.DoesTagExist(authenticatedUser, tagUpload.App, tagUpload.Tag) {
-		logAndRespondDebug(w, "tag already exists", http.StatusConflict)
+	if repo.DoesTagExist(user, tagUpload.App, tagUpload.Tag) {
+		// TODO Log
+		http.Error(w, "tag already exists", http.StatusConflict)
 		return
 	}
 
-	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag, tagUpload.Content)
+	err = repo.CreateTag(user, tagUpload.App, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		// TODO Log error
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("user '%s' uploaded a new tag to the app '%s' with the tag name '%s'", authenticatedUser, tagUpload.App, tagUpload.Tag)
+	Logger.Info("user '%s' uploaded a new tag to the app '%s' with the tag name '%s'", user, tagUpload.App, tagUpload.Tag)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -127,23 +140,27 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(tagInfo.User) {
-		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		// TODO Log
+		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.DoesAppExist(tagInfo.User, tagInfo.App) {
-		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		// TODO Log
+		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.DoesTagExist(tagInfo.User, tagInfo.App, tagInfo.Tag) {
-		logAndRespondDebug(w, "tag does not exist", http.StatusNotFound)
+		// TODO Log
+		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
 	content, err := repo.GetTagContent(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	if err != nil {
-		logAndRespondError(w, "error when accessing tag content", http.StatusInternalServerError)
+		// TODO Log error
+		http.Error(w, "error when accessing tag content", http.StatusInternalServerError)
 		return
 	}
 

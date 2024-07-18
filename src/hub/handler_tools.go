@@ -22,32 +22,7 @@ func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonData)
-	if err != nil {
-		// TODO
-		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// TODO dead code?
-func logAndRespondWarn(w http.ResponseWriter, msg string, httpStatus int) {
-	Logger.Warn(msg)
-	http.Error(w, msg, httpStatus)
-}
-
-func logAndRespondInfo(w http.ResponseWriter, msg string, httpStatus int) {
-	Logger.Info(msg)
-	http.Error(w, msg, httpStatus)
-}
-
-func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
-	Logger.Error(msg)
-	http.Error(w, msg, httpStatus)
-}
-
-func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
-	Logger.Debug(msg)
-	http.Error(w, msg, httpStatus)
+	w.Write(jsonData)
 }
 
 var repo Repository = &SqliteRepository{}
@@ -142,8 +117,8 @@ func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
-		Logger.Debug("cookie not set in request: %s", err.Error())
-		logAndRespondDebug(w, "cookie not set in request", http.StatusUnauthorized)
+		Logger.Warn("cookie not set in request: %s", err.Error())
+		http.Error(w, "cookie not set in request", http.StatusUnauthorized)
 		return "", fmt.Errorf("")
 	}
 
@@ -157,31 +132,34 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
+	user, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
-		Logger.Debug("error when getting cookie of user: %s", err.Error())
+		Logger.Info("error when getting cookie of user: %s", err.Error())
 		http.Error(w, "cookie not found", http.StatusNotFound)
 		return "", fmt.Errorf("")
 	}
 
-	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get(OriginHeader)) {
-		logAndRespondDebug(w, "origin not matching", http.StatusBadRequest)
+	if !repo.IsOriginCorrect(user, r.Header.Get(OriginHeader)) {
+		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(OriginHeader))
+		http.Error(w, "origin not matching", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
 
 	if repo.IsCookieExpired(cookie.Value) {
-		logAndRespondDebug(w, "cookie expired", http.StatusBadRequest)
+		Logger.Warn("user '%s' used an expired cookie'")
+		http.Error(w, "cookie expired", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
 
 	newExpirationTime := getTimeIn30Days() // TODO Also set exp time request.
-	err = repo.SetCookie(authenticatedUser, cookie.Value, newExpirationTime)
+	err = repo.SetCookie(user, cookie.Value, newExpirationTime)
 	if err != nil {
-		logAndRespondDebug(w, "updating cookie failed", http.StatusInternalServerError)
+		Logger.Error("setting new cookie failed: %v", err)
+		http.Error(w, "setting new cookie failed", http.StatusInternalServerError)
 		return "", err
 	}
 	cookie.Expires = newExpirationTime
 	http.SetCookie(w, cookie)
 
-	return authenticatedUser, nil
+	return user, nil
 }

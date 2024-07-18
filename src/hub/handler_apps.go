@@ -12,7 +12,8 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == http.MethodDelete {
 		handleDeleteApp(w, r)
 	} else {
-		logAndRespondWarn(w, "method not implemented", http.StatusMethodNotAllowed)
+		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, appPath)
+		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
 		return
 	}
 }

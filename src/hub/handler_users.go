@@ -16,14 +16,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.IsPasswordCorrect(creds.User, creds.Password) {
-		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
+		// TODO Log
+		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
 	// TODO Add cookie renewal logic when used in the checkAuthentication. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
 	cookie, err := generateCookie()
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		// TODO Log
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	if profile == TEST && creds.User == expirationTestUser {
@@ -32,7 +34,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+		// TODO Log
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -45,7 +48,8 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
 	} else {
-		logAndRespondDebug(w, "Invalid request method", http.StatusMethodNotAllowed)
+		// TODO Log
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 }
@@ -57,13 +61,15 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(user) {
-		logAndRespondError(w, "user does not exist", http.StatusNotFound)
+		// TODO Log
+		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	err = repo.DeleteUser(user)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		// TODO Log
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -87,7 +93,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = repo.CreateUser(form)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		// TODO Log
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -97,7 +104,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
+		// TODO Log
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 
 	form, err := readBody[ChangePasswordForm](r)
@@ -108,18 +116,21 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(form.User) {
-		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		// TODO Log
+		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.IsPasswordCorrect(form.User, form.OldPassword) {
-		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
+		// TODO Log
+		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
 	err = repo.ChangePassword(form.User, form.NewPassword)
 	if err != nil {
-		logAndRespondError(w, "error when trying to change password", http.StatusInternalServerError)
+		// TODO Log
+		http.Error(w, "error when trying to change password", http.StatusInternalServerError)
 		return
 	}
 
@@ -129,7 +140,8 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
+		// TODO Log
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 
 	form, err := readBody[ChangeOriginForm](r)
@@ -140,18 +152,21 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(form.User) {
-		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		// TODO Log
+		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.IsPasswordCorrect(form.User, form.Password) {
-		logAndRespondDebug(w, "incorrect username or password", http.StatusUnauthorized)
+		// TODO Log
+		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
 	err = repo.ChangeOrigin(form.User, form.NewOrigin)
 	if err != nil {
-		logAndRespondError(w, "error when trying to change origin", http.StatusInternalServerError)
+		// TODO Log
+		http.Error(w, "error when trying to change origin", http.StatusInternalServerError)
 		return
 	}
 
