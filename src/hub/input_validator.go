@@ -18,6 +18,12 @@ const (
 	Cookie
 )
 
+var validationTypeStrings = []string{"user", "app", "tag", "password", "origin", "email", "cookie"}
+
+func getValidationTypeString(validationType ValidationType) string {
+	return validationTypeStrings[validationType]
+}
+
 var (
 	namePattern     = regexp.MustCompile(`^[a-z0-9]{3,20}$`)
 	tagPattern      = regexp.MustCompile(`^[a-z0-9.]{3,20}$`)
@@ -48,7 +54,15 @@ func validate(input string, validationType ValidationType) bool {
 		return false
 	}
 
-	return re.MatchString(input)
+	result := re.MatchString(input)
+	if result == false {
+		if validationType == Password || validationType == Cookie {
+			Logger.Warn("input validation failed for validation type: %s", getValidationTypeString(validationType))
+		} else {
+			Logger.Warn("input validation failed for validation type '%s' with input '%s'", getValidationTypeString(validationType), input)
+		}
+	}
+	return result
 }
 
 func validateOrigin(input string) bool {

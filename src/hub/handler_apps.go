@@ -12,7 +12,7 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == http.MethodDelete {
 		handleDeleteApp(w, r)
 	} else {
-		logAndRespondError(w, "method not implemented", http.StatusMethodNotAllowed)
+		logAndRespondWarn(w, "method not implemented", http.StatusMethodNotAllowed)
 		return
 	}
 }
@@ -25,13 +25,13 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
-		return
+		Logger.Debug("error reading body: %v", err)
+		http.Error(w, "failed reading body", http.StatusBadRequest)
 	}
 	app := singleString.Value
 
 	if !validate(app, App) {
-		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
