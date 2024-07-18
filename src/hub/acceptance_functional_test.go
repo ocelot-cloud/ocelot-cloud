@@ -151,12 +151,19 @@ func TestRegistration(t *testing.T) {
 
 func TestGetTagsUnhappyPath(t *testing.T) {
 	hub := getHub()
+
 	_, err := hub.getTags()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(404, "user does not exist"), err.Error())
 
 	assert.Nil(t, hub.registerUser())
+	assert.Nil(t, hub.login())
 	_, err = hub.getTags()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+
+	assert.Nil(t, hub.createApp())
+	tagList, err := hub.getTags()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(tagList))
 }

@@ -65,23 +65,23 @@ type UserAndApp struct {
 }
 
 func handleTagList(w http.ResponseWriter, r *http.Request) {
-	usernameAndApp, err := readBody[UserAndApp](r)
+	userAndApp, err := readBody[UserAndApp](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if !repo.DoesUserExist(usernameAndApp.User) {
+	if !repo.DoesUserExist(userAndApp.User) {
 		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	if !repo.DoesAppExist(usernameAndApp.User, usernameAndApp.App) {
+	if !repo.DoesAppExist(userAndApp.User, userAndApp.App) {
 		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	tagsList, err := repo.GetTagList(usernameAndApp.User, usernameAndApp.App)
+	tagsList, err := repo.GetTagList(userAndApp.User, userAndApp.App)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
 		return
