@@ -107,7 +107,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO I think this should be done when the other formalities like app/tag extraction/validation are done.
 	var tagUpload TagUpload
 	err = json.NewDecoder(r.Body).Decode(&tagUpload)
 	if err != nil {

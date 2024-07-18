@@ -43,10 +43,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
 	}
 
-	// TODO Must be verified by a test:
 	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusOK)
+		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -54,7 +53,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	logAndRespondDebug(w, "login successful", http.StatusOK)
 }
 
-// TODO delete user, get user (maybe for testing?)
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
