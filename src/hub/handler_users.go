@@ -16,7 +16,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.IsPasswordCorrect(creds.User, creds.Password) {
-		// TODO Log
+		Logger.Info("Password of user '%s' was not correct", creds.User)
 		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
@@ -24,8 +24,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO Add cookie renewal logic when used in the checkAuthentication. Once a day and at boot, delete all expired cookies. A user can have one or multiple active cookies?
 	cookie, err := generateCookie()
 	if err != nil {
-		// TODO Log
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("cookie generation failed: %v", err)
+		http.Error(w, "cookie generation failed", http.StatusInternalServerError)
 	}
 
 	if profile == TEST && creds.User == expirationTestUser {
@@ -34,8 +34,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {
-		// TODO Log
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("setting cookie failed: %v", err)
+		http.Error(w, "setting cookie failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -48,8 +48,8 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
 	} else {
-		// TODO Log
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		Logger.Warn("invalid request method '%s' on endpoint '%s'", r.Method, userPath)
+		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 }
@@ -61,15 +61,15 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(user) {
-		// TODO Log
-		http.Error(w, "user does not exist", http.StatusNotFound)
+		Logger.Error("user '%s' wanted to delete his account but seems not to exist although authenticated", user)
+		http.Error(w, "user does not exist", http.StatusInternalServerError)
 		return
 	}
 
 	err = repo.DeleteUser(user)
 	if err != nil {
-		// TODO Log
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("user '%s' deletion failed", err)
+		http.Error(w, "user deletion failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -93,8 +93,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = repo.CreateUser(form)
 	if err != nil {
-		// TODO Log
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("user '%s' registration failed: %v", form.User, err)
+		http.Error(w, "user registration failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -104,8 +104,9 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		// TODO Log
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		// TODO abstract
+		Logger.Warn("invalid request method '%s' used for endpoint '%s'", r.Method, tagPath)
+		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
 	}
 
 	form, err := readBody[ChangePasswordForm](r)
