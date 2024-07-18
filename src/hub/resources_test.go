@@ -159,7 +159,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 
 func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
 	if h.SetOriginHeader {
-		req.Header.Set("Origin", h.Origin)
+		req.Header.Set(OriginHeader, h.Origin)
 	}
 	if h.SetCookieHeader && h.Cookie != nil {
 		req.AddCookie(h.Cookie)

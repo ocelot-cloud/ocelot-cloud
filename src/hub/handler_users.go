@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+const OriginHeader = "Origin"
 const expirationTestUser = "expirationtestuser"
 
 type RegistrationForm struct {
@@ -80,7 +81,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if !validate(r.Header.Get("Origin"), Origin) {
+	if !validate(r.Header.Get(OriginHeader), Origin) {
 		logAndRespondDebug(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -93,8 +94,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	// TODO there should be a global variable "originHeader"
-	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get("Origin")) {
+	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get(OriginHeader)) {
 		logAndRespondDebug(w, "origin not matching", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -139,7 +139,6 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO Should return a pointer
 	form, err := readBody[RegistrationForm](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
@@ -171,7 +170,6 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 
-	// TODO Should return a pointer
 	form, err := readBody[ChangePasswordForm](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
@@ -208,7 +206,6 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 
-	// TODO Should return a pointer
 	form, err := readBody[ChangeOriginForm](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
