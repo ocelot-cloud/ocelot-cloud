@@ -24,26 +24,25 @@ type TagInfo struct {
 	Tag  string `json:"tag"`
 }
 
+type AppAndTag struct {
+	App string `json:"app"`
+	Tag string `json:"tag"`
+}
+
 func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	authenticatedUser, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}
 
-	tagInfo, err := readBody[TagInfo](r)
+	tagInfo, err := readBody[AppAndTag](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if !validate(tagInfo.User, User) || !validate(tagInfo.App, App) || !validate(tagInfo.Tag, Tag) {
+	if !validate(tagInfo.App, App) || !validate(tagInfo.Tag, Tag) {
 		logAndRespondDebug(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	// TODO Don't send a "user", just take the one from the json.
-	if authenticatedUser != tagInfo.User {
-		logAndRespondDebug(w, "deleting tags not belonging to you is not allowed", http.StatusUnauthorized)
 		return
 	}
 
@@ -52,7 +51,7 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.DeleteTag(tagInfo.User, tagInfo.App, tagInfo.Tag)
+	err = repo.DeleteTag(authenticatedUser, tagInfo.App, tagInfo.Tag)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return

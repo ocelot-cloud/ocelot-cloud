@@ -259,10 +259,9 @@ func unpackResponse[T any](object interface{}) (*T, error) {
 }
 
 func (h *HubClient) deleteTag() error {
-	tagInfo := &TagInfo{
-		User: h.User,
-		App:  h.App,
-		Tag:  h.Tag,
+	tagInfo := &AppAndTag{
+		App: h.App,
+		Tag: h.Tag,
 	}
 	_, err := h.doRequest(tagPath, tagInfo, "tag deleted\n", "DELETE", DeleteTag)
 	return err
