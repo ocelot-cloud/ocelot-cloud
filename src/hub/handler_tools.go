@@ -25,6 +25,11 @@ func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	}
 }
 
+func logAndRespondWarn(w http.ResponseWriter, msg string, httpStatus int) {
+	Logger.Warn(msg)
+	http.Error(w, msg, httpStatus)
+}
+
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
 	Logger.Error(msg)
 	http.Error(w, msg, httpStatus)
@@ -120,7 +125,7 @@ func generateCookie() (*http.Cookie, error) {
 
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
-	logAndRespondDebug(w, "wipe completed", http.StatusOK)
+	logAndRespondWarn(w, "wipe completed", http.StatusOK)
 }
 
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
