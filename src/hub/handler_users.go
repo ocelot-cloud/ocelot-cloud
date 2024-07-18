@@ -90,7 +90,9 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logAndRespondInfo(w, "user registered: "+form.User, http.StatusOK)
+	// TODO Get rid of other OK messages in hubClient
+	Logger.Info("user registered: " + form.User)
+	w.WriteHeader(http.StatusOK)
 }
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {

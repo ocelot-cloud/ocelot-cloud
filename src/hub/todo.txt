@@ -3,7 +3,181 @@ TODO protect against zip-bomb attack.
 TODO Email verification fpr accounts? -> Maybe shift to production release issues?
 TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
 TODO In the end, add deploy script which only works on my device, since I have the correct SSH keys and config.
+
+Logging: Check if log levels are appropriate, log messages have sufficient and informative info, there duplication or missing valuable information for logger and client
 TODO During testing the log level should be DEBUG, by default, it should be INFO
 TODO I think I exaggerated with some error logs, e.g. when using logAndReturnError. Which often is just debug or info.
 TODO Add log rotation to the "shared" module
 TODO Deny requests that are bigger than 1MB?
+
+Make a list of potential checks -> would be nice to automated that security behavior.
+
+input validation: correctly formatted jsons and cookies
+authentication (nothing or wrong/missing cookie or correct password)
+authorization (executed by different user)
+
+TODO getHubAndLogin(t) -> Ensure user is deleted
+TODO Logout hub.logout() nutzen anstatt hub.Cookie = nil
+TODO git the error: 'Expected nil, but got: &errors.errorString{s:"Expected status code 201, but got 500. Response body: User already exists: myuser\n"}' -> should be status code 409, not 500
+TODO Get rid of all status 201, only use 200
+
+TODO In the end, go throug htest test log and check all the error message for appropriate error level. Should I actually log more info?
+TODO the LogAndReturnError, should not be in the shared module I think, right?
+TODO hub.login should return err only, not a cookie, its already available in hub.Cookie
+TODO The logs are a little worthless without more context? -> But I can run them via IDE, maybe put that into the docs. Start "./hub", then execute acceptance tests via goland IDE
+TODO Maybe a cleanup DB method would be nice to make tests more independent from each other.
+
+TODO Name the cookie ocelot-hub-auth, just in case of accidental duplication.
+
+TODO Too much detail: Expected nil, but got: &errors.errorString{s:"Expected status code 200, but got 500. Response body: user not found: sql: no rows in result set\n"} -> In reposiroty, dont return the SQL wrrors, but more generic ones like "searching for user failed" or so, alsoo status 500 seems odd here
+
+TODO Logs: correct log level, debug should provide useful info about the user
+TODO returned messages to user should not contain internal or sensitive data
+
+was IsCredentialsRequired tested?
+
+solve todos, handle errors
+border cases (not found, already existing, parent not existing, performed by other user/unauthorized etc.)
+
+Cookie: Expiration Update
+
+TestUpload for correct file name -> two underscores, ending with ".tar.gz", user and app must exist
+
+ChangeEmail -> Skip?
+
+
+	origin := r.Header.Get("Origin")
+	if !repo.IsOriginCorrect(form.User, origin) {
+		logAndRespondDebug(w, "Password is not correct", http.StatusUnauthorized)
+		return
+	}
+
+Can I somehow read the size of content without loading the whole content from the database? I mean when I put a blob there and want to know the number of bytes. Like here, I dont want to load the whole content from db, but only its size:
+
+	data, err := u.GetTagContent(user, app, tag)
+	if err != nil {
+		return err
+	}
+	dataSize := len(data)
+
+	_, err = db.Exec("DELETE FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag)
+	if err != nil {
+		return fmt.Errorf("failed to delete tag: %w", err)
+	}
+
+	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_name = ?", dataSize, user)
+	if err != nil {
+		return fmt.Errorf("failed to update user space: %w", err)
+	}
+
+	return nil
+
+Implement Frontend
+Implement Logout function which deletes the cookie.
+
+Idea for code unzipping:
+
+package main
+
+import (
+	"archive/tar"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+)
+
+func main() {
+	// Path to your tar.gz file
+	tarGzFile := "example.tar.gz"
+	// Directory to extract the files to
+	destDir := "extracted_files"
+
+	if err := unpackTarGz(tarGzFile, destDir); err != nil {
+		fmt.Printf("Error unpacking tar.gz file: %v\n", err)
+	}
+}
+
+func unpackTarGz(src, dest string) error {
+	// Open the tar.gz file
+	file, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Create a gzip reader
+	gzReader, err := gzip.NewReader(file)
+	if err != nil {
+		return err
+	}
+	defer gzReader.Close()
+
+	// Create a tar reader
+	tarReader := tar.NewReader(gzReader)
+
+	// Protection thresholds
+	const maxFileSize = 100 * 1024 * 1024 // 100 MB
+	const maxFiles = 1000
+
+	// Counters to keep track of total size and number of files
+	var totalSize int64
+	var fileCount int
+
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		// Check file size
+		if header.Size > maxFileSize {
+			return fmt.Errorf("file too large: %s", header.Name)
+		}
+		totalSize += header.Size
+		fileCount++
+
+		// Check total size and number of files
+		if totalSize > maxFileSize {
+			return fmt.Errorf("extracted content too large")
+		}
+		if fileCount > maxFiles {
+			return fmt.Errorf("too many files in archive")
+		}
+
+		// Construct the file path
+		destPath := filepath.Join(dest, header.Name)
+
+		// Handle different file types
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(destPath, os.FileMode(header.Mode)); err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			if err := extractFile(tarReader, destPath, header.Mode); err != nil {
+				return err
+			}
+		default:
+			// Handle other file types if necessary
+		}
+	}
+
+	return nil
+}
+
+func extractFile(reader io.Reader, destPath string, mode int64) error {
+	file, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(mode))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, reader)
+	return err
+}
+

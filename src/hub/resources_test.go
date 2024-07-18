@@ -85,7 +85,7 @@ func getHub() *HubClient {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "user registered: "+form.User, "POST", Register)
+	_, err := h.doRequest(registrationPath, form, "", "POST", Register)
 	return err
 }
 
@@ -192,7 +192,13 @@ func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
 }
 
 func getErrMsg(actualStatusCode int, respBodyMsg string) string {
-	return fmt.Sprintf("Expected status code 200, but got %d. Response body: %s", actualStatusCode, respBodyMsg)
+	var msg string
+	if respBodyMsg == "" {
+		msg = ""
+	} else {
+		msg = fmt.Sprintf(" Response body: %s", respBodyMsg)
+	}
+	return fmt.Sprintf("Expected status code 200, but got %d.%s", actualStatusCode, msg)
 }
 
 func (h *HubClient) createApp() error {
