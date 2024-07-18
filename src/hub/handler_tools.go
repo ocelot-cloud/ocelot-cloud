@@ -118,7 +118,6 @@ func generateCookie() (*http.Cookie, error) {
 	}, nil
 }
 
-// TODO Add acceptance test checking that this endpoint is not available when using production profile.
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
 	logAndRespondDebug(w, "wipe completed", http.StatusOK)
@@ -142,7 +141,6 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	// TODO everytime I use "GetUserWithCookie" I should do validation previously. Everytime I do sth with the cookie in general.
 	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
 		Logger.Debug("error when getting cookie of user: %s", err.Error())

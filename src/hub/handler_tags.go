@@ -106,7 +106,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Should take tagInfo structure as arg
 	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
