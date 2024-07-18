@@ -41,51 +41,51 @@ type SingleString struct {
 	Value string `json:"name"`
 }
 
-func readBody[T any](r *http.Request) (T, error) {
+func readBody[T any](r *http.Request) (*T, error) {
 	var result T
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		return result, fmt.Errorf("unable to read request body: %w", err)
+		return nil, fmt.Errorf("unable to read request body: %w", err)
 	}
 	defer r.Body.Close()
 
 	if err := json.Unmarshal(body, &result); err != nil {
-		return result, fmt.Errorf("invalid request body: %w", err)
+		return nil, fmt.Errorf("invalid request body: %w", err)
 	}
 
 	switch v := any(result).(type) {
 	case UserAndApp:
 		if !validate(v.User, User) || !validate(v.App, App) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	case RegistrationForm:
 		if !validate(v.Username, User) || !validate(v.Password, Password) || !validate(v.Email, Email) || !validate(v.Origin, Origin) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	case ChangeOriginForm:
 		if !validate(v.User, User) || !validate(v.Password, Password) || !validate(v.NewOrigin, Origin) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	case ChangePasswordForm:
 		if !validate(v.User, User) || !validate(v.OldPassword, Password) || !validate(v.NewPassword, Password) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	case LoginCredentials:
 		if !validate(v.User, User) || !validate(v.Password, Password) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	case AppInfo:
 		if !validate(v.User, User) || !validate(v.App, App) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	case TagInfo:
 		if !validate(v.User, User) || !validate(v.App, App) || !validate(v.Tag, Tag) {
-			return result, fmt.Errorf("invalid input")
+			return nil, fmt.Errorf("invalid input")
 		}
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {

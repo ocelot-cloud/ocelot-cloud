@@ -151,7 +151,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.CreateUser(&form)
+	err = repo.CreateUser(form)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
