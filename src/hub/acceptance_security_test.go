@@ -156,7 +156,7 @@ func TestDeleteTagSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-tag", TagField, DeleteTag)
 }
 
-func TestCookieAndHostProtection(t *testing.T) {
+func TestCookieExpirationAndRenewal(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.
 	hub.User = testUserWithExpiredCookie
@@ -177,6 +177,13 @@ func TestCookieAndHostProtection(t *testing.T) {
 	assert.True(t, time.Now().UTC().AddDate(0, 0, 29).Before(hub.Cookie.Expires))
 	assert.True(t, time.Now().UTC().AddDate(0, 0, 31).After(hub.Cookie.Expires))
 	hub.User = sampleUser
+}
+
+func TestCookieAndHostProtection(t *testing.T) {
+	// TODO Why is the login necessary here to make the tests pass? Should not happen actually.
+	hub := getHubAndLogin(t)
+	hub.User = testUserWithExpiredCookie
+	assert.Nil(t, hub.registerUser())
 
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
