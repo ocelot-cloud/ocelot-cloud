@@ -40,6 +40,24 @@ type HubClient struct {
 	UploadContent   []byte
 }
 
+type Operation int
+
+const (
+	FindApps Operation = iota
+	DownloadApp
+	Register
+	ChangeOrigin
+	ChangePassword
+	Login
+	DeleteUser
+	CreateApp
+	DeleteApp
+	UploadTag
+	DeleteTag
+	GetTags
+	WipeData
+)
+
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
 		Username: hub.User,
