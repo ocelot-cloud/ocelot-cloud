@@ -159,8 +159,18 @@ func TestDeleteTagSecurity(t *testing.T) {
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.
-	hub.User = expirationTestUser
+	hub.User = testUserWithExpiredCookie
 	assert.Nil(t, hub.registerUser())
+	assert.Nil(t, hub.login())
+	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
+	err := hub.createApp()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
+	hub.User = sampleUser
+
+	hub.User = testUserWithOldButNotExpiredCookie
+	assert.Nil(t, hub.registerUser())
+	// TODO
 	hub.User = sampleUser
 
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
@@ -206,7 +216,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
 	assert.Nil(t, hub.login())
 
-	hub.User = expirationTestUser
+	hub.User = testUserWithExpiredCookie
 	err = hub.login()
 	assert.Nil(t, err)
 	err = operation()

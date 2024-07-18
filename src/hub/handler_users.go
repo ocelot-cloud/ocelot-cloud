@@ -5,7 +5,10 @@ import (
 	"time"
 )
 
-const expirationTestUser = "expirationtestuser"
+const (
+	testUserWithExpiredCookie          = "expcookietestuser"
+	testUserWithOldButNotExpiredCookie = "oldcookietestuser"
+)
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	creds, err := readBody[LoginCredentials](r)
@@ -28,8 +31,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "cookie generation failed", http.StatusInternalServerError)
 	}
 
-	if profile == TEST && creds.User == expirationTestUser {
-		cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
+	if profile == TEST {
+		if creds.User == testUserWithExpiredCookie {
+			cookie.Expires = time.Now().UTC().Add(-1 * time.Second)
+		} else if creds.User == testUserWithOldButNotExpiredCookie {
+			cookie.Expires = time.Now().UTC().Add(24 * time.Hour)
+		}
 	}
 
 	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
