@@ -240,7 +240,7 @@ func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
 	}
 
 	if !totalSize.Valid {
-		return 0, nil // If there are no tags and the result is NULL, return 0
+		return 0, nil
 	}
 
 	return totalSize.Int64, nil
@@ -323,6 +323,8 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 
 	return user, nil
 }
+
+// TODO There should be a maximum of 100 apps per user. Also add tests.
 
 func (u *SqliteRepository) CreateTag(user string, app string, tag string, data []byte) error {
 	appID, err := getAppIdFromUsername(user, app)

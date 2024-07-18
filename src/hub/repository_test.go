@@ -143,10 +143,9 @@ func TestSearchNegative(t *testing.T) {
 	assert.Equal(t, 0, len(a))
 }
 
-// TODO handle the unhandled errors
 func TestCookieExpiration(t *testing.T) {
 	defer um.WipeDatabase()
-	um.CreateUser(sampleForm)
+	assert.Nil(t, um.CreateUser(sampleForm))
 	_, err := um.GetUserWithCookie("")
 	assert.NotNil(t, err)
 
