@@ -95,7 +95,7 @@ func (h *HubClient) login() error {
 		Password: h.Password,
 	}
 
-	result, err := h.doRequest(loginPath, creds, "login successful", "GET", Login)
+	result, err := h.doRequest(loginPath, creds, "", "GET", Login)
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, nil, "User deleted", "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, nil, "", "DELETE", DeleteUser)
 	return err
 }
 
@@ -202,7 +202,7 @@ func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "app created", "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "", "POST", CreateApp)
 	return err
 }
 
@@ -226,7 +226,7 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.doRequest(tagPath, tapUpload, "file uploaded successfully", "POST", UploadTag)
+	_, err := h.doRequest(tagPath, tapUpload, "", "POST", UploadTag)
 	return err
 }
 
@@ -288,12 +288,12 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.doRequest(tagPath, tagInfo, "tag deleted", "DELETE", DeleteTag)
+	_, err := h.doRequest(tagPath, tagInfo, "", "DELETE", DeleteTag)
 	return err
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "app deleted", "DELETE", DeleteApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "", "DELETE", DeleteApp)
 	return err
 }
 
@@ -304,7 +304,7 @@ func (h *HubClient) ChangePassword(newPassword string) error {
 		NewPassword: newPassword,
 	}
 
-	_, err := h.doRequest(changePasswordPath, form, "password changed", "POST", ChangePassword)
+	_, err := h.doRequest(changePasswordPath, form, "", "POST", ChangePassword)
 	return err
 }
 
@@ -315,7 +315,7 @@ func (h *HubClient) ChangeOrigin(newOrigin string) error {
 		NewOrigin: newOrigin,
 	}
 
-	_, err := h.doRequest(changeOriginPath, form, "origin changed", "POST", ChangeOrigin)
+	_, err := h.doRequest(changeOriginPath, form, "", "POST", ChangeOrigin)
 	return err
 }
 
@@ -328,6 +328,6 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.doRequest(wipeDataPath, nil, "database wipe completed", "GET", WipeData)
+	_, err := h.doRequest(wipeDataPath, nil, "", "GET", WipeData)
 	return err
 }

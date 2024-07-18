@@ -13,7 +13,8 @@ import (
 func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("unmarshalling failed: %v", err)
+		http.Error(w, "TODO", http.StatusInternalServerError)
 		return
 	}
 
@@ -21,6 +22,7 @@ func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(jsonData)
 	if err != nil {
+		// TODO
 		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -130,7 +132,8 @@ func generateCookie() (*http.Cookie, error) {
 
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
-	logAndRespondWarn(w, "database wipe completed", http.StatusOK)
+	Logger.Warn("database wipe completed")
+	w.WriteHeader(http.StatusOK)
 }
 
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {

@@ -9,7 +9,6 @@ const OriginHeader = "Origin"
 const expirationTestUser = "expirationtestuser"
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	Logger.Debug("login logic called")
 	creds, err := readBody[LoginCredentials](r)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
@@ -38,7 +37,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, cookie)
-	logAndRespondDebug(w, "login successful", http.StatusOK)
+	Logger.Info("user '%s' logged in successfully", creds.User)
+	w.WriteHeader(http.StatusOK)
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,9 +67,8 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Logger.Info("Deleted user: %s", user)
-
-	logAndRespondDebug(w, "User deleted", http.StatusOK)
+	Logger.Info("deleted user: %s", user)
+	w.WriteHeader(http.StatusOK)
 }
 
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +89,6 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Get rid of other OK messages in hubClient
 	Logger.Info("user registered: " + form.User)
 	w.WriteHeader(http.StatusOK)
 }
@@ -122,7 +120,8 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logAndRespondDebug(w, "password changed", http.StatusOK)
+	Logger.Info("user '%s' changed his password", form.User)
+	w.WriteHeader(http.StatusOK)
 }
 
 func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
@@ -152,5 +151,6 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logAndRespondDebug(w, "origin changed", http.StatusOK)
+	Logger.Info("user '%s' changed his origin", form.User)
+	w.WriteHeader(http.StatusOK)
 }

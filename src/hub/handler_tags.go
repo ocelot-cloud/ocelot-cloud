@@ -112,7 +112,8 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logAndRespondDebug(w, "file uploaded successfully", http.StatusOK)
+	Logger.Info("user '%s' uploaded a new tag to the app '%s' with the tag name '%s'", authenticatedUser, tagUpload.App, tagUpload.Tag)
+	w.WriteHeader(http.StatusOK)
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ TODO Email verification fpr accounts? -> Maybe shift to production release issue
 TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
 TODO In the end, add deploy script which only works on my device, since I have the correct SSH keys and config.
 
-Logging: Check if log levels are appropriate, log messages have sufficient and informative info, there duplication or missing valuable information for logger and client
+Logging: Check if log levels are appropriate, log messages have sufficient and informative info, there duplication or missing valuable information for logger and client, users should not see internal or sensitive information
 TODO During testing the log level should be DEBUG, by default, it should be INFO
 TODO I think I exaggerated with some error logs, e.g. when using logAndReturnError. Which often is just debug or info.
 TODO Add log rotation to the "shared" module
