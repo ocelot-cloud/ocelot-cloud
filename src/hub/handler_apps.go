@@ -67,7 +67,7 @@ func findApps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Logger.Info("conducted app search for '%s'", appSearchTerm)
+	Logger.Info("conducted app search with search term '%s'", appSearchTerm)
 	sendJsonResponse(w, apps)
 }
 
@@ -91,16 +91,20 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(authenticatedUser) {
-		logAndRespondDebug(w, "user does not exists", http.StatusNotFound)
+		Logger.Info("user '%s' tried to create app '%s' but it does not exist", authenticatedUser, app)
+		http.Error(w, "user does not exists", http.StatusNotFound)
 		return
 	}
 	if repo.DoesAppExist(authenticatedUser, app) {
-		logAndRespondDebug(w, "app already exists", http.StatusConflict)
+		Logger.Info("user '%s' tried to create app '%s' but it already exists", authenticatedUser, app)
+		http.Error(w, "app already exists", http.StatusConflict)
 		return
 	}
+
 	err = repo.CreateApp(authenticatedUser, app)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
+		Logger.Error("user '%s' tried to create app '%s' but it failed: %v", authenticatedUser, app, err)
+		http.Error(w, "app creation failed", http.StatusInternalServerError)
 		return
 	}
 
