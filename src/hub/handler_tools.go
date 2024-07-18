@@ -37,10 +37,6 @@ func logAndRespondDebug(w http.ResponseWriter, msg string, httpStatus int) {
 
 var repo Repository = &SqliteRepository{}
 
-type SingleString struct {
-	Value string `json:"name"`
-}
-
 func readBody[T any](r *http.Request) (*T, error) {
 	var result T
 
@@ -73,10 +69,6 @@ func readBody[T any](r *http.Request) (*T, error) {
 		}
 	case LoginCredentials:
 		if !validate(v.User, User) || !validate(v.Password, Password) {
-			return nil, fmt.Errorf("invalid input")
-		}
-	case AppInfo:
-		if !validate(v.User, User) || !validate(v.App, App) {
 			return nil, fmt.Errorf("invalid input")
 		}
 	case TagInfo:

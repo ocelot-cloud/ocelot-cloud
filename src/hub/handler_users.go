@@ -8,18 +8,6 @@ import (
 const OriginHeader = "Origin"
 const expirationTestUser = "expirationtestuser"
 
-type RegistrationForm struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	Origin   string `json:"host"`
-}
-
-type LoginCredentials struct {
-	User     string `json:"username"`
-	Password string `json:"password"`
-}
-
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("login logic called")
 	creds, err := readBody[LoginCredentials](r)
@@ -105,12 +93,6 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	logAndRespondDebug(w, "User registered", http.StatusOK)
 }
 
-type ChangePasswordForm struct {
-	User        string `json:"user"`
-	OldPassword string `json:"old_password"`
-	NewPassword string `json:"new_password"`
-}
-
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		logAndRespondError(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -139,12 +121,6 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logAndRespondDebug(w, "password changed", http.StatusOK)
-}
-
-type ChangeOriginForm struct {
-	User      string `json:"user"`
-	Password  string `json:"password"`
-	NewOrigin string `json:"new_origin"`
 }
 
 func changeOriginHandler(w http.ResponseWriter, r *http.Request) {

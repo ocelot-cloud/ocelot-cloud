@@ -72,7 +72,7 @@ type Repository interface {
 	DoesAppExist(user string, app string) bool
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
-	FindApps(query string) ([]AppInfo, error)
+	FindApps(query string) ([]UserAndApp, error)
 	SetCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieExpired(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
@@ -245,13 +245,8 @@ func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
 	return totalSize.Int64, nil
 }
 
-type AppInfo struct {
-	User string
-	App  string
-}
-
-func (u *SqliteRepository) FindApps(query string) ([]AppInfo, error) {
-	var apps []AppInfo
+func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
+	var apps []UserAndApp
 
 	rows, err := db.Query(`
 		SELECT u.user_name, a.app_name 
@@ -267,7 +262,7 @@ func (u *SqliteRepository) FindApps(query string) ([]AppInfo, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var app AppInfo
+		var app UserAndApp
 		err := rows.Scan(&app.User, &app.App)
 		if err != nil {
 			Logger.Error("Error scanning app row: %v\n", err)

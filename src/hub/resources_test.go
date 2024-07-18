@@ -199,13 +199,13 @@ func (h *HubClient) createApp() error {
 	return err
 }
 
-func (h *HubClient) findApps(searchTerm string) ([]AppInfo, error) {
+func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 	result, err := h.doRequest(appPath, SingleString{searchTerm}, "", "GET", FindApps)
 	if err != nil {
 		return nil, err
 	}
 
-	apps, err := unpackResponse[[]AppInfo](result)
+	apps, err := unpackResponse[[]UserAndApp](result)
 	if err != nil {
 		return nil, err
 	}

@@ -17,18 +17,6 @@ func tagHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO My impression is there might be some duplication with other data structure. To be checked for abstration.
-type TagInfo struct {
-	User string `json:"user"`
-	App  string `json:"app"`
-	Tag  string `json:"tag"`
-}
-
-type AppAndTag struct {
-	App string `json:"app"`
-	Tag string `json:"tag"`
-}
-
 func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	authenticatedUser, err := checkAuthentication(w, r)
 	if err != nil {
@@ -59,11 +47,6 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	logAndRespondDebug(w, "tag deleted", http.StatusOK)
 }
 
-type UserAndApp struct {
-	User string `json:"username"`
-	App  string `json:"app"`
-}
-
 func handleTagList(w http.ResponseWriter, r *http.Request) {
 	userAndApp, err := readBody[UserAndApp](r)
 	if err != nil {
@@ -88,12 +71,6 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendJsonResponse(w, tagsList)
-}
-
-type TagUpload struct {
-	App     string `json:"app"`
-	Tag     string `json:"tag"`
-	Content []byte `json:"content"`
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
