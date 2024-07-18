@@ -18,7 +18,7 @@ type TagUpload struct {
 }
 
 type UserAndApp struct {
-	User string `json:"username"`
+	User string `json:"user"`
 	App  string `json:"app"`
 }
 
