@@ -137,6 +137,11 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !repo.DoesUserExist(fileInfo.User) {
+		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		return
+	}
+
 	if !repo.DoesAppExist(fileInfo.User, fileInfo.App) {
 		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
 		return

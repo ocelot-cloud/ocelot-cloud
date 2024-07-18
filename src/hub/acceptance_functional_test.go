@@ -9,9 +9,16 @@ import (
 )
 
 func TestTagDownload(t *testing.T) {
-	hub := getHubAndLogin(t)
+	hub := getHub()
 
 	_, err := hub.downloadTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "user does not exist"), err.Error())
+
+	assert.Nil(t, hub.registerUser())
+	assert.Nil(t, hub.login())
+
+	_, err = hub.downloadTag()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
 
@@ -142,4 +149,4 @@ func TestRegistration(t *testing.T) {
 	assert.Equal(t, getErrMsg(409, "user already exists"), err.Error())
 }
 
-// TODO test case: user does not exist?
+// TODO test case: user does not exist? -> getTagList?
