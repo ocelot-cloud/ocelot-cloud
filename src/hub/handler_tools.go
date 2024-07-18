@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const OriginHeader = "Origin"
+
 func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -27,6 +29,7 @@ func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	}
 }
 
+// TODO dead code?
 func logAndRespondWarn(w http.ResponseWriter, msg string, httpStatus int) {
 	Logger.Warn(msg)
 	http.Error(w, msg, httpStatus)

@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-const OriginHeader = "Origin"
 const expirationTestUser = "expirationtestuser"
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
