@@ -133,12 +133,12 @@ func (u *SqliteRepository) DoesUserExist(user string) bool {
 func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 	hashedPassword, err := hashAndSaltPassword(form.Password)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to hash password: %v\n", err)
+		return logAndReturnError("Failed to hash password: %v\n", err)
 	}
 
 	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin, used_space) VALUES (?, ?, ?, ?)", form.Username, hashedPassword, form.Origin, 0)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to create user: %v", err)
+		return logAndReturnError("Failed to create user: %v", err)
 	}
 	return nil
 }
@@ -153,12 +153,12 @@ func hashAndSaltPassword(password string) (string, error) {
 
 func (u *SqliteRepository) DeleteUser(user string) error {
 	if !u.DoesUserExist(user) {
-		return Logger.LogAndReturnError("User %s does not exist", user)
+		return logAndReturnError("User %s does not exist", user)
 	}
 
 	_, err := db.Exec("DELETE FROM users WHERE user_name = ?", user)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to delete user: %v", err)
+		return logAndReturnError("Failed to delete user: %v", err)
 	}
 
 	return nil
@@ -166,9 +166,9 @@ func (u *SqliteRepository) DeleteUser(user string) error {
 
 func (u *SqliteRepository) CreateApp(user string, app string) error {
 	if !u.DoesUserExist(user) {
-		return Logger.LogAndReturnError("User '%s' does not exist", user)
+		return logAndReturnError("User '%s' does not exist", user)
 	} else if u.DoesAppExist(user, app) {
-		return Logger.LogAndReturnError("App '%s' already exists for user '%s'", app, user)
+		return logAndReturnError("App '%s' already exists for user '%s'", app, user)
 	}
 
 	userID, err := getUserId(user)
@@ -177,7 +177,7 @@ func (u *SqliteRepository) CreateApp(user string, app string) error {
 	}
 	_, err = db.Exec(`INSERT INTO apps (user_id, app_name) VALUES (?, ?)`, userID, app)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
+		return logAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
 	}
 	return nil
 }
@@ -218,7 +218,7 @@ func (u *SqliteRepository) DeleteApp(user string, app string) error {
 
 	_, err = db.Exec(`DELETE FROM apps WHERE user_id = ? AND app_name = ?`, userID, app)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
+		return logAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
 	}
 
 	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_name = ?", totalDataSize, user)
@@ -262,7 +262,7 @@ func (u *SqliteRepository) FindApps(query string) ([]AppInfo, error) {
 	`, "%"+query+"%", "%"+query+"%")
 
 	if err != nil {
-		return nil, Logger.LogAndReturnError("Failed to fetch apps: %v\n", err)
+		return nil, logAndReturnError("Failed to fetch apps: %v\n", err)
 	}
 	defer rows.Close()
 
@@ -277,7 +277,7 @@ func (u *SqliteRepository) FindApps(query string) ([]AppInfo, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		return nil, Logger.LogAndReturnError("Error iterating over app rows: %v\n", err)
+		return nil, logAndReturnError("Error iterating over app rows: %v\n", err)
 	}
 	return apps, nil
 }
@@ -285,7 +285,7 @@ func (u *SqliteRepository) FindApps(query string) ([]AppInfo, error) {
 func (u *SqliteRepository) SetCookie(user string, cookie string, expirationDate time.Time) error {
 	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", cookie, expirationDate.Format(time.RFC3339), user)
 	if err != nil {
-		return Logger.LogAndReturnError("Failed to set cookie: %v", err)
+		return logAndReturnError("Failed to set cookie: %v", err)
 	}
 	return nil
 }
@@ -311,13 +311,13 @@ func (u *SqliteRepository) IsCookieExpired(cookie string) bool {
 
 func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 	if cookie == "" {
-		return "", Logger.LogAndReturnError("Can't search for empty string cookies")
+		return "", logAndReturnError("Can't search for empty string cookies")
 	}
 
 	var user string
 	err := db.QueryRow("SELECT user_name FROM users WHERE cookie = ?", cookie).Scan(&user)
 	if err != nil {
-		return "", Logger.LogAndReturnError("Failed to fetch user with cookie because: %v", err)
+		return "", logAndReturnError("Failed to fetch user with cookie because: %v", err)
 	}
 
 	return user, nil
@@ -422,12 +422,12 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 func (u *SqliteRepository) ChangePassword(user string, newPassword string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return Logger.LogAndReturnError("failed to hash password: %w", err)
+		return logAndReturnError("failed to hash password: %w", err)
 	}
 
 	_, err = db.Exec("UPDATE users SET hashed_password = ? WHERE user_name = ?", hashedPassword, user)
 	if err != nil {
-		return Logger.LogAndReturnError("failed to update password: %w", err)
+		return logAndReturnError("failed to update password: %w", err)
 	}
 
 	return nil
@@ -436,7 +436,7 @@ func (u *SqliteRepository) ChangePassword(user string, newPassword string) error
 func (u *SqliteRepository) ChangeOrigin(user string, newOrigin string) error {
 	_, err := db.Exec("UPDATE users SET origin = ? WHERE user_name = ?", newOrigin, user)
 	if err != nil {
-		return Logger.LogAndReturnError("failed to update origin: %w", err)
+		return logAndReturnError("failed to update origin: %w", err)
 	}
 	return nil
 }
@@ -513,7 +513,12 @@ func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
 	var userSpace int
 	err := db.QueryRow(`SELECT used_space FROM users WHERE user_name = ?`, user).Scan(&userSpace)
 	if err != nil {
-		return 0, Logger.LogAndReturnError("failed to get current space: %w", err)
+		return 0, logAndReturnError("failed to get current space: %w", err)
 	}
 	return userSpace, nil
+}
+
+func logAndReturnError(message string, args ...interface{}) error {
+	Logger.Error(message, args...)
+	return fmt.Errorf(message, args...)
 }

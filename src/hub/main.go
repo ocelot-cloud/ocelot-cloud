@@ -3,24 +3,15 @@ package main
 import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
-	"os"
 )
 
-// TODO Should be put in shared module
 func init() {
-	if _, err := os.Stat(dataDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
-			Logger.Error("Error creating data directory: %v. Terminating application.", err)
-			os.Exit(1)
-		}
-	}
-	Logger = shared.ProvideLogger() // TODO dataDir should be moved to "shared". ProvideLogger should create the logs.txt in dataDir
+	Logger = shared.ProvideLogger()
 }
 
 func main() {
 	initializeDatabase()
 
-	// TODO Maybe wrap gorilla/mux like in backend, apply a common security policy and put it in shared module.
 	http.HandleFunc(downloadPath, downloadHandler)
 	http.HandleFunc(tagPath, tagHandler)
 	http.HandleFunc(changePasswordPath, changePasswordHandler)
