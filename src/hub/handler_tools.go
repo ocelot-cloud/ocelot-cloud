@@ -61,7 +61,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 	}
 	defer r.Body.Close()
 
-	if err := json.Unmarshal(body, &result); err != nil {
+	if err = json.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf("invalid request body: %w", err)
 	}
 

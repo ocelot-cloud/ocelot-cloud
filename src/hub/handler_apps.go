@@ -25,8 +25,8 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 
 	singleString, err := readBody[SingleString](r)
 	if err != nil {
-		Logger.Debug("error reading body: %v", err)
-		http.Error(w, "failed reading body", http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 	}
 	app := singleString.Value
 

@@ -312,7 +312,11 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 	var user string
 	err := db.QueryRow("SELECT user_name FROM users WHERE cookie = ?", cookie).Scan(&user)
 	if err != nil {
-		return "", logAndReturnError("Failed to fetch user with cookie because: %v", err)
+		if err.Error() == "sql: no rows in result set" {
+			return "", logAndReturnInfo("cookie not found")
+		} else {
+			return "", logAndReturnError("Failed to fetch user with cookie: %v", err)
+		}
 	}
 
 	return user, nil
@@ -515,5 +519,10 @@ func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
 
 func logAndReturnError(message string, args ...interface{}) error {
 	Logger.Error(message, args...)
+	return fmt.Errorf(message, args...)
+}
+
+func logAndReturnInfo(message string, args ...interface{}) error {
+	Logger.Info(message, args...)
 	return fmt.Errorf(message, args...)
 }

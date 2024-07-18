@@ -10,7 +10,8 @@ const expirationTestUser = "expirationtestuser"
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	creds, err := readBody[LoginCredentials](r)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -73,7 +74,8 @@ func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
 	form, err := readBody[RegistrationForm](r)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -99,7 +101,8 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	form, err := readBody[ChangePasswordForm](r)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -130,7 +133,8 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 
 	form, err := readBody[ChangeOriginForm](r)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 

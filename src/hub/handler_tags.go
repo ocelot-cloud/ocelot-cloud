@@ -25,7 +25,8 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 
 	tagInfo, err := readBody[AppAndTag](r)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -50,7 +51,8 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 func handleTagList(w http.ResponseWriter, r *http.Request) {
 	userAndApp, err := readBody[UserAndApp](r)
 	if err != nil {
-		logAndRespondDebug(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -119,7 +121,8 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	tagInfo, err := readBody[TagInfo](r)
 	if err != nil {
-		logAndRespondError(w, err.Error(), http.StatusBadRequest)
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
