@@ -136,7 +136,7 @@ func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 		return logAndReturnError("Failed to hash password: %v\n", err)
 	}
 
-	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin, used_space) VALUES (?, ?, ?, ?)", form.Username, hashedPassword, form.Origin, 0)
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin, used_space) VALUES (?, ?, ?, ?)", form.User, hashedPassword, form.Origin, 0)
 	if err != nil {
 		return logAndReturnError("Failed to create user: %v", err)
 	}

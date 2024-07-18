@@ -60,7 +60,7 @@ const (
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
-		Username: hub.User,
+		User:     hub.User,
 		Password: hub.Password,
 		Origin:   hub.Origin,
 		Email:    hub.Email,
@@ -85,7 +85,7 @@ func getHub() *HubClient {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "User registered\n", "POST", Register)
+	_, err := h.doRequest(registrationPath, form, "user registered: "+form.User, "POST", Register)
 	return err
 }
 
@@ -95,7 +95,7 @@ func (h *HubClient) login() error {
 		Password: h.Password,
 	}
 
-	result, err := h.doRequest(loginPath, creds, "login successful\n", "GET", Login)
+	result, err := h.doRequest(loginPath, creds, "login successful", "GET", Login)
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, nil, "User deleted\n", "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, nil, "User deleted", "DELETE", DeleteUser)
 	return err
 }
 
@@ -144,8 +144,9 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, err
 	}
 
-	if expectedMessage != "" && string(respBody) != expectedMessage {
-		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, string(respBody))
+	responseMessage, _ := strings.CutSuffix(string(respBody), "\n")
+	if expectedMessage != "" && expectedMessage != responseMessage {
+		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, responseMessage)
 	}
 
 	if operation == Login {
@@ -195,7 +196,7 @@ func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "app created\n", "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "app created", "POST", CreateApp)
 	return err
 }
 
@@ -219,7 +220,7 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.doRequest(tagPath, tapUpload, "file uploaded successfully\n", "POST", UploadTag)
+	_, err := h.doRequest(tagPath, tapUpload, "file uploaded successfully", "POST", UploadTag)
 	return err
 }
 
@@ -271,7 +272,7 @@ func unpackResponse[T any](object interface{}) (*T, error) {
 	var result T
 	err := json.Unmarshal(respBody, &result)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal response body: %v\n", err)
+		return nil, fmt.Errorf("Failed to unmarshal response body: %v", err)
 	}
 	return &result, nil
 }
@@ -281,12 +282,12 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.doRequest(tagPath, tagInfo, "tag deleted\n", "DELETE", DeleteTag)
+	_, err := h.doRequest(tagPath, tagInfo, "tag deleted", "DELETE", DeleteTag)
 	return err
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "app deleted\n", "DELETE", DeleteApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "app deleted", "DELETE", DeleteApp)
 	return err
 }
 
@@ -297,7 +298,7 @@ func (h *HubClient) ChangePassword(newPassword string) error {
 		NewPassword: newPassword,
 	}
 
-	_, err := h.doRequest(changePasswordPath, form, "password changed\n", "POST", ChangePassword)
+	_, err := h.doRequest(changePasswordPath, form, "password changed", "POST", ChangePassword)
 	return err
 }
 
@@ -308,7 +309,7 @@ func (h *HubClient) ChangeOrigin(newOrigin string) error {
 		NewOrigin: newOrigin,
 	}
 
-	_, err := h.doRequest(changeOriginPath, form, "origin changed\n", "POST", ChangeOrigin)
+	_, err := h.doRequest(changeOriginPath, form, "origin changed", "POST", ChangeOrigin)
 	return err
 }
 
@@ -321,6 +322,6 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.doRequest(wipeDataPath, nil, "wipe completed\n", "GET", WipeData)
+	_, err := h.doRequest(wipeDataPath, nil, "database wipe completed", "GET", WipeData)
 	return err
 }

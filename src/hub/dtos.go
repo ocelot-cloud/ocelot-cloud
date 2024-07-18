@@ -39,7 +39,7 @@ type ChangeOriginForm struct {
 }
 
 type RegistrationForm struct {
-	Username string `json:"username"`
+	User     string `json:"user"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
 	Origin   string `json:"host"`

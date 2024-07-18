@@ -79,7 +79,7 @@ func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleForm))
 	newForm := *sampleForm
-	newForm.Username = user2
+	newForm.User = user2
 	assert.Nil(t, um.CreateUser(&newForm))
 	assert.True(t, um.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.True(t, um.IsPasswordCorrect(user2, samplePassword))
@@ -90,7 +90,7 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 	user2 := sampleUser + "2"
 	assert.Nil(t, um.CreateUser(sampleForm))
 	newForm := *sampleForm
-	newForm.Username = user2
+	newForm.User = user2
 	assert.Nil(t, um.CreateUser(&newForm))
 	assert.Nil(t, um.CreateApp(sampleUser, sampleApp))
 	assert.Nil(t, um.CreateApp(user2, sampleApp))

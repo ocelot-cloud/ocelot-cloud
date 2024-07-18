@@ -30,6 +30,11 @@ func logAndRespondWarn(w http.ResponseWriter, msg string, httpStatus int) {
 	http.Error(w, msg, httpStatus)
 }
 
+func logAndRespondInfo(w http.ResponseWriter, msg string, httpStatus int) {
+	Logger.Info(msg)
+	http.Error(w, msg, httpStatus)
+}
+
 func logAndRespondError(w http.ResponseWriter, msg string, httpStatus int) {
 	Logger.Error(msg)
 	http.Error(w, msg, httpStatus)
@@ -61,7 +66,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 			return nil, fmt.Errorf("invalid input")
 		}
 	case RegistrationForm:
-		if !validate(v.Username, User) || !validate(v.Password, Password) || !validate(v.Email, Email) || !validate(v.Origin, Origin) {
+		if !validate(v.User, User) || !validate(v.Password, Password) || !validate(v.Email, Email) || !validate(v.Origin, Origin) {
 			return nil, fmt.Errorf("invalid input")
 		}
 	case ChangeOriginForm:
@@ -125,7 +130,7 @@ func generateCookie() (*http.Cookie, error) {
 
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
-	logAndRespondWarn(w, "wipe completed", http.StatusOK)
+	logAndRespondWarn(w, "database wipe completed", http.StatusOK)
 }
 
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {

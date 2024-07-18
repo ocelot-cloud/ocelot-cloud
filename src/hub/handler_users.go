@@ -79,7 +79,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if repo.DoesUserExist(form.Username) {
+	if repo.DoesUserExist(form.User) {
 		logAndRespondError(w, "user already exists", http.StatusConflict)
 		return
 	}
@@ -90,7 +90,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logAndRespondDebug(w, "User registered", http.StatusOK)
+	logAndRespondInfo(w, "user registered: "+form.User, http.StatusOK)
 }
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
