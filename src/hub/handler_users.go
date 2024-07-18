@@ -64,26 +64,24 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO Everywhere: replace "auth" by cookieName
-
 func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := checkAuthentication(w, r)
+	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}
 
-	if !repo.DoesUserExist(authenticatedUser) {
+	if !repo.DoesUserExist(user) {
 		logAndRespondError(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	err = repo.DeleteUser(authenticatedUser)
+	err = repo.DeleteUser(user)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("Deleted user: %s", authenticatedUser)
+	Logger.Info("Deleted user: %s", user)
 
 	logAndRespondDebug(w, "User deleted", http.StatusOK)
 }
