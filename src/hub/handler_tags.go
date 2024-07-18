@@ -106,7 +106,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Should take fileInfo structure as arg
+	// TODO Should take tagInfo structure as arg
 	err = repo.CreateTag(authenticatedUser, tagUpload.App, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusInternalServerError)
@@ -117,28 +117,28 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	fileInfo, err := readBody[TagInfo](r)
+	tagInfo, err := readBody[TagInfo](r)
 	if err != nil {
 		logAndRespondError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if !repo.DoesUserExist(fileInfo.User) {
+	if !repo.DoesUserExist(tagInfo.User) {
 		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	if !repo.DoesAppExist(fileInfo.User, fileInfo.App) {
+	if !repo.DoesAppExist(tagInfo.User, tagInfo.App) {
 		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	if !repo.DoesTagExist(fileInfo.User, fileInfo.App, fileInfo.Tag) {
+	if !repo.DoesTagExist(tagInfo.User, tagInfo.App, tagInfo.Tag) {
 		logAndRespondDebug(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
-	content, err := repo.GetTagContent(fileInfo.User, fileInfo.App, fileInfo.Tag)
+	content, err := repo.GetTagContent(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	if err != nil {
 		logAndRespondError(w, "error when accessing tag content", http.StatusInternalServerError)
 		return

@@ -224,13 +224,13 @@ func (h *HubClient) uploadTag() error {
 }
 
 func (h *HubClient) downloadTag() (string, error) {
-	fileInfo := &TagInfo{
+	tagInfo := &TagInfo{
 		User: h.User,
 		App:  h.App,
 		Tag:  h.Tag,
 	}
 
-	result, err := h.doRequest(downloadPath, fileInfo, "", "GET", DownloadApp)
+	result, err := h.doRequest(downloadPath, tagInfo, "", "GET", DownloadApp)
 	if err != nil {
 		return "", err
 	}

@@ -1,7 +1,5 @@
 package main
 
-// TODO My impression is there might be some duplication with other data structure. To be checked for abstration.
-
 type TagInfo struct {
 	User string `json:"user"`
 	App  string `json:"app"`
