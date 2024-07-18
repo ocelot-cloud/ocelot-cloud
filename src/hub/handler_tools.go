@@ -16,7 +16,7 @@ func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		Logger.Error("unmarshalling failed: %v", err)
-		http.Error(w, "TODO", http.StatusInternalServerError)
+		http.Error(w, "failed to prepare response data", http.StatusInternalServerError)
 		return
 	}
 
