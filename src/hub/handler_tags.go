@@ -71,6 +71,16 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !repo.DoesUserExist(usernameAndApp.User) {
+		logAndRespondDebug(w, "user does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesAppExist(usernameAndApp.User, usernameAndApp.App) {
+		logAndRespondDebug(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
 	tagsList, err := repo.GetTagList(usernameAndApp.User, usernameAndApp.App)
 	if err != nil {
 		logAndRespondDebug(w, err.Error(), http.StatusInternalServerError)

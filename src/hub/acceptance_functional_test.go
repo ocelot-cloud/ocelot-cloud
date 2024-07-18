@@ -149,4 +149,14 @@ func TestRegistration(t *testing.T) {
 	assert.Equal(t, getErrMsg(409, "user already exists"), err.Error())
 }
 
-// TODO test case: user does not exist? -> getTagList?
+func TestGetTagsUnhappyPath(t *testing.T) {
+	hub := getHub()
+	_, err := hub.getTags()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "user does not exist"), err.Error())
+
+	assert.Nil(t, hub.registerUser())
+	_, err = hub.getTags()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "app does not exist"), err.Error())
+}
