@@ -129,3 +129,13 @@ func TestChangeOrigin(t *testing.T) {
 	err = hub.createApp()
 	assert.Nil(t, err)
 }
+
+// TODO I think I did not cover all cases like AlreadyExisting/NotFound etc here.
+
+func TestRegistration(t *testing.T) {
+	hub := getHub()
+	assert.Nil(t, hub.registerUser())
+	err := hub.registerUser()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(409, "user already exists"), err.Error())
+}
