@@ -170,7 +170,12 @@ func TestCookieAndHostProtection(t *testing.T) {
 
 	hub.User = testUserWithOldButNotExpiredCookie
 	assert.Nil(t, hub.registerUser())
-	// TODO
+	assert.Nil(t, hub.login())
+	assert.True(t, time.Now().UTC().Before(hub.Cookie.Expires))
+	assert.True(t, time.Now().UTC().Add(48*time.Hour).After(hub.Cookie.Expires))
+	assert.Nil(t, hub.createApp())
+	assert.True(t, time.Now().UTC().AddDate(0, 0, 29).Before(hub.Cookie.Expires))
+	assert.True(t, time.Now().UTC().AddDate(0, 0, 31).After(hub.Cookie.Expires))
 	hub.User = sampleUser
 
 	// TODO It would be cool, if I could abstract that even more like in the security policy collection.

@@ -149,6 +149,10 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, responseMessage)
 	}
 
+	if len(resp.Cookies()) == 1 {
+		h.Cookie = resp.Cookies()[0]
+	}
+
 	if operation == Login {
 		return resp, nil
 	} else if operation == FindApps || operation == GetTags || operation == DownloadApp {
