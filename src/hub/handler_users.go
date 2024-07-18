@@ -117,20 +117,20 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(form.User) {
-		// TODO Log
+		Logger.Warn("somebody tried to change password but user '%s' does not exist", form.User)
 		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.IsPasswordCorrect(form.User, form.OldPassword) {
-		// TODO Log
+		Logger.Info("incorrect credentials for user '%s' when trying to change password", form.User)
 		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
 	err = repo.ChangePassword(form.User, form.NewPassword)
 	if err != nil {
-		// TODO Log
+		Logger.Error("changing password for user '%s' failed: %v", form.User, err)
 		http.Error(w, "error when trying to change password", http.StatusInternalServerError)
 		return
 	}
