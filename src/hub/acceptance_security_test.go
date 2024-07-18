@@ -156,9 +156,9 @@ func TestDeleteTagSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-tag", TagField, DeleteTag)
 }
 
+// There is some specific logic for this user in the production code when handling cookie.
 func TestCookieExpirationAndRenewal(t *testing.T) {
 	hub := getHubAndLogin(t)
-	// There is some specific logic for this user in the production code when handling cookie.
 	hub.User = testUserWithExpiredCookie
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
@@ -180,8 +180,8 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 }
 
 func TestCookieAndHostProtection(t *testing.T) {
-	// TODO Why is the login necessary here to make the tests pass? Should not happen actually.
 	hub := getHubAndLogin(t)
+	// This user is used for subsequent tests.
 	hub.User = testUserWithExpiredCookie
 	assert.Nil(t, hub.registerUser())
 
