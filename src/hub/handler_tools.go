@@ -146,7 +146,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 	}
 
 	if repo.IsCookieExpired(cookie.Value) {
-		Logger.Warn("user '%s' used an expired cookie'")
+		Logger.Warn("user '%s' used an expired cookie'", user)
 		http.Error(w, "cookie expired", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}

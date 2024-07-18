@@ -109,7 +109,7 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 	form, err := readBody[ChangePasswordForm](r)
 	if err != nil {
-		Logger.Warn("invalid input: %v", err)
+		Logger.Warn("could not read request body: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
@@ -151,20 +151,20 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !repo.DoesUserExist(form.User) {
-		// TODO Log
+		Logger.Warn("user '%s' tried to change origin but he does not exist", form.User)
 		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	if !repo.IsPasswordCorrect(form.User, form.Password) {
-		// TODO Log
+		Logger.Info("incorrect credentials for user '%s' when trying to change origin", form.User)
 		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
 	err = repo.ChangeOrigin(form.User, form.NewOrigin)
 	if err != nil {
-		// TODO Log
+		Logger.Error("changing origin for user '%s' failed: %v", form.User, err)
 		http.Error(w, "error when trying to change origin", http.StatusInternalServerError)
 		return
 	}
@@ -172,3 +172,5 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Info("user '%s' changed his origin", form.User)
 	w.WriteHeader(http.StatusOK)
 }
+
+// TODO I think the validator should return nil/err for improved logging messages.
