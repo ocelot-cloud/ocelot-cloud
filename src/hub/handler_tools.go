@@ -131,3 +131,51 @@ func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
 	logAndRespondDebug(w, "wipe completed", http.StatusOK)
 }
+
+func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
+	cookie, err := r.Cookie(cookieName)
+	if err != nil {
+		Logger.Debug("cookie not set in request: %s", err.Error())
+		logAndRespondDebug(w, "cookie not set in request", http.StatusUnauthorized)
+		return "", fmt.Errorf("")
+	}
+
+	if !validate(cookie.Value, Cookie) {
+		logAndRespondDebug(w, "invalid cookie", http.StatusBadRequest)
+		return "", fmt.Errorf("")
+	}
+
+	if !validate(r.Header.Get(OriginHeader), Origin) {
+		logAndRespondDebug(w, "invalid origin", http.StatusBadRequest)
+		return "", fmt.Errorf("")
+	}
+
+	// TODO everytime I use "GetUserWithCookie" I should do validation previously. Everytime I do sth with the cookie in general.
+	authenticatedUser, err := repo.GetUserWithCookie(cookie.Value)
+	if err != nil {
+		Logger.Debug("error when getting cookie of user: %s", err.Error())
+		http.Error(w, "cookie not found", http.StatusNotFound)
+		return "", fmt.Errorf("")
+	}
+
+	if !repo.IsOriginCorrect(authenticatedUser, r.Header.Get(OriginHeader)) {
+		logAndRespondDebug(w, "origin not matching", http.StatusBadRequest)
+		return "", fmt.Errorf("")
+	}
+
+	if repo.IsCookieExpired(cookie.Value) {
+		logAndRespondDebug(w, "cookie expired", http.StatusBadRequest)
+		return "", fmt.Errorf("")
+	}
+
+	newExpirationTime := getTimeIn30Days() // TODO Also set exp time request.
+	err = repo.SetCookie(authenticatedUser, cookie.Value, newExpirationTime)
+	if err != nil {
+		logAndRespondDebug(w, "updating cookie failed", http.StatusInternalServerError)
+		return "", err
+	}
+	cookie.Expires = newExpirationTime
+	http.SetCookie(w, cookie)
+
+	return authenticatedUser, nil
+}
