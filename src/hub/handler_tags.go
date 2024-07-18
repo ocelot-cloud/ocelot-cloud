@@ -90,8 +90,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != http.MethodPost {
-		Logger.Warn("invalid request method '%s' used for endpoint '%s'", r.Method, tagPath)
-		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
+		handleInvalidRequestMethod(w, r, tagPath)
 		return
 	}
 

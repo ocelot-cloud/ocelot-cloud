@@ -48,8 +48,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
 	} else {
-		Logger.Warn("invalid request method '%s' on endpoint '%s'", r.Method, userPath)
-		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
+		handleInvalidRequestMethod(w, r, userPath)
 		return
 	}
 }
@@ -104,9 +103,8 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		// TODO abstract
-		Logger.Warn("invalid request method '%s' used for endpoint '%s'", r.Method, tagPath)
-		http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
+		handleInvalidRequestMethod(w, r, userPath)
+		return
 	}
 
 	form, err := readBody[ChangePasswordForm](r)
@@ -141,8 +139,8 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		// TODO Log
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		handleInvalidRequestMethod(w, r, userPath)
+		return
 	}
 
 	form, err := readBody[ChangeOriginForm](r)
