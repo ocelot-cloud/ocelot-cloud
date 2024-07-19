@@ -167,7 +167,7 @@ func TestGetTagsUnhappyPath(t *testing.T) {
 	assert.Equal(t, 0, len(tagList))
 }
 
-func TestLimitsFor(t *testing.T) {
+func TestLimitsForUploadsAndTagStorage(t *testing.T) {
 	hub := getHubAndLogin(t)
 	assert.Nil(t, hub.createApp())
 

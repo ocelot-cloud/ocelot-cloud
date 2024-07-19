@@ -229,8 +229,6 @@ func (u *SqliteRepository) DeleteApp(user string, app string) error {
 	return nil
 }
 
-// TODO Use 64 int, and Test with up to 1MB blobs and try to exceed 10MB limit.
-
 func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
 	var totalSize sql.NullInt64
 	err := db.QueryRow("SELECT SUM(LENGTH(data)) FROM tags WHERE app_id = ?", appID).Scan(&totalSize)
@@ -321,8 +319,6 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 
 	return user, nil
 }
-
-// TODO There should be a maximum of 100 apps per user. Also add tests.
 
 func (u *SqliteRepository) CreateTag(user string, app string, tag string, data []byte) error {
 	appID, err := getAppIdFromUsername(user, app)

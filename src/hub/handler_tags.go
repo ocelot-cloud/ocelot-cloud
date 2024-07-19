@@ -122,11 +122,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	bytesUsed, err := repo.GetUsedSpaceInBytes(user)
 	if err != nil {
-		Logger.Info("TODO", user, tagUpload.Tag, tagUpload.App)
-		http.Error(w, "TODO", http.StatusNotFound)
+		Logger.Info("user '%s' tried to upload tag '%s' to app '%s', but getting current storage size failed", user, tagUpload.Tag, tagUpload.App)
+		http.Error(w, "reading currently used storage failed", http.StatusInternalServerError)
 		return
 	} else if bytesUsed+len(tagUpload.Content) > maxStorageSize {
-		Logger.Info("user '%s' tried to upload tag '%s', but exceeded max storage size", user, tagUpload.Tag, tagUpload.App)
+		Logger.Info("user '%s' tried to upload tag '%s' to app '%s', but exceeded max storage size", user, tagUpload.Tag, tagUpload.App)
 		asdf := bytesUsed * 100 / maxStorageSize
 		msg := fmt.Sprintf("storage limit reached, you can't store more then 10MiB of tag content, currently used storage in bytes: %d/%d (%d percent)", bytesUsed, maxStorageSize, asdf)
 		http.Error(w, msg, http.StatusRequestEntityTooLarge)
