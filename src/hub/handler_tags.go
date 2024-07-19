@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -126,7 +127,9 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if bytesUsed+len(tagUpload.Content) > maxStorageSize {
 		Logger.Info("user '%s' tried to upload tag '%s', but exceeded max storage size", user, tagUpload.Tag, tagUpload.App)
-		http.Error(w, "storage limit reached, you can't store more then 10MB of tag content", http.StatusRequestEntityTooLarge)
+		asdf := bytesUsed * 100 / maxStorageSize
+		msg := fmt.Sprintf("storage limit reached, you can't store more then 10MiB of tag content, currently used storage in bytes: %d/%d (%d percent)", bytesUsed, maxStorageSize, asdf)
+		http.Error(w, msg, http.StatusRequestEntityTooLarge)
 		return
 	}
 

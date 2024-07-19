@@ -118,7 +118,6 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	return result, nil
 }
 
-// TODO Restrict maximum space used by user to 10MB
 // TODO Introduce ENV variable "DISABLE_EMAIL_VERIFICATION", default is false.
 //  Disable for development. If enabled, I think I should throw an error if it
 //  did not got email stuff. If it got them, It will run a test to check whether

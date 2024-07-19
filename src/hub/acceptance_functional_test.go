@@ -187,6 +187,6 @@ func TestLimitsFor(t *testing.T) {
 	hub.Tag = sampleTag + ".x"
 	err = hub.uploadTag()
 	assert.NotNil(t, err)
-	// TODO Add info about how much storage you currently use or how much free storage you still have?
-	assert.Equal(t, getErrMsg(413, "storage limit reached, you can't store more then 10MB of tag content"), err.Error())
+	expectedMsg := "storage limit reached, you can't store more then 10MiB of tag content, currently used storage in bytes: 9984000/10485760 (95 percent)"
+	assert.Equal(t, getErrMsg(413, expectedMsg), err.Error())
 }
