@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -170,9 +171,22 @@ func TestLimitsFor(t *testing.T) {
 	hub := getHubAndLogin(t)
 	assert.Nil(t, hub.createApp())
 
-	const moreThanOneMegabyteInBytes = 1024*1024 + 1
-	hub.UploadContent = make([]byte, moreThanOneMegabyteInBytes)
+	const oneMebibyteInBytes = 1024 * 1024
+	hub.UploadContent = make([]byte, oneMebibyteInBytes+1)
 	err := hub.uploadTag()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(413, "tag content too large"), err.Error())
+	assert.Equal(t, getErrMsg(413, "tag content too large, the limit is 1MB"), err.Error())
+
+	hub.UploadContent = make([]byte, 1024*750) // Must be a little smaller than 1024*1024 since conversion to json makes it bigger.
+	// Upload tags until we are just a little bit below the 10MiB storage limit.
+	for i := 0; i < 13; i++ {
+		hub.Tag = sampleTag + "." + strconv.Itoa(i)
+		assert.Nil(t, hub.uploadTag())
+	}
+	// Tag whose upload exceeds the 10MiB storage limit.
+	hub.Tag = sampleTag + ".x"
+	err = hub.uploadTag()
+	assert.NotNil(t, err)
+	// TODO Add info about how much storage you currently use or how much free storage you still have?
+	assert.Equal(t, getErrMsg(413, "storage limit reached, you can't store more then 10MB of tag content"), err.Error())
 }

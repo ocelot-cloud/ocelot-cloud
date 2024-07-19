@@ -78,7 +78,8 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 	sendJsonResponse(w, tagsList)
 }
 
-const maxPayloadSize = 1024 * 1024 // = 1 MB
+const maxPayloadSize = 1024 * 1024 // = 1 MiB
+const maxStorageSize = 10 * maxPayloadSize
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
 	user, err := checkAuthentication(w, r)
@@ -99,7 +100,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err.Error() == "http: request body too large" {
 			Logger.Info("tag upload tag content of user '%s' was too large", user)
-			http.Error(w, "tag content too large", http.StatusRequestEntityTooLarge)
+			http.Error(w, "tag content too large, the limit is 1MB", http.StatusRequestEntityTooLarge)
 			return
 		} else {
 			Logger.Info("tag upload request body of user '%s' was invalid: %v", user, err)
@@ -115,6 +116,17 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	if err := validateJobs(jobs); err != nil {
 		Logger.Info("tag upload of user '%s' invalid: %v", user, err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	bytesUsed, err := repo.GetUsedSpaceInBytes(user)
+	if err != nil {
+		Logger.Info("TODO", user, tagUpload.Tag, tagUpload.App)
+		http.Error(w, "TODO", http.StatusNotFound)
+		return
+	} else if bytesUsed+len(tagUpload.Content) > maxStorageSize {
+		Logger.Info("user '%s' tried to upload tag '%s', but exceeded max storage size", user, tagUpload.Tag, tagUpload.App)
+		http.Error(w, "storage limit reached, you can't store more then 10MB of tag content", http.StatusRequestEntityTooLarge)
 		return
 	}
 
