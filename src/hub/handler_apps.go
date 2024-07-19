@@ -24,14 +24,9 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	singleString, err := readBody[SingleString](r)
+	app, err := readBodyAsSingleString(r, App)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-	}
-	app := singleString.Value
-
-	if !validate(app, App) {
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
@@ -78,15 +73,9 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	singleString, err := readBody[SingleString](r)
+	app, err := readBodyAsSingleString(r, App)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-	app := singleString.Value
-
-	if !validate(authenticatedUser, User) || !validate(app, App) {
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}

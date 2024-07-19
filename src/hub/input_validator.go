@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -32,7 +33,7 @@ var (
 	cookiePattern   = regexp.MustCompile(`^[a-f0-9]{64}$`)
 )
 
-func validate(input string, validationType ValidationType) bool {
+func validate(input string, validationType ValidationType) error {
 	var re *regexp.Regexp
 
 	switch validationType {
@@ -51,7 +52,7 @@ func validate(input string, validationType ValidationType) bool {
 	case Cookie:
 		re = cookiePattern
 	default:
-		return false
+		return fmt.Errorf("invalid validation type with index: %d", validationType)
 	}
 
 	result := re.MatchString(input)
@@ -61,35 +62,37 @@ func validate(input string, validationType ValidationType) bool {
 		} else {
 			Logger.Warn("input validation failed for validation type '%s' with input '%s'", getValidationTypeString(validationType), input)
 		}
+		return fmt.Errorf("invalid signs or formatting of field: %s", getValidationTypeString(validationType))
+	} else {
+		return nil
 	}
-	return result
 }
 
-func validateOrigin(input string) bool {
+func validateOrigin(input string) error {
 	parsedURL, err := url.Parse(input)
 	if err != nil {
-		return false
+		return fmt.Errorf("invalid URL: %s", input)
 	}
 
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return false
+		return fmt.Errorf("invalid URL scheme: %s", input)
 	}
 
 	host := parsedURL.Hostname()
 	if len(host) == 0 {
-		return false
+		return fmt.Errorf("invalid domain: %s", input)
 	}
 
 	if parsedURL.Port() != "" {
 		port, err := strconv.Atoi(parsedURL.Port())
 		if err != nil || port < 1 || port > 65535 {
-			return false
+			return fmt.Errorf("invalid port: %s", input)
 		}
 	}
 
 	if parsedURL.Path != "" || parsedURL.RawQuery != "" || parsedURL.Fragment != "" {
-		return false
+		return fmt.Errorf("invalid URL - contains path, query or fragments: %s", input)
 	}
 
-	return true
+	return nil
 }

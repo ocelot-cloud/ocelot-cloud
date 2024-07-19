@@ -27,6 +27,11 @@ func sendJsonResponse(w http.ResponseWriter, data interface{}) {
 
 var repo Repository = &SqliteRepository{}
 
+type ValidationJob struct {
+	Value   string
+	valType ValidationType
+}
+
 func readBody[T any](r *http.Request) (*T, error) {
 	var result T
 
@@ -40,34 +45,63 @@ func readBody[T any](r *http.Request) (*T, error) {
 		return nil, fmt.Errorf("invalid request body: %w", err)
 	}
 
+	var jobs []ValidationJob
 	switch v := any(result).(type) {
 	case UserAndApp:
-		if !validate(v.User, User) || !validate(v.App, App) {
-			return nil, fmt.Errorf("invalid input")
+		jobs = []ValidationJob{
+			{v.User, User},
+			{v.App, App},
 		}
 	case RegistrationForm:
-		if !validate(v.User, User) || !validate(v.Password, Password) || !validate(v.Email, Email) || !validate(v.Origin, Origin) {
-			return nil, fmt.Errorf("invalid input")
+		jobs = []ValidationJob{
+			{v.User, User},
+			{v.Password, Password},
+			{v.Email, Email},
+			{v.Origin, Origin},
 		}
 	case ChangeOriginForm:
-		if !validate(v.User, User) || !validate(v.Password, Password) || !validate(v.NewOrigin, Origin) {
-			return nil, fmt.Errorf("invalid input")
+		jobs = []ValidationJob{
+			{v.User, User},
+			{v.Password, Password},
+			{v.NewOrigin, Origin},
 		}
 	case ChangePasswordForm:
-		if !validate(v.User, User) || !validate(v.OldPassword, Password) || !validate(v.NewPassword, Password) {
-			return nil, fmt.Errorf("invalid input")
+		jobs = []ValidationJob{
+			{v.User, User},
+			{v.OldPassword, Password},
+			{v.NewPassword, Password},
 		}
 	case LoginCredentials:
-		if !validate(v.User, User) || !validate(v.Password, Password) {
-			return nil, fmt.Errorf("invalid input")
+		jobs = []ValidationJob{
+			{v.User, User},
+			{v.Password, Password},
 		}
 	case TagInfo:
-		if !validate(v.User, User) || !validate(v.App, App) || !validate(v.Tag, Tag) {
-			return nil, fmt.Errorf("invalid input")
+		jobs = []ValidationJob{
+			{v.User, User},
+			{v.App, App},
+			{v.Tag, Tag},
+		}
+	case AppAndTag:
+		jobs = []ValidationJob{
+			{v.App, App},
+			{v.Tag, Tag},
 		}
 	}
+	if err := validateJobs(jobs); err != nil {
+		return nil, err
+	} else {
+		return &result, nil
+	}
+}
 
-	return &result, nil
+func validateJobs(jobs []ValidationJob) error {
+	for _, job := range jobs {
+		if err := validate(job.Value, job.valType); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {
@@ -77,8 +111,8 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	}
 	result := singleString.Value
 
-	if !validate(result, validationType) {
-		return "", fmt.Errorf("invalid input")
+	if err := validate(result, validationType); err != nil {
+		return "", err
 	}
 
 	return result, nil
@@ -122,12 +156,12 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if !validate(cookie.Value, Cookie) {
+	if err := validate(cookie.Value, Cookie); err != nil {
 		http.Error(w, "invalid cookie", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
 
-	if !validate(r.Header.Get(OriginHeader), Origin) {
+	if err := validate(r.Header.Get(OriginHeader), Origin); err != nil {
 		http.Error(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}

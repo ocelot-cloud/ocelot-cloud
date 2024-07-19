@@ -32,11 +32,6 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !validate(tagInfo.App, App) || !validate(tagInfo.Tag, Tag) {
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
 	if !repo.DoesTagExist(authenticatedUser, tagInfo.App, tagInfo.Tag) {
 		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", authenticatedUser, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
@@ -46,7 +41,7 @@ func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
 	err = repo.DeleteTag(authenticatedUser, tagInfo.App, tagInfo.Tag)
 	if err != nil {
 		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", authenticatedUser, tagInfo.App, tagInfo.Tag)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "invalid input", http.StatusInternalServerError)
 		return
 	}
 	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", authenticatedUser, tagInfo.App, tagInfo.Tag)
@@ -102,7 +97,12 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !validate(tagUpload.App, App) || !validate(tagUpload.Tag, Tag) {
+	jobs := []ValidationJob{
+		{tagUpload.App, App},
+		{tagUpload.Tag, Tag},
+	}
+	if err := validateJobs(jobs); err != nil {
+		Logger.Info("tag upload of user '%s' invalid: %v", user, err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
@@ -122,7 +122,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	err = repo.CreateTag(user, tagUpload.App, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
 		Logger.Error("creating tag '%s' for user '%s' failed: %v", tagUpload.App, user, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "invalid input", http.StatusInternalServerError)
 		return
 	}
 
