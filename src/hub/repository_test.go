@@ -258,7 +258,7 @@ func TestUsedSpace(t *testing.T) {
 	assert.Equal(t, 0, space)
 }
 
-func TestLogout(t *testing.T) {
+func TestRepoLogout(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	sampleCookie := "asdasdasd"

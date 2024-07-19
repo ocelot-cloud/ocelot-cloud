@@ -201,7 +201,6 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO Add logout feature, which deletes cookie in database. Also add function to hub.logout()
 // TODO I think the validator should return nil/err for improved logging messages.
 // TODO During testing the log level should be DEBUG, by default, it should be INFO
 

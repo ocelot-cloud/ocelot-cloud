@@ -190,3 +190,12 @@ func TestLimitsForUploadsAndTagStorage(t *testing.T) {
 	expectedMsg := "storage limit reached, you can't store more then 10MiB of tag content, currently used storage in bytes: 9984000/10485760 (95 percent)"
 	assert.Equal(t, getErrMsg(413, expectedMsg), err.Error())
 }
+
+func TestLogout(t *testing.T) {
+	hub := getHubAndLogin(t)
+	assert.Nil(t, hub.createApp())
+	assert.Nil(t, hub.logout())
+	err := hub.createApp()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
+}

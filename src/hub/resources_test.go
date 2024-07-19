@@ -56,6 +56,7 @@ const (
 	DeleteTag
 	GetTags
 	WipeData
+	Logout
 )
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
@@ -333,5 +334,10 @@ func getHubAndLogin(t *testing.T) *HubClient {
 
 func (h *HubClient) wipeData() error {
 	_, err := h.doRequest(wipeDataPath, nil, "", "GET", WipeData)
+	return err
+}
+
+func (h *HubClient) logout() error {
+	_, err := h.doRequest(logoutPath, nil, "", "GET", Logout)
 	return err
 }
