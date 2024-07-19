@@ -118,12 +118,6 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	return result, nil
 }
 
-// TODO Introduce ENV variable "DISABLE_EMAIL_VERIFICATION", default is false.
-//  Disable for development. If enabled, I think I should throw an error if it
-//  did not got email stuff. If it got them, It will run a test to check whether
-//  it works. If so, start normally. If not, it exits immediately.
-//  If it exits early, make a short explanation on why it does that. "printEmailExplanation"?
-
 func getTimeIn30Days() time.Time {
 	return time.Now().UTC().AddDate(0, 0, 30)
 }

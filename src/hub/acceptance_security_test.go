@@ -181,7 +181,6 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHub()
-	// TODO It would be cool, if I could abstract that even more like in the security policy collection.
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
 	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)

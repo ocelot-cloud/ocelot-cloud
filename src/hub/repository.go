@@ -505,12 +505,12 @@ func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) boo
 }
 
 func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
-	var userSpace int
-	err := db.QueryRow(`SELECT used_space FROM users WHERE user_name = ?`, user).Scan(&userSpace)
+	var usedSpace int
+	err := db.QueryRow(`SELECT used_space FROM users WHERE user_name = ?`, user).Scan(&usedSpace)
 	if err != nil {
 		return 0, logAndReturnError("failed to get current space: %w", err)
 	}
-	return userSpace, nil
+	return usedSpace, nil
 }
 
 func logAndReturnError(message string, args ...interface{}) error {
