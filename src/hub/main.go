@@ -3,10 +3,21 @@ package main
 import (
 	"github.com/ocelot-cloud/shared"
 	"net/http"
+	"os"
 )
 
 func init() {
+	if os.Getenv("LOG_LEVEL") == "DEBUG" {
+		shared.LogLevel = shared.DEBUG
+	} else {
+		shared.LogLevel = shared.INFO
+	}
 	Logger = shared.ProvideLogger()
+	if shared.LogLevel == shared.DEBUG {
+		Logger.Debug("log level set to DEBUG")
+	} else {
+		Logger.Info("log level set to INFO")
+	}
 }
 
 func main() {
