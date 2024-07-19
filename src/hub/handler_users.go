@@ -179,6 +179,28 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		handleInvalidRequestMethod(w, r, userPath)
+		return
+	}
+
+	user, err := checkAuthentication(w, r)
+	if err != nil {
+		return
+	}
+
+	err = repo.Logout(user)
+	if err != nil {
+		Logger.Error("logout of user '%s' failed: %v", user, err)
+		http.Error(w, "logout failed", http.StatusInternalServerError)
+		return
+	}
+
+	Logger.Info("user '%s' logged out", user)
+	w.WriteHeader(http.StatusOK)
+}
+
 // TODO Add logout feature, which deletes cookie in database. Also add function to hub.logout()
 // TODO I think the validator should return nil/err for improved logging messages.
 // TODO During testing the log level should be DEBUG, by default, it should be INFO

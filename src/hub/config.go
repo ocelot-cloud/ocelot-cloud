@@ -14,6 +14,7 @@ var (
 	tagPath            = "/tags"
 	downloadPath       = tagPath + "/"
 	userPath           = "/users"
+	logoutPath         = "/logout"
 	appPath            = "/apps"
 	loginPath          = "/login"
 	registrationPath   = "/registration"

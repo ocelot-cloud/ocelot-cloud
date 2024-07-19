@@ -19,6 +19,7 @@ func main() {
 
 	http.HandleFunc(appPath, appHandler)
 	http.HandleFunc(userPath, userHandler)
+	http.HandleFunc(logoutPath, logoutHandler)
 	http.HandleFunc(loginPath, loginHandler)
 
 	http.HandleFunc(registrationPath, registrationHandler)
