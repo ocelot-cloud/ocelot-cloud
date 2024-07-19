@@ -85,6 +85,7 @@ type Repository interface {
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
+	Logout(user string) error
 	WipeDatabase()
 }
 
@@ -511,6 +512,14 @@ func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
 		return 0, logAndReturnError("failed to get current space: %w", err)
 	}
 	return usedSpace, nil
+}
+
+func (u *SqliteRepository) Logout(user string) error {
+	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", nil, nil, user)
+	if err != nil {
+		return logAndReturnError("Failed to logout: %v", err)
+	}
+	return nil
 }
 
 func logAndReturnError(message string, args ...interface{}) error {
