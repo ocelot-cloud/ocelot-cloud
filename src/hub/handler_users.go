@@ -179,11 +179,11 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// TODO Add logout feature, which deletes cookie in database. Also add function to hub.logout()
 // TODO I think the validator should return nil/err for improved logging messages.
 // TODO During testing the log level should be DEBUG, by default, it should be INFO
 
 // TODO Implement Frontend, do I have to add CORS policy to allow cross domain access?
-// TODO Add logout feature, which deletes cookie in database. Also add function to hub.logout()
 
 // TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
 // TODO In the end, add deploy script which only works on my device, since I have the correct SSH keys and config.
