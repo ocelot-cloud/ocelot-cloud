@@ -78,6 +78,8 @@ func handleTagList(w http.ResponseWriter, r *http.Request) {
 	sendJsonResponse(w, tagsList)
 }
 
+const maxPayloadSize = 1024 * 1024 // = 1 MB
+
 func handleUpload(w http.ResponseWriter, r *http.Request) {
 	user, err := checkAuthentication(w, r)
 	if err != nil {
@@ -89,12 +91,21 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, maxPayloadSize)
+	defer r.Body.Close()
+
 	var tagUpload TagUpload
 	err = json.NewDecoder(r.Body).Decode(&tagUpload)
 	if err != nil {
-		Logger.Info("tag upload request body of user '%s' was invalid: %v", user, err)
-		http.Error(w, "could not decode request body", http.StatusBadRequest)
-		return
+		if err.Error() == "http: request body too large" {
+			Logger.Info("tag upload tag content of user '%s' was too large", user)
+			http.Error(w, "tag content too large", http.StatusRequestEntityTooLarge)
+			return
+		} else {
+			Logger.Info("tag upload request body of user '%s' was invalid: %v", user, err)
+			http.Error(w, "could not decode request body", http.StatusBadRequest)
+			return
+		}
 	}
 
 	jobs := []ValidationJob{

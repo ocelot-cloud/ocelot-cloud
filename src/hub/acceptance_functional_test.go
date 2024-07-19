@@ -165,3 +165,14 @@ func TestGetTagsUnhappyPath(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(tagList))
 }
+
+func TestLimitsFor(t *testing.T) {
+	hub := getHubAndLogin(t)
+	assert.Nil(t, hub.createApp())
+
+	const moreThanOneMegabyteInBytes = 1024*1024 + 1
+	hub.UploadContent = make([]byte, moreThanOneMegabyteInBytes)
+	err := hub.uploadTag()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(413, "tag content too large"), err.Error())
+}
