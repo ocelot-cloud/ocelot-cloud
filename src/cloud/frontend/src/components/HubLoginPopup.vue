@@ -1,55 +1,52 @@
 <template>
-  <div v-if="showPopup" class="popup">
     <div class="popup-content">
-      <h2>{{ isRegistering ? 'Register' : 'Login' }}</h2>
-      <form @submit.prevent="submit">
+      <form @submit.prevent="register">
         <input v-model="username" type="text" placeholder="Username" required />
         <input v-model="password" type="password" placeholder="Password" required />
-        <button type="submit">{{ isRegistering ? 'Register' : 'Login' }}</button>
+        <button @click="register()">Register</button>
       </form>
-      <button @click="toggleRegister">{{ isRegistering ? 'Already have an account? Login' : 'Create a new account' }}</button>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import axios from 'axios';
+import axios from "axios";
+
+export class RegistrationForm {
+  user: string;
+  password: string;
+  origin: string;
+  email: string;
+
+  constructor(user: string, password: string, origin: string, email: string) {
+    this.user = user;
+    this.password = password;
+    this.origin = origin;
+    this.email = email;
+  }
+}
 
 export default defineComponent({
-  name: 'LoginPopup',
+  name: 'HubLoginPopup',
   data() {
     return {
-      showPopup: true,
-      isRegistering: false,
       username: '',
       password: ''
     };
   },
   methods: {
-    async submit() {
-      const url = this.isRegistering ? '/registration' : '/login';
+    async register() {
+      const url = 'http://localhost:8082/registration';
+      const payload = new RegistrationForm("admin", "admin", "http://localhost:8081", "asdf@asdf.com")
       try {
-        await axios.post(`http://localhost:8082${url}`, {
-          user: this.username,
-          password: this.password
-        });
-        if (this.isRegistering) {
-          // Automatically login after registration
-          await axios.post('http://localhost:8082/login', {
-            user: this.username,
-            password: this.password
-          });
+        const response = await axios.post(url, payload);
+        if (response.status === 200) {
+          this.$emit('authenticated');
         }
-        this.showPopup = false;
-        this.$emit('authenticated');
       } catch (error) {
-        console.error('Error during authentication', error);
+        alert('An error occurred: ' + error);
       }
     },
-    toggleRegister() {
-      this.isRegistering = !this.isRegistering;
-    }
   }
 });
 </script>

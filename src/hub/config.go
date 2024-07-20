@@ -7,8 +7,7 @@ import (
 
 var (
 	currentSchemaVersion = "0.1.0"
-
-	databaseFile = shared.DataDir + "/sqlite.db"
+	databaseFile         = shared.DataDir + "/sqlite.db"
 
 	Logger             shared.Logger
 	tagPath            = "/tags"
