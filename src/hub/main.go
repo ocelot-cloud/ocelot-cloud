@@ -23,25 +23,29 @@ func init() {
 func main() {
 	initializeDatabase()
 
-	http.HandleFunc(downloadPath, downloadHandler)
-	http.HandleFunc(tagPath, tagHandler)
-	http.HandleFunc(changePasswordPath, changePasswordHandler)
-	http.HandleFunc(changeOriginPath, changeOriginHandler)
+	mux := http.NewServeMux()
 
-	http.HandleFunc(appPath, appHandler)
-	http.HandleFunc(userPath, userHandler)
-	http.HandleFunc(logoutPath, logoutHandler)
-	http.HandleFunc(loginPath, loginHandler)
+	mux.HandleFunc(downloadPath, downloadHandler)
+	mux.HandleFunc(tagPath, tagHandler)
+	mux.HandleFunc(changePasswordPath, changePasswordHandler)
+	mux.HandleFunc(changeOriginPath, changeOriginHandler)
 
-	http.HandleFunc(registrationPath, registrationHandler)
+	mux.HandleFunc(appPath, appHandler)
+	mux.HandleFunc(userPath, userHandler)
+	mux.HandleFunc(logoutPath, logoutHandler)
+	mux.HandleFunc(loginPath, loginHandler)
+
+	mux.HandleFunc(registrationPath, registrationHandler)
 
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
-		http.HandleFunc(wipeDataPath, wipeDataHandler)
+		mux.HandleFunc(wipeDataPath, wipeDataHandler)
 	}
 
+	handlerWithCors := applyCorsPolicy(mux)
+
 	Logger.Info("Server started on port %s", port)
-	err := http.ListenAndServe(":"+port, nil)
+	err := http.ListenAndServe(":"+port, handlerWithCors)
 	if err != nil {
 		Logger.Fatal("Server stopped: %v", err)
 	}
@@ -57,4 +61,18 @@ func initializeDatabase() {
 	} else {
 		initializeDatabaseWithSource(databaseFile)
 	}
+}
+
+// TODO Duplication with cloud code
+func applyCorsPolicy(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
