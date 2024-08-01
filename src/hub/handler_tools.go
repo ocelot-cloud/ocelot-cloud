@@ -88,7 +88,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.Tag, Tag},
 		}
 	}
-	if err := validateJobs(jobs); err != nil {
+	if err = validateJobs(jobs); err != nil {
 		return nil, err
 	} else {
 		return &result, nil

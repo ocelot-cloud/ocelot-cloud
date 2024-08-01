@@ -61,7 +61,6 @@ func TestRegisterSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", PasswordField, Register)
 	testInputInvalidation(t, hub, "invalid-username", UserField, Register)
 	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
-	// TODO testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", OriginField, Register)
 }
 
 func TestChangeOriginSecurity(t *testing.T) {
@@ -121,6 +120,7 @@ func TestLoginSecurity(t *testing.T) {
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, Login)
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, Login)
+	testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", OriginField, Login)
 
 	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
 	hub.Password = correctlyFormattedButNotMatchingPassword
