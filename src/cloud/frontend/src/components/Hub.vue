@@ -1,26 +1,18 @@
 <template>
   <div>
     <h3>Ocelot Hub</h3>
-    <HubLoginPopup v-if="!isAuthenticated" @authenticated="showWelcomeMessage" />
-    <div v-else>
-      <p>Welcome in the hub!</p>
-    </div>
+    <button>Login</button>
+    <button>Register</button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HubLoginPopup from "@/components/HubLoginPopup.vue";
 
 export default defineComponent({
   name: 'HubComponent',
   components: {
-    HubLoginPopup
-  },
-  data() {
-    return {
-      isAuthenticated: false
-    };
+
   },
   mounted() {
     this.checkAuth();
@@ -28,13 +20,29 @@ export default defineComponent({
   methods: {
     checkAuth() {
       const authCookie = document.cookie.split('; ').find(row => row.startsWith('auth='));
-      if (authCookie && authCookie.split('=')[1] === 'true') {
-        this.isAuthenticated = true;
+
+      if (authCookie) {
+        const cookieParts = authCookie.split('; ');
+        let expirationDate = null;
+
+        for (let part of cookieParts) {
+          if (part.startsWith('expires=')) {
+            expirationDate = new Date(part.split('=')[1]);
+          }
+        }
+
+        if (expirationDate) {
+          const currentTime = new Date();
+          const tenSecondsFromNow = new Date(currentTime.getTime() + 10000);
+
+          if (expirationDate > tenSecondsFromNow) {
+            return;
+          }
+        }
       }
+
+      alert("Cookie expired. Please reload page? TODO")
     },
-    showWelcomeMessage() {
-      this.isAuthenticated = true;
-    }
   }
 });
 </script>

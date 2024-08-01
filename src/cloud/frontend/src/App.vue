@@ -17,7 +17,7 @@ export default class App extends Vue {}
 </script>
 
 <style lang="sass">
-html body
+html
   background-color: #282c34
 
 #app
