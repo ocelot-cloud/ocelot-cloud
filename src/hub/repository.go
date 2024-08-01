@@ -438,14 +438,18 @@ func (u *SqliteRepository) ChangeOrigin(user string, newOrigin string) error {
 }
 
 func (u *SqliteRepository) IsOriginCorrect(user string, origin string) bool {
-	var repoOrigin string
+	var repoOrigin sql.NullString
 	err := db.QueryRow("SELECT origin FROM users WHERE user_name = ?", user).Scan(&repoOrigin)
 	if err != nil {
-		Logger.Error("Failed to fetch hashed password: %v\n", err)
+		Logger.Error("Failed to fetch origin: %v\n", err)
 		return false
 	}
 
-	return repoOrigin == origin
+	if repoOrigin.Valid {
+		return repoOrigin.String == origin
+	} else {
+		return false
+	}
 }
 
 func getAppId(userID int, app string) (int, error) {

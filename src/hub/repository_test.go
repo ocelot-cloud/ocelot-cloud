@@ -211,18 +211,13 @@ func TestChangeRepoPassword(t *testing.T) {
 	assert.True(t, repo.IsPasswordCorrect(sampleUser, newPassword))
 }
 
-// TODO To be adapted
-/*
 func TestChangeRepoOrigin(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
+	assert.False(t, repo.IsOriginCorrect(sampleUser, sampleOrigin))
+	assert.Nil(t, repo.ChangeOrigin(sampleUser, sampleOrigin))
 	assert.True(t, repo.IsOriginCorrect(sampleUser, sampleOrigin))
-	newOrigin := "http://my-new-domain.com:8080"
-	assert.Nil(t, repo.ChangeOrigin(sampleUser, newOrigin))
-	assert.False(t, repo.IsOriginCorrect(sampleUser, sampleForm.Origin))
-	assert.True(t, repo.IsOriginCorrect(sampleUser, newOrigin))
 }
-*/
 
 func TestUsedSpace(t *testing.T) {
 	defer repo.WipeDatabase()
