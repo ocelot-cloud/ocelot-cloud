@@ -2,14 +2,14 @@
   <div class="popup-content container my-4">
     <div class="row justify-content-center">
       <div class="col-lg-6 col-md-8 col-sm-10">
-        <form class="p-4 border rounded shadow-sm">
+        <form @submit.prevent="login" class="p-4 border rounded shadow-sm">
           <div class="mb-3">
             <input v-model="user" id="username" type="text" class="form-control" placeholder="Username" required />
           </div>
           <div class="mb-3">
             <input v-model="password" id="password" type="password" class="form-control" placeholder="Password" required />
           </div>
-          <button @click="login" type="submit" class="btn btn-primary">Login</button>
+          <button type="submit" class="btn btn-primary">Login</button>
         </form>
       </div>
     </div>
@@ -48,7 +48,9 @@ export default defineComponent({
       try {
         const loginForm = new LoginForm(this.user, this.password, window.origin);
         const response = await axios.post(url + "/login", loginForm);
+        console.log("Got a response")
         if (response.status === 200) {
+          console.log("Status is okay")
           this.$router.push('/hub');
         } else {
           alert(response.data)
