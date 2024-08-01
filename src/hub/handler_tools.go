@@ -58,12 +58,6 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.Password, Password},
 			{v.Email, Email},
 		}
-	case ChangeOriginForm:
-		jobs = []ValidationJob{
-			{v.User, User},
-			{v.Password, Password},
-			{v.NewOrigin, Origin},
-		}
 	case ChangePasswordForm:
 		jobs = []ValidationJob{
 			{v.User, User},

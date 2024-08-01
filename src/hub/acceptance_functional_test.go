@@ -125,21 +125,6 @@ func TestChangePassword(t *testing.T) {
 	assert.NotNil(t, hub.Cookie)
 }
 
-func TestChangeOrigin(t *testing.T) {
-	hub := getHubAndLogin(t)
-
-	newOrigin := "http://wrong-origin.de"
-
-	assert.Nil(t, hub.ChangeOrigin(newOrigin))
-	err := hub.createApp()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
-
-	hub.Origin = newOrigin
-	err = hub.createApp()
-	assert.Nil(t, err)
-}
-
 func TestRegistration(t *testing.T) {
 	hub := getHub()
 	assert.Nil(t, hub.registerUser())

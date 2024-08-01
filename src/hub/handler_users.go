@@ -152,42 +152,6 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		handleInvalidRequestMethod(w, r, userPath)
-		return
-	}
-
-	form, err := readBody[ChangeOriginForm](r)
-	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if !repo.DoesUserExist(form.User) {
-		Logger.Warn("user '%s' tried to change origin but he does not exist", form.User)
-		http.Error(w, "user does not exist", http.StatusNotFound)
-		return
-	}
-
-	if !repo.IsPasswordCorrect(form.User, form.Password) {
-		Logger.Info("incorrect credentials for user '%s' when trying to change origin", form.User)
-		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
-		return
-	}
-
-	err = repo.SetOrigin(form.User, form.NewOrigin)
-	if err != nil {
-		Logger.Error("changing origin for user '%s' failed: %v", form.User, err)
-		http.Error(w, "error when trying to change origin", http.StatusInternalServerError)
-		return
-	}
-
-	Logger.Info("user '%s' changed his origin", form.User)
-	w.WriteHeader(http.StatusOK)
-}
-
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		handleInvalidRequestMethod(w, r, userPath)

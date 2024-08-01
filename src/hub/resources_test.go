@@ -45,7 +45,6 @@ const (
 	FindApps Operation = iota
 	DownloadApp
 	Register
-	ChangeOrigin
 	ChangePassword
 	Login
 	DeleteUser
@@ -309,17 +308,6 @@ func (h *HubClient) ChangePassword(newPassword string) error {
 	}
 
 	_, err := h.doRequest(changePasswordPath, form, "", "POST", ChangePassword)
-	return err
-}
-
-func (h *HubClient) ChangeOrigin(newOrigin string) error {
-	form := ChangeOriginForm{
-		User:      h.User,
-		Password:  h.Password,
-		NewOrigin: newOrigin,
-	}
-
-	_, err := h.doRequest(changeOriginPath, form, "", "POST", ChangeOrigin)
 	return err
 }
 

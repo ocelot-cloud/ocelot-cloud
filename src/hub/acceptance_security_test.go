@@ -63,24 +63,6 @@ func TestRegisterSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
 }
 
-func TestChangeOriginSecurity(t *testing.T) {
-	hub := getHubAndLogin(t)
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
-	assert.Nil(t, hub.ChangeOrigin(sampleOrigin))
-
-	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
-	hub.Password = correctlyFormattedButNotMatchingPassword
-	err := hub.ChangeOrigin(sampleOrigin)
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
-	hub.Password = samplePassword
-
-	testInputInvalidation(t, hub, "invalid-origin", OriginField, ChangeOrigin)
-	testInputInvalidation(t, hub, "invalid-user", UserField, ChangeOrigin)
-	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangeOrigin)
-}
-
 func TestChangePasswordSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
@@ -263,8 +245,6 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 	case FindApps:
 		_, err := hub.findApps(hub.App)
 		assertInvalidInputError(t, err)
-	case ChangeOrigin:
-		assertInvalidInputError(t, hub.ChangeOrigin(hub.Origin))
 	case ChangePassword:
 		assertInvalidInputError(t, hub.ChangePassword(hub.Password))
 	case Login:
