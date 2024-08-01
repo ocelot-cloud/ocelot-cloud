@@ -4,6 +4,8 @@ import Login from "@/components/Login.vue";
 import axios from "axios";
 import {isSecurityEnabled} from "@/components/Config";
 import Hub from "@/components/Hub.vue";
+import HubLogin from "@/components/HubLogin.vue";
+import HubRegistration from "@/components/HubRegistration.vue";
 
 const routes = [
     {
@@ -21,6 +23,16 @@ const routes = [
         path: '/hub',
         name: 'Hub',
         component: Hub,
+    },
+    {
+        path: '/hub/login',
+        name: 'HubLogin',
+        component: HubLogin,
+    },
+    {
+        path: '/hub/registration',
+        name: 'HubRegistration',
+        component: HubRegistration,
     },
 ];
 

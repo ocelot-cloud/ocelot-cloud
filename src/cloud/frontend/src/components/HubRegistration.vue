@@ -32,20 +32,13 @@ export class RegistrationForm {
   ) {}
 }
 
-export class LoginForm {
-  constructor(
-      public user: string,
-      public password: string,
-  ) {}
-}
-
 // TODO Hub: I need a backend endpoint for "isCookieValid" and "isOriginValid". Both executed at page load.
 // TODO frontend: At loading page check if user info (cookie/origin) is found, else register/login? If so, check if cookie is okay, else show login form. if so, check if origin is okay, else change it. Show remote repo contents, like list of apps/tags.
 // TODO Hub: "invalid input" in insufficient info for users
 // TODO frontend: hub/, hub/login, hub/registration
 
 export default defineComponent({
-  name: 'HubLoginPopup',
+  name: 'HubRegistration',
   data() {
     return {
       user: '',
@@ -62,11 +55,6 @@ export default defineComponent({
         const response = await axios.post(url + "/registration", registrationForm);
         if (response.status === 200) {
           this.$emit('authenticated');
-          const loginForm = new LoginForm(this.user, this.password);
-          const response = await axios.post(url + "/login", loginForm);
-          if (response.status === 200) {
-            this.$emit('logged-in');
-          }
         }
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {

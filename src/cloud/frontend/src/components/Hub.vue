@@ -1,8 +1,8 @@
 <template>
   <div>
     <h3>Ocelot Hub</h3>
-    <button>Login</button>
-    <button>Register</button>
+    <button @click="redirectToLogin">Login</button>
+    <button @click="redirectToRegistration">Register</button>
   </div>
 </template>
 
@@ -18,6 +18,12 @@ export default defineComponent({
     this.checkAuth();
   },
   methods: {
+    redirectToLogin() {
+      this.$router.push('/hub/login');
+    },
+    redirectToRegistration() {
+      this.$router.push('/hub/registration');
+    },
     checkAuth() {
       const authCookie = document.cookie.split('; ').find(row => row.startsWith('auth='));
 
@@ -41,7 +47,7 @@ export default defineComponent({
         }
       }
 
-      alert("Cookie expired. Please reload page? TODO")
+      // this.redirectToLogin()
     },
   }
 });
