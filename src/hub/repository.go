@@ -80,7 +80,7 @@ type Repository interface {
 	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
 	ChangePassword(user string, newPassword string) error
-	ChangeOrigin(user string, newOrigin string) error
+	SetOrigin(user string, newOrigin string) error
 	IsOriginCorrect(user string, origin string) bool
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
@@ -429,7 +429,7 @@ func (u *SqliteRepository) ChangePassword(user string, newPassword string) error
 	return nil
 }
 
-func (u *SqliteRepository) ChangeOrigin(user string, newOrigin string) error {
+func (u *SqliteRepository) SetOrigin(user string, newOrigin string) error {
 	_, err := db.Exec("UPDATE users SET origin = ? WHERE user_name = ?", newOrigin, user)
 	if err != nil {
 		return logAndReturnError("failed to update origin: %w", err)

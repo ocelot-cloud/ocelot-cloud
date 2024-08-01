@@ -25,7 +25,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Should be SetOrigin. And registration should not set the origin.
-	err = repo.ChangeOrigin(creds.User, creds.Origin)
+	err = repo.SetOrigin(creds.User, creds.Origin)
 	if err != nil {
 		Logger.Error("setting origin failed: %v", err)
 		http.Error(w, "setting origin failed", http.StatusInternalServerError)
@@ -177,7 +177,7 @@ func changeOriginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.ChangeOrigin(form.User, form.NewOrigin)
+	err = repo.SetOrigin(form.User, form.NewOrigin)
 	if err != nil {
 		Logger.Error("changing origin for user '%s' failed: %v", form.User, err)
 		http.Error(w, "error when trying to change origin", http.StatusInternalServerError)

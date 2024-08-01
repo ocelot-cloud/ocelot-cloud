@@ -215,7 +215,7 @@ func TestChangeRepoOrigin(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	assert.False(t, repo.IsOriginCorrect(sampleUser, sampleOrigin))
-	assert.Nil(t, repo.ChangeOrigin(sampleUser, sampleOrigin))
+	assert.Nil(t, repo.SetOrigin(sampleUser, sampleOrigin))
 	assert.True(t, repo.IsOriginCorrect(sampleUser, sampleOrigin))
 }
 
