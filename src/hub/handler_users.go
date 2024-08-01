@@ -24,10 +24,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO Should be SetOrigin. And registration should not set the origin.
+	err = repo.ChangeOrigin(creds.User, creds.Origin)
+	if err != nil {
+		Logger.Error("setting origin failed: %v", err)
+		http.Error(w, "setting origin failed", http.StatusInternalServerError)
+		return
+	}
+
 	cookie, err := generateCookie()
 	if err != nil {
 		Logger.Error("cookie generation failed: %v", err)
 		http.Error(w, "cookie generation failed", http.StatusInternalServerError)
+		return
 	}
 
 	if profile == TEST {

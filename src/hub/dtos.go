@@ -48,4 +48,5 @@ type RegistrationForm struct {
 type LoginCredentials struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
+	Origin   string `json:"origin"`
 }

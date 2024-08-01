@@ -94,6 +94,7 @@ func (h *HubClient) login() error {
 	creds := LoginCredentials{
 		User:     h.User,
 		Password: h.Password,
+		Origin:   h.Origin,
 	}
 
 	result, err := h.doRequest(loginPath, creds, "", "GET", Login)

@@ -75,6 +75,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 		jobs = []ValidationJob{
 			{v.User, User},
 			{v.Password, Password},
+			{v.Origin, Origin},
 		}
 	case TagInfo:
 		jobs = []ValidationJob{
