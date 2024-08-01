@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>this is the hub page</p>
+    <h3>Ocelot Hub</h3>
     <HubLoginPopup v-if="!isAuthenticated" @authenticated="showWelcomeMessage" />
     <div v-else>
       <p>Welcome in the hub!</p>
