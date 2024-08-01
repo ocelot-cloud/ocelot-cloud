@@ -24,7 +24,7 @@ func initializeDatabaseWithSource(dataSourceName string) {
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name TEXT UNIQUE NOT NULL,
 			hashed_password TEXT NOT NULL,
-			origin TEXT NOT NULL,
+			origin TEXT,
 			cookie TEXT,
 			expiration_date TEXT,
 		    used_space BIGINT NOT NULL
@@ -137,7 +137,7 @@ func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 		return logAndReturnError("Failed to hash password: %v\n", err)
 	}
 
-	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, origin, used_space) VALUES (?, ?, ?, ?)", form.User, hashedPassword, form.Origin, 0)
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, used_space) VALUES (?, ?, ?)", form.User, hashedPassword, 0)
 	if err != nil {
 		return logAndReturnError("Failed to create user: %v", err)
 	}

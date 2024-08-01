@@ -23,7 +23,6 @@ var (
 		sampleUser,
 		samplePassword,
 		sampleEmail,
-		sampleOrigin,
 	}
 )
 
@@ -63,7 +62,6 @@ func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
 		User:     hub.User,
 		Password: hub.Password,
-		Origin:   hub.Origin,
 		Email:    hub.Email,
 	}
 }

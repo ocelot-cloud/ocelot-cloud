@@ -57,7 +57,6 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.User, User},
 			{v.Password, Password},
 			{v.Email, Email},
-			{v.Origin, Origin},
 		}
 	case ChangeOriginForm:
 		jobs = []ValidationJob{
