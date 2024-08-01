@@ -28,7 +28,8 @@ func main() {
 
 	mux.HandleFunc(downloadPath, downloadHandler)
 	mux.HandleFunc(tagPath, tagHandler)
-	mux.HandleFunc(changePasswordPath, changePasswordHandler)
+	mux.HandleFunc(changePasswordPath, changePasswordHandler) // TODO Should be security checked as well?
+	// TODO To be removed. Origin shall be set by login.
 	mux.HandleFunc(changeOriginPath, changeOriginHandler)
 
 	mux.HandleFunc(appPath, appHandler)
