@@ -48,9 +48,7 @@ export default defineComponent({
       try {
         const loginForm = new LoginForm(this.user, this.password, window.origin);
         const response = await axios.post(url + "/login", loginForm);
-        console.log("Got a response")
         if (response.status === 200) {
-          console.log("Status is okay")
           this.$router.push('/hub');
         } else {
           alert(response.data)
