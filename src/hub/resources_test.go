@@ -56,6 +56,7 @@ const (
 	WipeData
 	Logout
 	CheckAuth
+	GetApps
 )
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
@@ -153,9 +154,10 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		h.Cookie = resp.Cookies()[0]
 	}
 
+	// TODO Maybe simplify? Always return the response body and make an extra function for login?
 	if operation == Login {
 		return resp, nil
-	} else if operation == FindApps || operation == GetTags || operation == DownloadTag {
+	} else if operation == FindApps || operation == GetTags || operation == DownloadTag || operation == GetApps {
 		return respBody, nil
 	} else {
 		return nil, nil
@@ -217,6 +219,20 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 	}
 
 	apps, err := unpackResponse[[]UserAndApp](result)
+	if err != nil {
+		return nil, err
+	}
+
+	return *apps, nil
+}
+
+func (h *HubClient) GetApps(user string) ([]string, error) {
+	result, err := h.doRequest(appPath, SingleString{user}, "", "GET", GetApps)
+	if err != nil {
+		return nil, err
+	}
+
+	apps, err := unpackResponse[[]string](result)
 	if err != nil {
 		return nil, err
 	}
