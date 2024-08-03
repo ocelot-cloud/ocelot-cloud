@@ -32,9 +32,9 @@ func TestDownloadAppSecurity(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
 
-	testInputInvalidation(t, hub, "invalid-user", UserField, DownloadApp)
-	testInputInvalidation(t, hub, "invalid-app", AppField, DownloadApp)
-	testInputInvalidation(t, hub, "invalid-tag", TagField, DownloadApp)
+	testInputInvalidation(t, hub, "invalid-user", UserField, DownloadTag)
+	testInputInvalidation(t, hub, "invalid-app", AppField, DownloadTag)
+	testInputInvalidation(t, hub, "invalid-tag", TagField, DownloadTag)
 }
 
 func TestGetTagsSecurity(t *testing.T) {
@@ -240,7 +240,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 	case GetTags:
 		_, err := hub.getTags()
 		assertInvalidInputError(t, err)
-	case DownloadApp:
+	case DownloadTag:
 		_, err := hub.downloadTag()
 		assertInvalidInputError(t, err)
 	case FindApps:

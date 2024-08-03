@@ -50,3 +50,18 @@ export default defineComponent({
   },
 });
 </script>
+
+TODO: Hub
+* Write automated cypress tests
+* DeleteUser
+* ChangePassword
+* CreateApp
+* GetTags
+* DeleteApp
+* UploadTag
+* DownloadTag
+* DeleteTag
+
+TODO: Cloud
+* FindApps
+* DownloadTag

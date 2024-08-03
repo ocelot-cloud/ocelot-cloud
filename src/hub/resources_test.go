@@ -43,7 +43,7 @@ type Operation int
 
 const (
 	FindApps Operation = iota
-	DownloadApp
+	DownloadTag
 	Register
 	ChangePassword
 	Login
@@ -155,7 +155,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 
 	if operation == Login {
 		return resp, nil
-	} else if operation == FindApps || operation == GetTags || operation == DownloadApp {
+	} else if operation == FindApps || operation == GetTags || operation == DownloadTag {
 		return respBody, nil
 	} else {
 		return nil, nil
@@ -241,7 +241,7 @@ func (h *HubClient) downloadTag() (string, error) {
 		Tag:  h.Tag,
 	}
 
-	result, err := h.doRequest(downloadPath, tagInfo, "", "GET", DownloadApp)
+	result, err := h.doRequest(downloadPath, tagInfo, "", "GET", DownloadTag)
 	if err != nil {
 		return "", err
 	}
