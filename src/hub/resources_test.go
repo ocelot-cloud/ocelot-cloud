@@ -211,7 +211,7 @@ func (h *HubClient) createApp() error {
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
-	result, err := h.doRequest(appPath, SingleString{searchTerm}, "", "GET", FindApps)
+	result, err := h.doRequest(searchAppsPath, SingleString{searchTerm}, "", "GET", FindApps)
 	if err != nil {
 		return nil, err
 	}

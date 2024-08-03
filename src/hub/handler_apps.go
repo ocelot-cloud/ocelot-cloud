@@ -6,7 +6,7 @@ import (
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		findApps(w, r)
+		getAppList(w, r)
 	} else if r.Method == http.MethodPost {
 		createApp(w, r)
 	} else if r.Method == http.MethodDelete {
@@ -46,26 +46,6 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 
 	Logger.Info("user '%s' deleted app '%s'", user, app)
 	w.WriteHeader(http.StatusOK)
-}
-
-// TODO To be removed
-func findApps(w http.ResponseWriter, r *http.Request) {
-	appSearchTerm, err := readBodyAsSingleString(r, User)
-	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	apps, err := repo.FindApps(appSearchTerm)
-	if err != nil {
-		Logger.Warn("error finding apps: %v", err)
-		http.Error(w, "error finding apps", http.StatusInternalServerError)
-		return
-	}
-
-	Logger.Info("conducted app search with search term '%s'", appSearchTerm)
-	sendJsonResponse(w, apps)
 }
 
 // TODO Implement and test, can be unsecured. Maybe add a handler for public/unsecured features?
