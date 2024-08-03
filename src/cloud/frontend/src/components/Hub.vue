@@ -8,6 +8,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import axios from "axios";
 
 export default defineComponent({
   name: 'HubComponent',
@@ -24,30 +25,13 @@ export default defineComponent({
     redirectToRegistration() {
       this.$router.push('/hub/registration');
     },
-    checkAuth() {
-      const authCookie = document.cookie.split('; ').find(row => row.startsWith('auth='));
-
-      if (authCookie) {
-        const cookieParts = authCookie.split('; ');
-        let expirationDate = null;
-
-        for (let part of cookieParts) {
-          if (part.startsWith('expires=')) {
-            expirationDate = new Date(part.split('=')[1]);
-          }
-        }
-
-        if (expirationDate) {
-          const currentTime = new Date();
-          const tenSecondsFromNow = new Date(currentTime.getTime() + 10000);
-
-          if (expirationDate > tenSecondsFromNow) {
-            return;
-          }
-        }
+    async checkAuth() {
+      const url = 'http://localhost:8082';
+      try {
+        await axios.get(url + "/auth-check");
+      } catch (error) {
+        this.redirectToLogin()
       }
-
-      // this.redirectToLogin()
     },
   }
 });

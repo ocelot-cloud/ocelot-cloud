@@ -138,7 +138,7 @@ func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
-		Logger.Warn("cookie not set in request: %s", err.Error())
+		Logger.Info("cookie not set in request: %s", err.Error())
 		http.Error(w, "cookie not set in request", http.StatusUnauthorized)
 		return "", fmt.Errorf("")
 	}
