@@ -15,6 +15,7 @@ var (
 	userPath           = "/user"
 	logoutPath         = "/logout"
 	appPath            = "/apps"
+	searchAppsPath     = "/apps/search"
 	loginPath          = "/login"
 	registrationPath   = "/registration"
 	wipeDataPath       = "/wipe-data"

@@ -48,6 +48,7 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// TODO To be removed
 func findApps(w http.ResponseWriter, r *http.Request) {
 	appSearchTerm, err := readBodyAsSingleString(r, User)
 	if err != nil {
@@ -118,4 +119,23 @@ func createApp(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	Logger.Info("user '%s' created app '%s'", authenticatedUser, app)
+}
+
+func searchAppsHandler(w http.ResponseWriter, r *http.Request) {
+	appSearchTerm, err := readBodyAsSingleString(r, User)
+	if err != nil {
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	apps, err := repo.FindApps(appSearchTerm)
+	if err != nil {
+		Logger.Warn("error finding apps: %v", err)
+		http.Error(w, "error finding apps", http.StatusInternalServerError)
+		return
+	}
+
+	Logger.Info("conducted app search with search term '%s'", appSearchTerm)
+	sendJsonResponse(w, apps)
 }

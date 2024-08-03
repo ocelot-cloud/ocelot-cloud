@@ -31,6 +31,7 @@ func main() {
 	mux.HandleFunc(changePasswordPath, changePasswordHandler) // TODO Should be security/cookie checked as well?
 
 	mux.HandleFunc(appPath, appHandler)
+	mux.HandleFunc(searchAppsPath, searchAppsHandler)
 	mux.HandleFunc(userPath, userHandler)
 	mux.HandleFunc(logoutPath, logoutHandler)
 	mux.HandleFunc(loginPath, loginHandler)
