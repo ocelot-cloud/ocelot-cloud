@@ -15,68 +15,63 @@
           <button type="submit" class="btn btn-primary">Register</button>
         </form>
         <br>
-        <p>Back to <a @click="redirectToLogin" href="#">login</a>.</p>
+        <p>Back to <a @click.prevent="redirectToLogin" href="#">login</a>.</p>
       </div>
     </div>
   </div>
 </template>
 
+
 <script lang="ts">
-import { defineComponent } from 'vue';
-import axios from "axios";
-import router from "@/router";
-
-export class RegistrationForm {
-  constructor(
-      public user: string,
-      public password: string,
-      public origin: string,
-      public email: string
-  ) {}
-}
-
-// TODO Hub: I need a backend endpoint for "isCookieValid" and "isOriginValid". Both executed at page load.
-// TODO frontend: At loading page check if user info (cookie/origin) is found, else register/login? If so, check if cookie is okay, else show login form. if so, check if origin is okay, else change it. Show remote repo contents, like list of apps/tags.
-// TODO Hub: "invalid input" in insufficient info for users
-// TODO frontend: hub/, hub/login, hub/registration
+import { defineComponent, ref } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'HubRegistration',
-  data() {
-    return {
-      user: '',
-      password: '',
-      email: ''
-    };
-  },
-  methods: {
-    async register() {
+  setup() {
+    const user = ref('');
+    const password = ref('');
+    const email = ref('');
+    const router = useRouter();
+
+    const register = async () => {
       const url = 'http://localhost:8082';
-      const registrationForm = new RegistrationForm(this.user, this.password, window.location.origin, this.email);
+      const registrationForm = { user: user.value, password: password.value, origin: window.location.origin, email: email.value };
 
       try {
-        const response = await axios.post(url + "/registration", registrationForm);
+        const response = await axios.post(url + '/registration', registrationForm);
         if (response.status === 200) {
-          alert("Registration successful. Please login.")
-          this.$router.push('/hub/login');
+          alert('Registration successful. Please login.');
+          router.push('/hub/login');
         } else {
-          alert(response.data)
+          alert(response.data);
         }
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           const errorMessage = error.response.data || 'An unknown error occurred';
-          this.showErrorPopup(`An error occurred: ${errorMessage}`);
+          showErrorPopup(`An error occurred: ${errorMessage}`);
         } else {
-          this.showErrorPopup('An unknown error occurred');
+          showErrorPopup('An unknown error occurred');
         }
       }
-    },
-    showErrorPopup(message: string) {
+    };
+
+    const showErrorPopup = (message: string) => {
       alert(message);
-    },
-    redirectToLogin() {
-      this.$router.push('/hub/login');
-    },
-  }
+    };
+
+    const redirectToLogin = () => {
+      router.push('/hub/login');
+    };
+
+    return {
+      user,
+      password,
+      email,
+      register,
+      redirectToLogin,
+    };
+  },
 });
 </script>
