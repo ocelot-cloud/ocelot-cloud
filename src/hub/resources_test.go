@@ -55,6 +55,7 @@ const (
 	GetTags
 	WipeData
 	Logout
+	CheckAuth
 )
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
@@ -326,5 +327,10 @@ func (h *HubClient) wipeData() error {
 
 func (h *HubClient) logout() error {
 	_, err := h.doRequest(logoutPath, nil, "", "GET", Logout)
+	return err
+}
+
+func (h *HubClient) checkAuth() error {
+	_, err := h.doRequest(authCheckPath, nil, "", "GET", CheckAuth)
 	return err
 }

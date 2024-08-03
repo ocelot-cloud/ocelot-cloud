@@ -68,12 +68,10 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO To be tested.
 func checkAuth(w http.ResponseWriter, r *http.Request) {
 	user, err := checkAuthentication(w, r)
 	if err != nil {
-		Logger.Error("user '%s' checked his authentication but seems not to be valid", user)
-		http.Error(w, "invalid authentication, please login again", http.StatusBadRequest)
+		Logger.Info("user '%s' checked his authentication but seems not to be valid", user)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
