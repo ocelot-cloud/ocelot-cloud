@@ -23,7 +23,7 @@ type UserAndApp struct {
 }
 
 type SingleString struct {
-	Value string `json:"name"`
+	Value string `json:"value"`
 }
 
 type ChangePasswordForm struct {

@@ -14,6 +14,8 @@
           </div>
           <button type="submit" class="btn btn-primary">Register</button>
         </form>
+        <br>
+        <p>Back to <a @click="redirectToLogin" href="#">login</a>.</p>
       </div>
     </div>
   </div>
@@ -22,6 +24,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from "axios";
+import router from "@/router";
 
 export class RegistrationForm {
   constructor(
@@ -70,7 +73,10 @@ export default defineComponent({
     },
     showErrorPopup(message: string) {
       alert(message);
-    }
+    },
+    redirectToLogin() {
+      this.$router.push('/hub/login');
+    },
   }
 });
 </script>
