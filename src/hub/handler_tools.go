@@ -126,6 +126,11 @@ func generateCookie() (*http.Cookie, error) {
 		Name:    cookieName,
 		Value:   hex.EncodeToString(bytes),
 		Expires: getTimeIn30Days(),
+		// TODO Are some of these redundant? In real production, I should enforce https, maybe? And add "DISABLE_FORCE_HTTPS" or so.
+		HttpOnly: true,
+		Secure:   false,
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
 	}, nil
 }
 

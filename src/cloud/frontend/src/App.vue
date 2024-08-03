@@ -7,6 +7,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import Home from './components/Home.vue';
+import axios from "axios";
 
 @Options({
   components: {
@@ -14,6 +15,8 @@ import Home from './components/Home.vue';
   },
 })
 export default class App extends Vue {}
+
+axios.defaults.withCredentials = true;
 </script>
 
 <style lang="sass">
