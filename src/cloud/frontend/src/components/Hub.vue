@@ -24,7 +24,8 @@ export default defineComponent({
     async checkAuth() {
       const url = 'http://localhost:8082';
       try {
-        await axios.get(url + "/auth-check");
+        const response = await axios.get(url + "/auth-check");
+        response.data // TODO
       } catch (error) {
         this.redirectToLogin()
       }

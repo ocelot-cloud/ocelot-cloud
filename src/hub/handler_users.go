@@ -69,11 +69,11 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request) {
-	_, err := checkAuthentication(w, r)
+	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	sendJsonResponse(w, SingleString{user})
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
