@@ -1,9 +1,9 @@
 <template>
-  <div id="app" class="app-container">
+  <div id="app" class="container mt-5">
     <h3>Ocelot Hub</h3>
-    <div class="header">
-      <span>Logged in as: {{ user }}</span>
-      <button @click="logout">Logout</button>
+    <div class="d-flex justify-content-end align-items-center mb-3">
+      <span class="me-2">Logged in as: {{ user }}</span>
+      <button class="btn btn-primary" @click="logout">Logout</button>
     </div>
     <router-view />
   </div>
@@ -24,8 +24,8 @@ export default defineComponent({
         const response = await axios.get(url + "/auth-check");
         user.value = response.data.value;
       } catch (error) {
-        alert(error)
-        // TODO redirectToLogin()
+        alert(error);
+        redirectToLogin();
       }
     };
 
@@ -34,6 +34,7 @@ export default defineComponent({
       user.value = "";
       redirectToLogin();
     };
+
     const redirectToLogin = () => {
       router.push('/hub/login');
     };
@@ -48,36 +49,4 @@ export default defineComponent({
     };
   },
 });
-
-// TODO
-/*
-Make username visible, Logout
-FindApps
-DownloadApp
-ChangePassword
-DeleteUser
-CreateApp
-DeleteApp
-UploadTag
-DeleteTag
-GetTags
- */
 </script>
-
-<style lang="sass">
-.app-container
-  width: 66.66%
-  margin: 0 auto
-  padding: 20px
-  background-color: #fff
-  border-radius: 8px
-
-.header
-  display: flex
-  justify-content: flex-end
-  margin-bottom: 20px
-
-.header span
-  margin-top: 3px
-  margin-right: 10px
-</style>
