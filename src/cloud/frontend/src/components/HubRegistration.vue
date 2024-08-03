@@ -42,8 +42,8 @@ export default defineComponent({
       try {
         const response = await axios.post(url + '/registration', registrationForm);
         if (response.status === 200) {
-          alert('Registration successful. Please login.');
-          router.push('/hub/login');
+          alert('Registration successful. Please click "OK" and login.');
+          await router.push('/hub/login');
         } else {
           alert(response.data);
         }
