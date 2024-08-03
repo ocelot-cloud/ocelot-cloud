@@ -34,6 +34,7 @@ func main() {
 	mux.HandleFunc(userPath, userHandler)
 	mux.HandleFunc(logoutPath, logoutHandler)
 	mux.HandleFunc(loginPath, loginHandler)
+	mux.HandleFunc(authCheckPath, authCheckHandler)
 
 	mux.HandleFunc(registrationPath, registrationHandler)
 

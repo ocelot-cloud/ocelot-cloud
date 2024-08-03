@@ -18,6 +18,7 @@ var (
 	loginPath          = "/login"
 	registrationPath   = "/registration"
 	wipeDataPath       = "/wipe-data"
+	authCheckPath      = "/auth-check"
 	port               = "8082"
 	rootUrl            = "http://localhost:" + port
 	cookieName         = "auth"

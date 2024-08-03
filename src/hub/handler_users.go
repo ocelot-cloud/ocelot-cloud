@@ -59,6 +59,26 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func authCheckHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		checkAuth(w, r)
+	} else {
+		handleInvalidRequestMethod(w, r, userPath)
+		return
+	}
+}
+
+// TODO To be tested.
+func checkAuth(w http.ResponseWriter, r *http.Request) {
+	user, err := checkAuthentication(w, r)
+	if err != nil {
+		Logger.Error("user '%s' checked his authentication but seems not to be valid", user)
+		http.Error(w, "invalid authentication, please login again", http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		deleteReceivedUser(w, r)
