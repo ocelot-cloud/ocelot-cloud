@@ -11,6 +11,8 @@
           </div>
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
+        <br>
+        <p>Or create an account <a @click="redirectToRegistration" href="#">here</a>.</p>
       </div>
     </div>
   </div>
@@ -64,7 +66,10 @@ export default defineComponent({
     },
     showErrorPopup(message: string) {
       alert(message);
-    }
+    },
+    redirectToRegistration() {
+      this.$router.push('/hub/registration');
+    },
   }
 });
 </script>

@@ -2,7 +2,6 @@
   <div>
     <h3>Ocelot Hub</h3>
     <button @click="redirectToLogin">Login</button>
-    <button @click="redirectToRegistration">Register</button>
   </div>
 </template>
 
@@ -21,9 +20,6 @@ export default defineComponent({
   methods: {
     redirectToLogin() {
       this.$router.push('/hub/login');
-    },
-    redirectToRegistration() {
-      this.$router.push('/hub/registration');
     },
     async checkAuth() {
       const url = 'http://localhost:8082';
