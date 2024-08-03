@@ -1,6 +1,7 @@
 <template>
   <div class="popup-content container my-4">
     <div class="row justify-content-center">
+      <h3>Ocelot Hub</h3>
       <div class="col-lg-6 col-md-8 col-sm-10">
         <form @submit.prevent="register" class="p-4 border rounded shadow-sm">
           <div class="mb-3">

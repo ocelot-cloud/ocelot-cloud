@@ -32,12 +32,6 @@ type ChangePasswordForm struct {
 	NewPassword string `json:"new_password"`
 }
 
-type ChangeOriginForm struct {
-	User      string `json:"user"`
-	Password  string `json:"password"`
-	NewOrigin string `json:"new_origin"`
-}
-
 type RegistrationForm struct {
 	User     string `json:"user"`
 	Password string `json:"password"`

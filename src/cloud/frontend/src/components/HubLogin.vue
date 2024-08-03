@@ -2,6 +2,7 @@
   <div class="popup-content container my-4">
     <div class="row justify-content-center">
       <div class="col-lg-6 col-md-8 col-sm-10">
+        <h3>Ocelot Hub</h3>
         <form @submit.prevent="login" class="p-4 border rounded shadow-sm">
           <div class="mb-3">
             <input v-model="user" id="username" type="text" class="form-control" placeholder="Username" required />
