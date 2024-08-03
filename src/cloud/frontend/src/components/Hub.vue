@@ -31,4 +31,18 @@ export default defineComponent({
     },
   }
 });
+
+// TODO
+/*
+Make username visible, Logout
+FindApps
+DownloadApp
+ChangePassword
+DeleteUser
+CreateApp
+DeleteApp
+UploadTag
+DeleteTag
+GetTags
+ */
 </script>
