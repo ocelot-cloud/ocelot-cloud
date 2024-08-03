@@ -266,3 +266,18 @@ func TestRepoLogout(t *testing.T) {
 	assert.Nil(t, repo.Logout(sampleUser))
 	assert.True(t, repo.IsCookieExpired(sampleCookie))
 }
+
+func TestGetAppList(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.Nil(t, repo.CreateUser(sampleForm))
+	list, err := repo.GetAppList(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(list))
+	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
+	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp+"x"))
+	list, err = repo.GetAppList(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(list))
+	assert.Equal(t, sampleApp, list[0])
+	assert.Equal(t, sampleApp+"x", list[1])
+}

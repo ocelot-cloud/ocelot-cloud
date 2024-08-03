@@ -86,6 +86,7 @@ type Repository interface {
 	GetTagContent(user string, app string, tag string) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
 	Logout(user string) error
+	GetAppList(user string) ([]string, error)
 	WipeDatabase()
 }
 
@@ -413,6 +414,34 @@ func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error)
 	}
 
 	return tags, nil
+}
+
+func (u *SqliteRepository) GetAppList(user string) ([]string, error) {
+	userID, err := getUserId(user)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Query("SELECT app_name FROM apps WHERE user_id = ?", userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get apps: %w", err)
+	}
+	defer rows.Close()
+
+	var apps []string
+	for rows.Next() {
+		var app string
+		if err = rows.Scan(&app); err != nil {
+			return nil, fmt.Errorf("failed to scan app: %w", err)
+		}
+		apps = append(apps, app)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return apps, nil
 }
 
 func (u *SqliteRepository) ChangePassword(user string, newPassword string) error {
