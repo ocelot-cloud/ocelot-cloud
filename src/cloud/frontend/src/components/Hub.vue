@@ -29,10 +29,26 @@ export default defineComponent({
       }
     };
 
-    const logout = () => {
-      // TODO: Implement actual logout logic (e.g., API call to logout)
-      user.value = "";
-      redirectToLogin();
+    const logout = async () => {
+      try {
+        const url = 'http://localhost:8082';
+        await axios.get(url + "/logout");
+        user.value = "";
+        redirectToLogin();
+      } catch (error) {
+        alert(error);
+      }
+    };
+
+    const deleteAccount = async () => {
+      try {
+        const url = 'http://localhost:8082';
+        await axios.get(url + "/delete");
+        user.value = "";
+        redirectToLogin();
+      } catch (error) {
+        alert(error);
+      }
     };
 
     const redirectToLogin = () => {
@@ -52,8 +68,8 @@ export default defineComponent({
 </script>
 
 TODO: Hub
-* Write automated cypress tests
 * DeleteUser
+* Write automated cypress tests
 * ChangePassword
 * CreateApp
 * GetTags
