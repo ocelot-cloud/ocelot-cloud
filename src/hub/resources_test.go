@@ -158,10 +158,8 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	// TODO Maybe simplify? Always return the response body and make an extra function for login?
 	if operation == Login {
 		return resp, nil
-	} else if operation == FindApps || operation == GetTags || operation == DownloadTag || operation == GetApps {
-		return respBody, nil
 	} else {
-		return nil, nil
+		return respBody, nil
 	}
 }
 
