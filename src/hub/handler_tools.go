@@ -140,17 +140,17 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 }
 
 func doAuthenticationCheck(w http.ResponseWriter, r *http.Request, writeHttpError bool) (string, error) {
-	user, httpMsg, status := asdf(w, r)
-	if status != 200 {
+	user, feedbackMessage, feedbackStatus := doAuthCheckWithPotentialResponseFeedback(w, r)
+	if feedbackStatus != 200 {
 		if writeHttpError {
-			http.Error(w, httpMsg, status)
+			http.Error(w, feedbackMessage, feedbackStatus)
 		}
 		return "", fmt.Errorf("")
 	}
 	return user, nil
 }
 
-func asdf(w http.ResponseWriter, r *http.Request) (string, string, int) {
+func doAuthCheckWithPotentialResponseFeedback(w http.ResponseWriter, r *http.Request) (string, string, int) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		Logger.Info("cookie not set in request: %s", err.Error())
