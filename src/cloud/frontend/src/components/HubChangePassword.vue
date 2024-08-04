@@ -15,6 +15,8 @@
           </div>
           <button type="submit" class="btn btn-primary">Change Password</button>
         </form>
+        <br>
+        <p>Back to <a @click.prevent="redirectToHubHomePage" href="#">Hub home page</a>.</p>
       </div>
     </div>
   </div>
@@ -61,11 +63,16 @@ export default defineComponent({
       alert(message);
     };
 
+    const redirectToHubHomePage = () => {
+      router.push("/hub")
+    }
+
     return {
       user,
       oldPassword,
       newPassword,
       changePassword,
+      redirectToHubHomePage,
     };
   },
 });
