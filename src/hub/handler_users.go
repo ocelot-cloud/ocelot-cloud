@@ -77,7 +77,7 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 
 // TODO Merge with parent function
 func checkAuth(w http.ResponseWriter, r *http.Request) {
-	user, err := doAuthenticationCheck(w, r, true)
+	user, err := doAuthenticationCheck(w, r)
 	if err != nil {
 		return
 	}

@@ -136,15 +136,13 @@ func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
-	return doAuthenticationCheck(w, r, true)
+	return doAuthenticationCheck(w, r)
 }
 
-func doAuthenticationCheck(w http.ResponseWriter, r *http.Request, writeHttpError bool) (string, error) {
+func doAuthenticationCheck(w http.ResponseWriter, r *http.Request) (string, error) {
 	user, feedbackMessage, feedbackStatus := doAuthCheckWithPotentialResponseFeedback(w, r)
 	if user == "" {
-		if writeHttpError {
-			http.Error(w, feedbackMessage, feedbackStatus)
-		}
+		http.Error(w, feedbackMessage, feedbackStatus)
 		return "", fmt.Errorf("")
 	}
 	return user, nil
