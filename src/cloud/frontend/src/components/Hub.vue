@@ -3,9 +3,16 @@
     <h3>Ocelot Hub</h3>
     <div class="d-flex justify-content-end align-items-center mb-3">
       <span class="me-2">Logged in as: {{ user }}</span>
-      <button id="button-logout" class="btn btn-primary" @click="logout">Logout</button>
-      <button class="btn btn-primary" @click="redirectToChangePassword">Change Password</button>
-      <button id="button-delete-account" class="btn btn-danger" @click="showDeleteConfirmation = true">Delete Account</button>
+      <div id="dropdown" class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-cog"></i> Settings
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+          <li id="button-logout"><a class="dropdown-item" href="#" @click="logout">Logout</a></li>
+          <li id="button-change-password"><a class="dropdown-item" href="#" @click="redirectToChangePassword">Change Password</a></li>
+          <li id="button-delete-account"><a class="dropdown-item text-danger" href="#" @click="showDeleteConfirmation = true">Delete Account</a></li>
+        </ul>
+      </div>
     </div>
     <router-view />
 

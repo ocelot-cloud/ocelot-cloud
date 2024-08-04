@@ -19,12 +19,15 @@ describe('Hub Registration and Login Flow', () => {
         cy.get('#button-login').click();
         cy.url().should('eq', 'http://localhost:8081/hub');
 
+        cy.get('#dropdown').click();
         cy.get('#button-logout').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
         login()
+        cy.get('#dropdown').click();
         cy.get('#button-delete-account').click();
         cy.get('#button-delete-cancel').click();
         cy.url().should('eq', 'http://localhost:8081/hub');
+        cy.get('#dropdown').click();
         cy.get('#button-delete-account').click();
         cy.get('#button-delete-confirmation').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
