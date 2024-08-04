@@ -1,15 +1,14 @@
-<!-- Add this new section inside your existing template -->
 <template>
   <div id="app" class="container mt-5">
     <h3>Ocelot Hub</h3>
     <div class="d-flex justify-content-end align-items-center mb-3">
       <span class="me-2">Logged in as: {{ user }}</span>
       <button class="btn btn-primary" @click="logout">Logout</button>
+      <button class="btn btn-primary" @click="redirectToChangePassword">Change Password</button>
       <button class="btn btn-danger" @click="showDeleteConfirmation = true">Delete Account</button>
     </div>
     <router-view />
 
-    <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -48,7 +47,6 @@ export default defineComponent({
         const response = await axios.get(url + "/auth-check");
         user.value = response.data.value;
       } catch (error) {
-        alert(error);
         redirectToLogin();
       }
     };
@@ -62,6 +60,16 @@ export default defineComponent({
       } catch (error) {
         alert(error);
       }
+    };
+
+    const changePassword = async () => {
+      const url = 'http://localhost:8082';
+      const data = {
+        user: "yourUsername",
+        old_password: "yourOldPassword",
+        new_password: "yourNewPassword"
+      };
+      await axios.post(url + "/password", data);
     };
 
     const deleteAccount = async () => {
@@ -84,6 +92,10 @@ export default defineComponent({
       router.push('/hub/login');
     };
 
+    const redirectToChangePassword = () => {
+      router.push('/hub/change-password');
+    };
+
     onMounted(() => {
       checkAuth();
     });
@@ -94,6 +106,7 @@ export default defineComponent({
       showDeleteConfirmation,
       deleteAccount,
       confirmDeleteAccount,
+      redirectToChangePassword,
     };
   },
 });

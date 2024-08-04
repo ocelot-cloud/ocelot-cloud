@@ -6,6 +6,7 @@ import {isSecurityEnabled} from "@/components/Config";
 import HubComponent from "@/components/Hub.vue";
 import HubLogin from "@/components/HubLogin.vue";
 import HubRegistration from "@/components/HubRegistration.vue";
+import HubChangePassword from "@/components/HubChangePassword.vue";
 
 const routes = [
     {
@@ -33,6 +34,11 @@ const routes = [
         path: '/hub/registration',
         name: 'HubRegistration',
         component: HubRegistration,
+    },
+    {
+        path: '/hub/change-password',
+        name: 'HubChangePassword',
+        component: HubChangePassword,
     },
 ];
 
