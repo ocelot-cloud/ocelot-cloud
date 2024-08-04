@@ -48,16 +48,12 @@ const (
 	Register
 	ChangePassword
 	Login
-	DeleteUser
 	CreateApp
 	DeleteApp
 	UploadTag
 	DeleteTag
 	GetTags
-	WipeData
-	Logout
 	CheckAuth
-	GetApps
 )
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
@@ -86,7 +82,7 @@ func getHub() *HubClient {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "", "POST", Register)
+	_, err := h.doRequest(registrationPath, form, "", "POST")
 	return err
 }
 
@@ -111,12 +107,11 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userPath, nil, "", "DELETE", DeleteUser)
+	_, err := h.doRequest(userPath, nil, "", "DELETE")
 	return err
 }
 
-// TODO remove operation
-func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, method string, operation Operation) (interface{}, error) {
+func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, method string) (interface{}, error) {
 	resp, err := h.doRequestWithFullResponse(path, payload, expectedMessage, method)
 	if err != nil {
 		return nil, err
@@ -218,12 +213,12 @@ func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "", "POST", CreateApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "", "POST")
 	return err
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
-	result, err := h.doRequest(searchAppsPath, SingleString{searchTerm}, "", "GET", FindApps)
+	result, err := h.doRequest(searchAppsPath, SingleString{searchTerm}, "", "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +232,7 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 }
 
 func (h *HubClient) GetApps(user string) ([]string, error) {
-	result, err := h.doRequest(appPath, SingleString{user}, "", "GET", GetApps)
+	result, err := h.doRequest(appPath, SingleString{user}, "", "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +251,7 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.doRequest(tagPath, tapUpload, "", "POST", UploadTag)
+	_, err := h.doRequest(tagPath, tapUpload, "", "POST")
 	return err
 }
 
@@ -267,7 +262,7 @@ func (h *HubClient) downloadTag() (string, error) {
 		Tag:  h.Tag,
 	}
 
-	result, err := h.doRequest(downloadPath, tagInfo, "", "GET", DownloadTag)
+	result, err := h.doRequest(downloadPath, tagInfo, "", "GET")
 	if err != nil {
 		return "", err
 	}
@@ -286,7 +281,7 @@ func (h *HubClient) getTags() ([]string, error) {
 		App:  h.App,
 	}
 
-	result, err := h.doRequest(tagPath, usernameAndApp, "", "GET", GetTags)
+	result, err := h.doRequest(tagPath, usernameAndApp, "", "GET")
 	if err != nil {
 		return nil, err
 	}
@@ -318,12 +313,12 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.doRequest(tagPath, tagInfo, "", "DELETE", DeleteTag)
+	_, err := h.doRequest(tagPath, tagInfo, "", "DELETE")
 	return err
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "", "DELETE", DeleteApp)
+	_, err := h.doRequest(appPath, SingleString{h.App}, "", "DELETE")
 	return err
 }
 
@@ -333,7 +328,7 @@ func (h *HubClient) changePassword() error {
 		NewPassword: h.NewPassword,
 	}
 
-	_, err := h.doRequest(changePasswordPath, form, "", "POST", ChangePassword)
+	_, err := h.doRequest(changePasswordPath, form, "", "POST")
 	return err
 }
 
@@ -346,16 +341,16 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.doRequest(wipeDataPath, nil, "", "GET", WipeData)
+	_, err := h.doRequest(wipeDataPath, nil, "", "GET")
 	return err
 }
 
 func (h *HubClient) logout() error {
-	_, err := h.doRequest(logoutPath, nil, "", "GET", Logout)
+	_, err := h.doRequest(logoutPath, nil, "", "GET")
 	return err
 }
 
 func (h *HubClient) checkAuth() error {
-	_, err := h.doRequest(authCheckPath, nil, "", "GET", CheckAuth)
+	_, err := h.doRequest(authCheckPath, nil, "", "GET")
 	return err
 }
