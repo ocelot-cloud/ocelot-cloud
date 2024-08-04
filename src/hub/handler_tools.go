@@ -141,7 +141,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 
 func doAuthenticationCheck(w http.ResponseWriter, r *http.Request, writeHttpError bool) (string, error) {
 	user, feedbackMessage, feedbackStatus := doAuthCheckWithPotentialResponseFeedback(w, r)
-	if feedbackStatus != 200 {
+	if user == "" {
 		if writeHttpError {
 			http.Error(w, feedbackMessage, feedbackStatus)
 		}
