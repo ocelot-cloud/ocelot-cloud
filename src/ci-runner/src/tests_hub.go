@@ -2,17 +2,17 @@ package src
 
 func TestHub() {
 	ExecuteInDir(hubDir, "rm -rf data")
-	testHubUnits()
-	testHubBackend()
+	TestHubUnits()
+	TestHubBackend()
 }
 
-func testHubUnits() {
+func TestHubUnits() {
 	printTestDescription("Testing hub units")
 	defer Cleanup()
 	ExecuteInDir(hubDir, "go test -tags=unit ./...", "LOG_LEVEL=DEBUG")
 }
 
-func testHubBackend() {
+func TestHubBackend() {
 	printTestDescription("Testing hub backend")
 	defer Cleanup()
 	StartDaemon(hubDir, "go run .", "PROFILE=TEST", "LOG_LEVEL=DEBUG")
@@ -29,4 +29,9 @@ func TestHubAcceptance() {
 	StartDaemon(frontendDir, "bash run-development-setup.sh")
 	WaitUntilPortIsReady("localhost:8081")
 	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts")
+}
+
+func TestHubAll() {
+	TestHubBackend()
+	TestHubAcceptance()
 }
