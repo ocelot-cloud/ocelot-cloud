@@ -152,16 +152,17 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHub()
-	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
-	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
-	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
-	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag)
-	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
-	doCookieAndHostPolicyChecks2(t, hub, hub.checkAuth)
-	doCookieAndHostPolicyChecks(t, hub, hub.changePassword)
+	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser, false)
+	doCookieAndHostPolicyChecks(t, hub, hub.createApp, false)
+	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp, false)
+	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag, false)
+	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag, false)
+	doCookieAndHostPolicyChecks(t, hub, hub.changePassword, false)
+
+	doCookieAndHostPolicyChecks(t, hub, hub.checkAuth, true)
 }
 
-func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
+func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error, isCheckAuth bool) {
 	defer hub.wipeData()
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
@@ -171,33 +172,53 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 
 	err := operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "cookie not set in request"), err.Error())
+	if isCheckAuth {
+		assert.Equal(t, getErrMsg(204, ""), err.Error())
+	} else {
+		assert.Equal(t, getErrMsg(401, "cookie not set in request"), err.Error())
+	}
 
 	hub.SetCookieHeader = true
 	hub.Cookie.Value = "some-invalid-cookie-value"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "invalid cookie"), err.Error())
+	if isCheckAuth {
+		assert.Equal(t, getErrMsg(204, ""), err.Error())
+	} else {
+		assert.Equal(t, getErrMsg(400, "invalid cookie"), err.Error())
+	}
 
 	err = hub.login()
 	assert.Nil(t, err)
 	hub.Origin = "http:/single-slash-invalid-origin"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "invalid origin"), err.Error())
+	if isCheckAuth {
+		assert.Equal(t, getErrMsg(204, ""), err.Error())
+	} else {
+		assert.Equal(t, getErrMsg(400, "invalid origin"), err.Error())
+	}
 
 	hub.SetOriginHeader = true
 	hub.Origin = "http://valid-but-incorrect-origin.com"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
+	if isCheckAuth {
+		assert.Equal(t, getErrMsg(204, ""), err.Error())
+	} else {
+		assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
+	}
 	hub.Origin = sampleOrigin
 
 	validButNonExistentCookie := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
 	hub.Cookie.Value = validButNonExistentCookie
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
+	if isCheckAuth {
+		assert.Equal(t, getErrMsg(204, ""), err.Error())
+	} else {
+		assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
+	}
 	assert.Nil(t, hub.login())
 
 	hub.User = testUserWithExpiredCookie
@@ -205,57 +226,11 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Nil(t, hub.login())
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
-	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
-	hub.User = sampleUser
-}
-
-// TODO resolve duplication
-func doCookieAndHostPolicyChecks2(t *testing.T, hub *HubClient, operation func() error) {
-	defer hub.wipeData()
-	assert.Nil(t, hub.registerUser())
-	assert.Nil(t, hub.login())
-
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
-
-	err := operation()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(204, ""), err.Error())
-
-	hub.SetCookieHeader = true
-	hub.Cookie.Value = "some-invalid-cookie-value"
-	err = operation()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(204, ""), err.Error())
-
-	err = hub.login()
-	assert.Nil(t, err)
-	hub.Origin = "http:/single-slash-invalid-origin"
-	err = operation()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(204, ""), err.Error())
-
-	hub.SetOriginHeader = true
-	hub.Origin = "http://valid-but-incorrect-origin.com"
-	err = operation()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(204, ""), err.Error())
-	hub.Origin = sampleOrigin
-
-	validButNonExistentCookie := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
-	hub.Cookie.Value = validButNonExistentCookie
-	err = operation()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(204, ""), err.Error())
-	assert.Nil(t, hub.login())
-
-	hub.User = testUserWithExpiredCookie
-	assert.Nil(t, hub.registerUser())
-	assert.Nil(t, hub.login())
-	err = operation()
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(204, ""), err.Error())
+	if isCheckAuth {
+		assert.Equal(t, getErrMsg(204, ""), err.Error())
+	} else {
+		assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
+	}
 	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
 	hub.User = sampleUser
 }
