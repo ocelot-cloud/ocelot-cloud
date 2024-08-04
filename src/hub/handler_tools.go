@@ -122,13 +122,9 @@ func generateCookie() (*http.Cookie, error) {
 		return nil, err
 	}
 	return &http.Cookie{
-		Name:    cookieName,
-		Value:   hex.EncodeToString(bytes),
-		Expires: getTimeIn30Days(),
-		// TODO Are some of these redundant? In real production, I should enforce https, maybe? And add "DISABLE_FORCE_HTTPS" or so.
-		HttpOnly: true,
-		Secure:   false,
-		Path:     "/",
+		Name:     cookieName,
+		Value:    hex.EncodeToString(bytes),
+		Expires:  getTimeIn30Days(),
 		SameSite: http.SameSiteLaxMode,
 	}, nil
 }
@@ -152,7 +148,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if err := validate(r.Header.Get(OriginHeader), Origin); err != nil {
+	if err = validate(r.Header.Get(OriginHeader), Origin); err != nil {
 		http.Error(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -184,6 +180,12 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", err
 	}
 	cookie.Expires = newExpirationTime
+	// Note: If no path is given, browsers set the default path one level higher than the
+	// request path. For example, calling "/a" sets the cookie path to two "/", and calling
+	// "/a/b" sets the cookie path to "/a". When updating a cookie, two cookies, the old one
+	// and the updated one, with different paths are stored in the browser, causing some
+	// requests to fail with "cookie not found".
+	cookie.Path = "/"
 	http.SetCookie(w, cookie)
 
 	return user, nil
