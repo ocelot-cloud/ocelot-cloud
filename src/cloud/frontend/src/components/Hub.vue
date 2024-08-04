@@ -42,12 +42,14 @@ export default defineComponent({
     const showDeleteConfirmation = ref(false);
 
     const checkAuth = async () => {
-      const url = 'http://localhost:8082';
-      const response = await axios.get(url + "/auth-check");
-      if (response.status === 204) {
+      try {
+        const url = 'http://localhost:8082';
+        const response = await axios.get(url + "/auth-check");
+        if (response.status === 200) {
+          user.value = response.data.value;
+        }
+      } catch (error) {
         redirectToLogin();
-      } else if (response.status === 200) {
-        user.value = response.data.value;
       }
       // TODO add error?
     };
