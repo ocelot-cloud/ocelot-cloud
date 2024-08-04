@@ -75,7 +75,7 @@ func TestChangePasswordSecurity(t *testing.T) {
 	hub.Password = samplePassword
 
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
-	// TODO New password field check
+	testInputInvalidation(t, hub, "invalid-password-ä", NewPasswordField, ChangePassword)
 }
 
 func TestLoginSecurity(t *testing.T) {
@@ -215,6 +215,7 @@ type FieldType int
 const (
 	UserField FieldType = iota
 	PasswordField
+	NewPasswordField
 	EmailField
 	OriginField
 	AppField
@@ -268,6 +269,9 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	case PasswordField:
 		originalValue = hub.Password
 		hub.Password = value
+	case NewPasswordField:
+		originalValue = hub.NewPassword
+		hub.NewPassword = value
 	case UserField:
 		originalValue = hub.User
 		hub.User = value
