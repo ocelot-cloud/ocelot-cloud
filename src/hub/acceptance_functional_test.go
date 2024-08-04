@@ -120,6 +120,7 @@ func TestChangePassword(t *testing.T) {
 	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
 
 	hub.Password = hub.NewPassword
+	hub.Cookie = nil
 	err = hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, hub.Cookie)

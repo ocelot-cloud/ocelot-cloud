@@ -63,33 +63,20 @@ func TestRegisterSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
 }
 
-/* TODO Still needed?
 func TestChangePasswordSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
-
-	assert.Nil(t, hub.ChangePassword(samplePassword))
-
-	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
+	hub.NewPassword = samplePassword + "x"
+	correctlyFormattedButNotMatchingPassword := samplePassword + "xy"
 	hub.Password = correctlyFormattedButNotMatchingPassword
-	err := hub.ChangePassword(samplePassword)
+	err := hub.changePassword()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
 	hub.Password = samplePassword
 
-	testInputInvalidation(t, hub, "invalid-user", UserField, ChangePassword)
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
-
-	oldPassword := hub.Password
-	hub.Password = "invalid-old-password-ä"
-	err = hub.ChangePassword("new-valid-password")
-	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "invalid input"), err.Error())
-	hub.Password = oldPassword
+	// TODO New password field check
 }
-*/
 
 func TestLoginSecurity(t *testing.T) {
 	hub := getHub()
