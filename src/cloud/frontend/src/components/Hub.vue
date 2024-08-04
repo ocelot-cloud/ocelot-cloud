@@ -43,12 +43,13 @@ export default defineComponent({
 
     const checkAuth = async () => {
       const url = 'http://localhost:8082';
-      try {
-        const response = await axios.get(url + "/auth-check");
-        user.value = response.data.value;
-      } catch (error) {
+      const response = await axios.get(url + "/auth-check");
+      if (response.status === 204) {
         redirectToLogin();
+      } else if (response.status === 200) {
+        user.value = response.data.value;
       }
+      // TODO add error?
     };
 
     const logout = async () => {
