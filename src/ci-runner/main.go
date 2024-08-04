@@ -10,9 +10,6 @@ import (
 	"strings"
 )
 
-// TODO Add option of executing specific acceptance tests only. Maybe add command which lists available options. Fail if acceptance test not found.
-// TODO Try to stop a potentially running "./hub" process when cleaning up at the beginning.
-
 var rootCmd = &cobra.Command{
 	Use:   "ci-runner",
 	Short: "CI Runner CLI",
