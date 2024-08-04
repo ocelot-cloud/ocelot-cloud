@@ -20,8 +20,8 @@ axios.defaults.withCredentials = true;
 </script>
 
 <style lang="sass">
-html
-  background-color: #282c34
+html body, input, .form-control
+  background-color: #282c34 !important
 
 #app
   font-family: Avenir, Helvetica, Arial, sans-serif
@@ -31,7 +31,10 @@ html
   color: #2c3e50
   margin-top: 60px
 
-p, h1, h2, h3, h4, h5, h6, label
+p, h1, h2, h3, h4, h5, h6, label, input, span
   color: white !important
+
+input::placeholder
+  color: gray !important
 </style>
 
