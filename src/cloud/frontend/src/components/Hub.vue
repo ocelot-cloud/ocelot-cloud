@@ -5,7 +5,7 @@
       <span class="me-2">Logged in as: {{ user }}</span>
       <div id="dropdown" class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-cog"></i> Settings
+          <i class="fas fa-cog"></i>
         </button>
         <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
           <li id="button-logout"><a class="dropdown-item" href="#" @click="logout">Logout</a></li>
