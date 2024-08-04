@@ -241,6 +241,64 @@ func checkAuthenticationWithoutWrite(w http.ResponseWriter, r *http.Request) (st
 	return user, nil
 }
 
+func doAuthenticationCheck(w http.ResponseWriter, r *http.Request, writeHttpError bool) (string, error) {
+	user, httpMsg, status, err := asdf(w, r)
+	if writeHttpError {
+		http.Error(w, httpMsg, status)
+	}
+	return user, err
+}
+
+// TODO Idea: get rid of the error, when status == 200, then create error in parent function
+func asdf(w http.ResponseWriter, r *http.Request) (string, string, int, error) {
+	cookie, err := r.Cookie(cookieName)
+	if err != nil {
+		Logger.Info("cookie not set in request: %s", err.Error())
+		return "", "cookie not set in request", http.StatusUnauthorized, fmt.Errorf("")
+	}
+
+	if err = validate(cookie.Value, Cookie); err != nil {
+		return "", "invalid cookie", http.StatusBadRequest, fmt.Errorf("")
+	}
+
+	if err = validate(r.Header.Get(OriginHeader), Origin); err != nil {
+		return "", "invalid origin", http.StatusBadRequest, fmt.Errorf("")
+	}
+
+	user, err := repo.GetUserWithCookie(cookie.Value)
+	if err != nil {
+		Logger.Warn("error when getting cookie of user: %s", err.Error())
+		return "", "cookie not found", http.StatusNotFound, fmt.Errorf("")
+	}
+
+	if !repo.IsOriginCorrect(user, r.Header.Get(OriginHeader)) {
+		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(OriginHeader))
+		return "", "origin not matching", http.StatusBadRequest, fmt.Errorf("")
+	}
+
+	if repo.IsCookieExpired(cookie.Value) {
+		Logger.Warn("user '%s' used an expired cookie'", user)
+		return "", "cookie expired", http.StatusBadRequest, fmt.Errorf("")
+	}
+
+	newExpirationTime := getTimeIn30Days()
+	err = repo.SetCookie(user, cookie.Value, newExpirationTime)
+	if err != nil {
+		Logger.Error("setting new cookie failed: %v", err)
+		return "", "setting new cookie failed", http.StatusInternalServerError, err
+	}
+	cookie.Expires = newExpirationTime
+	// Note: If no path is given, browsers set the default path one level higher than the
+	// request path. For example, calling "/a" sets the cookie path to two "/", and calling
+	// "/a/b" sets the cookie path to "/a". When updating a cookie, two cookies, the old one
+	// and the updated one, with different paths are stored in the browser, causing some
+	// requests to fail with "cookie not found".
+	cookie.Path = "/"
+	http.SetCookie(w, cookie)
+
+	return user, "", 200, nil
+}
+
 func handleInvalidRequestMethod(w http.ResponseWriter, r *http.Request, endpoint string) {
 	Logger.Warn("invalid request method '%s' on endpoint '%s'", r.Method, endpoint)
 	http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
