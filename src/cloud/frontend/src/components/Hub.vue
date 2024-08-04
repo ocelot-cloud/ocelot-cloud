@@ -62,16 +62,6 @@ export default defineComponent({
       }
     };
 
-    const changePassword = async () => {
-      const url = 'http://localhost:8082';
-      const data = {
-        user: "yourUsername",
-        old_password: "yourOldPassword",
-        new_password: "yourNewPassword"
-      };
-      await axios.post(url + "/password", data);
-    };
-
     const deleteAccount = async () => {
       try {
         const url = 'http://localhost:8082';

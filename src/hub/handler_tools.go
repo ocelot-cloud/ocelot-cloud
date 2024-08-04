@@ -142,7 +142,7 @@ func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
-		Logger.Info("cookie not set in request: %s", err.Error())
+		Logger.Warn("cookie not set in request: %s", err.Error())
 		http.Error(w, "cookie not set in request", http.StatusUnauthorized)
 		return "", fmt.Errorf("")
 	}
@@ -159,7 +159,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 
 	user, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
-		Logger.Info("error when getting cookie of user: %s", err.Error())
+		Logger.Warn("error when getting cookie of user: %s", err.Error())
 		http.Error(w, "cookie not found", http.StatusNotFound)
 		return "", fmt.Errorf("")
 	}

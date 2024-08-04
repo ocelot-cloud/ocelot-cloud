@@ -5,9 +5,6 @@
         <h3>Ocelot Hub</h3>
         <form @submit.prevent="changePassword" class="p-4 border rounded shadow-sm">
           <div class="mb-3">
-            <input v-model="user" id="username" type="text" class="form-control" placeholder="Username" required />
-          </div>
-          <div class="mb-3">
             <input v-model="oldPassword" id="old_password" type="password" class="form-control" placeholder="Old Password" required />
           </div>
           <div class="mb-3">
@@ -30,7 +27,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
 import router from "@/router";
 
 export default defineComponent({
@@ -43,7 +39,7 @@ export default defineComponent({
     const changePassword = async () => {
       const url = 'http://localhost:8082';
       try {
-        const changePasswordForm = { user: user.value, old_password: oldPassword.value, new_password: newPassword.value };
+        const changePasswordForm = { old_password: oldPassword.value, new_password: newPassword.value };
         const response = await axios.post(url + '/user/password', changePasswordForm);
         if (response.status === 200) {
           alert("Password was changed.")
