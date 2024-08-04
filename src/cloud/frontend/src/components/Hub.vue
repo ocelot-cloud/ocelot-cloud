@@ -107,9 +107,6 @@ export default defineComponent({
 
 
 TODO: Hub
-* DeleteUser
-* Write automated cypress tests
-* ChangePassword
 * CreateApp
 * GetTags
 * DeleteApp
