@@ -28,7 +28,7 @@ func main() {
 
 	mux.HandleFunc(downloadPath, downloadHandler)
 	mux.HandleFunc(tagPath, tagHandler)
-	mux.HandleFunc(changePasswordPath, changePasswordHandler) // TODO Should be security/cookie checked as well?
+	mux.HandleFunc(changePasswordPath, changePasswordHandler)
 
 	mux.HandleFunc(appPath, appHandler)
 	mux.HandleFunc(searchAppsPath, searchAppsHandler)

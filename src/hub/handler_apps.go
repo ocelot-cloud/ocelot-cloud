@@ -48,8 +48,6 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO Implement and test, can be unsecured. Maybe add a handler for public/unsecured features?
-// TODO This should be available at GET /apps, and find apps under GET /apps/search
 func getAppList(w http.ResponseWriter, r *http.Request) {
 	user, err := readBodyAsSingleString(r, User)
 	if err != nil {

@@ -30,7 +30,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Should be SetOrigin. And registration should not set the origin.
 	err = repo.SetOrigin(creds.User, creds.Origin)
 	if err != nil {
 		Logger.Error("setting origin failed: %v", err)
