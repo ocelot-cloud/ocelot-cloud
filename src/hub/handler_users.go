@@ -79,7 +79,6 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 func checkAuth(w http.ResponseWriter, r *http.Request) {
 	user, err := doAuthenticationCheck(w, r, true)
 	if err != nil {
-		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	sendJsonResponse(w, SingleString{user})
