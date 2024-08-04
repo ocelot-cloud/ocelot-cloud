@@ -76,7 +76,7 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthenticationWithoutWrite(w, r)
+	user, err := doAuthenticationCheck(w, r, false)
 	if err != nil {
 		w.WriteHeader(http.StatusNoContent)
 		return

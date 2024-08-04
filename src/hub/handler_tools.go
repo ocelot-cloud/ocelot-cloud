@@ -139,10 +139,6 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 	return doAuthenticationCheck(w, r, true)
 }
 
-func checkAuthenticationWithoutWrite(w http.ResponseWriter, r *http.Request) (string, error) {
-	return doAuthenticationCheck(w, r, false)
-}
-
 func doAuthenticationCheck(w http.ResponseWriter, r *http.Request, writeHttpError bool) (string, error) {
 	user, httpMsg, status := asdf(w, r)
 	if status != 200 {
