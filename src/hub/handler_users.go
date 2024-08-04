@@ -68,20 +68,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		checkAuth(w, r)
+		user, err := checkAuthentication(w, r)
+		if err != nil {
+			return
+		}
+		sendJsonResponse(w, SingleString{user})
 	} else {
 		handleInvalidRequestMethod(w, r, userPath)
 		return
 	}
-}
-
-// TODO Merge with parent function
-func checkAuth(w http.ResponseWriter, r *http.Request) {
-	user, err := doAuthenticationCheck(w, r)
-	if err != nil {
-		return
-	}
-	sendJsonResponse(w, SingleString{user})
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
