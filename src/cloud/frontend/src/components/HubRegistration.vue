@@ -5,15 +5,15 @@
       <div class="col-lg-6 col-md-8 col-sm-10">
         <form @submit.prevent="register" class="p-4 border rounded shadow-sm">
           <div class="mb-3">
-            <input v-model="user" id="username" type="text" class="form-control" placeholder="Username" required />
+            <input v-model="user" id="input-username" type="text" class="form-control" placeholder="Username" required />
           </div>
           <div class="mb-3">
-            <input v-model="password" id="password" type="password" class="form-control" placeholder="Password" required />
+            <input v-model="password" id="input-password" type="password" class="form-control" placeholder="Password" required />
           </div>
           <div class="mb-3">
-            <input v-model="email" id="email" type="email" class="form-control" placeholder="E-Mail" required />
+            <input v-model="email" id="input-email" type="email" class="form-control" placeholder="E-Mail" required />
           </div>
-          <button type="submit" class="btn btn-primary">Register</button>
+          <button id="button-register" type="submit" class="btn btn-primary">Register</button>
         </form>
         <br>
         <p>Back to <a @click.prevent="redirectToLogin" href="#">login</a>.</p>

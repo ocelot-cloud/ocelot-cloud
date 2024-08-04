@@ -3,7 +3,7 @@
     <h3>Ocelot Hub</h3>
     <div class="d-flex justify-content-end align-items-center mb-3">
       <span class="me-2">Logged in as: {{ user }}</span>
-      <button class="btn btn-primary" @click="logout">Logout</button>
+      <button id="button-logout" class="btn btn-primary" @click="logout">Logout</button>
       <button class="btn btn-primary" @click="redirectToChangePassword">Change Password</button>
       <button class="btn btn-danger" @click="showDeleteConfirmation = true">Delete Account</button>
     </div>

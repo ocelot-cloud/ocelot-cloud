@@ -5,15 +5,15 @@
         <h3>Ocelot Hub</h3>
         <form @submit.prevent="login" class="p-4 border rounded shadow-sm">
           <div class="mb-3">
-            <input v-model="user" id="username" type="text" class="form-control" placeholder="Username" required />
+            <input v-model="user" id="input-username" type="text" class="form-control" placeholder="Username" required />
           </div>
           <div class="mb-3">
-            <input v-model="password" id="password" type="password" class="form-control" placeholder="Password" required />
+            <input v-model="password" id="input-password" type="password" class="form-control" placeholder="Password" required />
           </div>
-          <button type="submit" class="btn btn-primary">Login</button>
+          <button id="button-login" type="submit" class="btn btn-primary">Login</button>
         </form>
         <br>
-        <p>Or create an account <a @click.prevent="redirectToRegistration" href="#">here</a>.</p>
+        <p>Or create an account <a id="registration-redirect" @click.prevent="redirectToRegistration" href="#">here</a>.</p>
       </div>
     </div>
   </div>
