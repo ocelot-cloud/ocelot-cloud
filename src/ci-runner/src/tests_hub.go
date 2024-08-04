@@ -28,7 +28,7 @@ func TestHubAcceptance() {
 	WaitUntilPortIsReady("localhost:8082")
 	StartDaemon(frontendDir, "bash run-development-setup.sh")
 	WaitUntilPortIsReady("localhost:8081")
-	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts")
+	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
 }
 
 func TestHubAll() {

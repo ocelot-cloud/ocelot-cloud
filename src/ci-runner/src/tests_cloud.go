@@ -8,6 +8,7 @@ import (
 
 const ocelotContainerRunCommand = "docker-compose -p ocelot-cloud up"
 const ocelotContainerRunCommandDetached = "docker-compose -p ocelot-cloud up -d"
+const cypressCommand = "npx cypress run --spec cypress/e2e/cloud.cy.ts --headless"
 
 var projectDir = GetProjectDir()
 var scriptsDir = projectDir + "/scripts"
@@ -98,7 +99,7 @@ func TestAcceptance() {
 	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true")
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, "npx cypress run --headless")
+	ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
 
 func DeployLocally() {
@@ -141,7 +142,7 @@ func TestFrontendFast() {
 	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeBackendMock)
 	WaitForIndexPageToBeReady(frontendServerUrl)
 	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, "npx cypress run --headless", "CYPRESS_PROFILE="+FrontendModeBackendMock)
+	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeBackendMock)
 }
 
 func testComponentsInDevelopmentSetupMode() {
@@ -153,7 +154,7 @@ func testComponentsInDevelopmentSetupMode() {
 	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeDevelopmentSetup)
 	WaitForIndexPageToBeReady(frontendServerUrl)
 	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, "npx cypress run --headless", "CYPRESS_PROFILE="+FrontendModeDevelopmentSetup)
+	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeDevelopmentSetup)
 }
 
 func testRunScript() {
@@ -163,5 +164,5 @@ func testRunScript() {
 	ExecuteInDir(scriptsDir, "bash run-dummy.sh")
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, "npx cypress run --headless")
+	ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
