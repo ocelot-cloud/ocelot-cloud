@@ -97,14 +97,9 @@ func (h *HubClient) login() error {
 		Origin:   h.Origin,
 	}
 
-	result, err := h.doRequest(loginPath, creds, "", "GET", Login)
+	resp, err := h.doRequestWithFullResponse(loginPath, creds, "", "GET")
 	if err != nil {
 		return err
-	}
-
-	resp, ok := result.(*http.Response)
-	if !ok {
-		return fmt.Errorf("Failed to assert result to *http.Response")
 	}
 
 	cookies := resp.Cookies()
@@ -120,7 +115,22 @@ func (h *HubClient) deleteUser() error {
 	return err
 }
 
+// TODO remove operation
 func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, method string, operation Operation) (interface{}, error) {
+	resp, err := h.doRequestWithFullResponse(path, payload, expectedMessage, method)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := assertOkStatusAndExtractBody(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return respBody, nil
+}
+
+func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, expectedMessage string, method string) (*http.Response, error) {
 	url := rootUrl + path
 
 	payloadBytes, err := json.Marshal(payload)
@@ -155,12 +165,14 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 		h.Cookie = resp.Cookies()[0]
 	}
 
-	// TODO Maybe simplify? Always return the response body and make an extra function for login?
-	if operation == Login {
-		return resp, nil
-	} else {
-		return respBody, nil
+	newResp := &http.Response{
+		Status:     resp.Status,
+		StatusCode: resp.StatusCode,
+		Header:     resp.Header,
+		Body:       io.NopCloser(bytes.NewBuffer(respBody)),
+		Request:    resp.Request,
 	}
+	return newResp, nil
 }
 
 func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
