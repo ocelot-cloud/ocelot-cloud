@@ -29,6 +29,7 @@ var (
 type HubClient struct {
 	User            string
 	Password        string
+	NewPassword     string
 	Origin          string
 	Email           string
 	App             string
@@ -317,10 +318,10 @@ func (h *HubClient) deleteApp() error {
 	return err
 }
 
-func (h *HubClient) ChangePassword(newPassword string) error {
+func (h *HubClient) changePassword() error {
 	form := ChangePasswordForm{
 		OldPassword: h.Password,
-		NewPassword: newPassword,
+		NewPassword: h.NewPassword,
 	}
 
 	_, err := h.doRequest(changePasswordPath, form, "", "POST", ChangePassword)

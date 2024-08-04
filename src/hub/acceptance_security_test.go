@@ -171,7 +171,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
 	doCookieAndHostPolicyChecks(t, hub, hub.checkAuth)
-	// TODO Add "changePassword"
+	doCookieAndHostPolicyChecks(t, hub, hub.changePassword)
 }
 
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
@@ -250,7 +250,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 		_, err := hub.findApps(hub.App)
 		assertInvalidInputError(t, err)
 	case ChangePassword:
-		assertInvalidInputError(t, hub.ChangePassword(hub.Password))
+		assertInvalidInputError(t, hub.changePassword())
 	case Login:
 		assertInvalidInputError(t, hub.login())
 	case DeleteApp:

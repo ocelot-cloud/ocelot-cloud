@@ -112,14 +112,14 @@ func TestUploadTag(t *testing.T) {
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	newPassword := hub.Password + "x"
+	hub.NewPassword = hub.Password + "x"
 
-	assert.Nil(t, hub.ChangePassword(newPassword))
+	assert.Nil(t, hub.changePassword())
 	err := hub.login()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
 
-	hub.Password = newPassword
+	hub.Password = hub.NewPassword
 	err = hub.login()
 	assert.Nil(t, err)
 	assert.NotNil(t, hub.Cookie)
