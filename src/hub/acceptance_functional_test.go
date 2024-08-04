@@ -109,6 +109,13 @@ func TestUploadTag(t *testing.T) {
 	assert.Equal(t, getErrMsg(404, "tag does not exist"), err.Error())
 }
 
+func TestLogin(t *testing.T) {
+	hub := getHub()
+	err := hub.login()
+	assert.NotNil(t, err)
+	assert.Equal(t, getErrMsg(404, "user does not exist"), err.Error())
+}
+
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 

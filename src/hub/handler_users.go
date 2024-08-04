@@ -18,7 +18,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Add REST API test
 	if !repo.DoesUserExist(creds.User) {
 		Logger.Info("user '%s' does not exist", creds.User)
 		http.Error(w, "user does not exist", http.StatusNotFound)
