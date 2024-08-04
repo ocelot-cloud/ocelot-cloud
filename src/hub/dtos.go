@@ -27,7 +27,6 @@ type SingleString struct {
 }
 
 type ChangePasswordForm struct {
-	User        string `json:"user"`
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }

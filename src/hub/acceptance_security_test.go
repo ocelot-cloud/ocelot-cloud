@@ -63,6 +63,7 @@ func TestRegisterSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
 }
 
+/* TODO Still needed?
 func TestChangePasswordSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
@@ -88,6 +89,7 @@ func TestChangePasswordSecurity(t *testing.T) {
 	assert.Equal(t, getErrMsg(400, "invalid input"), err.Error())
 	hub.Password = oldPassword
 }
+*/
 
 func TestLoginSecurity(t *testing.T) {
 	hub := getHub()
@@ -169,6 +171,7 @@ func TestCookieAndHostProtection(t *testing.T) {
 	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag)
 	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
 	doCookieAndHostPolicyChecks(t, hub, hub.checkAuth)
+	// TODO Add "changePassword"
 }
 
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {

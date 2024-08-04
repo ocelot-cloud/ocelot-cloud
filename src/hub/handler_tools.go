@@ -60,7 +60,6 @@ func readBody[T any](r *http.Request) (*T, error) {
 		}
 	case ChangePasswordForm:
 		jobs = []ValidationJob{
-			{v.User, User},
 			{v.OldPassword, Password},
 			{v.NewPassword, Password},
 		}

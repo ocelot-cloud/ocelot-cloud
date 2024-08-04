@@ -146,6 +146,11 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, err := checkAuthentication(w, r)
+	if err != nil {
+		return
+	}
+
 	form, err := readBody[ChangePasswordForm](r)
 	if err != nil {
 		Logger.Warn("could not read request body: %v", err)
@@ -153,26 +158,26 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesUserExist(form.User) {
-		Logger.Warn("somebody tried to change password but user '%s' does not exist", form.User)
+	if !repo.DoesUserExist(user) {
+		Logger.Warn("somebody tried to change password but user '%s' does not exist", user)
 		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	if !repo.IsPasswordCorrect(form.User, form.OldPassword) {
-		Logger.Info("incorrect credentials for user '%s' when trying to change password", form.User)
+	if !repo.IsPasswordCorrect(user, form.OldPassword) {
+		Logger.Info("incorrect credentials for user '%s' when trying to change password", user)
 		http.Error(w, "incorrect username or password", http.StatusUnauthorized)
 		return
 	}
 
-	err = repo.ChangePassword(form.User, form.NewPassword)
+	err = repo.ChangePassword(user, form.NewPassword)
 	if err != nil {
-		Logger.Error("changing password for user '%s' failed: %v", form.User, err)
+		Logger.Error("changing password for user '%s' failed: %v", user, err)
 		http.Error(w, "error when trying to change password", http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("user '%s' changed his password", form.User)
+	Logger.Info("user '%s' changed his password", user)
 	w.WriteHeader(http.StatusOK)
 }
 

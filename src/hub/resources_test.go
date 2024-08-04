@@ -319,7 +319,6 @@ func (h *HubClient) deleteApp() error {
 
 func (h *HubClient) ChangePassword(newPassword string) error {
 	form := ChangePasswordForm{
-		User:        h.User,
 		OldPassword: h.Password,
 		NewPassword: newPassword,
 	}
