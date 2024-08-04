@@ -242,50 +242,49 @@ func checkAuthenticationWithoutWrite(w http.ResponseWriter, r *http.Request) (st
 }
 
 func doAuthenticationCheck(w http.ResponseWriter, r *http.Request, writeHttpError bool) (string, error) {
-	user, httpMsg, status, err := asdf(w, r)
-	if writeHttpError {
+	user, httpMsg, status := asdf(w, r)
+	if status != 200 && writeHttpError {
 		http.Error(w, httpMsg, status)
 	}
-	return user, err
+	return user, fmt.Errorf("")
 }
 
-// TODO Idea: get rid of the error, when status == 200, then create error in parent function
-func asdf(w http.ResponseWriter, r *http.Request) (string, string, int, error) {
+func asdf(w http.ResponseWriter, r *http.Request) (string, string, int) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		Logger.Info("cookie not set in request: %s", err.Error())
-		return "", "cookie not set in request", http.StatusUnauthorized, fmt.Errorf("")
+		return "", "cookie not set in request", http.StatusUnauthorized
 	}
 
 	if err = validate(cookie.Value, Cookie); err != nil {
-		return "", "invalid cookie", http.StatusBadRequest, fmt.Errorf("")
+		return "", "invalid cookie", http.StatusBadRequest
 	}
 
 	if err = validate(r.Header.Get(OriginHeader), Origin); err != nil {
-		return "", "invalid origin", http.StatusBadRequest, fmt.Errorf("")
+		return "", "invalid origin", http.StatusBadRequest
 	}
 
 	user, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
 		Logger.Warn("error when getting cookie of user: %s", err.Error())
-		return "", "cookie not found", http.StatusNotFound, fmt.Errorf("")
+		return "", "cookie not found", http.StatusNotFound
 	}
 
 	if !repo.IsOriginCorrect(user, r.Header.Get(OriginHeader)) {
 		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(OriginHeader))
-		return "", "origin not matching", http.StatusBadRequest, fmt.Errorf("")
+		return "", "origin not matching", http.StatusBadRequest
 	}
 
 	if repo.IsCookieExpired(cookie.Value) {
 		Logger.Warn("user '%s' used an expired cookie'", user)
-		return "", "cookie expired", http.StatusBadRequest, fmt.Errorf("")
+		return "", "cookie expired", http.StatusBadRequest
 	}
 
 	newExpirationTime := getTimeIn30Days()
 	err = repo.SetCookie(user, cookie.Value, newExpirationTime)
 	if err != nil {
 		Logger.Error("setting new cookie failed: %v", err)
-		return "", "setting new cookie failed", http.StatusInternalServerError, err
+		return "", "setting new cookie failed", http.StatusInternalServerError
 	}
 	cookie.Expires = newExpirationTime
 	// Note: If no path is given, browsers set the default path one level higher than the
@@ -296,7 +295,7 @@ func asdf(w http.ResponseWriter, r *http.Request) (string, string, int, error) {
 	cookie.Path = "/"
 	http.SetCookie(w, cookie)
 
-	return user, "", 200, nil
+	return user, "", 200
 }
 
 func handleInvalidRequestMethod(w http.ResponseWriter, r *http.Request, endpoint string) {
