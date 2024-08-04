@@ -165,12 +165,11 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 		h.Cookie = resp.Cookies()[0]
 	}
 
+	// Response body can only be read once. When reading it after this function, an error occurs. So a copy is created.
 	newResp := &http.Response{
-		Status:     resp.Status,
 		StatusCode: resp.StatusCode,
 		Header:     resp.Header,
 		Body:       io.NopCloser(bytes.NewBuffer(respBody)),
-		Request:    resp.Request,
 	}
 	return newResp, nil
 }
