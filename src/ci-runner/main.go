@@ -66,6 +66,8 @@ var testCmd = &cobra.Command{
 			src.RunScheduledTests()
 		case "hub":
 			src.TestHub()
+		case "hub-acceptance":
+			src.TestHubAcceptance()
 		default:
 			src.ColoredPrint("\nerror: unknown command: %s\n", inputTestType)
 			src.ColoredPrint("valid args: %s\n", testTypeStr)
