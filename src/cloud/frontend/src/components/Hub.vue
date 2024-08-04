@@ -5,7 +5,7 @@
       <span class="me-2">Logged in as: {{ user }}</span>
       <button id="button-logout" class="btn btn-primary" @click="logout">Logout</button>
       <button class="btn btn-primary" @click="redirectToChangePassword">Change Password</button>
-      <button class="btn btn-danger" @click="showDeleteConfirmation = true">Delete Account</button>
+      <button id="button-delete-account" class="btn btn-danger" @click="showDeleteConfirmation = true">Delete Account</button>
     </div>
     <router-view />
 
@@ -20,8 +20,8 @@
             <p>Are you sure you want to delete your account?</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="showDeleteConfirmation = false">Cancel</button>
-            <button type="button" class="btn btn-danger" @click="confirmDeleteAccount">Confirm</button>
+            <button id="button-delete-cancel" type="button" class="btn btn-secondary" @click="showDeleteConfirmation = false">Cancel</button>
+            <button id="button-delete-confirmation" type="button" class="btn btn-danger" @click="confirmDeleteAccount">Confirm</button>
           </div>
         </div>
       </div>
