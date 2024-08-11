@@ -17,12 +17,13 @@
     </div>
     <br>
     <h4>App and Tag Management</h4>
-    <form @submit.prevent="createApp" class="p-4 border rounded shadow-sm">
+    <div class="p-4 border rounded shadow-sm">
       <div class="mb-3">
-        <input v-model="newApp" id="app" class="form-control" placeholder="New App" required />
+        <input id="input-new-app" v-model="newApp" class="form-control" placeholder="New App" required />
       </div>
-      <button type="submit" class="btn btn-primary">Create App</button>
-    </form>
+      <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
+      <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
+    </div>
     <h5>App List:</h5>
     <div>
       <ul>
@@ -130,6 +131,21 @@ export default defineComponent({
       getApps()
     };
 
+    const deleteApp = async () => {
+      const url = 'http://localhost:8082';
+      try {
+        const response = await axios.delete(url + '/apps', {data: { value: newApp.value }});
+        if (response.status === 200) {
+          alert("app deleted")
+        }
+      } catch (error) {
+        // TODO correctly interpret error, so that backend message is displayed.
+        alert("app deletion error: " + error)
+      }
+      newApp.value = ""
+      getApps()
+    };
+
     const getApps = async () => {
       const url = 'http://localhost:8082';
       try {
@@ -164,6 +180,7 @@ export default defineComponent({
       newApp,
       createApp,
       appList,
+      deleteApp,
     };
   },
 });
