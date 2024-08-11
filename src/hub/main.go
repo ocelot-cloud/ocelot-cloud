@@ -42,6 +42,10 @@ func main() {
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
 		mux.HandleFunc(wipeDataPath, wipeDataHandler)
+
+		sampleUser := "sample"
+		repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
+		Logger.Warn("Created '%s' user with weak password for manual testing", sampleUser)
 	}
 
 	handlerWithCors := applyCorsPolicy(mux)

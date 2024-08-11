@@ -36,9 +36,9 @@ const (
 
 func getProfile() PROFILE {
 	envProfile := os.Getenv("PROFILE")
-	if envProfile == "" {
-		return PROD
-	} else {
+	if envProfile == "TEST" {
 		return TEST
+	} else {
+		return PROD
 	}
 }
