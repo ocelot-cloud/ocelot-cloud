@@ -104,7 +104,7 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	}
 	result := singleString.Value
 
-	if err := validate(result, validationType); err != nil {
+	if err = validate(result, validationType); err != nil {
 		return "", err
 	}
 

@@ -15,6 +15,20 @@
         </ul>
       </div>
     </div>
+    <br>
+    <h4>App and Tag Management</h4>
+    <form @submit.prevent="createApp" class="p-4 border rounded shadow-sm">
+      <div class="mb-3">
+        <input v-model="newApp" id="app" class="form-control" placeholder="New App" required />
+      </div>
+      <button type="submit" class="btn btn-primary">Create App</button>
+    </form>
+    <h5>App List:</h5>
+    <div>
+      <ul>
+        <li v-for="app in appList" :key="app">{{ app }}</li>
+      </ul>
+    </div>
     <router-view />
 
     <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
@@ -43,11 +57,14 @@ import { defineComponent, ref, onMounted } from 'vue';
 import axios from "axios";
 import router from "@/router";
 
+// TODO If app list is empty, then show an according message
 export default defineComponent({
   name: 'HubComponent',
   setup() {
     const user = ref<string | null>(null);
     const showDeleteConfirmation = ref(false);
+    const newApp = ref('');
+    const appList = ref<string[]>([]);
 
     const checkAuth = async () => {
       try {
@@ -97,12 +114,43 @@ export default defineComponent({
       router.push('/hub/change-password');
     };
 
+    const createApp = async () => {
+      const url = 'http://localhost:8082';
+      try {
+        const changePasswordForm = { value: newApp.value };
+        const response = await axios.post(url + '/apps', changePasswordForm);
+        if (response.status === 200) {
+          alert("app created")
+        }
+      } catch (error) {
+        // TODO correctly interpret error, so that backend message is displayed.
+        alert("app creation error: " + error)
+      }
+      newApp.value = ""
+      getApps()
+    };
+
+    const getApps = async () => {
+      const url = 'http://localhost:8082';
+      try {
+        const response = await axios.get(url + '/apps');
+        if (response.status === 200) {
+          appList.value = response.data as string[];
+          console.log("received apps: ", appList.value)
+        }
+      } catch (error) {
+        console.log("todo")
+      }
+      newApp.value = ""
+    };
+
     const visitCloud = () => {
       router.push('/');
     };
 
     onMounted(() => {
       checkAuth();
+      getApps();
     });
 
     return {
@@ -113,6 +161,9 @@ export default defineComponent({
       confirmDeleteAccount,
       redirectToChangePassword,
       visitCloud,
+      newApp,
+      createApp,
+      appList,
     };
   },
 });

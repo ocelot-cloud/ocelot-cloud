@@ -48,8 +48,11 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// TODO To be tested: start hub, create account, restart hub, user should still exist and cookie be valid
+
 func getAppList(w http.ResponseWriter, r *http.Request) {
-	user, err := readBodyAsSingleString(r, User)
+	// TODO Tests must be changed accordingly. It should not be necessary to send a body.
+	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
 	}

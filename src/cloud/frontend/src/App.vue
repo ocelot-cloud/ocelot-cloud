@@ -34,7 +34,7 @@ html body, input, .form-control, .modal-content, .dropdown-menu
   color: #2c3e50
   margin-top: 60px
 
-p, h1, h2, h3, h4, h5, h6, label, input, span, .dropdown-item
+p, h1, h2, h3, h4, h5, h6, label, input, span, .dropdown-item, li
   color: white !important
 
 .dropdown-item:hover
