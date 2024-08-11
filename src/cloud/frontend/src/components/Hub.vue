@@ -4,6 +4,7 @@
     <div class="d-flex justify-content-end align-items-center mb-3">
       <span class="me-2">Logged in as: {{ user }}</span>
       <div id="dropdown" class="dropdown">
+        <button style="margin-right: 5px" type="button" class="btn btn-primary" @click="visitCloud">Back to Cloud</button>
         <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="fas fa-cog"></i>
         </button>
@@ -96,6 +97,10 @@ export default defineComponent({
       router.push('/hub/change-password');
     };
 
+    const visitCloud = () => {
+      router.push('/');
+    };
+
     onMounted(() => {
       checkAuth();
     });
@@ -107,6 +112,7 @@ export default defineComponent({
       deleteAccount,
       confirmDeleteAccount,
       redirectToChangePassword,
+      visitCloud,
     };
   },
 });
@@ -124,3 +130,5 @@ TODO: Hub
 TODO: Cloud
 * FindApps
 * DownloadTag
+
+TODO: Input validation in frontend, so that user know why their input is not accepted

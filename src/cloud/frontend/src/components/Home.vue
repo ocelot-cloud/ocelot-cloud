@@ -1,6 +1,10 @@
 <template>
   <div class="container-fluid table-container">
     <div class="mt-5">
+      <h3>Ocelot Cloud</h3>
+      <button type="button" class="btn btn-primary" @click="visitHub">Visit Ocelot Hub</button>
+      <br>
+      <br>
       <table class="table table-dark table-hover" id="stack-table">
         <thead>
         <tr>
@@ -41,6 +45,7 @@
 import {defineComponent} from 'vue';
 import {backendClient, baseDomain, scheme, stackUrl, waitTimeInMillis} from "@/components/Config";
 import {Stack} from "@/components/Shared";
+import router from "@/router";
 
 function getUrlFromStack(stack: Stack) {
   return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;
@@ -97,6 +102,9 @@ export default defineComponent({
         case 'Uninitialized': return 'bg-dark text-white state-column';
         default: return '';
       }
+    },
+    visitHub() {
+      this.$router.push('/hub');
     },
   }
 });
