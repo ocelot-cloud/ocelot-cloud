@@ -16,7 +16,7 @@
       </div>
     </div>
     <br>
-    <h4>App and Tag Management</h4>
+    <h4>App Management</h4>
     <div class="d-flex justify-content-center mb-3">
       <div class="col-6">
         <input id="input-app" v-model="newApp" class="form-control" placeholder="App" required />
@@ -25,7 +25,9 @@
     <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
     <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
 
-    <h5>App List:</h5>
+    <br>
+    <br>
+    <h4>App List</h4>
     <div>
       <ul id="app-list">
         <li v-for="app in appList" :key="app">{{ app }}</li>
