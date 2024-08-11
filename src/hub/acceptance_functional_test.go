@@ -195,11 +195,11 @@ func TestLogout(t *testing.T) {
 
 func TestGetAppList(t *testing.T) {
 	hub := getHubAndLogin(t)
-	apps, err := hub.GetApps(sampleUser)
+	apps, err := hub.GetApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(apps))
 	assert.Nil(t, hub.createApp())
-	apps, err = hub.GetApps(sampleUser)
+	apps, err = hub.GetApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, sampleApp, apps[0])

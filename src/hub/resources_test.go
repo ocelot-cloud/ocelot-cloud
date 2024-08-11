@@ -231,8 +231,8 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 	return *apps, nil
 }
 
-func (h *HubClient) GetApps(user string) ([]string, error) {
-	result, err := h.doRequest(appPath, SingleString{user}, "", "GET")
+func (h *HubClient) GetApps() ([]string, error) {
+	result, err := h.doRequest(appPath, nil, "", "GET")
 	if err != nil {
 		return nil, err
 	}
