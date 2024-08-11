@@ -16,23 +16,43 @@
       </div>
     </div>
     <br>
-    <h4>App Management</h4>
-    <div class="d-flex justify-content-center mb-3">
-      <div class="col-6">
-        <input id="input-app" v-model="newApp" class="form-control" placeholder="App" required />
+    <div class="d-flex justify-content-end mt-3">
+      <!-- TODO should only be active, when an app is selected, otherwise greyed out, non-reactive-->
+      <button v-if="!isEditing" id="button-edit-app" @click="toggleEdit" class="btn btn-warning me-2">Edit App</button>
+      <button v-if="isEditing" id="button-back-to-app" @click="toggleEdit" class="btn btn-secondary">Back to App</button>
+    </div>
+
+    <div v-if="!isEditing">
+      <h4 >App Management</h4>
+      <div class="d-flex justify-content-center mb-3">
+        <div class="col-6">
+          <input id="input-app" v-model="newApp" class="form-control" placeholder="App" required />
+        </div>
+      </div>
+      <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
+      <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
+
+      <br>
+      <br>
+      <div class="d-flex justify-content-center">
+        <ul id="app-list" class="list-group">
+          <li
+              v-for="app in appList"
+              :key="app"
+              class="list-group-item"
+              :class="{ active: selectedApp === app }"
+              @click="selectApp(app)"
+              style="cursor: pointer;"
+          >
+            {{ app }}
+          </li>
+        </ul>
       </div>
     </div>
-    <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
-    <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
-
-    <br>
-    <br>
-    <h4>App List</h4>
-    <div>
-      <ul id="app-list">
-        <li v-for="app in appList" :key="app">{{ app }}</li>
-      </ul>
+    <div v-else>
+      <h4>Tag Management</h4>
     </div>
+
     <router-view />
 
     <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
@@ -69,6 +89,8 @@ export default defineComponent({
     const showDeleteConfirmation = ref(false);
     const app = ref('');
     const appList = ref<string[]>([]);
+    const selectedApp = ref<string | null>(null);
+    const isEditing = ref<boolean>(false); // TODO better name: IsEditingTags?
 
     const checkAuth = async () => {
       try {
@@ -160,6 +182,14 @@ export default defineComponent({
       router.push('/');
     };
 
+    const selectApp = (app: string) => {
+      selectedApp.value = app;
+    };
+
+    const toggleEdit = () => {
+      isEditing.value = !isEditing.value;
+    };
+
     onMounted(() => {
       checkAuth();
       getApps();
@@ -177,6 +207,10 @@ export default defineComponent({
       createApp,
       appList,
       deleteApp,
+      isEditing,
+      toggleEdit,
+      selectedApp,
+      selectApp,
     };
   },
 });
