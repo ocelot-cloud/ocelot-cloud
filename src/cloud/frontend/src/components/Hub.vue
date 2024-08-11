@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="container mt-5">
+  <div id="app" class="container mt-5 col-lg-6 col-md-8 col-sm-10">
     <h3>Ocelot Hub</h3>
     <div class="d-flex justify-content-end align-items-center mb-3">
       <span class="me-2">Logged in as: {{ user }}</span>
@@ -17,16 +17,17 @@
     </div>
     <br>
     <h4>App and Tag Management</h4>
-    <div class="p-4 border rounded shadow-sm">
-      <div class="mb-3">
-        <input id="input-new-app" v-model="newApp" class="form-control" placeholder="New App" required />
+    <div class="d-flex justify-content-center mb-3">
+      <div class="col-6">
+        <input id="input-app" v-model="newApp" class="form-control" placeholder="App" required />
       </div>
-      <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
-      <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
     </div>
+    <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
+    <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
+
     <h5>App List:</h5>
     <div>
-      <ul>
+      <ul id="app-list">
         <li v-for="app in appList" :key="app">{{ app }}</li>
       </ul>
     </div>
@@ -64,7 +65,7 @@ export default defineComponent({
   setup() {
     const user = ref<string | null>(null);
     const showDeleteConfirmation = ref(false);
-    const newApp = ref('');
+    const app = ref('');
     const appList = ref<string[]>([]);
 
     const checkAuth = async () => {
@@ -118,31 +119,24 @@ export default defineComponent({
     const createApp = async () => {
       const url = 'http://localhost:8082';
       try {
-        const changePasswordForm = { value: newApp.value };
-        const response = await axios.post(url + '/apps', changePasswordForm);
-        if (response.status === 200) {
-          alert("app created")
-        }
+        await axios.post(url + '/apps', { value: app.value });
       } catch (error) {
         // TODO correctly interpret error, so that backend message is displayed.
         alert("app creation error: " + error)
       }
-      newApp.value = ""
+      app.value = ""
       getApps()
     };
 
     const deleteApp = async () => {
       const url = 'http://localhost:8082';
       try {
-        const response = await axios.delete(url + '/apps', {data: { value: newApp.value }});
-        if (response.status === 200) {
-          alert("app deleted")
-        }
+        await axios.delete(url + '/apps', {data: { value: app.value }});
       } catch (error) {
         // TODO correctly interpret error, so that backend message is displayed.
         alert("app deletion error: " + error)
       }
-      newApp.value = ""
+      app.value = ""
       getApps()
     };
 
@@ -157,7 +151,7 @@ export default defineComponent({
       } catch (error) {
         console.log("todo")
       }
-      newApp.value = ""
+      app.value = ""
     };
 
     const visitCloud = () => {
@@ -177,7 +171,7 @@ export default defineComponent({
       confirmDeleteAccount,
       redirectToChangePassword,
       visitCloud,
-      newApp,
+      newApp: app,
       createApp,
       appList,
       deleteApp,
