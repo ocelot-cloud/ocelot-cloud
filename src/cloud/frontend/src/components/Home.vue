@@ -64,6 +64,7 @@ export default defineComponent({
   },
   methods: {
     async fetchData() {
+      // TODO When I load "home" and then cloud, the fetching continue. Maybe add a condition, do this "only on the cloud home page"
       try {
         const response = await backendClient.getResponsePromise(stackUrl);
         if (!response.ok) {
