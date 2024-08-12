@@ -281,3 +281,14 @@ func TestGetAppListRepo(t *testing.T) {
 	assert.Equal(t, sampleApp, list[0])
 	assert.Equal(t, sampleApp+"x", list[1])
 }
+
+func TestConcurrencyRobustness(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.Nil(t, repo.CreateUser(sampleForm))
+	for i := 0; i < 1000; i++ {
+		go func() {
+			_, err := repo.GetAppList(sampleUser)
+			assert.Nil(t, err)
+		}()
+	}
+}

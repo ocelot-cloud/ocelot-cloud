@@ -17,6 +17,11 @@ func initializeDatabaseWithSource(dataSourceName string) {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}
 
+	// Prevents concurrency problems. My guess is that the sqlite client does not handle concurrency correctly.
+	// Approach works, but may be too slow. Another client or DB may be needed in the future.
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+
 	EnsureSchemaVersionTable()
 
 	_, err = db.Exec(`
