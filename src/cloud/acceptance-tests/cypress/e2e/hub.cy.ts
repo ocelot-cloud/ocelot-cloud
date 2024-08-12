@@ -1,3 +1,5 @@
+let authCookie = "";
+
 describe('Hub Operations', () => {
     it('register and login', () => {
         cy.request("http://localhost:8082/wipe-data")
@@ -11,7 +13,9 @@ describe('Hub Operations', () => {
         cy.get('#button-register').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
         login()
-
+        cy.getCookie("auth").should('exist').then((c) => {
+            authCookie = c.value
+        })
         // TODO Check that login fails?
     });
 
@@ -70,9 +74,15 @@ describe('Hub Operations', () => {
 });
 
 function login() {
-    cy.visit('http://localhost:8081/hub/login');
-    cy.get('#input-username').clear().type('admin');
-    cy.get('#input-password').clear().type('password');
-    cy.get('#button-login').click();
-    cy.url().should('eq', 'http://localhost:8081/hub');
+    cy.setCookie("auth", authCookie)
+    cy.visit('http://localhost:8081/hub');
+    cy.url().then((url) => {
+        if (url != 'http://localhost:8081/hub') {
+            cy.visit('http://localhost:8081/hub/login');
+            cy.get('#input-username').clear().type('admin');
+            cy.get('#input-password').clear().type('password');
+            cy.get('#button-login').click();
+            cy.url().should('eq', 'http://localhost:8081/hub');
+        }
+    });
 }
