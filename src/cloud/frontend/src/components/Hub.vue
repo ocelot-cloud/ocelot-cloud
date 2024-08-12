@@ -189,7 +189,12 @@ export default defineComponent({
     };
 
     const selectApp = (app: string) => {
-      selectedApp.value = app;
+      if (selectedApp.value == app) {
+        selectedApp.value = ""
+      } else {
+        selectedApp.value = app;
+      }
+
     };
 
     const toggleEdit = () => {

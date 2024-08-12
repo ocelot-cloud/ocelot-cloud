@@ -32,7 +32,7 @@ describe('Hub Registration and Login Flow', () => {
         cy.get('#app-list').find('li').should('have.length', 0);
         cy.get('#input-app').type('myapp');
         cy.get('#button-create-app').click();
-        cy.get('#app-list').find('li').should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active').click().should('have.class', 'active');
+        cy.get('#app-list').find('li').should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active').click().should('have.class', 'active').click().should('not.have.class', 'active').click().should('have.class', 'active');
         cy.get('#button-delete-app').click();
         cy.get('#app-list').find('li').should('have.length', 0);
 
