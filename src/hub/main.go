@@ -63,7 +63,7 @@ func initializeDatabase() {
 	// this DB error: "attempt to write readonly database". So I use in-memory database for all tests.
 	if profile == TEST {
 		initializeDatabaseWithSource(":memory:")
-		Logger.Warn("initializing database only in-memory")
+		Logger.Warn("initializing database only in-memory - when application stops, all data will be deleted")
 	} else {
 		initializeDatabaseWithSource(databaseFile)
 	}

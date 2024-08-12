@@ -16,41 +16,44 @@
       </div>
     </div>
     <br>
-    <div class="d-flex justify-content-end mt-3">
-      <!-- TODO should only be active, when an app is selected, otherwise greyed out, non-reactive-->
-      <button v-if="!isEditing" id="button-edit-app" @click="toggleEdit" class="btn btn-warning me-2">Edit App</button>
-      <button v-if="isEditing" id="button-back-to-app" @click="toggleEdit" class="btn btn-secondary">Back to App</button>
-    </div>
 
     <div v-if="!isEditing">
       <h4 >App Management</h4>
       <div class="d-flex justify-content-center mb-3">
         <div class="col-6">
-          <input id="input-app" v-model="newApp" class="form-control" placeholder="App" required />
+          <input id="input-app" v-model="newApp" class="form-control" placeholder="Name of New App" required />
         </div>
       </div>
       <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
-      <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete App</button>
-
       <br>
       <br>
+      <h4>App List</h4>
+      <p v-if="appList == null"> (no apps created yet) </p>
       <div class="d-flex justify-content-center">
         <ul id="app-list" class="list-group">
           <li
-              v-for="app in appList"
+              v-for="(app, index) in appList"
               :key="app"
               class="list-group-item"
               :class="{ active: selectedApp === app }"
               @click="selectApp(app)"
               style="cursor: pointer;"
           >
-            {{ app }}
+            {{ index + 1 }}. {{ app }}
           </li>
         </ul>
+      </div>
+      <br>
+      <div v-if="appList != null && selectedApp != ''">
+        <h4>App Operations</h4>
+        <button id="button-edit-app" @click="toggleEdit" class="btn btn-warning me-2">Edit Tags</button>
+        <!-- TODO There should be a confirmation dialog previously -->
+        <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete</button>
       </div>
     </div>
     <div v-else>
       <h4>Tag Management</h4>
+      <button id="button-back-to-app" @click="toggleEdit" class="btn btn-secondary">Back to App Management</button>
     </div>
 
     <router-view />
@@ -75,6 +78,7 @@
   </div>
 </template>
 
+TODO Clicking on a selected app should unselect it.
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
@@ -157,12 +161,12 @@ export default defineComponent({
     const deleteApp = async () => {
       const url = 'http://localhost:8082';
       try {
-        await axios.delete(url + '/apps', {data: { value: app.value }});
+        await axios.delete(url + '/apps', {data: { value: selectedApp.value }});
       } catch (error) {
         // TODO correctly interpret error, so that backend message is displayed.
         alert("app deletion error: " + error)
       }
-      app.value = ""
+      selectedApp.value = ""
       getApps()
     };
 
