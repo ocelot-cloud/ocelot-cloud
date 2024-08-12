@@ -10,11 +10,7 @@ describe('Hub Operations', () => {
         cy.get('#input-email').type('admin@admin.com');
         cy.get('#button-register').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
-
-        cy.get('#input-username').type('admin');
-        cy.get('#input-password').clear().type('password');
-        cy.get('#button-login').click();
-        cy.url().should('eq', 'http://localhost:8081/hub');
+        login()
 
         cy.get('#app-list').find('li').should('have.length', 0);
         cy.get('#button-delete-app').should('not.exist')
@@ -43,7 +39,6 @@ describe('Hub Operations', () => {
     });
 
     it('check logout', () => {
-        cy.visit('http://localhost:8081/hub');
         login()
         cy.get('#dropdown').click();
         cy.get('#button-logout').click();
@@ -58,7 +53,6 @@ describe('Hub Operations', () => {
     });
 
     it('test delete account', () => {
-        cy.visit('http://localhost:8081/hub');
         login()
         cy.get('#dropdown').click();
         cy.get('#button-delete-account').click();
@@ -73,6 +67,7 @@ describe('Hub Operations', () => {
 });
 
 function login() {
+    cy.visit('http://localhost:8081/hub/login');
     cy.get('#input-username').clear().type('admin');
     cy.get('#input-password').clear().type('password');
     cy.get('#button-login').click();
