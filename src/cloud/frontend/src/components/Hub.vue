@@ -82,6 +82,8 @@ import axios from "axios";
 import router from "@/router";
 
 // TODO If app list is empty, then show an according message
+// TODO Select an app and then click on delete, easier to do
+// TODO Integrate error messages. Abstract the duplicate logic.
 export default defineComponent({
   name: 'HubComponent',
   setup() {
