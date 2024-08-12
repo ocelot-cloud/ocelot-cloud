@@ -1,5 +1,5 @@
-describe('Hub Registration and Login Flow', () => {
-    it('should complete the registration and login process', () => {
+describe('Hub Operations', () => {
+    it('register, login and delete account', () => {
         cy.request("http://localhost:8082/wipe-data")
         cy.visit('http://localhost:8081/hub');
         cy.url().should('eq', 'http://localhost:8081/hub/login');
@@ -12,21 +12,8 @@ describe('Hub Registration and Login Flow', () => {
         cy.url().should('eq', 'http://localhost:8081/hub/login');
 
         cy.get('#input-username').type('admin');
-        cy.get('#input-password').type('password+x');
-        cy.get('#button-login').click();
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
-
         cy.get('#input-password').clear().type('password');
         cy.get('#button-login').click();
-        cy.url().should('eq', 'http://localhost:8081/hub');
-
-        cy.get('#dropdown').click();
-        cy.get('#button-logout').click();
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
-        login()
-        cy.get('#dropdown').click();
-        cy.get('#button-delete-account').click();
-        cy.get('#button-delete-cancel').click();
         cy.url().should('eq', 'http://localhost:8081/hub');
 
         cy.get('#app-list').find('li').should('have.length', 0);
@@ -47,17 +34,47 @@ describe('Hub Registration and Login Flow', () => {
         cy.get('#button-delete-app').click();
         cy.get('#app-list').find('li').should('have.length', 0);
 
+
+        // TODO Check that login fails?
+    });
+
+    it('change password', () => {
+        console.log("todo");
+    });
+
+    it('check logout', () => {
+        cy.visit('http://localhost:8081/hub');
+        login()
+        cy.get('#dropdown').click();
+        cy.get('#button-logout').click();
+        cy.url().should('eq', 'http://localhost:8081/hub/login');
+
+        cy.get('#input-username').type('admin');
+        cy.get('#input-password').type('password+x');
+        cy.get('#button-login').click();
+        cy.url().should('eq', 'http://localhost:8081/hub/login');
+
+        login()
+    });
+
+    it('test delete account', () => {
+        cy.visit('http://localhost:8081/hub');
+        login()
+        cy.get('#dropdown').click();
+        cy.get('#button-delete-account').click();
+        cy.get('#button-delete-cancel').click();
+        cy.url().should('eq', 'http://localhost:8081/hub');
+
         cy.get('#dropdown').click();
         cy.get('#button-delete-account').click();
         cy.get('#button-delete-confirmation').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
-        // TODO Check that login fails?
     });
 });
 
 function login() {
-    cy.get('#input-username').type('admin');
-    cy.get('#input-password').type('password');
+    cy.get('#input-username').clear().type('admin');
+    cy.get('#input-password').clear().type('password');
     cy.get('#button-login').click();
     cy.url().should('eq', 'http://localhost:8081/hub');
 }
