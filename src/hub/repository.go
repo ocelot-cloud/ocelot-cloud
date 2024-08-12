@@ -507,7 +507,9 @@ func getUserId(user string) (int, error) {
 func (u *SqliteRepository) WipeDatabase() {
 	users := getUsers()
 	for _, v := range users {
-		u.DeleteUser(v)
+		if v != "sample" {
+			u.DeleteUser(v)
+		}
 	}
 }
 
