@@ -30,13 +30,22 @@ describe('Hub Registration and Login Flow', () => {
         cy.url().should('eq', 'http://localhost:8081/hub');
 
         cy.get('#app-list').find('li').should('have.length', 0);
+        cy.get('#button-delete-app').should('not.exist')
+        cy.get('#button-edit-tags').should('not.exist')
         cy.get('#input-app').type('myapp');
         cy.get('#button-create-app').click();
-        cy.get('#app-list').find('li').should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active').click().should('have.class', 'active').click().should('not.have.class', 'active').click().should('have.class', 'active');
+        cy.get('#app-list').find('li')
+            .should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active')
+            .click().should('have.class', 'active')
+        cy.get('#button-delete-app').should('exist')
+        cy.get('#button-edit-tags').should('exist')
+        cy.get('#app-list').find('li')
+            .click().should('not.have.class', 'active')
+        cy.get('#button-delete-app').should('not.exist')
+        cy.get('#button-edit-tags').should('not.exist')
+        cy.get('#app-list').find('li').click().should('have.class', 'active')
         cy.get('#button-delete-app').click();
         cy.get('#app-list').find('li').should('have.length', 0);
-
-        // TODO Add app selection tests
 
         cy.get('#dropdown').click();
         cy.get('#button-delete-account').click();

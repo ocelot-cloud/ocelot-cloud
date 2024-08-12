@@ -46,7 +46,7 @@
       <br>
       <div v-if="appList != null && selectedApp != ''">
         <h4>App Operations</h4>
-        <button id="button-edit-app" @click="toggleEdit" class="btn btn-warning me-2">Edit Tags</button>
+        <button id="button-edit-tags" @click="toggleEdit" class="btn btn-warning me-2">Edit Tags</button>
         <!-- TODO There should be a confirmation dialog previously -->
         <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete</button>
       </div>
