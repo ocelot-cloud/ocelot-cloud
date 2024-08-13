@@ -281,6 +281,7 @@ export default defineComponent({
           if (response.status === 200) {
             console.log('File uploaded successfully');
           }
+          await getTags()
         } catch (error) {
           console.error('Error uploading file:', error);
         }
@@ -291,7 +292,6 @@ export default defineComponent({
       };
 
       reader.readAsArrayBuffer(file); // Trigger reading the file as an ArrayBuffer
-      getTags()
     };
 
     onMounted(() => {
