@@ -281,7 +281,7 @@ func (h *HubClient) getTags() ([]string, error) {
 		App:  h.App,
 	}
 
-	result, err := h.doRequest(tagPath, usernameAndApp, "", "GET")
+	result, err := h.doRequest(getTagsPath, usernameAndApp, "", "POST")
 	if err != nil {
 		return nil, err
 	}
