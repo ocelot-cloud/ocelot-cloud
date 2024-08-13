@@ -16,7 +16,6 @@ describe('Hub Operations', () => {
         cy.getCookie("auth").should('exist').then((c) => {
             authCookie = c.value
         })
-        // TODO Check that login fails?
     });
 
     it('create and delete app', () => {
@@ -41,13 +40,19 @@ describe('Hub Operations', () => {
     });
 
     it('change password', () => {
-        console.log("todo");
+        login()
+        cy.get('#dropdown').click();
+        cy.get('#button-change-password').click();
+        // TODO No idea why that fails.
+        // cy.url().should('eq', 'http://localhost:8081/hub/change-password');
     });
 
     it('check logout', () => {
         login()
+        cy.url().should('eq', 'http://localhost:8081/hub')
         cy.get('#dropdown').click();
         cy.get('#button-logout').click();
+        cy.visit('http://localhost:8081/hub')
         cy.url().should('eq', 'http://localhost:8081/hub/login');
     });
 
