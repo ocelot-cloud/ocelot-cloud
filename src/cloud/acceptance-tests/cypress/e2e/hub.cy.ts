@@ -25,6 +25,8 @@ describe('Hub Operations', () => {
         cy.get('#button-edit-tags').should('not.exist')
         cy.get('#input-app').type('myapp');
         cy.get('#button-create-app').click();
+        cy.get('#button-delete-app').should('not.exist')
+        cy.get('#button-edit-tags').should('not.exist')
         cy.get('#app-list').find('li')
             .should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active')
             .click().should('have.class', 'active')

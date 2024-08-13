@@ -119,7 +119,7 @@ export default defineComponent({
     const showDeleteConfirmation = ref(false);
     const app = ref('');
     const appList = ref<string[]>([]);
-    const selectedApp = ref<string | null>(null);
+    const selectedApp = ref<string>("");
     const isEditingTags = ref<boolean>(false);
 
     // TODO App Management and Tag Management should be put to separate files/components and be imported here.
@@ -185,7 +185,7 @@ export default defineComponent({
         alert("app creation error: " + error)
       }
       app.value = ""
-      getApps()
+      await getApps()
     };
 
     const deleteApp = async () => {
