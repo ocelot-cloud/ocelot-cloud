@@ -316,7 +316,7 @@ export default defineComponent({
       selectedApp,
       selectApp,
       tagsOfSelectedApp,
-      handleDrop,
+      handleDrop, // TODO Can this be removed?
       handleFileUpload,
     };
   },

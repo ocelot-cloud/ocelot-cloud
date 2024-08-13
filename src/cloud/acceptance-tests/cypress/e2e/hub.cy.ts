@@ -1,5 +1,10 @@
 let authCookie = "";
 
+function createApp() {
+    cy.get('#input-app').type('myapp');
+    cy.get('#button-create-app').click();
+}
+
 describe('Hub Operations', () => {
     it('register and login', () => {
         cy.request("http://localhost:8082/wipe-data")
@@ -23,8 +28,7 @@ describe('Hub Operations', () => {
         cy.get('#app-list').find('li').should('have.length', 0);
         cy.get('#button-delete-app').should('not.exist')
         cy.get('#button-edit-tags').should('not.exist')
-        cy.get('#input-app').type('myapp');
-        cy.get('#button-create-app').click();
+        createApp()
         cy.get('#button-delete-app').should('not.exist')
         cy.get('#button-edit-tags').should('not.exist')
         cy.get('#app-list').find('li')
@@ -63,6 +67,17 @@ describe('Hub Operations', () => {
         cy.get('#input-password').type('password+x');
         cy.get('#button-login').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
+    });
+
+    it('check upload', () => {
+        login()
+        createApp()
+        cy.get('#app-list').find('li').click()
+        cy.get('#button-edit-tags').click() // TODO check URL
+        cy.get('input[type="file"]').selectFile({
+            contents: Cypress.Buffer.from(''),
+            fileName: '1.4.tar.gz',
+        }, { force: true })
     });
 
     it('test delete account', () => {
