@@ -39,6 +39,9 @@ axios.defaults.withCredentials = true;
 html body, input, .form-control, .modal-content, .dropdown-menu
   background-color: #282c34 !important
 
+.dropdown-menu li
+  cursor: pointer
+
 .modal-content, .dropdown-menu
   border: 1px solid white !important
 

@@ -9,9 +9,9 @@
           <i class="fas fa-cog"></i>
         </button>
         <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
-          <li id="button-logout"><a class="dropdown-item" href="#" @click="logout">Logout</a></li>
-          <li id="button-change-password"><a class="dropdown-item" href="#" @click="redirectToChangePassword">Change Password</a></li>
-          <li id="button-delete-account"><a class="dropdown-item text-danger" href="#" @click="showDeleteConfirmation = true">Delete Account</a></li>
+          <li id="button-logout" class="dropdown-item" @click="logout">Logout</li>
+          <li id="button-change-password" class="dropdown-item" @click="redirectToChangePassword">Change Password</li>
+          <li id="button-delete-account" class="dropdown-item text-danger" @click="showDeleteConfirmation = true">Delete Account</li>
         </ul>
       </div>
     </div>
