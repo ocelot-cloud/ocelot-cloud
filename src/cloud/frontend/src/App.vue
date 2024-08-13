@@ -45,6 +45,12 @@ html body, input, .form-control, .modal-content, .dropdown-menu
 .modal-content, .dropdown-menu
   border: 1px solid white !important
 
+#drag-and-drop-area
+  border: white solid
+  color: white
+  padding-top: 30px
+  padding-bottom: 30px
+
 #app
   font-family: Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased

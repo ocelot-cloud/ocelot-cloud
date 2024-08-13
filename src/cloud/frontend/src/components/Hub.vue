@@ -56,6 +56,20 @@
       <button id="button-back-to-app" @click="toggleEdit" class="btn btn-secondary">Back to App Management</button>
 
       <p>Selected App is: {{ selectedApp }}</p>
+
+      <div >
+        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
+        <button @click="triggerFileInput">Upload File</button>
+        <div
+            id="drag-and-drop-area"
+            class="drop-zone"
+            @dragover.prevent
+            @drop.prevent="handleDrop"
+        >
+          Drag and drop your file here
+        </div>
+      </div>
+
       <h4>Tag List</h4>
       <p v-if="tagsOfSelectedApp == null || tagsOfSelectedApp.length == 0"> (no apps created yet) </p>
       <ul id="tag-list" class="list-group">
@@ -107,7 +121,12 @@ export default defineComponent({
     const appList = ref<string[]>([]);
     const selectedApp = ref<string | null>(null);
     const isEditingTags = ref<boolean>(false);
+
+    // TODO App Management and Tag Management should be put to separate files/components and be imported here.
+
     const tagsOfSelectedApp = ref<string[]>([]);
+    const fileInput = ref<HTMLInputElement | null>(null);
+    const fileName = ref<string | null>(null);
 
     const checkAuth = async () => {
       try {
@@ -226,6 +245,49 @@ export default defineComponent({
       getTags()
     };
 
+    const triggerFileInput = () => {
+      fileInput.value?.click();
+    };
+
+    const handleFileUpload = (event: Event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        uploadFile(files[0]);
+      }
+    };
+
+    const handleDrop = (event: DragEvent) => {
+      const files = event.dataTransfer?.files;
+      if (files && files.length > 0) {
+        uploadFile(files[0]);
+      }
+    };
+
+    const uploadFile = (file: File) => {
+      fileName.value = file.name; // Store the file name
+      console.log('File uploaded:', file);
+      console.log('File name:', fileName.value);
+
+      // Add your upload logic here, such as sending the file to a server
+      const formData = new FormData();
+      formData.append('file', file);
+
+      /*
+      fetch('/upload-endpoint', {
+        method: 'POST',
+        body: formData,
+      })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('File successfully uploaded:', data);
+          })
+          .catch((error) => {
+            console.error('Error uploading file:', error);
+          });
+
+       */
+    };
+
     onMounted(() => {
       checkAuth();
       getApps();
@@ -247,7 +309,10 @@ export default defineComponent({
       toggleEdit,
       selectedApp,
       selectApp,
-      tagsOfSelectedApp
+      tagsOfSelectedApp,
+      triggerFileInput,
+      handleDrop,
+      handleFileUpload,
     };
   },
 });
