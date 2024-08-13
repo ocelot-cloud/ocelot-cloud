@@ -59,7 +59,6 @@
 
       <div >
         <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
-        <button @click="triggerFileInput">Upload File</button>
         <div
             id="drag-and-drop-area"
             class="drop-zone"
@@ -125,8 +124,6 @@ export default defineComponent({
     // TODO App Management and Tag Management should be put to separate files/components and be imported here.
 
     const tagsOfSelectedApp = ref<string[]>([]);
-    const fileInput = ref<HTMLInputElement | null>(null);
-    const fileName = ref<string | null>(null);
 
     const checkAuth = async () => {
       try {
@@ -225,7 +222,6 @@ export default defineComponent({
       } catch (error) {
         console.log("todo")
       }
-      app.value = ""
     };
 
     const visitCloud = () => {
@@ -248,10 +244,6 @@ export default defineComponent({
       }
     };
 
-    const triggerFileInput = () => {
-      fileInput.value?.click();
-    };
-
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
       if (files && files.length > 0) {
@@ -266,29 +258,40 @@ export default defineComponent({
       }
     };
 
+    // TODO There should be bright styling when hover the drag and drop area with a
     const uploadFile = (file: File) => {
-      fileName.value = file.name; // Store the file name
-      console.log('File uploaded:', file);
-      console.log('File name:', fileName.value);
+      const app = selectedApp.value;
+      const suffix = '.tar.gz';
 
-      // Add your upload logic here, such as sending the file to a server
-      const formData = new FormData();
-      formData.append('file', file);
+      if (!file.name.endsWith(suffix)) {
+        alert(`The file must have a ${suffix} suffix.`);
+        return;
+      }
+      const tag = file.name.slice(0, -suffix.length);
 
-      /*
-      fetch('/upload-endpoint', {
-        method: 'POST',
-        body: formData,
-      })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('File successfully uploaded:', data);
-          })
-          .catch((error) => {
-            console.error('Error uploading file:', error);
-          });
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const content = btoa(
+            String.fromCharCode(...new Uint8Array(event.target?.result as ArrayBuffer))
+        );
+        const tagUpload = {app, tag, content};
 
-       */
+        try {
+          const response = await axios.post('http://localhost:8082/tags', tagUpload);
+          if (response.status === 200) {
+            console.log('File uploaded successfully');
+          }
+        } catch (error) {
+          console.error('Error uploading file:', error);
+        }
+      };
+
+      reader.onerror = () => {
+        console.error('Error reading file');
+      };
+
+      reader.readAsArrayBuffer(file); // Trigger reading the file as an ArrayBuffer
+      getTags()
     };
 
     onMounted(() => {
@@ -313,7 +316,6 @@ export default defineComponent({
       selectedApp,
       selectApp,
       tagsOfSelectedApp,
-      triggerFileInput,
       handleDrop,
       handleFileUpload,
     };
