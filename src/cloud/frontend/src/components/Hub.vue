@@ -54,6 +54,15 @@
     <div v-else>
       <h4>Tag Management</h4>
       <button id="button-back-to-app" @click="toggleEdit" class="btn btn-secondary">Back to App Management</button>
+
+      <p>Selected App is: {{ selectedApp }}</p>
+      <h4>Tag List</h4>
+      <p v-if="tagsOfSelectedApp == null || tagsOfSelectedApp.length == 0"> (no apps created yet) </p>
+      <ul id="tag-list" class="list-group">
+        <li v-for="tag in tagsOfSelectedApp" :key="tag">
+          {{ tag }}
+        </li>
+      </ul>
     </div>
 
     <router-view />
@@ -84,6 +93,7 @@ TODO Clicking on a selected app should unselect it.
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from "axios";
 import router from "@/router";
+import {config} from "@vue/test-utils";
 
 // TODO If app list is empty, then show an according message
 // TODO Select an app and then click on delete, easier to do
@@ -96,7 +106,8 @@ export default defineComponent({
     const app = ref('');
     const appList = ref<string[]>([]);
     const selectedApp = ref<string | null>(null);
-    const isEditing = ref<boolean>(false); // TODO better name: IsEditingTags?
+    const isEditingTags = ref<boolean>(false);
+    const tagsOfSelectedApp = ref<string[]>([]);
 
     const checkAuth = async () => {
       try {
@@ -161,7 +172,7 @@ export default defineComponent({
     const deleteApp = async () => {
       const url = 'http://localhost:8082';
       try {
-        await axios.delete(url + '/apps', {data: { value: selectedApp.value }});
+        await axios.delete(url + '/tags', {data: { value: selectedApp.value }});
       } catch (error) {
         // TODO correctly interpret error, so that backend message is displayed.
         alert("app deletion error: " + error)
@@ -177,6 +188,19 @@ export default defineComponent({
         if (response.status === 200) {
           appList.value = response.data as string[];
           console.log("received apps: ", appList.value)
+        }
+      } catch (error) {
+        console.log("todo")
+      }
+    };
+
+    const getTags = async () => {
+      const url = 'http://localhost:8082';
+      try {
+        const response = await axios.get(url + '/tags', {data: { value: selectedApp.value }});
+        if (response.status === 200) {
+          tagsOfSelectedApp.value = response.data as string[];
+          console.log("received tags: ", appList.value)
         }
       } catch (error) {
         console.log("todo")
@@ -198,7 +222,8 @@ export default defineComponent({
     };
 
     const toggleEdit = () => {
-      isEditing.value = !isEditing.value;
+      isEditingTags.value = !isEditingTags.value;
+      getTags()
     };
 
     onMounted(() => {
@@ -218,10 +243,11 @@ export default defineComponent({
       createApp,
       appList,
       deleteApp,
-      isEditing,
+      isEditing: isEditingTags,
       toggleEdit,
       selectedApp,
       selectApp,
+      tagsOfSelectedApp
     };
   },
 });
