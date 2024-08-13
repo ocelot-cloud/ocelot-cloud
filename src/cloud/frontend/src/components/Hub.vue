@@ -191,7 +191,7 @@ export default defineComponent({
     const deleteApp = async () => {
       const url = 'http://localhost:8082';
       try {
-        await axios.delete(url + '/tags', {data: { value: selectedApp.value }});
+        await axios.delete(url + '/apps', {data: { value: selectedApp.value }});
       } catch (error) {
         // TODO correctly interpret error, so that backend message is displayed.
         alert("app deletion error: " + error)
