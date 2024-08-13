@@ -9,11 +9,20 @@ import (
 func tagHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		handleUpload(w, r)
-	} else if r.Method == http.MethodGet {
-		handleTagList(w, r)
 	} else if r.Method == http.MethodDelete {
 		handleDeleteTag(w, r)
 	} else {
+		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, tagPath)
+		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+func getTagsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		handleTagList(w, r)
+	} else {
+		// TODO Resolve duplication
 		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, tagPath)
 		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
 		return
@@ -88,6 +97,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO Already checked in parent method?
 	if r.Method != http.MethodPost {
 		handleInvalidRequestMethod(w, r, tagPath)
 		return

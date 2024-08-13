@@ -17,7 +17,7 @@
     </div>
     <br>
 
-    <div v-if="!isEditing">
+    <div v-if="!isEditingTags">
       <h4 >App Management</h4>
       <div class="d-flex justify-content-center mb-3">
         <div class="col-6">
@@ -197,7 +197,7 @@ export default defineComponent({
         alert("app deletion error: " + error)
       }
       selectedApp.value = ""
-      getApps()
+      await getApps()
     };
 
     const getApps = async () => {
@@ -216,7 +216,8 @@ export default defineComponent({
     const getTags = async () => {
       const url = 'http://localhost:8082';
       try {
-        const response = await axios.get(url + '/tags', {data: { value: selectedApp.value }});
+        let userAndApp = { user: user.value, app: selectedApp.value }
+        const response = await axios.post(url + '/tags/get-tags', userAndApp);
         if (response.status === 200) {
           tagsOfSelectedApp.value = response.data as string[];
           console.log("received tags: ", appList.value)
@@ -242,7 +243,9 @@ export default defineComponent({
 
     const toggleEdit = () => {
       isEditingTags.value = !isEditingTags.value;
-      getTags()
+      if (isEditingTags.value) {
+        getTags()
+      }
     };
 
     const triggerFileInput = () => {
@@ -305,7 +308,7 @@ export default defineComponent({
       createApp,
       appList,
       deleteApp,
-      isEditing: isEditingTags,
+      isEditingTags,
       toggleEdit,
       selectedApp,
       selectApp,
