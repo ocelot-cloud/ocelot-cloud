@@ -3,7 +3,7 @@ import Home from "@/components/Home.vue";
 import Login from "@/components/Login.vue";
 import axios from "axios";
 import {isSecurityEnabled} from "@/components/Config";
-import HubComponent from "@/components/Hub.vue";
+import HubComponent from "@/components/HubComponent.vue";
 import HubLogin from "@/components/HubLogin.vue";
 import HubRegistration from "@/components/HubRegistration.vue";
 import HubChangePassword from "@/components/HubChangePassword.vue";
@@ -22,7 +22,7 @@ const routes = [
     },
     {
         path: '/hub',
-        name: 'Hub',
+        name: 'HubComponent',
         component: HubComponent,
     },
     {
