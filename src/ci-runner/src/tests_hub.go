@@ -25,7 +25,7 @@ func TestHubAcceptance() {
 	printTestDescription("Testing hub backend")
 	defer Cleanup()
 	ExecuteInDir(hubDir, "rm -rf data")
-	StartDaemon(hubDir, "go run .")
+	StartDaemon(hubDir, "bash run-development-setup.sh")
 	WaitUntilPortIsReady("localhost:8082")
 	StartDaemon(frontendDir, "bash run-development-setup.sh")
 	WaitUntilPortIsReady("localhost:8081")
