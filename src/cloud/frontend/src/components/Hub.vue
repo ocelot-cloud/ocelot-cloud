@@ -258,7 +258,7 @@ export default defineComponent({
       }
     };
 
-    // TODO There should be bright styling when hover the drag and drop area with a
+    // TODO There should be bright styling when hover the drag and drop area with a file
     const uploadFile = (file: File) => {
       const app = selectedApp.value;
       const suffix = '.tar.gz';

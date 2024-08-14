@@ -41,7 +41,11 @@ function clickOnApp() {
 }
 
 function deleteApp() {
-    cy.get('#app-list').find('li').click().should('have.class', 'active')
+    cy.url().then(url => {
+        if (url != "http://localhost:8081/hub")
+        cy.visit("http://localhost:8081/hub")
+    });
+    cy.get('#app-list').find('li').click()
     cy.get('#button-delete-app').click();
 }
 
@@ -76,6 +80,20 @@ describe('Hub Operations', () => {
         assertEmptyAppList();
     });
 
+    it('check upload', () => {
+        login()
+        createApp()
+        cy.get('#app-list').find('li').click()
+        cy.get('#button-edit-tags').click()
+        // TODO check URL
+        cy.get('input[type="file"]').selectFile({
+            contents: Cypress.Buffer.from(''),
+            fileName: '1.4.tar.gz',
+        }, { force: true }) // "force" is necessary, since the actual <input> is invisible for beauty reasons.
+        cy.get('#tag-list').find("li").should('have.text', '1.4')
+        // TODO deleteApp()
+    });
+
     it('change password', () => {
         login()
         cy.get('#dropdown').click();
@@ -98,19 +116,6 @@ describe('Hub Operations', () => {
         cy.get('#input-password').type('password+x');
         cy.get('#button-login').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
-    });
-
-    it('check upload', () => {
-        login()
-        createApp()
-        cy.get('#app-list').find('li').click()
-        cy.get('#button-edit-tags').click()
-        // TODO check URL
-        cy.get('input[type="file"]').selectFile({
-            contents: Cypress.Buffer.from(''),
-            fileName: '1.4.tar.gz',
-        }, { force: true }) // "force" is necessary, since the actual <input> is invisible for beauty reasons.
-        cy.get('#tag-list').find("li").should('have.text', '1.4')
     });
 
     it('test delete account', () => {
