@@ -2,7 +2,7 @@
   <h4>Tag Management</h4>
   <button id="button-back-to-app" class="btn btn-secondary" @click="goToHubPage('/')">Back to App Management</button>
 
-  <p>Selected App is: {{ app }}</p>
+  <p>App is: {{ app }}</p>
 
   <div>
     <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
@@ -17,16 +17,32 @@
   </div>
 
   <h4>Tag List</h4>
-  <p v-if="tagsOfSelectedApp == null || tagsOfSelectedApp.length == 0"> (no apps created yet) </p>
-  <ul id="tag-list" class="list-group">
-    <li v-for="tag in tagsOfSelectedApp" :key="tag">
-      {{ tag }}
-    </li>
-  </ul>
+  <p v-if="tagList == null || tagList.length == 0"> (no apps created yet) </p>
+
+  <div class="d-flex justify-content-center">
+    <ul id="tag-list" class="list-group">
+      <li
+          v-for="(tag, index) in tagList"
+          :key="tag"
+          class="list-group-item"
+          :class="{ active: selectedTag === tag }"
+          @click="selectTag(tag)"
+          style="cursor: pointer;"
+      >
+        {{ index + 1 }}) {{ tag }}
+      </li>
+    </ul>
+  </div>
+  <br>
+  <div v-if="tagList != null && selectedTag != ''">
+    <h4>App Operations</h4>
+    <!-- TODO There should be a confirmation dialog previously -->
+    <button id="button-delete-tag" @click="deleteTag" class="btn btn-danger ms-2">Delete</button>
+  </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import {defineComponent, onMounted, ref} from 'vue';
 import axios from "axios";
 import { useRoute } from 'vue-router';
 import {goToHubPage} from "@/components/hub/shared";
@@ -36,10 +52,11 @@ export default defineComponent({
   methods: {goToHubPage},
 
   setup() {
-    const tagsOfSelectedApp = ref<string[]>([]);
+    const tagList = ref<string[]>([]);
     const route = useRoute();
     const app = route.query.app
     const user = route.query.user
+    const selectedTag = ref<string>("");
 
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
@@ -97,19 +114,38 @@ export default defineComponent({
         let userAndApp = { user: user, app: app } // TODO Can be shortened I guess
         const response = await axios.post(url + '/tags/get-tags', userAndApp);
         if (response.status === 200) {
-          tagsOfSelectedApp.value = response.data as string[];
-          console.log("received tags: ", tagsOfSelectedApp.value)
+          tagList.value = response.data as string[];
+          console.log("received tags: ", tagList.value)
         }
       } catch (error) {
         console.log("todo")
       }
     };
 
+    const deleteTag = () => {
+      console.log("todo")
+    }
+
+    const selectTag = (tag: string) => {
+      if (selectedTag.value == tag) {
+        selectedTag.value = ""
+      } else {
+        selectedTag.value = tag;
+      }
+    }
+
+    onMounted(() => {
+      getTags()
+    });
+
     return {
       handleFileUpload,
       handleDrop,
-      tagsOfSelectedApp,
+      tagList,
       app,
+      selectedTag,
+      deleteTag,
+      selectTag,
     }
   },
 });

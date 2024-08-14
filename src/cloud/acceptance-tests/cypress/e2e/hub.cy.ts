@@ -90,7 +90,7 @@ describe('Hub Operations', () => {
             contents: Cypress.Buffer.from(''),
             fileName: '1.4.tar.gz',
         }, { force: true }) // "force" is necessary, since the actual <input> is invisible for beauty reasons.
-        cy.get('#tag-list').find("li").should('have.text', '1.4')
+        cy.get('#tag-list').find("li").should('have.text', '1) 1.4')
         // TODO deleteApp()
     });
 

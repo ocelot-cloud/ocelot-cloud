@@ -39,7 +39,7 @@
               @click="selectApp(app)"
               style="cursor: pointer;"
           >
-            {{ index + 1 }}. {{ app }}
+            {{ index + 1 }}) {{ app }}
           </li>
         </ul>
       </div>
