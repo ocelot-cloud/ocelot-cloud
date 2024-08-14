@@ -92,7 +92,12 @@ describe('Hub Operations', () => {
             contents: Cypress.Buffer.from(''),
             fileName: '1.4.tar.gz',
         }, { force: true }) // "force" is necessary, since the actual <input> is invisible for beauty reasons.
-        cy.get('#tag-list').find("li").should('have.text', '1) 1.4')
+        // TODO Also check presence and absence of operation buttons
+        cy.get('#tag-list').find("li").should('have.text', '1) 1.4').click()
+
+        cy.get('#button-delete-tag').click()
+
+        cy.get('#tag-list').find('li').should('have.length', 0);
         deleteApp()
     });
 

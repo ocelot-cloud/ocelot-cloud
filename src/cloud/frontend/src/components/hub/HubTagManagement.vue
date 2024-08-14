@@ -126,9 +126,9 @@ export default defineComponent({
     const deleteTag = async () => {
       const url = 'http://localhost:8082';
       try {
-        const response = await axios.post(url + '/tags',  { app });
+        const response = await axios.delete(url + '/tags',  { data: {app, tag: selectedTag.value} });
         if (response.status === 200) {
-          tagList.value = response.data as string[];
+          await getTags()
           console.log("received tags: ", tagList.value)
         }
       } catch (error) {
