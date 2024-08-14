@@ -25,7 +25,7 @@ function assertEmptyAppList() {
     cy.get('#button-edit-tags').should('not.exist')
 }
 
-function assertIsSelected(isSelected: boolean) {
+function assertIsAppSelected(isSelected: boolean) {
     let prefix = ""
     if (!isSelected) {
         prefix = "not."
@@ -38,7 +38,6 @@ function assertIsSelected(isSelected: boolean) {
 
 function clickOnApp() {
     cy.get('#app-list').find('li').click()
-    // TODO .should('have.class', 'active') or non.have.class active?
 }
 
 function deleteApp() {
@@ -68,11 +67,11 @@ describe('Hub Operations', () => {
         login()
         assertEmptyAppList()
         createApp()
-        assertIsSelected(false)
+        assertIsAppSelected(false)
         clickOnApp()
-        assertIsSelected(true)
+        assertIsAppSelected(true)
         clickOnApp()
-        assertIsSelected(false)
+        assertIsAppSelected(false)
         deleteApp()
         assertEmptyAppList();
     });
