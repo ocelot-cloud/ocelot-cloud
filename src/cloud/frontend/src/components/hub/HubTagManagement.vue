@@ -37,6 +37,7 @@
   <div v-if="tagList != null && selectedTag != ''">
     <h4>App Operations</h4>
     <!-- TODO There should be a confirmation dialog previously -->
+    <button id="button-download-tag" @click="downloadTag" class="btn btn-primary ms-2">Download</button>
     <button id="button-delete-tag" @click="deleteTag" class="btn btn-danger ms-2">Delete</button>
   </div>
 </template>
@@ -136,6 +137,19 @@ export default defineComponent({
       }
     }
 
+    const downloadTag = async () => {
+      const url = 'http://localhost:8082';
+      try {
+        const response = await axios.post(url + '/tags',  { data: {app, tag: selectedTag.value} });
+        if (response.status === 200) {
+          await getTags()
+          console.log("received tags: ", tagList.value)
+        }
+      } catch (error) {
+        console.log("todo")
+      }
+    }
+
     const selectTag = (tag: string) => {
       if (selectedTag.value == tag) {
         selectedTag.value = ""
@@ -156,6 +170,7 @@ export default defineComponent({
       selectedTag,
       deleteTag,
       selectTag,
+      downloadTag,
     }
   },
 });
