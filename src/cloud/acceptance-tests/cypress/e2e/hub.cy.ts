@@ -5,6 +5,48 @@ function createApp() {
     cy.get('#button-create-app').click();
 }
 
+function cancelAccountDeletion() {
+    cy.get('#dropdown').click();
+    cy.get('#button-delete-account').click();
+    cy.get('#button-delete-cancel').click();
+    cy.url().should('eq', 'http://localhost:8081/hub');
+}
+
+function executeAccountDeletion() {
+    cy.get('#dropdown').click();
+    cy.get('#button-delete-account').click();
+    cy.get('#button-delete-confirmation').click();
+    cy.url().should('eq', 'http://localhost:8081/hub/login');
+}
+
+function assertEmptyAppList() {
+    cy.get('#app-list').find('li').should('have.length', 0);
+    cy.get('#button-delete-app').should('not.exist')
+    cy.get('#button-edit-tags').should('not.exist')
+}
+
+function assertAppIsUnselected() {
+    cy.get('#button-delete-app').should('not.exist')
+    cy.get('#button-edit-tags').should('not.exist')
+    cy.get('#app-list').find('li')
+        .should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active')
+}
+
+function clickOnApp() {
+    cy.get('#app-list').find('li').click()
+    // TODO .should('have.class', 'active') or non.have.class active?
+}
+
+function assertAppIsSelected() {
+    cy.get('#button-delete-app').should('exist')
+    cy.get('#button-edit-tags').should('exist')
+}
+
+function deleteApp() {
+    cy.get('#app-list').find('li').click().should('have.class', 'active')
+    cy.get('#button-delete-app').click();
+}
+
 describe('Hub Operations', () => {
     it('register and login', () => {
         cy.request("http://localhost:8082/wipe-data")
@@ -25,24 +67,15 @@ describe('Hub Operations', () => {
 
     it('create and delete app', () => {
         login()
-        cy.get('#app-list').find('li').should('have.length', 0);
-        cy.get('#button-delete-app').should('not.exist')
-        cy.get('#button-edit-tags').should('not.exist')
+        assertEmptyAppList();
         createApp()
-        cy.get('#button-delete-app').should('not.exist')
-        cy.get('#button-edit-tags').should('not.exist')
-        cy.get('#app-list').find('li')
-            .should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active')
-            .click().should('have.class', 'active')
-        cy.get('#button-delete-app').should('exist')
-        cy.get('#button-edit-tags').should('exist')
-        cy.get('#app-list').find('li')
-            .click().should('not.have.class', 'active')
-        cy.get('#button-delete-app').should('not.exist')
-        cy.get('#button-edit-tags').should('not.exist')
-        cy.get('#app-list').find('li').click().should('have.class', 'active')
-        cy.get('#button-delete-app').click();
-        cy.get('#app-list').find('li').should('have.length', 0);
+        assertAppIsUnselected();
+        clickOnApp();
+        assertAppIsSelected();
+        clickOnApp()
+        assertAppIsUnselected();
+        deleteApp();
+        assertEmptyAppList();
     });
 
     it('change password', () => {
@@ -84,15 +117,8 @@ describe('Hub Operations', () => {
 
     it('test delete account', () => {
         login()
-        cy.get('#dropdown').click();
-        cy.get('#button-delete-account').click();
-        cy.get('#button-delete-cancel').click();
-        cy.url().should('eq', 'http://localhost:8081/hub');
-
-        cy.get('#dropdown').click();
-        cy.get('#button-delete-account').click();
-        cy.get('#button-delete-confirmation').click();
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
+        cancelAccountDeletion();
+        executeAccountDeletion();
     });
 });
 
