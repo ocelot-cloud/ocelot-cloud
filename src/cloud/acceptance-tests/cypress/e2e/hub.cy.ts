@@ -25,21 +25,20 @@ function assertEmptyAppList() {
     cy.get('#button-edit-tags').should('not.exist')
 }
 
-function assertAppIsUnselected() {
-    cy.get('#button-delete-app').should('not.exist')
-    cy.get('#button-edit-tags').should('not.exist')
+function assertIsSelected(isSelected: boolean) {
+    let prefix = ""
+    if (!isSelected) {
+        prefix = "not."
+    }
+    cy.get('#button-delete-app').should(prefix + 'exist')
+    cy.get('#button-edit-tags').should(prefix + 'exist')
     cy.get('#app-list').find('li')
-        .should('have.length', 1).and('contain', 'myapp').and('not.have.class', 'active')
+        .should('have.length', 1).and('contain', 'myapp').and(prefix + 'have.class', 'active')
 }
 
 function clickOnApp() {
     cy.get('#app-list').find('li').click()
     // TODO .should('have.class', 'active') or non.have.class active?
-}
-
-function assertAppIsSelected() {
-    cy.get('#button-delete-app').should('exist')
-    cy.get('#button-edit-tags').should('exist')
 }
 
 function deleteApp() {
@@ -67,14 +66,14 @@ describe('Hub Operations', () => {
 
     it('create and delete app', () => {
         login()
-        assertEmptyAppList();
+        assertEmptyAppList()
         createApp()
-        assertAppIsUnselected();
-        clickOnApp();
-        assertAppIsSelected();
+        assertIsSelected(false)
         clickOnApp()
-        assertAppIsUnselected();
-        deleteApp();
+        assertIsSelected(true)
+        clickOnApp()
+        assertIsSelected(false)
+        deleteApp()
         assertEmptyAppList();
     });
 
