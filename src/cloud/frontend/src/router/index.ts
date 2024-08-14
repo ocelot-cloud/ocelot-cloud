@@ -3,7 +3,7 @@ import Home from "@/components/cloud/Home.vue";
 import Login from "@/components/cloud/Login.vue";
 import axios from "axios";
 import {isSecurityEnabled} from "@/components/cloud/Config";
-import HubComponent from "@/components/hub/HubComponent.vue";
+import HubComponent from "@/components/hub/HubHome.vue";
 import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
 import HubChangePassword from "@/components/hub/HubChangePassword.vue";
