@@ -93,7 +93,7 @@ describe('Hub Operations', () => {
             fileName: '1.4.tar.gz',
         }, { force: true }) // "force" is necessary, since the actual <input> is invisible for beauty reasons.
         cy.get('#tag-list').find("li").should('have.text', '1) 1.4')
-        // TODO deleteApp()
+        deleteApp()
     });
 
     it('change password', () => {
