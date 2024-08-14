@@ -91,7 +91,7 @@ func TestBackendComponentMocked() {
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeDependenciesMocked))
 }
 
-func TestAcceptance() {
+func TestCloudAcceptance() {
 	printTestDescription("Testing acceptance")
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
@@ -116,9 +116,9 @@ func TestCi() {
 	testBackendCore()
 	TestBackendComponent(true)
 	TestBackendComponent(false)
-	TestHub()
-	TestFrontendFast()
-	TestAcceptance()
+	TestHubAll()
+	TestCloudFrontendFast()
+	TestCloudAcceptance()
 }
 
 func RunScheduledTests() {
@@ -135,7 +135,7 @@ func printTestDescription(text string) {
 	ColoredPrint("\n=== %s ===\n", text)
 }
 
-func TestFrontendFast() {
+func TestCloudFrontendFast() {
 	printTestDescription("Testing Frontend Fast")
 	defer Cleanup()
 	Build(Frontend)

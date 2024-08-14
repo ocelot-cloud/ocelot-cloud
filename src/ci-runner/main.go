@@ -39,14 +39,18 @@ var cleanCmd = &cobra.Command{
 	},
 }
 
-// TODO abstract duplication: make a structure with name + func, e.g. {("backend", src.TestBackendComponent(src.Quick)), ("frontend", ...}
-var validTestTypes = []string{"backend", "frontend", "acceptance", "ci", "scheduled", "hub"}
-var testTypeStr = strings.Join(validTestTypes, ", ")
+var cloudTestTypes = []string{"backend", "frontend", "acceptance"}
+var hubTestTypes = []string{"fast", "acceptance", "all"}
 
 var testCmd = &cobra.Command{
-	Use:   "test [test-type]",
+	Use:   "test",
 	Short: "Run various tests",
-	Long:  "Run different types of tests: " + testTypeStr,
+	Long:  "Run different types of tests for cloud, hub, ci, or schedule.",
+}
+
+var cloudCmd = &cobra.Command{
+	Use:   "cloud [backend/frontend/acceptance]",
+	Short: "Run cloud-related tests",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
@@ -54,25 +58,55 @@ var testCmd = &cobra.Command{
 		case "backend":
 			src.TestBackendComponent(src.Quick)
 		case "frontend":
-			src.TestFrontendFast()
+			src.TestCloudFrontendFast()
 		case "acceptance":
-			src.TestAcceptance()
-		case "ci":
-			src.TestCi()
-		case "scheduled":
-			src.RunScheduledTests()
-		case "hub":
-			src.TestHub()
-		case "hub-acceptance":
-			src.TestHubAcceptance()
-		case "hub-all":
-			src.TestHubAll()
+			src.TestCloudAcceptance()
 		default:
-			src.ColoredPrint("\nerror: unknown command: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", testTypeStr)
+			src.ColoredPrint("\nerror: unknown cloud test type: %s\n", inputTestType)
+			src.ColoredPrint("valid args: %s\n", strings.Join(cloudTestTypes, ", "))
 			os.Exit(1)
 		}
-		src.ColoredPrint("\nSuccess! All tests passed.\n")
+		src.ColoredPrint("\nSuccess! Cloud tests passed.\n")
+	},
+}
+
+var ciCmd = &cobra.Command{
+	Use:   "ci",
+	Short: "Run CI-related tests",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.TestCi()
+		src.ColoredPrint("\nSuccess! CI tests passed.\n")
+	},
+}
+
+var hubCmd = &cobra.Command{
+	Use:   "hub [fast/acceptance/all]",
+	Short: "Run hub-related tests",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		inputTestType := args[0]
+		switch inputTestType {
+		case "fast":
+			src.TestHub()
+		case "acceptance":
+			src.TestHubAcceptance()
+		case "all":
+			src.TestHubAll()
+		default:
+			src.ColoredPrint("\nerror: unknown hub test type: %s\n", inputTestType)
+			src.ColoredPrint("valid args: %s\n", strings.Join(hubTestTypes, ", "))
+			os.Exit(1)
+		}
+		src.ColoredPrint("\nSuccess! Hub tests passed.\n")
+	},
+}
+
+var scheduleCmd = &cobra.Command{
+	Use:   "schedule",
+	Short: "Run scheduled tests",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.RunScheduledTests()
+		src.ColoredPrint("\nSuccess! Scheduled tests passed.\n")
 	},
 }
 
@@ -97,6 +131,11 @@ func main() {
 	src.ComponentBuilds[src.Backend].SkipBuild = src.SkipBackendBuild
 	src.ComponentBuilds[src.Frontend].SkipBuild = src.SkipFrontendBuild
 	src.ComponentBuilds[src.DockerImage].SkipBuild = src.SkipDockerImageBuild
+
+	testCmd.AddCommand(cloudCmd)
+	testCmd.AddCommand(ciCmd)
+	testCmd.AddCommand(hubCmd)
+	testCmd.AddCommand(scheduleCmd)
 
 	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(testCmd)

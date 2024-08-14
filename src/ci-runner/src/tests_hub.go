@@ -33,6 +33,7 @@ func TestHubAcceptance() {
 }
 
 func TestHubAll() {
+	TestHubUnits()
 	TestHubBackend()
 	TestHubAcceptance()
 }
