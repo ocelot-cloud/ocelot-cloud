@@ -226,12 +226,7 @@ export default defineComponent({
 
 
 TODO: Hub
-* CreateApp
-* GetTags
-* DeleteApp
-* UploadTag
 * DownloadTag
-* DeleteTag
 
 TODO: Cloud
 * FindApps
