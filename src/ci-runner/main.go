@@ -39,8 +39,17 @@ var cleanCmd = &cobra.Command{
 	},
 }
 
-var cloudTestTypes = []string{"backend", "frontend", "acceptance"}
-var hubTestTypes = []string{"fast", "acceptance", "all"}
+var hubTestTypes = map[string]func(){
+	"fast":       func() { src.TestHubUnits() },
+	"acceptance": func() { src.TestHubAcceptance() },
+	"all":        func() { src.TestHubAll() },
+}
+
+var cloudTestTypes = map[string]func(){
+	"backend":    func() { src.TestBackendComponent(src.Quick) },
+	"frontend":   func() { src.TestCloudFrontendFast() },
+	"acceptance": func() { src.TestCloudAcceptance() },
+}
 
 var testCmd = &cobra.Command{
 	Use:   "test",
@@ -54,20 +63,23 @@ var cloudCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
-		switch inputTestType {
-		case "backend":
-			src.TestBackendComponent(src.Quick)
-		case "frontend":
-			src.TestCloudFrontendFast()
-		case "acceptance":
-			src.TestCloudAcceptance()
-		default:
+		if _, exists := cloudTestTypes[inputTestType]; !exists {
 			src.ColoredPrint("\nerror: unknown cloud test type: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", strings.Join(cloudTestTypes, ", "))
+			src.ColoredPrint("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
 			os.Exit(1)
+		} else {
+			cloudTestTypes[inputTestType]()
 		}
 		src.ColoredPrint("\nSuccess! Cloud tests passed.\n")
 	},
+}
+
+func getKeys(m map[string]func()) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 var ciCmd = &cobra.Command{
@@ -79,23 +91,20 @@ var ciCmd = &cobra.Command{
 	},
 }
 
+// TODO There are flags for every command, even though they have no effect.
+
 var hubCmd = &cobra.Command{
 	Use:   "hub [fast/acceptance/all]",
 	Short: "Run hub-related tests",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
-		switch inputTestType {
-		case "fast":
-			src.TestHub()
-		case "acceptance":
-			src.TestHubAcceptance()
-		case "all":
-			src.TestHubAll()
-		default:
+		if _, exists := hubTestTypes[inputTestType]; !exists {
 			src.ColoredPrint("\nerror: unknown hub test type: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", strings.Join(hubTestTypes, ", "))
+			src.ColoredPrint("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
 			os.Exit(1)
+		} else {
+			hubTestTypes[inputTestType]()
 		}
 		src.ColoredPrint("\nSuccess! Hub tests passed.\n")
 	},

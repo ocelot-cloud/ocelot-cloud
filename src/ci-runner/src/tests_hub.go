@@ -1,6 +1,6 @@
 package src
 
-func TestHub() {
+func TestHubAll() {
 	ExecuteInDir(hubDir, "rm -rf data")
 	TestHubUnits()
 	TestHubBackend()
@@ -30,10 +30,4 @@ func TestHubAcceptance() {
 	StartDaemon(frontendDir, "bash run-development-setup.sh")
 	WaitUntilPortIsReady("localhost:8081")
 	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
-}
-
-func TestHubAll() {
-	TestHubUnits()
-	TestHubBackend()
-	TestHubAcceptance()
 }
