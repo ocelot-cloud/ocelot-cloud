@@ -46,36 +46,10 @@
       <br>
       <div v-if="appList != null && selectedApp != ''">
         <h4>App Operations</h4>
-        <button id="button-edit-tags" @click="toggleEdit" class="btn btn-warning me-2">Edit Tags</button>
+        <button id="button-edit-tags" @click="goToTagManagement()" class="btn btn-warning me-2">Edit Tags</button>
         <!-- TODO There should be a confirmation dialog previously -->
         <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete</button>
       </div>
-    </div>
-    <div v-else>
-      <h4>Tag Management</h4>
-      <button id="button-back-to-app" @click="toggleEdit" class="btn btn-secondary">Back to App Management</button>
-
-      <p>Selected App is: {{ selectedApp }}</p>
-
-      <div >
-        <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
-        <div
-            id="drag-and-drop-area"
-            class="drop-zone"
-            @dragover.prevent
-            @drop.prevent="handleDrop"
-        >
-          Drag and drop your file here
-        </div>
-      </div>
-
-      <h4>Tag List</h4>
-      <p v-if="tagsOfSelectedApp == null || tagsOfSelectedApp.length == 0"> (no apps created yet) </p>
-      <ul id="tag-list" class="list-group">
-        <li v-for="tag in tagsOfSelectedApp" :key="tag">
-          {{ tag }}
-        </li>
-      </ul>
     </div>
 
     <router-view />
@@ -112,17 +86,16 @@ import router from "@/router";
 // TODO Integrate error messages. Abstract the duplicate logic.
 export default defineComponent({
   name: 'HubComponent',
+
   setup() {
     const user = ref<string | null>(null);
     const showDeleteConfirmation = ref(false);
-    const app = ref('');
+    const newAppToCreate = ref('');
     const appList = ref<string[]>([]);
     const selectedApp = ref<string>("");
     const isEditingTags = ref<boolean>(false);
 
     // TODO App Management and Tag Management should be put to separate files/components and be imported here.
-
-    const tagsOfSelectedApp = ref<string[]>([]);
 
     const checkAuth = async () => {
       try {
@@ -175,12 +148,12 @@ export default defineComponent({
     const createApp = async () => {
       const url = 'http://localhost:8082';
       try {
-        await axios.post(url + '/apps', { value: app.value });
+        await axios.post(url + '/apps', { value: newAppToCreate.value });
       } catch (error) {
         // TODO correctly interpret error, so that backend message is displayed.
         alert("app creation error: " + error)
       }
-      app.value = ""
+      newAppToCreate.value = ""
       await getApps()
     };
 
@@ -209,20 +182,6 @@ export default defineComponent({
       }
     };
 
-    const getTags = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        let userAndApp = { user: user.value, app: selectedApp.value }
-        const response = await axios.post(url + '/tags/get-tags', userAndApp);
-        if (response.status === 200) {
-          tagsOfSelectedApp.value = response.data as string[];
-          console.log("received tags: ", appList.value)
-        }
-      } catch (error) {
-        console.log("todo")
-      }
-    };
-
     const visitCloud = () => {
       router.push('/');
     };
@@ -233,65 +192,11 @@ export default defineComponent({
       } else {
         selectedApp.value = app;
       }
-
     };
 
-    const toggleEdit = () => {
-      isEditingTags.value = !isEditingTags.value;
-      if (isEditingTags.value) {
-        getTags()
-      }
-    };
-
-    const handleFileUpload = (event: Event) => {
-      const files = (event.target as HTMLInputElement).files;
-      if (files && files.length > 0) {
-        uploadFile(files[0]);
-      }
-    };
-
-    const handleDrop = (event: DragEvent) => {
-      const files = event.dataTransfer?.files;
-      if (files && files.length > 0) {
-        uploadFile(files[0]);
-      }
-    };
-
-    // TODO There should be bright styling when hover the drag and drop area with a file
-    const uploadFile = (file: File) => {
-      const app = selectedApp.value;
-      const suffix = '.tar.gz';
-
-      if (!file.name.endsWith(suffix)) {
-        alert(`The file must have a ${suffix} suffix.`);
-        return;
-      }
-      const tag = file.name.slice(0, -suffix.length);
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const content = btoa(
-            String.fromCharCode(...new Uint8Array(event.target?.result as ArrayBuffer))
-        );
-        const tagUpload = {app, tag, content};
-
-        try {
-          const response = await axios.post('http://localhost:8082/tags', tagUpload);
-          if (response.status === 200) {
-            console.log('File uploaded successfully');
-          }
-          await getTags()
-        } catch (error) {
-          console.error('Error uploading file:', error);
-        }
-      };
-
-      reader.onerror = () => {
-        console.error('Error reading file');
-      };
-
-      reader.readAsArrayBuffer(file); // Trigger reading the file as an ArrayBuffer
-    };
+    const goToTagManagement = () => {
+      router.push({ path: '/hub/tag-management', query: { user: user.value, app: selectedApp.value } });
+    }
 
     onMounted(() => {
       checkAuth();
@@ -306,17 +211,14 @@ export default defineComponent({
       confirmDeleteAccount,
       redirectToChangePassword,
       visitCloud,
-      newApp: app,
+      newApp: newAppToCreate,
       createApp,
       appList,
       deleteApp,
       isEditingTags,
-      toggleEdit,
       selectedApp,
       selectApp,
-      tagsOfSelectedApp,
-      handleDrop, // TODO Can this be removed?
-      handleFileUpload,
+      goToTagManagement,
     };
   },
 });

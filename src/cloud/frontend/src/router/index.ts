@@ -7,7 +7,10 @@ import HubComponent from "@/components/hub/HubHome.vue";
 import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
 import HubChangePassword from "@/components/hub/HubChangePassword.vue";
+import HubTagManagement from "@/components/hub/HubTagManagement.vue";
 
+// TODO Are the names necessary?
+// TODO I should add a requiresHubAuth to the hub pages
 const routes = [
     {
         path: '/',
@@ -39,6 +42,11 @@ const routes = [
         path: '/hub/change-password',
         name: 'HubChangePassword',
         component: HubChangePassword,
+    },
+    {
+        path: '/hub/tag-management',
+        name: 'HubTagManagement',
+        component: HubTagManagement,
     },
 ];
 
