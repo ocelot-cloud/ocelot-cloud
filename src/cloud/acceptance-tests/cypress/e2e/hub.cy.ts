@@ -80,12 +80,14 @@ describe('Hub Operations', () => {
         assertEmptyAppList();
     });
 
+    // TODO abstract urls and paths
+    // TODO URL should be determined by the currently used origin/host
     it('check upload', () => {
         login()
         createApp()
         cy.get('#app-list').find('li').click()
         cy.get('#button-edit-tags').click()
-        // TODO check URL
+        cy.url().should('contain', 'http://localhost:8081/hub/tag-management')
         cy.get('input[type="file"]').selectFile({
             contents: Cypress.Buffer.from(''),
             fileName: '1.4.tar.gz',
