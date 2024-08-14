@@ -1,6 +1,6 @@
-import {BackendClient} from "@/components/Shared";
-import {BackendClientImpl} from "@/components/BackendClientImpl";
-import {BackendClientMock} from "@/components/BackendClientMock";
+import {BackendClient} from "@/components/cloud/Shared";
+import {BackendClientImpl} from "@/components/cloud/BackendClientImpl";
+import {BackendClientMock} from "@/components/cloud/BackendClientMock";
 
 export const scheme = "http"
 export const baseDomain = "localhost"

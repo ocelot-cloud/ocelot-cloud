@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import Home from './components/Home.vue';
+import Home from './components/cloud/Home.vue';
 import axios from "axios";
 
 @Options({

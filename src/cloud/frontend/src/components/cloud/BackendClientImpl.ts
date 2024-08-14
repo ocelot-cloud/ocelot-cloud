@@ -1,4 +1,4 @@
-import {BackendClient} from "@/components/Shared";
+import {BackendClient} from "@/components/cloud/Shared";
 
 export class BackendClientImpl implements BackendClient {
     Logout(baseUrl: string): void {

@@ -1,4 +1,4 @@
-import {BackendClient, Stack} from "@/components/Shared";
+import {BackendClient, Stack} from "@/components/cloud/Shared";
 
 
 const stack1 = new Stack('nginx-default', 'Uninitialized', "/");

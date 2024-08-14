@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from "@/components/Home.vue";
-import Login from "@/components/Login.vue";
+import Home from "@/components/cloud/Home.vue";
+import Login from "@/components/cloud/Login.vue";
 import axios from "axios";
-import {isSecurityEnabled} from "@/components/Config";
+import {isSecurityEnabled} from "@/components/cloud/Config";
 import HubComponent from "@/components/hub/HubComponent.vue";
 import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
