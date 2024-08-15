@@ -52,8 +52,6 @@
       </div>
     </div>
 
-    <router-view />
-
     <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">

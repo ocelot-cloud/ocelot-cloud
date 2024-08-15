@@ -38,7 +38,26 @@
     <h4>App Operations</h4>
     <!-- TODO There should be a confirmation dialog previously -->
     <button id="button-download-tag" @click="downloadTag" class="btn btn-primary ms-2">Download</button>
-    <button id="button-delete-tag" @click="deleteTag" class="btn btn-danger ms-2">Delete</button>
+    <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger ms-2">Delete</button>
+  </div>
+
+  <!-- TODO Can be reused? -->
+  <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Account Deletion</h5>
+          <button type="button" class="btn-close" @click="showDeleteConfirmation = false" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete your account?</p>
+        </div>
+        <div class="modal-footer">
+          <button id="button-delete-cancel" type="button" class="btn btn-secondary" @click="showDeleteConfirmation = false">Cancel</button>
+          <button id="button-delete-confirmation" type="button" class="btn btn-danger" @click="deleteTag">Confirm</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -58,6 +77,7 @@ export default defineComponent({
     const app = route.query.app
     const user = route.query.user
     const selectedTag = ref<string>("");
+    const showDeleteConfirmation = ref<boolean>(false);
 
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
@@ -179,6 +199,7 @@ export default defineComponent({
       deleteTag,
       selectTag,
       downloadTag,
+      showDeleteConfirmation,
     }
   },
 });

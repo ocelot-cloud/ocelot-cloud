@@ -109,6 +109,7 @@ describe('Hub Operations', () => {
         cy.get('#button-delete-tag').should('exist')
 
         cy.get('#button-delete-tag').click() // TODO There should be a confirmation popup with a cancel option.
+        cy.get('#button-delete-confirmation').click()
 
         cy.get('#tag-list').find('li').should('have.length', 0);
         deleteApp()
