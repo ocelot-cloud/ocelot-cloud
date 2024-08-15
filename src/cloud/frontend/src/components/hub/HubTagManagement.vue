@@ -139,16 +139,24 @@ export default defineComponent({
 
     const downloadTag = async () => {
       const url = 'http://localhost:8082';
+
       try {
-        const response = await axios.post(url + '/tags',  { data: {app, tag: selectedTag.value} });
+        const response = await axios.post(url + '/tags/', { user, app, tag: selectedTag.value });
         if (response.status === 200) {
-          await getTags()
-          console.log("received tags: ", tagList.value)
+          const blob = new Blob([response.data], { type: 'application/gzip' });
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.setAttribute('download', `${selectedTag.value}.tar.gz`);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          console.log("File download started successfully");
         }
       } catch (error) {
-        console.log("todo")
+        console.error('Error during file download:', error);
       }
-    }
+    };
 
     const selectTag = (tag: string) => {
       if (selectedTag.value == tag) {
