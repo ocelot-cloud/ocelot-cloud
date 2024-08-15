@@ -62,9 +62,6 @@ describe('Hub Operations', () => {
         cy.get('#button-register').click();
         cy.url().should('eq', 'http://localhost:8081/hub/login');
         login()
-        cy.getCookie("auth").should('exist').then((c) => {
-            authCookie = c.value
-        })
     });
 
     it('create and delete app', () => {
@@ -134,10 +131,6 @@ describe('Hub Operations', () => {
         cy.url().should('eq', 'http://localhost:8081/hub/login');
 
         authCookie = ""
-        login()
-        cy.getCookie("auth").should('exist').then((c) => {
-            authCookie = c.value
-        })
     });
 
     it('check wrong password prevents login', () => {
@@ -161,12 +154,15 @@ function login() {
         cy.get('#input-username').clear().type('admin');
         cy.get('#input-password').clear().type('password');
         cy.get('#button-login').click();
+        cy.url().should('eq', 'http://localhost:8081/hub')
+        cy.get('#user-label').should('contain', 'admin');
+        cy.getCookie("auth").should('exist').then((c) => {
+            authCookie = c.value
+        })
     } else {
         cy.setCookie("auth", authCookie)
         cy.visit('http://localhost:8081/hub')
     }
-    cy.url().should('eq', 'http://localhost:8081/hub')
-    cy.get('#user-label').should('contain', 'admin');
 }
 
 // TODO When not authenticated on any "/hub", be directed to /hub/login
