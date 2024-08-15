@@ -166,5 +166,6 @@ function login() {
 
 // TODO When not authenticated on any "/hub", be directed to /hub/login
 // TODO deleting apps should be confirmed
+// TODO Display error from response as alert message
 // TODO Maybe extract App Management Component
 // TODO Make GUI pretty
