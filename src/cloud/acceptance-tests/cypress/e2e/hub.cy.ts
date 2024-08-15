@@ -87,15 +87,28 @@ describe('Hub Operations', () => {
         createApp()
         cy.get('#app-list').find('li').click()
         cy.get('#button-edit-tags').click()
+
+        cy.get('#tag-list').find('li').should('have.length', 0);
+        cy.get('#button-download-tag').should('not.exist')
+        cy.get('#button-delete-tag').should('not.exist')
+
         cy.url().should('contain', 'http://localhost:8081/hub/tag-management')
         cy.get('input[type="file"]').selectFile({
             contents: Cypress.Buffer.from(''),
             fileName: '1.4.tar.gz',
         }, { force: true }) // "force" is necessary, since the actual <input> is invisible for beauty reasons.
-        // TODO Also check presence and absence of operation buttons
+
+        cy.get('#tag-list').find('li').should('have.length', 1);
+        cy.get('#button-download-tag').should('not.exist')
+        cy.get('#button-delete-tag').should('not.exist')
+
         cy.get('#tag-list').find("li").should('have.text', '1) 1.4').click()
 
-        cy.get('#button-delete-tag').click()
+        cy.get('#tag-list').find('li').should('have.length', 1);
+        cy.get('#button-download-tag').should('exist')
+        cy.get('#button-delete-tag').should('exist')
+
+        cy.get('#button-delete-tag').click() // TODO There should be a confirmation popup with a cancel option.
 
         cy.get('#tag-list').find('li').should('have.length', 0);
         deleteApp()
