@@ -156,8 +156,8 @@ function login() {
         cy.get('#button-login').click();
         cy.url().should('eq', 'http://localhost:8081/hub')
         cy.get('#user-label').should('contain', 'admin');
-        cy.getCookie("auth").should('exist').then((c) => {
-            authCookie = c.value
+        cy.getCookie("auth").should('exist').then((cookie) => {
+            authCookie = cookie.value
         })
     } else {
         cy.setCookie("auth", authCookie)
