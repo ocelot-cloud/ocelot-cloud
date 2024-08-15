@@ -52,6 +52,8 @@ func Cleanup() {
 	killDaemonProcessesCreateDuringThisRun()
 	killPotentiallyDisturbingPreExistingComponentProcesses()
 	pruneDockerToEmptySetup()
+	fmt.Print("\x1b[?25h") // Ensure CLI cursor is visible
+	fmt.Print("\x1b[0m")   // Resets all CLI cursor attributes such as color
 }
 
 func killDaemonProcessesCreateDuringThisRun() {
