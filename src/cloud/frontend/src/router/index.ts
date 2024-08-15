@@ -56,15 +56,37 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    if (isSecurityEnabled && to.matched.some(record => record.meta.requiresAuth) && !(await isSessionCookieValid())) {
+    if (to.path.startsWith('/hub') && to.path != '/hub/login') {
+        const isHubSessionValid = await isThereValidHubSessionCookie();
+        if (isHubSessionValid) {
+            next();
+        } else {
+            next({ name: 'HubLogin' });
+        }
+        return;
+    }
+
+    // TODO Apply the upper approach to this router.
+    // TODO Get rid of "isSecurityEnabled".
+    if (isSecurityEnabled && to.matched.some(record => record.meta.requiresAuth) && !(await isThereValidCloudSessionCookie())) {
         next({ name: 'Login' });
     } else {
         next();
     }
 });
 
-async function isSessionCookieValid(): Promise<boolean> {
+async function isThereValidHubSessionCookie(): Promise<boolean> {
     try {
+        await axios.get('http://localhost:8082/auth-check');
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+async function isThereValidCloudSessionCookie(): Promise<boolean> {
+    try {
+        // TODO I think the first part of the URL is missing, right?
         await axios.get('/api/check-session', { withCredentials: true });
         return true;
     } catch (error) {
