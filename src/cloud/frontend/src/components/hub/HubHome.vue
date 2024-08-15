@@ -2,7 +2,7 @@
   <div id="app" class="container mt-5 col-lg-6 col-md-8 col-sm-10">
     <h3>Ocelot Hub</h3>
     <div class="d-flex justify-content-end align-items-center mb-3">
-      <span class="me-2">Logged in as: {{ user }}</span>
+      <span class="me-2" id="user-label">Logged in as: {{ user }}</span>
       <button style="margin-right: 5px" type="button" class="btn btn-primary" @click="visitCloud">Back to Cloud</button>
       <div id="dropdown" class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -21,7 +21,7 @@
       <h4 >App Management</h4>
       <div class="d-flex justify-content-center mb-3">
         <div class="col-6">
-          <input id="input-app" v-model="newApp" class="form-control" placeholder="Name of New App" required />
+          <input id="input-app" v-model="newAppToCreate" class="form-control" placeholder="Name of New App" required />
         </div>
       </div>
       <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
@@ -78,6 +78,7 @@ TODO Clicking on a selected app should unselect it.
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from "axios";
 import router from "@/router";
+import {session} from "@/components/hub/shared";
 
 // TODO If app list is empty, then show an according message
 // TODO Select an app and then click on delete, easier to do
@@ -86,27 +87,14 @@ export default defineComponent({
   name: 'HubComponent',
 
   setup() {
-    const user = ref<string | null>(null);
+    const user = ref<string>("");
     const showDeleteConfirmation = ref(false);
     const newAppToCreate = ref('');
     const appList = ref<string[]>([]);
     const selectedApp = ref<string>("");
     const isEditingTags = ref<boolean>(false);
 
-    // TODO App Management and Tag Management should be put to separate files/components and be imported here.
-
-    const checkAuth = async () => {
-      try {
-        const url = 'http://localhost:8082';
-        const response = await axios.get(url + "/auth-check");
-        if (response.status === 200) {
-          user.value = response.data.value;
-        }
-      } catch (error) {
-        redirectToLogin();
-      }
-      // TODO add error?
-    };
+    // TODO App Management should be put to separate files/components and be imported here.
 
     const logout = async () => {
       try {
@@ -197,7 +185,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      checkAuth();
+      user.value = session.user
       getApps();
     });
 
@@ -209,7 +197,7 @@ export default defineComponent({
       confirmDeleteAccount,
       redirectToChangePassword,
       visitCloud,
-      newApp: newAppToCreate,
+      newAppToCreate,
       createApp,
       appList,
       deleteApp,

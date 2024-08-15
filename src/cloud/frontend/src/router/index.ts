@@ -8,6 +8,7 @@ import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
 import HubChangePassword from "@/components/hub/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
+import {session} from "@/components/hub/shared";
 
 // TODO Are the names necessary?
 // TODO I should add a requiresHubAuth to the hub pages
@@ -56,18 +57,22 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    if (to.path.startsWith('/hub') && to.path != '/hub/login') {
-        const isHubSessionValid = await isThereValidHubSessionCookie();
-        if (isHubSessionValid) {
+    if (to.path.startsWith('/hub')) {
+        if (to.path == '/hub/login' || to.path == '/hub/registration' || session.isAuthenticated) {
             next();
         } else {
-            next({ name: 'HubLogin' });
+            const isHubSessionValid = await isThereValidHubSessionCookie();
+            if (isHubSessionValid) {
+                next();
+            } else {
+                next({ name: 'HubLogin' });
+            }
         }
         return;
     }
 
     // TODO Apply the upper approach to this router.
-    // TODO Get rid of "isSecurityEnabled".
+    // TODO Get rid of "isSecurityEnabled"
     if (isSecurityEnabled && to.matched.some(record => record.meta.requiresAuth) && !(await isThereValidCloudSessionCookie())) {
         next({ name: 'Login' });
     } else {
@@ -77,8 +82,13 @@ router.beforeEach(async (to, from, next) => {
 
 async function isThereValidHubSessionCookie(): Promise<boolean> {
     try {
-        await axios.get('http://localhost:8082/auth-check');
-        return true;
+        const response = await axios.get('http://localhost:8082/auth-check');
+        if (response.status === 200) {
+            session.user = response.data.value;
+            session.isAuthenticated = true
+            return true;
+        }
+        return false
     } catch (error) {
         return false;
     }
@@ -95,3 +105,5 @@ async function isThereValidCloudSessionCookie(): Promise<boolean> {
 }
 
 export default router;
+
+// TODO When cookie is not found, the backend return 404, but it should return a not authenticated status code instead.

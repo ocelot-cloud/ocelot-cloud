@@ -128,11 +128,16 @@ describe('Hub Operations', () => {
 
     it('check logout', () => {
         login()
-        cy.url().should('eq', 'http://localhost:8081/hub')
         cy.get('#dropdown').click();
         cy.get('#button-logout').click();
         cy.visit('http://localhost:8081/hub')
         cy.url().should('eq', 'http://localhost:8081/hub/login');
+
+        authCookie = ""
+        login()
+        cy.getCookie("auth").should('exist').then((c) => {
+            authCookie = c.value
+        })
     });
 
     it('check wrong password prevents login', () => {
@@ -151,17 +156,17 @@ describe('Hub Operations', () => {
 });
 
 function login() {
-    cy.setCookie("auth", authCookie)
-    cy.visit('http://localhost:8081/hub');
-    cy.url().then((url) => {
-        if (url != 'http://localhost:8081/hub') {
-            cy.visit('http://localhost:8081/hub/login');
-            cy.get('#input-username').clear().type('admin');
-            cy.get('#input-password').clear().type('password');
-            cy.get('#button-login').click();
-            cy.url().should('eq', 'http://localhost:8081/hub');
-        }
-    });
+    if(authCookie == "") {
+        cy.visit('http://localhost:8081/hub/login');
+        cy.get('#input-username').clear().type('admin');
+        cy.get('#input-password').clear().type('password');
+        cy.get('#button-login').click();
+    } else {
+        cy.setCookie("auth", authCookie)
+        cy.visit('http://localhost:8081/hub')
+    }
+    cy.url().should('eq', 'http://localhost:8081/hub')
+    cy.get('#user-label').should('contain', 'admin');
 }
 
 // TODO When not authenticated on any "/hub", be directed to /hub/login
@@ -169,3 +174,4 @@ function login() {
 // TODO Display error from response as alert message
 // TODO Maybe extract App Management Component
 // TODO Make GUI pretty
+// TODO Input validation
