@@ -50,7 +50,7 @@
 <script lang="ts">
 import {defineComponent, onMounted, ref} from 'vue';
 import { useRoute } from 'vue-router';
-import {doRequest, goToHubPage} from "@/components/hub/shared";
+import {alertError, doRequest, goToHubPage} from "@/components/hub/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
 export default defineComponent({
@@ -127,6 +127,7 @@ export default defineComponent({
           console.log("File download started successfully");
         }
       } catch (error) {
+        alertError(error)
         console.error('Error during file download:', error);
       }
     };

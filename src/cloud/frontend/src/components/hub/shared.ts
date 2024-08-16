@@ -10,6 +10,15 @@ export const session = {
     isAuthenticated: false,
 };
 
+export function alertError(error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+        const errorMessage = error.response.data || 'An unknown error occurred';
+        alert(`An error occurred: ${errorMessage}`);
+    } else {
+        alert('An unknown error occurred');
+    }
+}
+
 export async function doRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
     const baseUrl = 'http://localhost:8082';
 
@@ -20,12 +29,7 @@ export async function doRequest(path: string, data: any): Promise<(AxiosResponse
         }
         return response
     } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            const errorMessage = error.response.data || 'An unknown error occurred';
-            alert(`An error occurred: ${errorMessage}`);
-        } else {
-            alert('An unknown error occurred');
-        }
+        alertError(error);
         return null
     }
 }
