@@ -41,24 +41,11 @@
     <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger ms-2">Delete</button>
   </div>
 
-  <!-- TODO Can be reused? -->
-  <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirm Account Deletion</h5>
-          <button type="button" class="btn-close" @click="showDeleteConfirmation = false" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure you want to delete your account?</p>
-        </div>
-        <div class="modal-footer">
-          <button id="button-delete-cancel" type="button" class="btn btn-secondary" @click="showDeleteConfirmation = false">Cancel</button>
-          <button id="button-delete-confirmation" type="button" class="btn btn-danger" @click="deleteTag">Confirm</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <HubDeletionConfirmationDialog
+      v-model:visible="showDeleteConfirmation"
+      :on-confirm="deleteTag"
+      message="Are you sure you want to delete this app?"
+  ></HubDeletionConfirmationDialog>
 </template>
 
 <script lang="ts">
@@ -66,9 +53,11 @@ import {defineComponent, onMounted, ref} from 'vue';
 import axios from "axios";
 import { useRoute } from 'vue-router';
 import {goToHubPage} from "@/components/hub/shared";
+import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
 export default defineComponent({
   name: "HubTagManagement",
+  components: {HubDeletionConfirmationDialog},
   methods: {goToHubPage},
 
   setup() {
