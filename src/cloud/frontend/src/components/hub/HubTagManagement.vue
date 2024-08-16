@@ -113,6 +113,9 @@ export default defineComponent({
       const response = await doRequest("/tags/get-tags", { user, app })
       if (response != null) {
         tagList.value = response.data as string[];
+        if (tagList.value != null) {
+          tagList.value.sort()
+        }
       }
     };
 
@@ -176,6 +179,7 @@ export default defineComponent({
 });
 </script>
 
+// TODO Remove
 <style lang="sass">
 .tag-management-container
   background-color: #f8f9fa

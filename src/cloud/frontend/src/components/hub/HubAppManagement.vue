@@ -83,6 +83,7 @@ export default defineComponent({
       const response = await doRequest("/apps/get-list", null)
       if (response != null) {
         appList.value = response.data as string[];
+        appList.value.sort()
       }
     };
 
