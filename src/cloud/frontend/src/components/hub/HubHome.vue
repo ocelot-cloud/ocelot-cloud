@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="container mt-5 col-lg-6 col-md-8 col-sm-10 bg-dark p-4 rounded shadow-sm">
+  <div class="container mt-5 col-lg-6 col-md-8 col-sm-10 bg-dark p-4 rounded shadow-sm">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="text-light">Ocelot Hub</h3>
       <div class="d-flex align-items-center">
