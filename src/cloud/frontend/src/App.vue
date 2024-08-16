@@ -74,7 +74,7 @@ input:-webkit-autofill:active
     background-color: $primary-color !important
     color: $text-light !important
 
-// Custom container for app management
+// Custom container for management sections
 .tag-management-container, .hub-management-container
   padding: 20px
   margin: 20px

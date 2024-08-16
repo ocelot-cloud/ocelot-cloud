@@ -1,35 +1,38 @@
 <template>
-  <div v-if="!isEditingTags">
-    <h4 >App Management</h4>
-    <div class="d-flex justify-content-center mb-3">
-      <div class="col-6">
-        <input id="input-app" v-model="newAppToCreate" class="form-control" placeholder="Name of New App" required />
+  <div class="hub-management-container p-4 shadow-sm bg-dark rounded">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4>App Management</h4>
+      <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
+    </div>
+
+    <div class="input-group mb-4">
+      <input id="input-app" v-model="newAppToCreate" class="form-control" placeholder="Name of New App" required />
+    </div>
+
+    <div class="app-list-section mb-4">
+      <h4>App List</h4>
+      <p v-if="!appList || appList.length === 0">(No apps created yet)</p>
+
+      <div class="d-flex justify-content-center">
+        <ul id="app-list" class="list-group w-100">
+          <li
+              v-for="(app, index) in appList"
+              :key="app"
+              class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
+              :class="{ active: selectedApp === app }"
+              @click="selectApp(app)"
+              style="cursor: pointer;"
+          >
+            <span>{{ index + 1 }}) {{ app }}</span>
+            <i v-if="selectedApp === app" class="bi bi-check-circle-fill text-success"></i>
+          </li>
+        </ul>
       </div>
     </div>
-    <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
-    <br>
-    <br>
-    <h4>App List</h4>
-    <p v-if="appList == null"> (no apps created yet) </p>
-    <div class="d-flex justify-content-center">
-      <ul id="app-list" class="list-group">
-        <li
-            v-for="(app, index) in appList"
-            :key="app"
-            class="list-group-item"
-            :class="{ active: selectedApp === app }"
-            @click="selectApp(app)"
-            style="cursor: pointer;"
-        >
-          {{ index + 1 }}) {{ app }}
-        </li>
-      </ul>
-    </div>
-    <br>
-    <div v-if="appList != null && selectedApp != ''">
-      <h4>App Operations</h4>
+
+    <div v-if="appList && selectedApp" class="app-operations d-flex justify-content-end">
       <button id="button-edit-tags" @click="goToTagManagement()" class="btn btn-warning me-2">Edit Tags</button>
-      <button id="button-delete-app" @click="showDeleteConfirmation = true" class="btn btn-danger ms-2">Delete</button>
+      <button id="button-delete-app" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
     </div>
   </div>
 
@@ -37,14 +40,13 @@
       v-model:visible="showDeleteConfirmation"
       :on-confirm="deleteApp"
       messageSuffix="this app?"
-  ></HubDeletionConfirmationDialog>
+  />
 </template>
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from "vue";
 import router from "@/router";
 import {doRequest, session} from "@/components/hub/shared";
-import axios from "axios";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
 export default defineComponent({
