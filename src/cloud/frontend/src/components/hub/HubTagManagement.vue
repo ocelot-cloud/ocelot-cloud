@@ -122,7 +122,7 @@ export default defineComponent({
     const getTags = async () => {
       const url = 'http://localhost:8082';
       try {
-        let userAndApp = { user, app } // TODO Can be shortened I guess
+        let userAndApp = { user, app }
         const response = await axios.post(url + '/tags/get-tags', userAndApp);
         if (response.status === 200) {
           tagList.value = response.data as string[];
@@ -144,6 +144,7 @@ export default defineComponent({
       } catch (error) {
         console.log("todo")
       }
+      showDeleteConfirmation.value = false
     }
 
     const downloadTag = async () => {
