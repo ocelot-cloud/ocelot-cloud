@@ -4,14 +4,16 @@
 
   <p>App is: {{ app }}</p>
 
-  <div>
-    <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
-    <div
-        id="drag-and-drop-area"
-        class="drop-zone"
-        @dragover.prevent
-    >
-      Drag and drop your file here
+  <div class="d-flex justify-content-center mb-3">
+    <div class="col-6">
+      <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
+      <div
+          id="drag-and-drop-area"
+          class="drop-zone"
+          @dragover.prevent
+      >
+        Drag and drop your file here
+      </div>
     </div>
   </div>
 
@@ -35,7 +37,6 @@
   <br>
   <div v-if="tagList != null && selectedTag != ''">
     <h4>App Operations</h4>
-    <!-- TODO There should be a confirmation dialog previously -->
     <button id="button-download-tag" @click="downloadTag" class="btn btn-primary ms-2">Download</button>
     <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger ms-2">Delete</button>
   </div>
