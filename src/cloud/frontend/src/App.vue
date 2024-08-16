@@ -43,7 +43,7 @@ p, h1, h2, h3, h4, h5, h6, label, input, span, .dropdown-item, li, a
   color: $text-light !important
 
 input::placeholder
-  color: $text-muted !important
+  color: $secondary !important
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
