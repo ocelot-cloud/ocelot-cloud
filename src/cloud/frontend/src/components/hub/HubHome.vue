@@ -49,7 +49,7 @@ export default defineComponent({
     };
 
     const deleteAccount = async () => {
-      await doRequest("DELETE", "/user", null)
+      await doRequest("POST", "/user", null)
       user.value = "";
       redirectToLogin();
     };

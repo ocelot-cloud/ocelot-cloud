@@ -14,11 +14,7 @@ export async function doRequest(method: string, path: string, data: any) {
     const baseUrl = 'http://localhost:8082';
 
     try {
-        const response = await axios.request({
-            method,
-            url: baseUrl + path,
-            data: data,
-        });
+        const response = await axios.post(baseUrl + path, data);
         if (response.status !== 200) {
             throw new Error(response.data);
         }

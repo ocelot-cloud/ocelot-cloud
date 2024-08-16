@@ -167,11 +167,6 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		handleInvalidRequestMethod(w, r, userDeletePath)
-		return
-	}
-
 	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
