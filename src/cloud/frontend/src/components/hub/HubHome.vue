@@ -43,13 +43,13 @@ export default defineComponent({
     const showDeleteConfirmation = ref(false);
 
     const logout = async () => {
-      await doRequest("GET", "/logout", null)
+      await doRequest("/logout", null)
       user.value = "";
       redirectToLogin();
     };
 
     const deleteAccount = async () => {
-      await doRequest("POST", "/user", null)
+      await doRequest("/user", null)
       user.value = "";
       redirectToLogin();
     };

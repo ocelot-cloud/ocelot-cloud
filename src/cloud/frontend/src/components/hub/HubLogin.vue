@@ -38,7 +38,7 @@ export default defineComponent({
 
     const login = async () => {
       const loginForm = { user: user.value, password: password.value, origin: window.origin };
-      await doRequest("POST", "/login", loginForm)
+      await doRequest("/login", loginForm)
       router.push('/hub');
     };
 

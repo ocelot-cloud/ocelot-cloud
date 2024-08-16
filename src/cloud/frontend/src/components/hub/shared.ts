@@ -10,7 +10,7 @@ export const session = {
     isAuthenticated: false,
 };
 
-export async function doRequest(method: string, path: string, data: any) {
+export async function doRequest(path: string, data: any) {
     const baseUrl = 'http://localhost:8082';
 
     try {

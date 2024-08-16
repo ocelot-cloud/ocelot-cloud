@@ -39,7 +39,7 @@ export default defineComponent({
 
     const register = async () => {
       const registrationForm = { user: user.value, password: password.value, origin: window.location.origin, email: email.value };
-      await doRequest("POST", "/registration", registrationForm)
+      await doRequest("/registration", registrationForm)
       router.push('/hub/login');
     };
 
