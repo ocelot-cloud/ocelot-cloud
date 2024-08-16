@@ -168,6 +168,6 @@ function login() {
 // TODO extract App Management Component
 // TODO deleting apps should be confirmed
 // TODO Tidy up the frontend code, abstract duplications
-// TODO Display error from response as alert message
+// TODO Display error from backend response as alert message
 // TODO Make GUI pretty
 // TODO Input validation

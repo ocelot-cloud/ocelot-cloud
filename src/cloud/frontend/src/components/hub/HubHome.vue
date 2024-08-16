@@ -39,8 +39,6 @@
   </div>
 </template>
 
-TODO Clicking on a selected app should unselect it.
-
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from "axios";
@@ -48,9 +46,6 @@ import router from "@/router";
 import {session} from "@/components/hub/shared";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 
-// TODO If app list is empty, then show an according message
-// TODO Select an app and then click on delete, easier to do
-// TODO Integrate error messages. Abstract the duplicate logic.
 export default defineComponent({
   name: 'HubComponent',
   components: {HubAppManagement},
@@ -58,8 +53,6 @@ export default defineComponent({
   setup() {
     const user = ref<string>("");
     const showDeleteConfirmation = ref(false);
-
-    // TODO App Management should be put to separate files/components and be imported here.
 
     const logout = async () => {
       try {
@@ -124,5 +117,3 @@ TODO: Hub
 TODO: Cloud
 * FindApps
 * DownloadTag
-
-TODO: Input validation in frontend, so that user know why their input is not accepted
