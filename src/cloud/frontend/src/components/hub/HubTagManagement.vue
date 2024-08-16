@@ -134,7 +134,7 @@ export default defineComponent({
     };
 
     const deleteTag = async () => {
-      await doRequest("/tags", {app, tag: selectedTag.value})
+      await doRequest("/tags/delete", {app, tag: selectedTag.value})
       await getTags()
       showDeleteConfirmation.value = false
     }
