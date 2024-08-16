@@ -1,6 +1,8 @@
 import router from "@/router";
 import axios, {AxiosResponse} from "axios";
 
+export const baseUrl = 'http://localhost:8082';
+
 export function goToHubPage(path: string) {
     router.push('/hub' + path)
 }
@@ -20,8 +22,6 @@ export function alertError(error: any) {
 }
 
 export async function doRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
-    const baseUrl = 'http://localhost:8082';
-
     try {
         const response = await axios.post(baseUrl + path, data);
         if (response.status !== 200) {
