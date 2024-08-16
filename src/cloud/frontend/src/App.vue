@@ -52,14 +52,14 @@ input:-webkit-autofill:active
   -webkit-box-shadow: 0 0 0 30px $background-color inset !important
   -webkit-text-fill-color: $text-light !important
 
+.dropdown-menu li
+  cursor: pointer
+
 .dropdown-menu, .modal-content
   border: 1px solid $secondary-color !important
 
 .dropdown-item:hover
   background-color: darken($secondary-background-color, 5%) !important
-
-.btn-close
-  background-color: $text-light !important
 
 .list-group-item
   border: none !important
