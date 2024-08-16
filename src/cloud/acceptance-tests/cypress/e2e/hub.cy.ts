@@ -124,7 +124,7 @@ describe('Hub Operations', () => {
         cy.get('#button-delete-cancel').should('not.exist');
         cy.get('#button-delete-confirmation').should('not.exist');
 
-        cy.get('#tag-list').find("li").should('have.text', '1) 1.4').click()
+        cy.get('#tag-list').find("li").should('have.text', '1.4').click()
 
         cy.get('#tag-list').find('li').should('have.length', 1);
         cy.get('#button-download-tag').should('exist')
