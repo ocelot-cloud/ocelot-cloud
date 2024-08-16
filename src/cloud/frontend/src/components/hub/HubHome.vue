@@ -31,7 +31,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import axios from "axios";
 import router from "@/router";
-import {session} from "@/components/hub/shared";
+import {doRequest, session} from "@/components/hub/shared";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
@@ -44,14 +44,9 @@ export default defineComponent({
     const showDeleteConfirmation = ref(false);
 
     const logout = async () => {
-      try {
-        const url = 'http://localhost:8082';
-        await axios.get(url + "/logout");
-        user.value = "";
-        redirectToLogin();
-      } catch (error) {
-        alert(error);
-      }
+      await doRequest("GET", "/logout", null)
+      user.value = "";
+      redirectToLogin();
     };
 
     const deleteAccount = async () => {
