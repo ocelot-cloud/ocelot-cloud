@@ -232,7 +232,7 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 }
 
 func (h *HubClient) GetApps() ([]string, error) {
-	result, err := h.doRequest(appPath, nil, "", "GET")
+	result, err := h.doRequest(appGetListPath, nil, "", "POST")
 	if err != nil {
 		return nil, err
 	}

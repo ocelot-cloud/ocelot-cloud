@@ -80,15 +80,9 @@ export default defineComponent({
     };
 
     const getApps = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        const response = await axios.get(url + '/apps');
-        if (response.status === 200) {
-          appList.value = response.data as string[];
-          console.log("received apps: ", appList.value)
-        }
-      } catch (error) {
-        console.log("todo")
+      const response = await doRequest("/apps/get-list", null)
+      if (response != null) {
+        appList.value = response.data as string[];
       }
     };
 

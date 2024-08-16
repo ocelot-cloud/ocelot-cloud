@@ -5,9 +5,7 @@ import (
 )
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		getAppList(w, r)
-	} else if r.Method == http.MethodPost {
+	if r.Method == http.MethodPost {
 		createApp(w, r)
 	} else if r.Method == http.MethodDelete {
 		handleDeleteApp(w, r)
@@ -16,6 +14,10 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func appGetListHandler(w http.ResponseWriter, r *http.Request) {
+	getAppList(w, r) // TODO
 }
 
 func handleDeleteApp(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,5 @@
 import router from "@/router";
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 
 export function goToHubPage(path: string) {
     router.push('/hub' + path)
@@ -10,7 +10,7 @@ export const session = {
     isAuthenticated: false,
 };
 
-export async function doRequest(path: string, data: any) {
+export async function doRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
     const baseUrl = 'http://localhost:8082';
 
     try {
@@ -18,6 +18,7 @@ export async function doRequest(path: string, data: any) {
         if (response.status !== 200) {
             throw new Error(response.data);
         }
+        return response
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
             const errorMessage = error.response.data || 'An unknown error occurred';
@@ -25,5 +26,6 @@ export async function doRequest(path: string, data: any) {
         } else {
             alert('An unknown error occurred');
         }
+        return null
     }
 }
