@@ -118,18 +118,10 @@ export default defineComponent({
       reader.readAsArrayBuffer(file); // Trigger reading the file as an ArrayBuffer
     };
 
-    // TODO abstract all request logic, like doRequest("POST", body, path), if request fails, then print message from response in alert
     const getTags = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        let userAndApp = { user, app }
-        const response = await axios.post(url + '/tags/get-tags', userAndApp);
-        if (response.status === 200) {
-          tagList.value = response.data as string[];
-          console.log("received tags: ", tagList.value)
-        }
-      } catch (error) {
-        console.log("todo")
+      const response = await doRequest("/tags/get-tags", { user, app })
+      if (response != null) {
+        tagList.value = response.data as string[];
       }
     };
 
