@@ -1,19 +1,41 @@
 <template>
-  <div class="popup-content container my-4">
+  <div class="container my-5">
     <div class="row justify-content-center">
-      <div class="col-lg-6 col-md-8 col-sm-10">
-        <h3>Ocelot Hub</h3>
-        <form @submit.prevent="changePassword" class="p-4 border rounded shadow-sm">
-          <div class="mb-3">
-            <input v-model="oldPassword" id="old_password" type="password" class="form-control" placeholder="Old Password" required />
-          </div>
-          <div class="mb-3">
-            <input v-model="newPassword" id="new_password" type="password" class="form-control" placeholder="New Password" required />
-          </div>
-          <button type="submit" class="btn btn-primary">Change Password</button>
-        </form>
-        <br>
-        <p>Back to <a @click.prevent="redirectToHubHomePage" href="#">Hub home page</a>.</p>
+      <div class="col-lg-5 col-md-7 col-sm-9">
+        <div class="hub-management-container p-4 shadow-sm bg-dark rounded">
+          <h3 class="text-center mb-4">Change Password</h3>
+          <form @submit.prevent="changePassword" class="p-4">
+            <div class="mb-3">
+              <input
+                  v-model="oldPassword"
+                  id="old_password"
+                  type="password"
+                  class="form-control"
+                  placeholder="Old Password"
+                  required
+              />
+            </div>
+            <div class="mb-3">
+              <input
+                  v-model="newPassword"
+                  id="new_password"
+                  type="password"
+                  class="form-control"
+                  placeholder="New Password"
+                  required
+              />
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Change Password</button>
+            </div>
+          </form>
+          <p class="text-center mt-3">
+            Back to
+            <a @click.prevent="redirectToHubHomePage" href="#" class="text-primary">
+              Hub home page
+            </a>.
+          </p>
+        </div>
       </div>
     </div>
   </div>

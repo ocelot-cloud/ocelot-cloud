@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-5 col-md-7 col-sm-9">
         <div class="hub-management-container p-4 shadow-sm bg-dark rounded">
-          <h3 class="text-center mb-4">Ocelot Hub Login</h3>
+          <h3 class="text-center mb-4">Login</h3>
           <form @submit.prevent="login" class="p-4">
             <div class="mb-3">
               <input
