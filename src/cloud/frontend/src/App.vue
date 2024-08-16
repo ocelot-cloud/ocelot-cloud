@@ -36,9 +36,8 @@ html, body, input, .form-control, .modal-content, .dropdown-menu
   font-family: Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
-  text-align: center
+  text-align: left
   color: $text-light
-  margin-top: 60px
 
 p, h1, h2, h3, h4, h5, h6, label, input, span, .dropdown-item, li
   color: $text-light !important
@@ -62,15 +61,6 @@ input:-webkit-autofill:active
 .btn-close
   background-color: $text-light !important
 
-#drag-and-drop-area
-  border: 2px dashed $secondary-color
-  padding: 30px
-  text-align: center
-  transition: background-color 0.3s ease
-
-  &:hover
-    background-color: darken($secondary-background-color, 5%)
-
 .list-group-item
   border: none !important
   padding: 0.5rem 1rem !important
@@ -84,8 +74,11 @@ input:-webkit-autofill:active
     background-color: $primary-color !important
     color: $text-light !important
 
-.tag-management-container
+// Custom container for app management
+.tag-management-container, .hub-management-container
   padding: 20px
   margin: 20px
+  background-color: $secondary-background-color
+  border-radius: 8px
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5)
 </style>
-

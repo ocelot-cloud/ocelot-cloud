@@ -1,29 +1,30 @@
 <template>
-  <div id="app" class="container mt-5 col-lg-6 col-md-8 col-sm-10">
-    <h3>Ocelot Hub</h3>
-    <div class="d-flex justify-content-end align-items-center mb-3">
-      <span class="me-2" id="user-label">Logged in as: {{ user }}</span>
-      <button style="margin-right: 5px" type="button" class="btn btn-primary" @click="visitCloud">Back to Cloud</button>
-      <div id="dropdown" class="dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-cog"></i>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
-          <li id="button-logout" class="dropdown-item" @click="logout">Logout</li>
-          <li id="button-change-password" class="dropdown-item" @click="redirectToChangePassword">Change Password</li>
-          <li id="button-delete-account" class="dropdown-item text-danger" @click="showDeleteConfirmation = true">Delete Account</li>
-        </ul>
+  <div id="app" class="container mt-5 col-lg-6 col-md-8 col-sm-10 bg-dark p-4 rounded shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="text-light">Ocelot Hub</h3>
+      <div class="d-flex align-items-center">
+        <span class="me-3 text-light" id="user-label">Logged in as: <strong>{{ user }}</strong></span>
+        <button type="button" class="btn btn-secondary me-2" @click="visitCloud">Back to Cloud</button>
+        <div id="dropdown" class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-cog"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+            <li id="button-logout" class="dropdown-item" @click="logout">Logout</li>
+            <li id="button-change-password" class="dropdown-item" @click="redirectToChangePassword">Change Password</li>
+            <li id="button-delete-account" class="dropdown-item text-danger" @click="showDeleteConfirmation = true">Delete Account</li>
+          </ul>
+        </div>
       </div>
     </div>
-    <br>
 
-    <HubAppManagement></HubAppManagement>
+    <HubAppManagement />
 
     <HubDeletionConfirmationDialog
         v-model:visible="showDeleteConfirmation"
         :on-confirm="deleteAccount"
         messageSuffix="your account?"
-    ></HubDeletionConfirmationDialog>
+    />
   </div>
 </template>
 
