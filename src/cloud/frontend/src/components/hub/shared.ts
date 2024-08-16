@@ -6,5 +6,5 @@ export function goToHubPage(path: string) {
 
 export const session = {
     user: "",
-    isAuthenticated: false
+    isAuthenticated: false,
 };
