@@ -125,11 +125,9 @@ export default defineComponent({
     }
 
     const downloadTag = async () => {
-      const url = 'http://localhost:8082';
-
       try {
-        const response = await axios.post(url + '/tags/', { user, app, tag: selectedTag.value });
-        if (response.status === 200) {
+        const response = await doRequest("/tags/", { user, app, tag: selectedTag.value })
+        if (response != null) {
           const blob = new Blob([response.data], { type: 'application/gzip' });
           const downloadUrl = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
