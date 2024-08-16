@@ -87,13 +87,8 @@ export default defineComponent({
     };
 
     const deleteApp = async () => {
-      try {
-        const url = 'http://localhost:8082';
-        await axios.delete(url + '/apps', {data: { value: selectedApp.value }});
-        user.value = "";
-      } catch (error) {
-        alert(error);
-      }
+      doRequest("/apps/delete", { value: selectedApp.value })
+      user.value = ""; // TODO why?
       selectedApp.value = ""
       await getApps()
       showDeleteConfirmation.value = false
