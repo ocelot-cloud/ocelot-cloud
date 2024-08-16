@@ -25,7 +25,7 @@
       <h4>Tag List</h4>
       <p v-if="tagList == null || tagList.length == 0" class="text-muted">(No tags created yet)</p>
 
-      <div v-else class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center">
         <ul id="tag-list" class="list-group w-50">
           <li
               v-for="(tag, index) in tagList"
