@@ -62,7 +62,7 @@ func validate(input string, validationType ValidationType) error {
 		} else {
 			Logger.Warn("input validation failed for validation type '%s' with input '%s'", getValidationTypeString(validationType), input)
 		}
-		return fmt.Errorf("invalid signs or formatting of field: %s", getValidationTypeString(validationType))
+		return fmt.Errorf("invalid signs or length of field: %s", getValidationTypeString(validationType))
 	} else {
 		return nil
 	}
