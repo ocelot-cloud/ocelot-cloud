@@ -63,8 +63,6 @@ input:-webkit-autofill:active
 
 .list-group-item
   border: none !important
-  padding: 0.5rem 1rem !important
-  text-align: left !important
   transition: background-color 0.3s ease
 
   &:hover
@@ -74,7 +72,6 @@ input:-webkit-autofill:active
     background-color: $primary-color !important
     color: $text-light !important
 
-// Custom container for management sections
 .tag-management-container, .hub-management-container
   padding: 20px
   margin: 20px
@@ -82,14 +79,7 @@ input:-webkit-autofill:active
   border-radius: 8px
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5)
 
-.modal-header, .modal-footer
-  background-color: $secondary-background-color !important
+.modal-header, .modal-footer, .modal-body
   border-bottom: none !important
   border-top: none !important
-
-.modal-header .btn-close
-  filter: invert(1)
-
-.modal-body
-  background-color: lighten($secondary-background-color, 5%) !important
 </style>
