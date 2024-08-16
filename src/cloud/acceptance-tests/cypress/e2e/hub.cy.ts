@@ -47,6 +47,14 @@ function deleteApp() {
     });
     cy.get('#app-list').find('li').click()
     cy.get('#button-delete-app').click();
+    cy.get('#button-delete-confirmation').click();
+}
+
+function startToDeleteAppButCancel() {
+    cy.get('#app-list').find('li').click()
+    cy.get('#button-delete-app').click();
+    cy.get('#button-delete-cancel').click();
+    cy.get('#app-list').find('li').click()
 }
 
 describe('Hub Operations', () => {
@@ -73,6 +81,7 @@ describe('Hub Operations', () => {
         assertIsAppSelected(true)
         clickOnApp()
         assertIsAppSelected(false)
+        startToDeleteAppButCancel()
         deleteApp()
         assertEmptyAppList();
     });

@@ -30,7 +30,25 @@
       <h4>App Operations</h4>
       <button id="button-edit-tags" @click="goToTagManagement()" class="btn btn-warning me-2">Edit Tags</button>
       <!-- TODO There should be a confirmation dialog previously -->
-      <button id="button-delete-app" @click="deleteApp" class="btn btn-danger ms-2">Delete</button>
+      <button id="button-delete-app" @click="showDeleteConfirmation = true" class="btn btn-danger ms-2">Delete</button>
+    </div>
+  </div>
+
+  <div v-if="showDeleteConfirmation" class="modal fade show" style="display: block;" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Account Deletion</h5>
+          <button type="button" class="btn-close" @click="showDeleteConfirmation = false" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete your account?</p>
+        </div>
+        <div class="modal-footer">
+          <button id="button-delete-cancel" type="button" class="btn btn-secondary" @click="showDeleteConfirmation = false">Cancel</button>
+          <button id="button-delete-confirmation" type="button" class="btn btn-danger" @click="confirmDeleteAccount">Confirm</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -46,10 +64,11 @@ export default defineComponent({
 
   setup() {
     const user = ref("");
+    const showDeleteConfirmation = ref(false);
     const newAppToCreate = ref('');
     const appList = ref<string[]>([]);
-    const selectedApp = ref<string>("");
-    const isEditingTags = ref<boolean>(false);
+    const selectedApp = ref("");
+    const isEditingTags = ref(false);
 
     const selectApp = (app: string) => {
       if (selectedApp.value == app) {
@@ -75,18 +94,6 @@ export default defineComponent({
       await getApps()
     };
 
-    const deleteApp = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        await axios.delete(url + '/apps', {data: { value: selectedApp.value }});
-      } catch (error) {
-        // TODO correctly interpret error, so that backend message is displayed.
-        alert("app deletion error: " + error)
-      }
-      selectedApp.value = ""
-      await getApps()
-    };
-
     const getApps = async () => {
       const url = 'http://localhost:8082';
       try {
@@ -98,6 +105,23 @@ export default defineComponent({
       } catch (error) {
         console.log("todo")
       }
+    };
+
+    const deleteApp = async () => {
+      try {
+        const url = 'http://localhost:8082';
+        await axios.delete(url + '/apps', {data: { value: selectedApp.value }});
+        user.value = "";
+      } catch (error) {
+        alert(error);
+      }
+      selectedApp.value = ""
+      await getApps()
+    };
+
+    const confirmDeleteAccount = async () => {
+      showDeleteConfirmation.value = false;
+      await deleteApp();
     };
 
     onMounted(() => {
@@ -113,7 +137,9 @@ export default defineComponent({
       selectApp,
       goToTagManagement,
       createApp,
-      deleteApp
+      deleteApp,
+      confirmDeleteAccount,
+      showDeleteConfirmation
     }
   },
 })
