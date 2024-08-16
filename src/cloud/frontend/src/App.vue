@@ -39,7 +39,7 @@ html, body, input, .form-control, .modal-content, .dropdown-menu
   text-align: left
   color: $text-light
 
-p, h1, h2, h3, h4, h5, h6, label, input, span, .dropdown-item, li
+p, h1, h2, h3, h4, h5, h6, label, input, span, .dropdown-item, li, a
   color: $text-light !important
 
 input::placeholder
