@@ -76,13 +76,12 @@ export default defineComponent({
     // TODO There should be bright styling when hover the drag and drop area with a file
     const uploadFile = (file: File) => {
       const suffix = '.tar.gz';
-
       if (!file.name.endsWith(suffix)) {
         alert(`The file must have a ${suffix} suffix.`);
         return;
       }
-      const tag = file.name.slice(0, -suffix.length);
 
+      const tag = file.name.slice(0, -suffix.length);
       const reader = new FileReader();
       reader.onload = async (event) => {
         const content = btoa(
@@ -97,8 +96,7 @@ export default defineComponent({
       reader.onerror = () => {
         console.error('Error reading file');
       };
-
-      reader.readAsArrayBuffer(file); // Trigger reading the file as an ArrayBuffer
+      reader.readAsArrayBuffer(file);
     };
 
     const getTags = async () => {
