@@ -9,6 +9,8 @@ function cancelAccountDeletion() {
     cy.get('#dropdown').click();
     cy.get('#button-delete-account').click();
     cy.get('#button-delete-cancel').click();
+    cy.get('#button-delete-cancel').should('not.exist');
+    cy.get('#button-delete-confirmation').should('not.exist');
     cy.url().should('eq', 'http://localhost:8081/hub');
 }
 
@@ -16,6 +18,8 @@ function executeAccountDeletion() {
     cy.get('#dropdown').click();
     cy.get('#button-delete-account').click();
     cy.get('#button-delete-confirmation').click();
+    cy.get('#button-delete-cancel').should('not.exist');
+    cy.get('#button-delete-confirmation').should('not.exist');
     cy.url().should('eq', 'http://localhost:8081/hub/login');
 }
 
@@ -48,12 +52,16 @@ function deleteApp() {
     cy.get('#app-list').find('li').click()
     cy.get('#button-delete-app').click();
     cy.get('#button-delete-confirmation').click();
+    cy.get('#button-delete-cancel').should('not.exist');
+    cy.get('#button-delete-confirmation').should('not.exist');
 }
 
 function startToDeleteAppButCancel() {
     cy.get('#app-list').find('li').click()
     cy.get('#button-delete-app').click();
     cy.get('#button-delete-cancel').click();
+    cy.get('#button-delete-cancel').should('not.exist');
+    cy.get('#button-delete-confirmation').should('not.exist');
     cy.get('#app-list').find('li').click()
 }
 
@@ -107,6 +115,8 @@ describe('Hub Operations', () => {
         cy.get('#tag-list').find('li').should('have.length', 1);
         cy.get('#button-download-tag').should('not.exist')
         cy.get('#button-delete-tag').should('not.exist')
+        cy.get('#button-delete-cancel').should('not.exist');
+        cy.get('#button-delete-confirmation').should('not.exist');
 
         cy.get('#tag-list').find("li").should('have.text', '1) 1.4').click()
 
