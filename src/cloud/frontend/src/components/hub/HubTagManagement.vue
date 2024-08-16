@@ -29,14 +29,14 @@
         <div class="d-flex justify-content-center">
           <ul id="tag-list" class="list-group w-100">
             <li
-                v-for="(tag, index) in tagList"
+                v-for="tag in tagList"
                 :key="tag"
                 class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
                 :class="{ active: selectedTag === tag }"
                 @click="selectTag(tag)"
                 style="cursor: pointer;"
             >
-              <span>{{ index + 1 }}) {{ tag }}</span>
+              <span>{{ tag }}</span>
               <i v-if="selectedTag === tag" class="bi bi-check-circle-fill text-success"></i>
             </li>
           </ul>

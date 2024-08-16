@@ -16,14 +16,14 @@
       <div class="d-flex justify-content-center">
         <ul id="app-list" class="list-group w-100">
           <li
-              v-for="(app, index) in appList"
+              v-for="app in appList"
               :key="app"
               class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
               :class="{ active: selectedApp === app }"
               @click="selectApp(app)"
               style="cursor: pointer;"
           >
-            <span>{{ index + 1 }}) {{ app }}</span>
+            <span>{{ app }}</span>
             <i v-if="selectedApp === app" class="bi bi-check-circle-fill text-success"></i>
           </li>
         </ul>
@@ -31,7 +31,7 @@
     </div>
 
     <div v-if="appList && selectedApp" class="app-operations d-flex justify-content-end">
-      <button id="button-edit-tags" @click="goToTagManagement()" class="btn btn-warning me-2">Edit Tags</button>
+      <button id="button-edit-tags" @click="goToTagManagement()" class="btn btn-primary me-2">Edit Tags</button>
       <button id="button-delete-app" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
     </div>
   </div>

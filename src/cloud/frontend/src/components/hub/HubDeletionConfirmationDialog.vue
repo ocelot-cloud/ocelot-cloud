@@ -4,7 +4,6 @@
       <div class="modal-content">
         <div class="modal-header bg-dark text-light">
           <h5 class="modal-title">Deletion Confirmation</h5>
-          <button type="button" class="btn-close btn-close-white" @click="closeModal"></button>
         </div>
         <div class="modal-body bg-dark text-light">
           <p>Are you sure you want to delete {{ messageSuffix }}</p>
