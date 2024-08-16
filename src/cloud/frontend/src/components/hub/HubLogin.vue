@@ -65,7 +65,6 @@ export default defineComponent({
   setup() {
     const user = ref('');
     const password = ref('');
-    const router = useRouter();
 
     const login = async () => {
       const loginForm = { user: user.value, password: password.value, origin: window.origin };
