@@ -33,7 +33,7 @@ func main() {
 
 	mux.HandleFunc(appPath, appHandler)
 	mux.HandleFunc(searchAppsPath, searchAppsHandler)
-	mux.HandleFunc(userPath, userHandler)
+	mux.HandleFunc(userDeletePath, userDeleteHandler)
 	mux.HandleFunc(logoutPath, logoutHandler)
 	mux.HandleFunc(loginPath, loginHandler)
 	mux.HandleFunc(authCheckPath, authCheckHandler)

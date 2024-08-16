@@ -40,7 +40,8 @@ var cleanCmd = &cobra.Command{
 }
 
 var hubTestTypes = map[string]func(){
-	"fast":       func() { src.TestHubUnits() },
+	"unit":       func() { src.TestHubUnits() },
+	"backend":    func() { src.TestHubBackend() },
 	"acceptance": func() { src.TestHubAcceptance() },
 	"all":        func() { src.TestHubAll() },
 }
@@ -94,7 +95,7 @@ var ciCmd = &cobra.Command{
 // TODO There are flags for every command, even though they have no effect.
 
 var hubCmd = &cobra.Command{
-	Use:   "hub [fast/acceptance/all]",
+	Use:   "hub [" + strings.Join(getKeys(hubTestTypes), "/") + "]",
 	Short: "Run hub-related tests",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

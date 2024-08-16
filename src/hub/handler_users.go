@@ -72,21 +72,12 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		sendJsonResponse(w, SingleString{user})
 	} else {
-		handleInvalidRequestMethod(w, r, userPath)
+		handleInvalidRequestMethod(w, r, userDeletePath)
 		return
 	}
 }
 
-func userHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodDelete {
-		deleteReceivedUser(w, r)
-	} else {
-		handleInvalidRequestMethod(w, r, userPath)
-		return
-	}
-}
-
-func deleteReceivedUser(w http.ResponseWriter, r *http.Request) {
+func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
@@ -136,7 +127,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		handleInvalidRequestMethod(w, r, userPath)
+		handleInvalidRequestMethod(w, r, userDeletePath)
 		return
 	}
 
@@ -177,7 +168,7 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		handleInvalidRequestMethod(w, r, userPath)
+		handleInvalidRequestMethod(w, r, userDeletePath)
 		return
 	}
 

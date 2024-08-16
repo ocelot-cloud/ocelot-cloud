@@ -13,7 +13,7 @@ var (
 	tagPath            = "/tags"
 	getTagsPath        = tagPath + "/get-tags"
 	downloadPath       = tagPath + "/"
-	userPath           = "/user"
+	userDeletePath     = "/user"
 	logoutPath         = "/logout"
 	appPath            = "/apps"
 	searchAppsPath     = "/apps/search"
@@ -24,7 +24,7 @@ var (
 	port               = "8082"
 	rootUrl            = "http://localhost:" + port
 	cookieName         = "auth"
-	changePasswordPath = userPath + "/password"
+	changePasswordPath = userDeletePath + "/password"
 	profile            = getProfile()
 )
 
