@@ -100,15 +100,8 @@ export default defineComponent({
         );
         const tagUpload = {app, tag, content};
 
-        try {
-          const response = await axios.post('http://localhost:8082/tags', tagUpload);
-          if (response.status === 200) {
-            console.log('File uploaded successfully');
-          }
-          await getTags()
-        } catch (error) {
-          console.error('Error uploading file:', error);
-        }
+        await doRequest("/tags", tagUpload)
+        getTags()
       };
 
       reader.onerror = () => {
