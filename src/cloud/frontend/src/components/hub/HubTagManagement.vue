@@ -1,53 +1,60 @@
 <template>
-  <h4>Tag Management</h4>
-  <button id="button-back-to-app" class="btn btn-secondary" @click="goToHubPage('/')">Back to App Management</button>
+  <div class="tag-management-container p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4>Tag Management</h4>
+      <button id="button-back-to-app" class="btn btn-secondary" @click="goToHubPage('/')">Back to App Management</button>
+    </div>
 
-  <p>App is: {{ app }}</p>
+    <div class="app-info mb-3">
+      <p class="mb-1">App: <strong>{{ app }}</strong></p>
+    </div>
 
-  <div class="d-flex justify-content-center mb-3">
-    <div class="col-6">
+    <div class="file-upload-area mb-4">
       <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" />
       <div
           id="drag-and-drop-area"
-          class="drop-zone"
+          class="drop-zone d-flex justify-content-center align-items-center"
           @dragover.prevent
           @drop.prevent="handleDrop"
       >
-        Drag and drop your file here
+        <p class="m-0">Drag and drop your file here</p>
       </div>
     </div>
-  </div>
 
-  <h4>Tag List</h4>
-  <p v-if="tagList == null || tagList.length == 0"> (no apps created yet) </p>
+    <div class="tag-list-section mb-4">
+      <h4>Tag List</h4>
+      <p v-if="tagList == null || tagList.length == 0" class="text-muted">(No tags created yet)</p>
 
-  <div class="d-flex justify-content-center">
-    <ul id="tag-list" class="list-group">
-      <li
-          v-for="(tag, index) in tagList"
-          :key="tag"
-          class="list-group-item"
-          :class="{ active: selectedTag === tag }"
-          @click="selectTag(tag)"
-          style="cursor: pointer;"
-      >
-        {{ index + 1 }}) {{ tag }}
-      </li>
-    </ul>
-  </div>
-  <br>
-  <div v-if="tagList != null && selectedTag != ''">
-    <h4>App Operations</h4>
-    <button id="button-download-tag" @click="downloadTag" class="btn btn-primary ms-2">Download</button>
-    <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger ms-2">Delete</button>
-  </div>
+      <div v-else class="d-flex justify-content-center">
+        <ul id="tag-list" class="list-group w-50">
+          <li
+              v-for="(tag, index) in tagList"
+              :key="tag"
+              class="list-group-item d-flex justify-content-between align-items-center"
+              :class="{ active: selectedTag === tag }"
+              @click="selectTag(tag)"
+              style="cursor: pointer;"
+          >
+            <span>{{ index + 1 }}) {{ tag }}</span>
+            <i v-if="selectedTag === tag" class="bi bi-check-circle-fill text-success"></i>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-  <HubDeletionConfirmationDialog
-      v-model:visible="showDeleteConfirmation"
-      :on-confirm="deleteTag"
-      messageSuffix="this tag?"
-  ></HubDeletionConfirmationDialog>
+    <div v-if="tagList != null && selectedTag != ''" class="app-operations d-flex justify-content-end">
+      <button id="button-download-tag" @click="downloadTag" class="btn btn-primary me-2">Download</button>
+      <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
+    </div>
+
+    <HubDeletionConfirmationDialog
+        v-model:visible="showDeleteConfirmation"
+        :on-confirm="deleteTag"
+        messageSuffix="this tag?"
+    ></HubDeletionConfirmationDialog>
+  </div>
 </template>
+
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from 'vue';
@@ -166,3 +173,38 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="sass">
+.tag-management-container
+  background-color: #f8f9fa
+  border-radius: 8px
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1)
+
+.app-info
+  font-size: 1.1rem
+
+.file-upload-area
+  .drop-zone
+    width: 100%
+    height: 150px
+    border: 2px dashed #007bff
+    border-radius: 8px
+    color: #6c757d
+    transition: background-color 0.3s ease
+
+    &:hover
+      background-color: #e9ecef
+
+.tag-list-section
+  .list-group-item
+    transition: background-color 0.3s ease, color 0.3s ease
+
+    &.active
+      background-color: #007bff
+      color: white
+      font-weight: bold
+
+.app-operations
+  button
+    min-width: 100px
+</style>
