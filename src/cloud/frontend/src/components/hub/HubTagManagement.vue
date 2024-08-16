@@ -52,7 +52,7 @@
 import {defineComponent, onMounted, ref} from 'vue';
 import axios from "axios";
 import { useRoute } from 'vue-router';
-import {goToHubPage} from "@/components/hub/shared";
+import {doRequest, goToHubPage} from "@/components/hub/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
 export default defineComponent({
@@ -134,16 +134,8 @@ export default defineComponent({
     };
 
     const deleteTag = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        const response = await axios.delete(url + '/tags',  { data: {app, tag: selectedTag.value} });
-        if (response.status === 200) {
-          await getTags()
-          console.log("received tags: ", tagList.value)
-        }
-      } catch (error) {
-        console.log("todo")
-      }
+      await doRequest("/tags", {app, tag: selectedTag.value})
+      await getTags()
       showDeleteConfirmation.value = false
     }
 

@@ -313,7 +313,7 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.doRequest(tagPath, tagInfo, "", "DELETE")
+	_, err := h.doRequest(tagDeletePath, tagInfo, "", "POST")
 	return err
 }
 

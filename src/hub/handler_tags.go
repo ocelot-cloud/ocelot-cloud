@@ -7,15 +7,11 @@ import (
 )
 
 func tagHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		handleUpload(w, r)
-	} else if r.Method == http.MethodDelete {
-		handleDeleteTag(w, r)
-	} else {
-		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, tagPath)
-		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
-		return
-	}
+	handleUpload(w, r) // TODO
+}
+
+func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	handleDeleteTag(w, r) // TODO
 }
 
 func getTagsHandler(w http.ResponseWriter, r *http.Request) {

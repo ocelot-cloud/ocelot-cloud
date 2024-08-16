@@ -28,6 +28,7 @@ func main() {
 
 	mux.HandleFunc(downloadPath, downloadHandler)
 	mux.HandleFunc(tagPath, tagHandler)
+	mux.HandleFunc(tagDeletePath, tagDeleteHandler)
 	mux.HandleFunc(getTagsPath, getTagsHandler)
 	mux.HandleFunc(changePasswordPath, changePasswordHandler)
 

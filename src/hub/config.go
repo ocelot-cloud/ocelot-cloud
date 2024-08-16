@@ -11,6 +11,7 @@ var (
 
 	Logger             shared.Logger
 	tagPath            = "/tags"
+	tagDeletePath      = "/tags/delete"
 	getTagsPath        = tagPath + "/get-tags"
 	downloadPath       = tagPath + "/"
 	userDeletePath     = "/user"
