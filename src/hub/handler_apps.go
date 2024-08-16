@@ -5,15 +5,13 @@ import (
 )
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		createApp(w, r)
-	} else if r.Method == http.MethodDelete {
-		handleDeleteApp(w, r)
-	} else {
-		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, appPath)
-		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
-		return
-	}
+	createApp(w, r) // TODO
+	// TODO Should also be on path "/apps/create"
+	// TODO also check other handlers for such inconsistencies
+}
+
+func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	handleDeleteApp(w, r) // TODO
 }
 
 func appGetListHandler(w http.ResponseWriter, r *http.Request) {

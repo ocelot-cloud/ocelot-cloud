@@ -318,7 +318,7 @@ func (h *HubClient) deleteTag() error {
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "", "DELETE")
+	_, err := h.doRequest(appDeletePath, SingleString{h.App}, "", "POST")
 	return err
 }
 
