@@ -10,7 +10,6 @@
         id="drag-and-drop-area"
         class="drop-zone"
         @dragover.prevent
-        @drop.prevent="handleDrop"
     >
       Drag and drop your file here
     </div>
@@ -50,7 +49,6 @@
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from 'vue';
-import axios from "axios";
 import { useRoute } from 'vue-router';
 import {doRequest, goToHubPage} from "@/components/hub/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
@@ -70,14 +68,6 @@ export default defineComponent({
 
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
-      if (files && files.length > 0) {
-        uploadFile(files[0]);
-      }
-    };
-
-    // TODO Is that necessary?
-    const handleDrop = (event: DragEvent) => {
-      const files = event.dataTransfer?.files;
       if (files && files.length > 0) {
         uploadFile(files[0]);
       }
@@ -157,7 +147,6 @@ export default defineComponent({
 
     return {
       handleFileUpload,
-      handleDrop,
       tagList,
       app,
       selectedTag,
