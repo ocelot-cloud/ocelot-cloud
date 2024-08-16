@@ -43,10 +43,6 @@ export default defineComponent({
       router.push('/hub/login');
     };
 
-    const showErrorPopup = (message: string) => {
-      alert(message);
-    };
-
     const redirectToLogin = () => {
       router.push('/hub/login');
     };
