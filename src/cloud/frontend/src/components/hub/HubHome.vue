@@ -29,7 +29,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import axios from "axios";
 import router from "@/router";
 import {doRequest, session} from "@/components/hub/shared";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
@@ -50,14 +49,9 @@ export default defineComponent({
     };
 
     const deleteAccount = async () => {
-      try {
-        const url = 'http://localhost:8082';
-        await axios.delete(url + "/user");
-        user.value = "";
-        redirectToLogin();
-      } catch (error) {
-        alert(error);
-      }
+      await doRequest("DELETE", "/user", null)
+      user.value = "";
+      redirectToLogin();
     };
 
     const confirmDeleteAccount = async () => {
