@@ -87,10 +87,9 @@ export default defineComponent({
     };
 
     const deleteApp = async () => {
-      doRequest("/apps/delete", { value: selectedApp.value })
-      user.value = ""; // TODO why?
-      selectedApp.value = ""
+      await doRequest("/apps/delete", { value: selectedApp.value })
       await getApps()
+      selectedApp.value = ""
       showDeleteConfirmation.value = false
     };
 
