@@ -10,8 +10,6 @@ import HubChangePassword from "@/components/hub/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
 import {session} from "@/components/hub/shared";
 
-// TODO Are the names necessary?
-// TODO I should add a requiresHubAuth to the hub pages
 const routes = [
     {
         path: '/',
@@ -105,5 +103,3 @@ async function isThereValidCloudSessionCookie(): Promise<boolean> {
 }
 
 export default router;
-
-// TODO When cookie is not found, the backend return 404, but it should return a not authenticated status code instead.

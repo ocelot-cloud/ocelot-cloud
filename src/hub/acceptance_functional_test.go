@@ -190,7 +190,7 @@ func TestLogout(t *testing.T) {
 	assert.Nil(t, hub.logout())
 	err := hub.createApp()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
+	assert.Equal(t, getErrMsg(401, "cookie not found"), err.Error())
 }
 
 func TestGetAppList(t *testing.T) {

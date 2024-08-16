@@ -156,7 +156,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 	user, err := repo.GetUserWithCookie(cookie.Value)
 	if err != nil {
 		Logger.Warn("error when getting cookie of user: %s", err.Error())
-		http.Error(w, "cookie not found", http.StatusNotFound)
+		http.Error(w, "cookie not found", http.StatusUnauthorized)
 		return "", fmt.Errorf("")
 	}
 

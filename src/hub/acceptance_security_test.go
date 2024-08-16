@@ -198,7 +198,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	hub.Cookie.Value = validButNonExistentCookie
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(404, "cookie not found"), err.Error())
+	assert.Equal(t, getErrMsg(401, "cookie not found"), err.Error())
 
 	assert.Nil(t, hub.login())
 
