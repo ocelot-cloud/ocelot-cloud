@@ -38,7 +38,7 @@
   <HubDeletionConfirmationDialog
       v-model:visible="showDeleteConfirmation"
       :on-confirm="deleteApp"
-      message="Are you sure you want to delete this app?"
+      messageSuffix="this app?"
   ></HubDeletionConfirmationDialog>
 </template>
 

@@ -22,7 +22,7 @@
     <HubDeletionConfirmationDialog
         v-model:visible="showDeleteConfirmation"
         :on-confirm="deleteAccount"
-        message="Are you sure you want to delete this app?"
+        messageSuffix="your account?"
     ></HubDeletionConfirmationDialog>
   </div>
 </template>

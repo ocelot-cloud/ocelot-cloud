@@ -6,7 +6,7 @@
           <h5 class="modal-title">Deletion Confirmation</h5>
         </div>
         <div class="modal-body">
-          <p>{{ message }}</p>
+          <p>Are you sure you want to delete {{ messageSuffix }}</p>
         </div>
         <div class="modal-footer">
           <button id="button-delete-cancel" type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
@@ -26,7 +26,7 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    message: {
+    messageSuffix: {
       type: String,
       required: true,
     },
