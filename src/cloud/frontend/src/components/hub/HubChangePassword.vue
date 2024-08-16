@@ -26,8 +26,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import axios from 'axios';
 import router from "@/router";
+import {doRequest} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubChangePassword',
@@ -37,26 +37,9 @@ export default defineComponent({
     const newPassword = ref('');
 
     const changePassword = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        const changePasswordForm = { old_password: oldPassword.value, new_password: newPassword.value };
-        const response = await axios.post(url + '/user/password', changePasswordForm);
-        if (response.status === 200) {
-          alert("Password was changed.")
-          await router.push('/hub');
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          const errorMessage = error.response.data || 'An unknown error occurred';
-          showErrorPopup(`An error occurred: ${errorMessage}`);
-        } else {
-          showErrorPopup('An unknown error occurred');
-        }
-      }
-    };
-
-    const showErrorPopup = (message: string) => {
-      alert(message);
+      const changePasswordForm = { old_password: oldPassword.value, new_password: newPassword.value };
+      await doRequest("/user/password", changePasswordForm)
+      await router.push('/hub');
     };
 
     const redirectToHubHomePage = () => {
