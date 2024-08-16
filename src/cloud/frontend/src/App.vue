@@ -81,4 +81,15 @@ input:-webkit-autofill:active
   background-color: $secondary-background-color
   border-radius: 8px
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5)
+
+.modal-header, .modal-footer
+  background-color: $secondary-background-color !important
+  border-bottom: none !important
+  border-top: none !important
+
+.modal-header .btn-close
+  filter: invert(1)
+
+.modal-body
+  background-color: lighten($secondary-background-color, 5%) !important
 </style>
