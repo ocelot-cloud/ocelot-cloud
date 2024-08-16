@@ -1,57 +1,59 @@
 <template>
-  <div class="tag-management-container p-4 shadow-sm bg-dark rounded">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4>Tag Management</h4>
-      <button id="button-back-to-app" class="btn btn-secondary" @click="goToHubPage('/')">Back to App Management</button>
-    </div>
-
-    <div class="app-info mb-3">
-      <p class="mb-1">App: <strong>{{ app }}</strong></p>
-    </div>
-
-    <div class="file-upload-area mb-4">
-      <input type="file" ref="fileInput" @change="handleFileUpload" class="d-none" />
-      <div
-          id="drag-and-drop-area"
-          class="drop-zone d-flex justify-content-center align-items-center bg-secondary bg-opacity-25 rounded"
-          @dragover.prevent
-          @drop.prevent="handleDrop"
-      >
-        <p class="m-0">Drag and drop your file here</p>
+  <div class="container mt-5 col-lg-6 col-md-8 col-sm-10">
+    <div class="tag-management-container p-4 shadow-sm bg-dark rounded">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>Tag Management</h4>
+        <button id="button-back-to-app" class="btn btn-secondary" @click="goToHubPage('/')">Back to App Management</button>
       </div>
-    </div>
 
-    <div class="tag-list-section mb-4">
-      <h4>Tag List</h4>
-      <p v-if="!tagList || tagList.length === 0">(No tags created yet)</p>
-
-      <div class="d-flex justify-content-center">
-        <ul id="tag-list" class="list-group w-50">
-          <li
-              v-for="(tag, index) in tagList"
-              :key="tag"
-              class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
-              :class="{ active: selectedTag === tag }"
-              @click="selectTag(tag)"
-              style="cursor: pointer;"
-          >
-            <span>{{ index + 1 }}) {{ tag }}</span>
-            <i v-if="selectedTag === tag" class="bi bi-check-circle-fill text-success"></i>
-          </li>
-        </ul>
+      <div class="app-info mb-3">
+        <p class="mb-1">App: <strong>{{ app }}</strong></p>
       </div>
-    </div>
 
-    <div v-if="tagList && selectedTag" class="app-operations d-flex justify-content-end">
-      <button id="button-download-tag" @click="downloadTag" class="btn btn-primary me-2">Download</button>
-      <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
-    </div>
+      <div class="file-upload-area mb-4">
+        <input type="file" ref="fileInput" @change="handleFileUpload" class="d-none" />
+        <div
+            id="drag-and-drop-area"
+            class="drop-zone d-flex justify-content-center align-items-center bg-secondary bg-opacity-25 rounded"
+            @dragover.prevent
+            @drop.prevent="handleDrop"
+        >
+          <p class="m-0">Drag and drop your file here</p>
+        </div>
+      </div>
 
-    <HubDeletionConfirmationDialog
-        v-model:visible="showDeleteConfirmation"
-        :on-confirm="deleteTag"
-        messageSuffix="this tag?"
-    />
+      <div class="tag-list-section mb-4">
+        <h4>Tag List</h4>
+        <p v-if="!tagList || tagList.length === 0">(No tags created yet)</p>
+
+        <div class="d-flex justify-content-center">
+          <ul id="tag-list" class="list-group w-100">
+            <li
+                v-for="(tag, index) in tagList"
+                :key="tag"
+                class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
+                :class="{ active: selectedTag === tag }"
+                @click="selectTag(tag)"
+                style="cursor: pointer;"
+            >
+              <span>{{ index + 1 }}) {{ tag }}</span>
+              <i v-if="selectedTag === tag" class="bi bi-check-circle-fill text-success"></i>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div v-if="tagList && selectedTag" class="app-operations d-flex justify-content-end">
+        <button id="button-download-tag" @click="downloadTag" class="btn btn-primary me-2">Download</button>
+        <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
+      </div>
+
+      <HubDeletionConfirmationDialog
+          v-model:visible="showDeleteConfirmation"
+          :on-confirm="deleteTag"
+          messageSuffix="this tag?"
+      />
+    </div>
   </div>
 </template>
 
