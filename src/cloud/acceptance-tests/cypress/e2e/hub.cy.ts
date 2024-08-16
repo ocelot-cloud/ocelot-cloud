@@ -165,9 +165,9 @@ function login() {
     }
 }
 
-// TODO When not authenticated on any "/hub", be directed to /hub/login
+// TODO extract App Management Component
 // TODO deleting apps should be confirmed
+// TODO Tidy up the frontend code, abstract duplications
 // TODO Display error from response as alert message
-// TODO Maybe extract App Management Component
 // TODO Make GUI pretty
 // TODO Input validation
