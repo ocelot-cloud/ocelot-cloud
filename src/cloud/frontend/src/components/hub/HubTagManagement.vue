@@ -11,6 +11,7 @@
           id="drag-and-drop-area"
           class="drop-zone"
           @dragover.prevent
+          @drop.prevent="handleDrop"
       >
         Drag and drop your file here
       </div>
@@ -141,6 +142,13 @@ export default defineComponent({
       }
     }
 
+    const handleDrop = (event: DragEvent) => {
+      const files = event.dataTransfer?.files;
+      if (files && files.length > 0) {
+        uploadFile(files[0]);
+      }
+    };
+
     onMounted(() => {
       getTags()
     });
@@ -154,6 +162,7 @@ export default defineComponent({
       selectTag,
       downloadTag,
       showDeleteConfirmation,
+      handleDrop,
     }
   },
 });
