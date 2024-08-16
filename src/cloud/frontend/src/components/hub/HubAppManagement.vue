@@ -45,7 +45,7 @@
 <script lang="ts">
 import {defineComponent, onMounted, ref} from "vue";
 import router from "@/router";
-import {session} from "@/components/hub/shared";
+import {doRequest, session} from "@/components/hub/shared";
 import axios from "axios";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
@@ -74,15 +74,9 @@ export default defineComponent({
     }
 
     const createApp = async () => {
-      const url = 'http://localhost:8082';
-      try {
-        await axios.post(url + '/apps', { value: newAppToCreate.value });
-      } catch (error) {
-        // TODO correctly interpret error, so that backend message is displayed.
-        alert("app creation error: " + error)
-      }
-      newAppToCreate.value = ""
+      await doRequest("/apps", { value: newAppToCreate.value })
       await getApps()
+      newAppToCreate.value = ""
     };
 
     const getApps = async () => {
