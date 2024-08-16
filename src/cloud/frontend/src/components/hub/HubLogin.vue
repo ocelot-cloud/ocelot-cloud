@@ -27,7 +27,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {doRequest} from "@/components/hub/shared";
+import {doRequest, goToHubPage} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubLogin',
@@ -39,11 +39,11 @@ export default defineComponent({
     const login = async () => {
       const loginForm = { user: user.value, password: password.value, origin: window.origin };
       await doRequest("/login", loginForm)
-      router.push('/hub');
+      goToHubPage("")
     };
 
     const redirectToRegistration = () => {
-      router.push('/hub/registration');
+      goToHubPage("/registration")
     };
 
     return {

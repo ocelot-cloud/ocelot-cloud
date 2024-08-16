@@ -27,7 +27,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import router from "@/router";
-import {doRequest} from "@/components/hub/shared";
+import {doRequest, goToHubPage} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubChangePassword',
@@ -39,11 +39,11 @@ export default defineComponent({
     const changePassword = async () => {
       const changePasswordForm = { old_password: oldPassword.value, new_password: newPassword.value };
       await doRequest("/user/password", changePasswordForm)
-      await router.push('/hub');
+      goToHubPage("")
     };
 
     const redirectToHubHomePage = () => {
-      router.push("/hub")
+      goToHubPage("")
     }
 
     return {

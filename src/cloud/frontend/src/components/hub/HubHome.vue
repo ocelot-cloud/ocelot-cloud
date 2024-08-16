@@ -30,7 +30,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import router from "@/router";
-import {doRequest, session} from "@/components/hub/shared";
+import {doRequest, goToHubPage, session} from "@/components/hub/shared";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
@@ -60,11 +60,11 @@ export default defineComponent({
     };
 
     const redirectToLogin = () => {
-      router.push('/hub/login');
+      goToHubPage("/login")
     };
 
     const redirectToChangePassword = () => {
-      router.push('/hub/change-password');
+      goToHubPage("/change-password")
     };
 
     const visitCloud = () => {

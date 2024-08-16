@@ -27,7 +27,7 @@
 import { defineComponent, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import {doRequest} from "@/components/hub/shared";
+import {doRequest, goToHubPage} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubRegistration',
@@ -35,16 +35,15 @@ export default defineComponent({
     const user = ref('');
     const password = ref('');
     const email = ref('');
-    const router = useRouter();
 
     const register = async () => {
       const registrationForm = { user: user.value, password: password.value, origin: window.location.origin, email: email.value };
       await doRequest("/registration", registrationForm)
-      router.push('/hub/login');
+      goToHubPage("/login")
     };
 
     const redirectToLogin = () => {
-      router.push('/hub/login');
+      goToHubPage("/login")
     };
 
     return {
