@@ -27,6 +27,7 @@
 import { defineComponent, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import {doRequest} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubRegistration',
@@ -37,25 +38,9 @@ export default defineComponent({
     const router = useRouter();
 
     const register = async () => {
-      const url = 'http://localhost:8082';
       const registrationForm = { user: user.value, password: password.value, origin: window.location.origin, email: email.value };
-
-      try {
-        const response = await axios.post(url + '/registration', registrationForm);
-        if (response.status === 200) {
-          alert('Registration successful. Please click "OK" and login.');
-          await router.push('/hub/login');
-        } else {
-          alert(response.data);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          const errorMessage = error.response.data || 'An unknown error occurred';
-          showErrorPopup(`An error occurred: ${errorMessage}`);
-        } else {
-          showErrorPopup('An unknown error occurred');
-        }
-      }
+      await doRequest("POST", "/registration", registrationForm)
+      router.push('/hub/login');
     };
 
     const showErrorPopup = (message: string) => {
