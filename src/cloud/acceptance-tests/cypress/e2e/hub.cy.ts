@@ -1,5 +1,13 @@
 let authCookie = "";
 
+const hubWipePath = "http://localhost:8082/wipe-data"
+const cloudBaseUrl = "http://localhost:8081"
+const homePath = cloudBaseUrl + "/hub"
+const loginPath = cloudBaseUrl + "/hub/login"
+const registrationPath = cloudBaseUrl + "/hub/registration"
+const changePasswordPath = cloudBaseUrl + "/hub/change-password"
+const tagManagementPath = cloudBaseUrl + "/hub/tag-management"
+
 function createApp() {
     cy.get('#input-app').type('myapp');
     cy.get('#button-create-app').click();
@@ -11,7 +19,7 @@ function cancelAccountDeletion() {
     cy.get('#button-delete-cancel').click();
     cy.get('#button-delete-cancel').should('not.exist');
     cy.get('#button-delete-confirmation').should('not.exist');
-    cy.url().should('eq', 'http://localhost:8081/hub');
+    cy.url().should('eq', homePath);
 }
 
 function executeAccountDeletion() {
@@ -20,7 +28,7 @@ function executeAccountDeletion() {
     cy.get('#button-delete-confirmation').click();
     cy.get('#button-delete-cancel').should('not.exist');
     cy.get('#button-delete-confirmation').should('not.exist');
-    cy.url().should('eq', 'http://localhost:8081/hub/login');
+    cy.url().should('eq', loginPath);
 }
 
 function assertEmptyAppList() {
@@ -46,8 +54,8 @@ function clickOnApp() {
 
 function deleteApp() {
     cy.url().then(url => {
-        if (url != "http://localhost:8081/hub")
-        cy.visit("http://localhost:8081/hub")
+        if (url != homePath)
+        cy.visit(homePath)
     });
     cy.get('#app-list').find('li').click()
     cy.get('#button-delete-app').click();
@@ -67,16 +75,16 @@ function startToDeleteAppButCancel() {
 
 describe('Hub Operations', () => {
     it('register and login', () => {
-        cy.request("http://localhost:8082/wipe-data")
-        cy.visit('http://localhost:8081/hub');
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
+        cy.request(hubWipePath)
+        cy.visit(homePath);
+        cy.url().should('eq', loginPath);
         cy.get('#registration-redirect').click();
-        cy.url().should('eq', 'http://localhost:8081/hub/registration');
+        cy.url().should('eq', registrationPath);
         cy.get('#input-username').type('admin');
         cy.get('#input-password').type('password');
         cy.get('#input-email').type('admin@admin.com');
         cy.get('#button-register').click();
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
+        cy.url().should('eq', loginPath);
         login()
     });
 
@@ -94,8 +102,6 @@ describe('Hub Operations', () => {
         assertEmptyAppList();
     });
 
-    // TODO abstract urls and paths
-    // TODO URL should be determined by the currently used origin/host
     it('check upload', () => {
         login()
         createApp()
@@ -106,7 +112,7 @@ describe('Hub Operations', () => {
         cy.get('#button-download-tag').should('not.exist')
         cy.get('#button-delete-tag').should('not.exist')
 
-        cy.url().should('contain', 'http://localhost:8081/hub/tag-management')
+        cy.url().should('contain', tagManagementPath)
         cy.get('input[type="file"]').selectFile({
             contents: Cypress.Buffer.from(''),
             fileName: '1.4.tar.gz',
@@ -139,25 +145,25 @@ describe('Hub Operations', () => {
         login()
         cy.get('#dropdown').click();
         cy.get('#button-change-password').invoke('trigger', 'click');
-        cy.url().should('eq', 'http://localhost:8081/hub/change-password');
+        cy.url().should('eq', changePasswordPath);
     });
 
     it('check logout', () => {
         login()
         cy.get('#dropdown').click();
         cy.get('#button-logout').click();
-        cy.visit('http://localhost:8081/hub')
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
+        cy.visit(homePath)
+        cy.url().should('eq', loginPath);
 
         authCookie = ""
     });
 
     it('check wrong password prevents login', () => {
-        cy.visit('http://localhost:8081/hub/login');
+        cy.visit(loginPath);
         cy.get('#input-username').type('admin');
         cy.get('#input-password').type('password+x');
         cy.get('#button-login').click();
-        cy.url().should('eq', 'http://localhost:8081/hub/login');
+        cy.url().should('eq', loginPath);
     });
 
     it('test delete account', () => {
@@ -169,21 +175,20 @@ describe('Hub Operations', () => {
 
 function login() {
     if(authCookie == "") {
-        cy.visit('http://localhost:8081/hub/login');
+        cy.visit(loginPath);
         cy.get('#input-username').clear().type('admin');
         cy.get('#input-password').clear().type('password');
         cy.get('#button-login').click();
-        cy.url().should('eq', 'http://localhost:8081/hub')
+        cy.url().should('eq', loginPath)
         cy.get('#user-label').should('contain', 'admin');
         cy.getCookie("auth").should('exist').then((cookie) => {
             authCookie = cookie.value
         })
     } else {
         cy.setCookie("auth", authCookie)
-        cy.visit('http://localhost:8081/hub')
+        cy.visit(homePath)
     }
 }
 
-// TODO Tidy up the frontend code, abstract duplications
 // TODO Make GUI pretty
 // TODO Input validation
