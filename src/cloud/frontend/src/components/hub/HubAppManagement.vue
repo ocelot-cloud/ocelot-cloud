@@ -1,7 +1,7 @@
 <template>
-  <div class="hub-management-container p-4 shadow-sm bg-dark rounded">
+  <div class="entity-management-container p-4 shadow-sm bg-dark rounded">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4>App Creation</h4>
+      <h4>App Management</h4>
       <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
     </div>
 

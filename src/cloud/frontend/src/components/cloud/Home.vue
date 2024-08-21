@@ -45,7 +45,6 @@
 import {defineComponent} from 'vue';
 import {backendClient, baseDomain, scheme, stackUrl, waitTimeInMillis} from "@/components/cloud/Config";
 import {Stack} from "@/components/cloud/Shared";
-import router from "@/router";
 
 function getUrlFromStack(stack: Stack) {
   return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;

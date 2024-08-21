@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5 col-lg-6 col-md-8 col-sm-10">
-    <div class="tag-management-container p-4 shadow-sm bg-dark rounded">
+    <div class="entity-management-container p-4 shadow-sm bg-dark rounded">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h4>Tag Management</h4>
         <button id="button-back-to-app" class="btn btn-secondary" @click="goToHubPage('/')">Back to App Management</button>
@@ -203,39 +203,3 @@ export default defineComponent({
   },
 });
 </script>
-
-// TODO Remove
-<style lang="sass">
-.tag-management-container
-  background-color: #f8f9fa
-  border-radius: 8px
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1)
-
-.app-info
-  font-size: 1.1rem
-
-.file-upload-area
-  .drop-zone
-    width: 100%
-    height: 150px
-    border: 2px dashed #007bff
-    border-radius: 8px
-    color: #6c757d
-    transition: background-color 0.3s ease
-
-    &:hover
-      background-color: #e9ecef
-
-.tag-list-section
-  .list-group-item
-    transition: background-color 0.3s ease, color 0.3s ease
-
-    &.active
-      background-color: #007bff
-      color: white
-      font-weight: bold
-
-.app-operations
-  button
-    min-width: 100px
-</style>

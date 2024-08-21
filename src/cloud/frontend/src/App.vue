@@ -72,7 +72,7 @@ input:-webkit-autofill:active
     background-color: $primary-color !important
     color: $text-light !important
 
-.tag-management-container, .hub-management-container
+.entity-management-container
   padding: 20px
   margin: 20px
   background-color: $secondary-background-color
@@ -82,4 +82,19 @@ input:-webkit-autofill:active
 .modal-header, .modal-footer, .modal-body
   border-bottom: none !important
   border-top: none !important
+
+.invalid-feedback
+  display: block
+
+.file-upload-area
+  .drop-zone
+    width: 100%
+    height: 150px
+    border: 2px dashed $primary-color
+    border-radius: 8px
+    color: lighten($secondary-color, 20%)
+    transition: background-color 0.3s ease
+
+    &:hover
+      background-color: lighten($secondary-background-color, 5%)
 </style>
