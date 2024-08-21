@@ -17,7 +17,36 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+
 type ValidationType = 'username' | 'password';
+
+const allowedSymbols = '[0-9a-zA-Z]';
+const minLengthUsername = 3;
+const maxLengthUsername = 20;
+const minLengthPassword = 8;
+const maxLengthPassword = 30;
+
+function generateInvalidInputMessage(fieldName: string, allowedSymbols: string, minLength: number, maxLength: number): string {
+  return `Invalid ${fieldName}, allowed symbols are ${allowedSymbols} and the length must be between ${minLength} and ${maxLength}.`;
+}
+
+const validationConfig = {
+  username: {
+    id: 'input-username',
+    type: 'text',
+    pattern: new RegExp(`^${allowedSymbols}{${minLengthUsername},${maxLengthUsername}}$`),
+    errorMessage: generateInvalidInputMessage('username', allowedSymbols, minLengthUsername, maxLengthUsername),
+    placeholder: 'Username',
+  },
+  password: {
+    id: 'input-password',
+    type: 'password',
+    pattern: new RegExp(`^${allowedSymbols}{${minLengthPassword},${maxLengthPassword}}$`),
+    errorMessage: generateInvalidInputMessage('password', allowedSymbols, minLengthPassword, maxLengthPassword),
+    placeholder: 'Password',
+  },
+};
+
 export default defineComponent({
   name: 'ValidatedInput',
   props: {
@@ -36,32 +65,6 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-
-    interface ValidationConfig {
-      id: string;
-      type: string;
-      pattern: RegExp;
-      errorMessage: string;
-      placeholder: string;
-    }
-
-    const validationConfig: Record<ValidationType, ValidationConfig> = {
-      username: {
-        id: 'input-username',
-        type: 'text',
-        pattern: /^[0-9a-zA-Z]{3,20}$/,
-        errorMessage: 'Invalid input, allowed symbols are [0-9a-zA-Z-] and the length must be between 3 and 20.',
-        placeholder: 'Username',
-      },
-      password: {
-        id: 'input-password',
-        type: 'password',
-        pattern: /^[0-9a-zA-Z]{8,20}$/,
-        errorMessage: 'Password must be between 8 and 20 characters and contain only [0-9a-zA-Z-].',
-        placeholder: 'Password',
-      },
-    };
-
     const config = validationConfig[props.validationType as ValidationType];
 
     const hasError = computed(() => !config.pattern.test(props.modelValue));
