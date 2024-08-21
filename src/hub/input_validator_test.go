@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"testing"
 )
@@ -54,4 +55,19 @@ func TestValidateCookie(t *testing.T) {
 	assert.NotNil(t, validate(sixtyOneHexDecimalLetters+"ff", Cookie))
 	assert.NotNil(t, validate(sixtyOneHexDecimalLetters+"g", Cookie))
 	assert.NotNil(t, validate("", Cookie))
+}
+
+func TestValidateEmail(t *testing.T) {
+	assert.Nil(t, validate("admin@admin.com", Email))
+	assert.NotNil(t, validate("@admin.com", Email))
+	assert.NotNil(t, validate("admin@.com", Email))
+	assert.NotNil(t, validate("admin@admin.", Email))
+	assert.NotNil(t, validate("adminadmin.com", Email))
+	assert.NotNil(t, validate("admin@admincom", Email))
+
+	thirtyCharacters := "abcdefghijklmnopqrstuvwxyz1234"
+	validEmail := fmt.Sprintf("%s@%s.de", thirtyCharacters, thirtyCharacters)
+	assert.Nil(t, validate(validEmail, Email))
+	tooLongEmail := fmt.Sprintf("%s@%s.com", thirtyCharacters, thirtyCharacters)
+	assert.NotNil(t, validate(tooLongEmail, Email))
 }
