@@ -11,9 +11,13 @@
                   id="input-username"
                   type="text"
                   class="form-control"
+                  :class="{'is-invalid': submitted && usernameError}"
                   placeholder="Username"
                   required
               />
+              <div v-if="submitted && usernameError" class="invalid-feedback">
+                {{ usernameErrorMessage }}
+              </div>
             </div>
             <div class="mb-3">
               <input
@@ -21,15 +25,20 @@
                   id="input-password"
                   type="password"
                   class="form-control"
+                  :class="{'is-invalid': submitted && passwordError}"
                   placeholder="Password"
                   required
               />
+              <div v-if="submitted && passwordError" class="invalid-feedback">
+                {{ passwordErrorMessage }}
+              </div>
             </div>
             <div class="d-grid">
               <button
                   id="button-login"
                   type="submit"
-                  class="btn btn-primary">
+                  class="btn btn-primary"
+              >
                 Login
               </button>
             </div>
@@ -40,7 +49,8 @@
                 id="registration-redirect"
                 @click.prevent="redirectToRegistration"
                 href="#"
-                class="text-primary">
+                class="text-primary"
+            >
               here
             </a>.
           </p>
@@ -50,30 +60,39 @@
   </div>
 </template>
 
-// TODO Hub: I need a backend endpoint for "isCookieValid" and "isOriginValid". Both executed at page load.
-// TODO frontend: At loading page check if user info (cookie/origin) is found, else register/login? If so, check if cookie is okay, else show login form. if so, check if origin is okay, else change it. Show remote repo contents, like list of apps/tags.
-// TODO Hub: "invalid input" in insufficient info for users
-// TODO frontend: hub/, hub/login, hub/registration
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import {doRequest, goToHubPage} from "@/components/hub/shared";
+import { computed, defineComponent, ref } from 'vue';
+import {
+  doRequest, globalPasswordErrorMessage, globalUsernameErrorMessage,
+  goToHubPage,
+  passwordPattern,
+  usernamePattern
+} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubLogin',
   setup() {
     const user = ref('');
     const password = ref('');
+    const submitted = ref(false);
+
+    const usernameError = computed(() => !usernamePattern.test(user.value));
+    const passwordError = computed(() => !passwordPattern.test(password.value));
+    const usernameErrorMessage = globalUsernameErrorMessage
+    const passwordErrorMessage = globalPasswordErrorMessage
 
     const login = async () => {
-      const loginForm = { user: user.value, password: password.value, origin: window.origin };
-      await doRequest("/login", loginForm)
-      goToHubPage("")
+      submitted.value = true;
+      if (!usernameError.value && !passwordError.value) {
+        const loginForm = { user: user.value, password: password.value, origin: window.origin };
+        await doRequest("/login", loginForm);
+        goToHubPage("");
+      }
     };
 
     const redirectToRegistration = () => {
-      goToHubPage("/registration")
+      goToHubPage("/registration");
     };
 
     return {
@@ -81,6 +100,11 @@ export default defineComponent({
       password,
       login,
       redirectToRegistration,
+      usernameError,
+      passwordError,
+      usernameErrorMessage,
+      passwordErrorMessage,
+      submitted,
     };
   },
 });
