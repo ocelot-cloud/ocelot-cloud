@@ -32,7 +32,7 @@ func main() {
 	mux.HandleFunc(getTagsPath, getTagsHandler)
 	mux.HandleFunc(changePasswordPath, changePasswordHandler)
 
-	mux.HandleFunc(appPath, appHandler)
+	mux.HandleFunc(appCreationPath, appHandler)
 	mux.HandleFunc(appGetListPath, appGetListHandler)
 	mux.HandleFunc(appDeletePath, appDeleteHandler)
 	mux.HandleFunc(searchAppsPath, searchAppsHandler)

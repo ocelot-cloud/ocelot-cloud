@@ -5,9 +5,39 @@ import (
 )
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
-	createApp(w, r) // TODO
-	// TODO Should also be on path "/apps/create"
-	// TODO also check other handlers for such inconsistencies
+	authenticatedUser, err := checkAuthentication(w, r)
+	if err != nil {
+		return
+	}
+
+	app, err := readBodyAsSingleString(r, App)
+	if err != nil {
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if !repo.DoesUserExist(authenticatedUser) {
+		Logger.Info("user '%s' tried to create app '%s' but it does not exist", authenticatedUser, app)
+		http.Error(w, "user does not exists", http.StatusNotFound)
+		return
+	}
+	if repo.DoesAppExist(authenticatedUser, app) {
+		Logger.Info("user '%s' tried to create app '%s' but it already exists", authenticatedUser, app)
+		http.Error(w, "app already exists", http.StatusConflict)
+		return
+	}
+
+	err = repo.CreateApp(authenticatedUser, app)
+	if err != nil {
+		Logger.Error("user '%s' tried to create app '%s' but it failed: %v", authenticatedUser, app, err)
+		http.Error(w, "app creation failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	Logger.Info("user '%s' created app '%s'", authenticatedUser, app)
+	// TODO also check other handlers for path inconsistencies
 }
 
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,41 +95,6 @@ func getAppList(w http.ResponseWriter, r *http.Request) {
 
 	Logger.Info("got apps of user '%s'", user)
 	sendJsonResponse(w, list)
-}
-
-func createApp(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
-
-	app, err := readBodyAsSingleString(r, App)
-	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if !repo.DoesUserExist(authenticatedUser) {
-		Logger.Info("user '%s' tried to create app '%s' but it does not exist", authenticatedUser, app)
-		http.Error(w, "user does not exists", http.StatusNotFound)
-		return
-	}
-	if repo.DoesAppExist(authenticatedUser, app) {
-		Logger.Info("user '%s' tried to create app '%s' but it already exists", authenticatedUser, app)
-		http.Error(w, "app already exists", http.StatusConflict)
-		return
-	}
-
-	err = repo.CreateApp(authenticatedUser, app)
-	if err != nil {
-		Logger.Error("user '%s' tried to create app '%s' but it failed: %v", authenticatedUser, app, err)
-		http.Error(w, "app creation failed", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	Logger.Info("user '%s' created app '%s'", authenticatedUser, app)
 }
 
 func searchAppsHandler(w http.ResponseWriter, r *http.Request) {

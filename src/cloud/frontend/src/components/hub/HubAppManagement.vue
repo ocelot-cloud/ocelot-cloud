@@ -75,7 +75,7 @@ export default defineComponent({
 
     const createApp = async () => {
       submitted.value = true
-      const response = await doRequest("/apps", { value: newAppToCreate.value })
+      const response = await doRequest("/apps/create", { value: newAppToCreate.value })
       if (response) {
         await getApps()
         newAppToCreate.value = ""

@@ -213,7 +213,7 @@ func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appPath, SingleString{h.App}, "", "POST")
+	_, err := h.doRequest(appCreationPath, SingleString{h.App}, "", "POST")
 	return err
 }
 

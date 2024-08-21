@@ -17,6 +17,7 @@ var (
 	userDeletePath     = "/user"
 	logoutPath         = "/logout"
 	appPath            = "/apps"
+	appCreationPath    = appPath + "/create"
 	appGetListPath     = appPath + "/get-list"
 	appDeletePath      = appPath + "/delete"
 	searchAppsPath     = appPath + "/search"
