@@ -27,9 +27,10 @@ func TestValidateTag(t *testing.T) {
 func TestValidatePassword(t *testing.T) {
 	assert.Nil(t, validate("validpassword!", Password))
 	assert.Nil(t, validate("valid_pass123", Password))
-	assert.Nil(t, validate("InvalidPassword", Password))                    // Contains uppercase
-	assert.Nil(t, validate("valid!@#", Password))                           // Contains special characters
-	assert.NotNil(t, validate("vp", Password))                              // Too short
+	assert.Nil(t, validate("InvalidPassword", Password)) // Contains uppercase
+	assert.Nil(t, validate("valid!@#", Password))        // Contains special characters
+	assert.NotNil(t, validate("1234567", Password))      // Too short
+	assert.Nil(t, validate("12345678", Password))
 	assert.NotNil(t, validate("thispasswordiswaytoolong_xxxxx!", Password)) // Too long
 }
 
