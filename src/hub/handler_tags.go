@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func tagHandler(w http.ResponseWriter, r *http.Request) {
+func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 	handleUpload(w, r) // TODO
 }
 

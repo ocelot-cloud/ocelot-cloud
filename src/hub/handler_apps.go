@@ -41,14 +41,6 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	handleDeleteApp(w, r) // TODO
-}
-
-func appGetListHandler(w http.ResponseWriter, r *http.Request) {
-	getAppList(w, r) // TODO
-}
-
-func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
@@ -76,6 +68,10 @@ func handleDeleteApp(w http.ResponseWriter, r *http.Request) {
 
 	Logger.Info("user '%s' deleted app '%s'", user, app)
 	w.WriteHeader(http.StatusOK)
+}
+
+func appGetListHandler(w http.ResponseWriter, r *http.Request) {
+	getAppList(w, r) // TODO
 }
 
 // TODO To be tested: start hub, create account, restart hub, user should still exist and cookie be valid

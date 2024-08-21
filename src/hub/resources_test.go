@@ -251,7 +251,7 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.doRequest(tagPath, tapUpload, "", "POST")
+	_, err := h.doRequest(tagUploadPath, tapUpload, "", "POST")
 	return err
 }
 

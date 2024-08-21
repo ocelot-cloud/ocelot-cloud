@@ -27,7 +27,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc(downloadPath, downloadHandler)
-	mux.HandleFunc(tagPath, tagHandler)
+	mux.HandleFunc(tagUploadPath, tagUploadHandler)
 	mux.HandleFunc(tagDeletePath, tagDeleteHandler)
 	mux.HandleFunc(getTagsPath, getTagsHandler)
 	mux.HandleFunc(changePasswordPath, changePasswordHandler)

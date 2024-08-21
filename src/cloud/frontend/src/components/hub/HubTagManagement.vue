@@ -118,7 +118,7 @@ export default defineComponent({
         );
         const tagUpload = {app, tag, content};
 
-        const response = await doRequest("/tags", tagUpload)
+        const response = await doRequest("/tags/upload", tagUpload)
         if (response) {
           submitted.value = false
           getTags()

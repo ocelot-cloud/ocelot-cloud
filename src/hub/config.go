@@ -11,10 +11,11 @@ var (
 
 	Logger             shared.Logger
 	tagPath            = "/tags"
-	tagDeletePath      = "/tags/delete"
+	tagUploadPath      = tagPath + "/upload"
+	tagDeletePath      = tagPath + "/delete"
 	getTagsPath        = tagPath + "/get-tags"
 	downloadPath       = tagPath + "/"
-	userDeletePath     = "/user"
+	userDeletePath     = "/user" // TODO?
 	logoutPath         = "/logout"
 	appPath            = "/apps"
 	appCreationPath    = appPath + "/create"
