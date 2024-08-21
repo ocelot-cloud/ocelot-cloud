@@ -1,13 +1,11 @@
 <template>
   <div class="hub-management-container p-4 shadow-sm bg-dark rounded">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4>App Management</h4>
+      <h4>App Creation</h4>
       <button id="button-create-app" @click="createApp" class="btn btn-primary">Create App</button>
     </div>
 
-    <div class="input-group mb-4">
-      <input id="input-app" v-model="newAppToCreate" class="form-control" placeholder="Name of New App" required />
-    </div>
+    <ValidatedInput :submitted="submitted" validation-type="app" v-model="newAppToCreate"></ValidatedInput>
 
     <div class="app-list-section mb-4">
       <h4>App List</h4>
@@ -48,10 +46,11 @@ import {defineComponent, onMounted, ref} from "vue";
 import router from "@/router";
 import {doRequest, session} from "@/components/hub/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
+import ValidatedInput from "@/components/hub/ValidatedInput.vue";
 
 export default defineComponent({
   name: 'HubAppManagement',
-  components: {HubDeletionConfirmationDialog},
+  components: {ValidatedInput, HubDeletionConfirmationDialog},
 
   setup() {
     const user = ref("");
@@ -60,6 +59,7 @@ export default defineComponent({
     const appList = ref<string[]>([]);
     const selectedApp = ref("");
     const isEditingTags = ref(false);
+    const submitted = ref(false);
 
     const selectApp = (app: string) => {
       if (selectedApp.value == app) {
@@ -74,9 +74,12 @@ export default defineComponent({
     }
 
     const createApp = async () => {
-      await doRequest("/apps", { value: newAppToCreate.value })
-      await getApps()
-      newAppToCreate.value = ""
+      submitted.value = true
+      const response = await doRequest("/apps", { value: newAppToCreate.value })
+      if (response) {
+        await getApps()
+        newAppToCreate.value = ""
+      }
     };
 
     const getApps = async () => {
@@ -116,7 +119,8 @@ export default defineComponent({
       createApp,
       deleteApp,
       confirmDeleteAccount,
-      showDeleteConfirmation
+      showDeleteConfirmation,
+      submitted
     }
   },
 })

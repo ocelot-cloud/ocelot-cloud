@@ -90,7 +90,6 @@ describe('Hub Operations', () => {
 
     it('check input validation', () => {
         cy.visit(loginPath);
-
         cy.get('#input-username').type('ad');
         cy.get('#input-password').type('pass');
         cy.get('#input-username').should('not.have.class', 'is-invalid');
@@ -129,6 +128,17 @@ describe('Hub Operations', () => {
         cy.get('#input-username').should('not.have.class', 'is-invalid');
         cy.get('#input-password').should('not.have.class', 'is-invalid');
         cy.get('#input-email').should('not.have.class', 'is-invalid');
+
+        login()
+        cy.get('#input-app').type('ad');
+        cy.get('#input-app').should('not.have.class', 'is-invalid');
+
+        cy.get('#button-create-app').click();
+        cy.get('#input-app').should('have.class', 'is-invalid');
+        cy.get('body').should('contain.text', 'Invalid app,');
+
+        cy.get('#input-app').clear().type('asdf');
+        cy.get('#input-app').should('not.have.class', 'is-invalid');
     });
 
     it('create and delete app', () => {

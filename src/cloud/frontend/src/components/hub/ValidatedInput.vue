@@ -18,7 +18,7 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 
-type ValidationType = 'username' | 'password' | 'email';
+type ValidationType = 'username' | 'password' | 'email' | 'app';
 
 const allowedSymbols = '[0-9a-zA-Z]';
 const minLengthUsername = 3;
@@ -51,6 +51,13 @@ const validationConfig = {
     pattern: new RegExp(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$`),
     errorMessage: "Invalid email, must have this format: x@x.x where x is a placeholder",
     placeholder: 'Email',
+  },
+  app: {
+    id: 'input-app',
+    type: 'text',
+    pattern: new RegExp(`^${allowedSymbols}{${minLengthUsername},${maxLengthUsername}}$`),
+    errorMessage: generateInvalidInputMessage('app', allowedSymbols, minLengthPassword, maxLengthPassword),
+    placeholder: 'New app to create',
   },
 };
 
