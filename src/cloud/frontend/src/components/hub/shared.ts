@@ -33,13 +33,3 @@ export async function doRequest(path: string, data: any): Promise<(AxiosResponse
         return null
     }
 }
-
-export const allowedSymbols = '[0-9a-zA-Z]';
-export const minLength = 3;
-export const maxLength = 20;
-
-export const usernamePattern = new RegExp(`^${allowedSymbols}{${minLength},${maxLength}}$`);
-export const passwordPattern = new RegExp(`^${allowedSymbols}{${minLength},${maxLength}}$`);
-
-export const globalUsernameErrorMessage = `Invalid input, allowed symbols are ${allowedSymbols} and the length must be between ${minLength} and ${maxLength}.`;
-export const globalPasswordErrorMessage = `Invalid input, allowed symbols are ${allowedSymbols} and the length must be between ${minLength} and ${maxLength}.`;
