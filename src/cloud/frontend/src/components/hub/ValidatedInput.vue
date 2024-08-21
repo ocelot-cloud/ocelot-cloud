@@ -17,32 +17,28 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+import {
+  defaultAllowedSymbols,
+  generateInvalidInputMessage, getDefaultValidationRegex, maxLengthPassword,
+  defaultMaxLength, minLengthPassword,
+  defaultMinLength
+} from "@/components/hub/shared";
 
 type ValidationType = 'username' | 'password' | 'email' | 'app';
-
-const allowedSymbols = '[0-9a-zA-Z]';
-const minLengthUsername = 3;
-const maxLengthUsername = 20;
-const minLengthPassword = 8;
-const maxLengthPassword = 30;
-
-function generateInvalidInputMessage(fieldName: string, allowedSymbols: string, minLength: number, maxLength: number): string {
-  return `Invalid ${fieldName}, allowed symbols are ${allowedSymbols} and the length must be between ${minLength} and ${maxLength}.`;
-}
 
 const validationConfig = {
   username: {
     id: 'input-username',
     type: 'text',
-    pattern: new RegExp(`^${allowedSymbols}{${minLengthUsername},${maxLengthUsername}}$`),
-    errorMessage: generateInvalidInputMessage('username', allowedSymbols, minLengthUsername, maxLengthUsername),
+    pattern: getDefaultValidationRegex(),
+    errorMessage: generateInvalidInputMessage('username', defaultAllowedSymbols, defaultMinLength, defaultMaxLength),
     placeholder: 'Username',
   },
   password: {
     id: 'input-password',
     type: 'password',
-    pattern: new RegExp(`^${allowedSymbols}{${minLengthPassword},${maxLengthPassword}}$`),
-    errorMessage: generateInvalidInputMessage('password', allowedSymbols, minLengthPassword, maxLengthPassword),
+    pattern: new RegExp(`^${defaultAllowedSymbols}{${minLengthPassword},${maxLengthPassword}}$`),
+    errorMessage: generateInvalidInputMessage('password', defaultAllowedSymbols, minLengthPassword, maxLengthPassword),
     placeholder: 'Password',
   },
   email: {
@@ -55,8 +51,8 @@ const validationConfig = {
   app: {
     id: 'input-app',
     type: 'text',
-    pattern: new RegExp(`^${allowedSymbols}{${minLengthUsername},${maxLengthUsername}}$`),
-    errorMessage: generateInvalidInputMessage('app', allowedSymbols, minLengthPassword, maxLengthPassword),
+    pattern: getDefaultValidationRegex(),
+    errorMessage: generateInvalidInputMessage('app', defaultAllowedSymbols, minLengthPassword, maxLengthPassword),
     placeholder: 'New app to create',
   },
 };

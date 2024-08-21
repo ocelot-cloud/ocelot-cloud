@@ -21,6 +21,9 @@
           <p class="m-0">Drag and drop your file here</p>
         </div>
       </div>
+      <div v-if="submitted" class="invalid-feedback d-block mb-4">
+        {{ errorMessageText }}
+      </div>
 
       <div class="tag-list-section mb-4">
         <h4>Tag List</h4>
@@ -61,7 +64,14 @@
 <script lang="ts">
 import {defineComponent, onMounted, ref} from 'vue';
 import { useRoute } from 'vue-router';
-import {alertError, doRequest, goToHubPage} from "@/components/hub/shared";
+import {
+  alertError,
+  defaultAllowedSymbols,
+  doRequest, generateInvalidInputMessage, getDefaultValidationRegex,
+  goToHubPage,
+  defaultMaxLength,
+  defaultMinLength, tagAllowedSymbols
+} from "@/components/hub/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
 export default defineComponent({
@@ -74,8 +84,10 @@ export default defineComponent({
     const route = useRoute();
     const app = route.query.app
     const user = route.query.user
-    const selectedTag = ref<string>("");
-    const showDeleteConfirmation = ref<boolean>(false);
+    const selectedTag = ref("");
+    const showDeleteConfirmation = ref(false);
+    const submitted = ref(false);
+    const errorMessageText = ref(generateInvalidInputMessage("tag", tagAllowedSymbols, defaultMinLength, defaultMaxLength))
 
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
@@ -92,6 +104,13 @@ export default defineComponent({
       }
 
       const tag = file.name.slice(0, -suffix.length);
+
+      let regex = new RegExp(`^${tagAllowedSymbols}{${defaultMinLength},${defaultMaxLength}}$`)
+      if (!regex.test(tag)) {
+        submitted.value = true
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = async (event) => {
         const content = btoa(
@@ -99,8 +118,12 @@ export default defineComponent({
         );
         const tagUpload = {app, tag, content};
 
-        await doRequest("/tags", tagUpload)
-        getTags()
+        const response = await doRequest("/tags", tagUpload)
+        if (response) {
+          submitted.value = false
+          getTags()
+        }
+
       };
 
       reader.onerror = () => {
@@ -174,6 +197,8 @@ export default defineComponent({
       downloadTag,
       showDeleteConfirmation,
       handleDrop,
+      errorMessageText,
+      submitted
     }
   },
 });

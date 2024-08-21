@@ -88,6 +88,20 @@ describe('Hub Operations', () => {
         login()
     });
 
+    it('create and delete app', () => {
+        login()
+        assertEmptyAppList()
+        createApp()
+        assertIsAppSelected(false)
+        clickOnApp()
+        assertIsAppSelected(true)
+        clickOnApp()
+        assertIsAppSelected(false)
+        startToDeleteAppButCancel()
+        deleteApp()
+        assertEmptyAppList();
+    });
+
     it('check input validation', () => {
         cy.visit(loginPath);
         cy.get('#input-username').type('ad');
@@ -139,20 +153,25 @@ describe('Hub Operations', () => {
 
         cy.get('#input-app').clear().type('asdf');
         cy.get('#input-app').should('not.have.class', 'is-invalid');
-    });
 
-    it('create and delete app', () => {
-        login()
-        assertEmptyAppList()
+        cy.reload()
         createApp()
-        assertIsAppSelected(false)
         clickOnApp()
-        assertIsAppSelected(true)
-        clickOnApp()
-        assertIsAppSelected(false)
-        startToDeleteAppButCancel()
-        deleteApp()
-        assertEmptyAppList();
+        cy.get('#button-edit-tags').click()
+        cy.get('input[type="file"]').selectFile({
+            contents: Cypress.Buffer.from(''),
+            fileName: 'as.tar.gz',
+        }, { force: true })
+        cy.contains('Invalid tag,').should('be.visible');
+        cy.get('input[type="file"]').selectFile({
+            contents: Cypress.Buffer.from(''),
+            fileName: 'asdf.tar.gz',
+        }, { force: true })
+        cy.should('not.contain', 'Invalid tag,');
+
+        cy.get('#tag-list').find('li').click()
+        cy.get('#button-delete-tag').click()
+        cy.get('#button-delete-confirmation').click()
     });
 
     it('check upload', () => {
