@@ -14,6 +14,7 @@ import (
 // TODO Make tests with real containers only when using REST API, for GUI/Acceptance tests always use the mock since it makes trouble in CI otherwise
 
 // TODO Update "shared" module version
+// TODO Consider reusing stuff from the hub, like security (potential clash with cloud package "security"), sql logic, hub client (search for apps, download, maybe upload to keep them private?)
 // TODO Implement security, there should be a policy that Origin from request header == initially defined Origin as ENV variable or default ("http://localhost:8080")
 // TODO refactor table: list apps with state, but make them selectable, so that there is only a single start/stop button.
 // TODO Simplify profiles: DEV + PROD, no mocked frontend anymore, no security disabling anymore.
@@ -23,6 +24,7 @@ import (
 var logger = shared.ProvideLogger()
 
 func main() {
+	// TODO shouldn't here be all the "read CLI args/env variable/profiles/config/loglevel/db setup stuff" step?
 	verifyCliToolInstallations()
 	config := tools.GenerateGlobalConfiguration()
 	router := mux.NewRouter()
