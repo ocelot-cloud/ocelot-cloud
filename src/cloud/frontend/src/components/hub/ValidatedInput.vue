@@ -49,7 +49,7 @@ const validationConfig = {
     id: 'input-email',
     type: 'email',
     pattern: new RegExp(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$`),
-    errorMessage: generateInvalidInputMessage('email', allowedSymbols, minLengthPassword, maxLengthPassword),
+    errorMessage: "Invalid email, must have this format: x@x.x where x is a placeholder",
     placeholder: 'Email',
   },
 };
