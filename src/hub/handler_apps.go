@@ -37,7 +37,6 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	Logger.Info("user '%s' created app '%s'", authenticatedUser, app)
-	// TODO also check other handlers for path inconsistencies
 }
 
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,13 +70,6 @@ func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appGetListHandler(w http.ResponseWriter, r *http.Request) {
-	getAppList(w, r) // TODO
-}
-
-// TODO To be tested: start hub, create account, restart hub, user should still exist and cookie be valid
-
-func getAppList(w http.ResponseWriter, r *http.Request) {
-	// TODO Tests must be changed accordingly. It should not be necessary to send a body.
 	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
@@ -92,6 +84,8 @@ func getAppList(w http.ResponseWriter, r *http.Request) {
 	Logger.Info("got apps of user '%s'", user)
 	sendJsonResponse(w, list)
 }
+
+// TODO To be tested: start hub, create account, restart hub, user should still exist and cookie be valid
 
 func searchAppsHandler(w http.ResponseWriter, r *http.Request) {
 	appSearchTerm, err := readBodyAsSingleString(r, User)

@@ -182,7 +182,3 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Info("user '%s' logged out", user)
 	w.WriteHeader(http.StatusOK)
 }
-
-// TODO Implement Frontend, do I have to add CORS policy to allow cross domain access?
-// TODO When upload is implemented in hub, then I can delete alls the stacks in the cloud. Acceptance tests need to integrate hub and need to implement download of stacks at the beginning?
-// TODO In the end, add deploy script which only works on my device, since I have the correct SSH keys and config.

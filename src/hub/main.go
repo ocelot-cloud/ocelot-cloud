@@ -73,7 +73,6 @@ func initializeDatabase() {
 	}
 }
 
-// TODO Duplication with cloud code
 func applyCorsPolicy(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
