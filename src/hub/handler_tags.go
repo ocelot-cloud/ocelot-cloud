@@ -6,96 +6,12 @@ import (
 	"net/http"
 )
 
-func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
-	handleUpload(w, r) // TODO
-}
-
-func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	handleDeleteTag(w, r) // TODO
-}
-
-func getTagsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		handleTagList(w, r)
-	} else {
-		// TODO Resolve duplication
-		Logger.Warn("incoming request for method '%s' to endpoint '%s' which is not allowed", r.Method, tagPath)
-		http.Error(w, "method not implemented", http.StatusMethodNotAllowed)
-		return
-	}
-}
-
-func handleDeleteTag(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
-
-	tagInfo, err := readBody[AppAndTag](r)
-	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if !repo.DoesTagExist(authenticatedUser, tagInfo.App, tagInfo.Tag) {
-		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", authenticatedUser, tagInfo.App, tagInfo.Tag)
-		http.Error(w, "tag does not exist", http.StatusNotFound)
-		return
-	}
-
-	err = repo.DeleteTag(authenticatedUser, tagInfo.App, tagInfo.Tag)
-	if err != nil {
-		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", authenticatedUser, tagInfo.App, tagInfo.Tag)
-		http.Error(w, "invalid input", http.StatusInternalServerError)
-		return
-	}
-	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", authenticatedUser, tagInfo.App, tagInfo.Tag)
-	http.Error(w, "tag deleted", http.StatusOK)
-}
-
-func handleTagList(w http.ResponseWriter, r *http.Request) {
-	userAndApp, err := readBody[UserAndApp](r)
-	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if !repo.DoesUserExist(userAndApp.User) {
-		Logger.Info("someone tried to list tags but user '%s' does not exist", userAndApp.User)
-		http.Error(w, "user does not exist", http.StatusNotFound)
-		return
-	}
-
-	if !repo.DoesAppExist(userAndApp.User, userAndApp.App) {
-		Logger.Info("someone tried to list tags but app '%s' does not exist", userAndApp.App)
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
-
-	tagsList, err := repo.GetTagList(userAndApp.User, userAndApp.App)
-	if err != nil {
-		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.User, userAndApp.App)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	sendJsonResponse(w, tagsList)
-}
-
 const maxPayloadSize = 1024 * 1024 // = 1 MiB
 const maxStorageSize = 10 * maxPayloadSize
 
-func handleUpload(w http.ResponseWriter, r *http.Request) {
+func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := checkAuthentication(w, r)
 	if err != nil {
-		return
-	}
-
-	// TODO Already checked in parent method?
-	if r.Method != http.MethodPost {
-		handleInvalidRequestMethod(w, r, tagPath)
 		return
 	}
 
@@ -160,6 +76,65 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	Logger.Info("user '%s' uploaded a new tag to the app '%s' with the tag name '%s'", user, tagUpload.App, tagUpload.Tag)
 	w.WriteHeader(http.StatusOK)
+}
+
+func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	authenticatedUser, err := checkAuthentication(w, r)
+	if err != nil {
+		return
+	}
+
+	tagInfo, err := readBody[AppAndTag](r)
+	if err != nil {
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if !repo.DoesTagExist(authenticatedUser, tagInfo.App, tagInfo.Tag) {
+		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", authenticatedUser, tagInfo.App, tagInfo.Tag)
+		http.Error(w, "tag does not exist", http.StatusNotFound)
+		return
+	}
+
+	err = repo.DeleteTag(authenticatedUser, tagInfo.App, tagInfo.Tag)
+	if err != nil {
+		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", authenticatedUser, tagInfo.App, tagInfo.Tag)
+		http.Error(w, "invalid input", http.StatusInternalServerError)
+		return
+	}
+	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", authenticatedUser, tagInfo.App, tagInfo.Tag)
+	http.Error(w, "tag deleted", http.StatusOK)
+}
+
+func getTagsHandler(w http.ResponseWriter, r *http.Request) {
+	userAndApp, err := readBody[UserAndApp](r)
+	if err != nil {
+		Logger.Warn("invalid input: %v", err)
+		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if !repo.DoesUserExist(userAndApp.User) {
+		Logger.Info("someone tried to list tags but user '%s' does not exist", userAndApp.User)
+		http.Error(w, "user does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesAppExist(userAndApp.User, userAndApp.App) {
+		Logger.Info("someone tried to list tags but app '%s' does not exist", userAndApp.App)
+		http.Error(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	tagsList, err := repo.GetTagList(userAndApp.User, userAndApp.App)
+	if err != nil {
+		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.User, userAndApp.App)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sendJsonResponse(w, tagsList)
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
