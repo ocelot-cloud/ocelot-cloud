@@ -166,6 +166,27 @@ describe('Hub Operations', () => {
         cy.url().should('eq', loginPath);
     });
 
+
+    it('check input validation', () => {
+        cy.visit(loginPath);
+
+        cy.get('#input-username').type('ad');
+        cy.get('#input-password').type('pass');
+        cy.get('#input-username').should('not.have.class', 'is-invalid');
+        cy.get('#input-password').should('not.have.class', 'is-invalid');
+
+        cy.get('#button-login').click();
+        cy.get('#input-username').should('have.class', 'is-invalid');
+        cy.get('#input-password').should('have.class', 'is-invalid');
+        cy.get('body').should('contain.text', 'Invalid username,');
+        cy.get('body').should('contain.text', 'Invalid password,');
+
+        cy.get('#input-username').clear().type('admin');
+        cy.get('#input-password').clear().type('password');
+        cy.get('#input-username').should('not.have.class', 'is-invalid');
+        cy.get('#input-password').should('not.have.class', 'is-invalid');
+    });
+
     it('test delete account', () => {
         login()
         cancelAccountDeletion();
@@ -190,5 +211,6 @@ function login() {
     }
 }
 
-// TODO Make GUI pretty
+
+
 // TODO Input validation
