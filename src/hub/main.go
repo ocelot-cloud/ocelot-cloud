@@ -14,15 +14,23 @@ func init() {
 
 func main() {
 	initializeDatabase()
-
 	mux := http.NewServeMux()
+	initializeHandlers(mux)
 
+	handlerWithCors := applyCorsPolicy(mux)
+	Logger.Info("Server starting on port %s", port)
+	err := http.ListenAndServe(":"+port, handlerWithCors)
+	if err != nil {
+		Logger.Fatal("Server stopped: %v", err)
+	}
+}
+
+func initializeHandlers(mux *http.ServeMux) {
 	mux.HandleFunc(downloadPath, downloadHandler)
 	mux.HandleFunc(tagUploadPath, tagUploadHandler)
 	mux.HandleFunc(tagDeletePath, tagDeleteHandler)
 	mux.HandleFunc(getTagsPath, getTagsHandler)
 	mux.HandleFunc(changePasswordPath, changePasswordHandler)
-
 	mux.HandleFunc(appCreationPath, appHandler)
 	mux.HandleFunc(appGetListPath, appGetListHandler)
 	mux.HandleFunc(appDeletePath, appDeleteHandler)
@@ -31,7 +39,6 @@ func main() {
 	mux.HandleFunc(logoutPath, logoutHandler)
 	mux.HandleFunc(loginPath, loginHandler)
 	mux.HandleFunc(authCheckPath, authCheckHandler)
-
 	mux.HandleFunc(registrationPath, registrationHandler)
 
 	if profile == TEST {
@@ -41,14 +48,6 @@ func main() {
 		sampleUser := "sample"
 		repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
 		Logger.Warn("Created '%s' user with weak password for manual testing", sampleUser)
-	}
-
-	handlerWithCors := applyCorsPolicy(mux)
-
-	Logger.Info("Server started on port %s", port)
-	err := http.ListenAndServe(":"+port, handlerWithCors)
-	if err != nil {
-		Logger.Fatal("Server stopped: %v", err)
 	}
 }
 
