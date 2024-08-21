@@ -6,19 +6,10 @@ import (
 	"os"
 )
 
-// TODO Allow all log levels. This should be implemented in the shared module. 'shared.setLogLevel("DEBUG")'
 func init() {
-	if os.Getenv("LOG_LEVEL") == "DEBUG" {
-		shared.LogLevel = shared.DEBUG
-	} else {
-		shared.LogLevel = shared.INFO
-	}
+	shared.SetLogLevel(os.Getenv("LOG_LEVEL"))
 	Logger = shared.ProvideLogger()
-	if shared.LogLevel == shared.DEBUG {
-		Logger.Debug("log level set to DEBUG")
-	} else {
-		Logger.Info("log level set to INFO")
-	}
+	Logger.Info("log level set to: %s", shared.GetLogLevel())
 }
 
 func main() {
