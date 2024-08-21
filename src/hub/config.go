@@ -8,30 +8,33 @@ import (
 var (
 	currentSchemaVersion = "0.1.0"
 	databaseFile         = shared.DataDir + "/sqlite.db"
+	Logger               shared.Logger
+	port                 = "8082"
+	rootUrl              = "http://localhost:" + port
+	cookieName           = "auth"
+	profile              = getProfile()
 
-	Logger             shared.Logger
-	tagPath            = "/tags"
-	tagUploadPath      = tagPath + "/upload"
-	tagDeletePath      = tagPath + "/delete"
-	getTagsPath        = tagPath + "/get-tags"
-	downloadPath       = tagPath + "/"
-	logoutPath         = "/logout"
-	appPath            = "/apps"
-	appCreationPath    = appPath + "/create"
-	appGetListPath     = appPath + "/get-list"
-	appDeletePath      = appPath + "/delete"
-	searchAppsPath     = appPath + "/search"
-	wipeDataPath       = "/wipe-data"
-	authCheckPath      = "/auth-check"
-	port               = "8082"
-	rootUrl            = "http://localhost:" + port
-	cookieName         = "auth"
+	registrationPath = "/registration"
+	loginPath        = "/login"
+	logoutPath       = "/logout"
+	authCheckPath    = "/auth-check"
+	wipeDataPath     = "/wipe-data"
+
 	userPath           = "/user"
 	deleteUserPath     = userPath + "/delete"
 	changePasswordPath = userPath + "/password"
-	loginPath          = "/login"
-	registrationPath   = "/registration"
-	profile            = getProfile()
+
+	tagPath       = "/tags"
+	tagUploadPath = tagPath + "/upload"
+	tagDeletePath = tagPath + "/delete"
+	getTagsPath   = tagPath + "/get-tags"
+	downloadPath  = tagPath + "/"
+
+	appPath         = "/apps"
+	appCreationPath = appPath + "/create"
+	appGetListPath  = appPath + "/get-list"
+	appDeletePath   = appPath + "/delete"
+	searchAppsPath  = appPath + "/search"
 )
 
 type PROFILE int
