@@ -18,7 +18,7 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 
-type ValidationType = 'username' | 'password';
+type ValidationType = 'username' | 'password' | 'email';
 
 const allowedSymbols = '[0-9a-zA-Z]';
 const minLengthUsername = 3;
@@ -44,6 +44,13 @@ const validationConfig = {
     pattern: new RegExp(`^${allowedSymbols}{${minLengthPassword},${maxLengthPassword}}$`),
     errorMessage: generateInvalidInputMessage('password', allowedSymbols, minLengthPassword, maxLengthPassword),
     placeholder: 'Password',
+  },
+  email: {
+    id: 'input-email',
+    type: 'email',
+    pattern: new RegExp(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$`),
+    errorMessage: generateInvalidInputMessage('email', allowedSymbols, minLengthPassword, maxLengthPassword),
+    placeholder: 'Email',
   },
 };
 
