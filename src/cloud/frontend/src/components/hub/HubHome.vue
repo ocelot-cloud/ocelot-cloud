@@ -88,11 +88,3 @@ export default defineComponent({
   },
 });
 </script>
-
-
-TODO: Hub
-* DownloadTag
-
-TODO: Cloud
-* FindApps
-* DownloadTag

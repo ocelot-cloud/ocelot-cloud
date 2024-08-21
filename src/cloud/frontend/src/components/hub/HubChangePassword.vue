@@ -41,14 +41,8 @@
   </div>
 </template>
 
-// TODO Hub: I need a backend endpoint for "isCookieValid" and "isOriginValid". Both executed at page load.
-// TODO frontend: At loading page check if user info (cookie/origin) is found, else register/login? If so, check if cookie is okay, else show login form. if so, check if origin is okay, else change it. Show remote repo contents, like list of apps/tags.
-// TODO Hub: "invalid input" in insufficient info for users
-// TODO frontend: hub/, hub/login, hub/registration
-
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import router from "@/router";
 import {doRequest, goToHubPage} from "@/components/hub/shared";
 
 export default defineComponent({
