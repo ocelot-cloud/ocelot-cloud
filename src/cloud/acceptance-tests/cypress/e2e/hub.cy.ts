@@ -146,11 +146,9 @@ describe('Hub Operations', () => {
         login()
         cy.get('#input-app').type('ad');
         cy.get('#input-app').should('not.have.class', 'is-invalid');
-
         cy.get('#button-create-app').click();
         cy.get('#input-app').should('have.class', 'is-invalid');
         cy.get('body').should('contain.text', 'Invalid app,');
-
         cy.get('#input-app').clear().type('asdf');
         cy.get('#input-app').should('not.have.class', 'is-invalid');
 
@@ -168,7 +166,6 @@ describe('Hub Operations', () => {
             fileName: 'asdf.tar.gz',
         }, { force: true })
         cy.should('not.contain', 'Invalid tag,');
-
         cy.get('#tag-list').find('li').click()
         cy.get('#button-delete-tag').click()
         cy.get('#button-delete-confirmation').click()
