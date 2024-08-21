@@ -107,7 +107,7 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(userDeletePath, nil, "", "POST")
+	_, err := h.doRequest(deleteUserPath, nil, "", "POST")
 	return err
 }
 

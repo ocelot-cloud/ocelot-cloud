@@ -72,7 +72,7 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		sendJsonResponse(w, SingleString{user})
 	} else {
-		handleInvalidRequestMethod(w, r, userDeletePath)
+		handleInvalidRequestMethod(w, r, userPath)
 		return
 	}
 }
@@ -127,7 +127,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		handleInvalidRequestMethod(w, r, userDeletePath)
+		handleInvalidRequestMethod(w, r, userPath)
 		return
 	}
 

@@ -15,21 +15,22 @@ var (
 	tagDeletePath      = tagPath + "/delete"
 	getTagsPath        = tagPath + "/get-tags"
 	downloadPath       = tagPath + "/"
-	userDeletePath     = "/user" // TODO?
 	logoutPath         = "/logout"
 	appPath            = "/apps"
 	appCreationPath    = appPath + "/create"
 	appGetListPath     = appPath + "/get-list"
 	appDeletePath      = appPath + "/delete"
 	searchAppsPath     = appPath + "/search"
-	loginPath          = "/login"
-	registrationPath   = "/registration"
 	wipeDataPath       = "/wipe-data"
 	authCheckPath      = "/auth-check"
 	port               = "8082"
 	rootUrl            = "http://localhost:" + port
 	cookieName         = "auth"
-	changePasswordPath = userDeletePath + "/password"
+	userPath           = "/user"
+	deleteUserPath     = userPath + "/delete"
+	changePasswordPath = userPath + "/password"
+	loginPath          = "/login"
+	registrationPath   = "/registration"
 	profile            = getProfile()
 )
 

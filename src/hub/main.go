@@ -36,7 +36,7 @@ func main() {
 	mux.HandleFunc(appGetListPath, appGetListHandler)
 	mux.HandleFunc(appDeletePath, appDeleteHandler)
 	mux.HandleFunc(searchAppsPath, searchAppsHandler)
-	mux.HandleFunc(userDeletePath, userDeleteHandler)
+	mux.HandleFunc(deleteUserPath, userDeleteHandler)
 	mux.HandleFunc(logoutPath, logoutHandler)
 	mux.HandleFunc(loginPath, loginHandler)
 	mux.HandleFunc(authCheckPath, authCheckHandler)
