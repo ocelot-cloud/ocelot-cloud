@@ -1,3 +1,5 @@
 **.idea
-**ocelot-cloud.db
+**.db
 **get-docker.sh
+**logs.txt
+**data
