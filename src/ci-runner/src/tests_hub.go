@@ -31,3 +31,14 @@ func TestHubAcceptance() {
 	WaitUntilPortIsReady("localhost:8081")
 	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
 }
+
+func TestHubPersistence() {
+	printTestDescription("Testing hub persistence")
+	defer Cleanup()
+	ExecuteInDir(hubDir, "rm -rf data")
+	ExecuteInDir(hubDir, "go build")
+	StartDaemon(hubDir, "./hub")
+	WaitUntilPortIsReady("localhost:8082")
+	ExecuteInDir(hubDir, "[ -f ./data/sqlite.db ]")
+	ExecuteInDir(hubDir, "[ -f ./data/logs.txt ]")
+}

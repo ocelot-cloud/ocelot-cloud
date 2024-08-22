@@ -85,8 +85,6 @@ func appGetListHandler(w http.ResponseWriter, r *http.Request) {
 	sendJsonResponse(w, list)
 }
 
-// TODO To be tested: start hub, create account, restart hub, user should still exist and cookie be valid
-
 func searchAppsHandler(w http.ResponseWriter, r *http.Request) {
 	appSearchTerm, err := readBodyAsSingleString(r, User)
 	if err != nil {

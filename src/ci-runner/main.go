@@ -40,10 +40,11 @@ var cleanCmd = &cobra.Command{
 }
 
 var hubTestTypes = map[string]func(){
-	"unit":       func() { src.TestHubUnits() },
-	"backend":    func() { src.TestHubBackend() },
-	"acceptance": func() { src.TestHubAcceptance() },
-	"all":        func() { src.TestHubAll() },
+	"unit":        func() { src.TestHubUnits() },
+	"backend":     func() { src.TestHubBackend() },
+	"acceptance":  func() { src.TestHubAcceptance() },
+	"all":         func() { src.TestHubAll() },
+	"persistence": func() { src.TestHubPersistence() },
 }
 
 var cloudTestTypes = map[string]func(){
