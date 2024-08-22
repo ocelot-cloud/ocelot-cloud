@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 )
 
-const ocelotContainerRunCommand = "docker-compose -p ocelot-cloud up"
-const ocelotContainerRunCommandDetached = "docker-compose -p ocelot-cloud up -d"
+const ocelotContainerRunCommand = "docker compose -p ocelot-cloud up"
+const ocelotContainerRunCommandDetached = "docker compose -p ocelot-cloud up -d"
 const cypressCommand = "npx cypress run --spec cypress/e2e/cloud.cy.ts --headless"
 
 var projectDir = GetProjectDir()
