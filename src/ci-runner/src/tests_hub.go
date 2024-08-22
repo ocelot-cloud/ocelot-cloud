@@ -28,8 +28,10 @@ func TestHubAcceptance() {
 	ExecuteInDir(hubDir, "rm -rf data")
 	StartDaemon(hubDir, "bash run-development-setup.sh")
 	WaitUntilPortIsReady("localhost:8082")
-	StartDaemon(frontendDir, "bash run-development-setup.sh")
-	WaitUntilPortIsReady("localhost:8081")
+	Build(Frontend)
+	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeDevelopmentSetup)
+	WaitForIndexPageToBeReady(frontendServerUrl)
+	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
 }
 
