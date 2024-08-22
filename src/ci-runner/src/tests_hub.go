@@ -4,6 +4,7 @@ func TestHubAll() {
 	ExecuteInDir(hubDir, "rm -rf data")
 	TestHubUnits()
 	TestHubBackend()
+	TestHubPersistence()
 	TestHubAcceptance()
 }
 
