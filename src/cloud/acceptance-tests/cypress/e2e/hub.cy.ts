@@ -259,6 +259,3 @@ function login() {
     }
 }
 
-
-
-// TODO Input validation
