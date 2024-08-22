@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// TODO Run initial test, either "docker compose" or "docker-compose" must be installed. If not, exit. If one is installed, set it globally as dockerComposeCommand or so
+
 type DockerServiceReal struct{}
 
 func (d *DockerServiceReal) DeployStack(stackName string) error {
@@ -21,7 +23,7 @@ func (d *DockerServiceReal) DeployStack(stackName string) error {
 	networkCreationBashCmd := fmt.Sprintf("docker network ls | grep -q %s-net || docker network create %s-net", stackName, stackName)
 	_ = exec.Command("/bin/sh", "-c", networkCreationBashCmd).Run()
 
-	stackDeployCmd := exec.Command("docker-compose", "-f", cmdPath, "-p", stackName, "up", "-d")
+	stackDeployCmd := exec.Command("docker", "compose", "-f", cmdPath, "-p", stackName, "up", "-d")
 	output, err := stackDeployCmd.CombinedOutput()
 	if err != nil {
 		Logger.Warn("failed to deploy stack: %v, Output: %s", err, string(output))
@@ -92,7 +94,7 @@ func getHealthStateOf(stackName string) StackState {
 
 func areAllStackContainersWithHealthChecksReallyHealthy(stackName string) bool {
 	dockerComposeYamlPathOfStack := getStackPath(stackName)
-	stackInfoCmd := exec.Command("docker-compose", "-f", dockerComposeYamlPathOfStack, "ps")
+	stackInfoCmd := exec.Command("docker", "compose", "-f", dockerComposeYamlPathOfStack, "ps")
 	var out bytes.Buffer
 	stackInfoCmd.Stdout = &out
 	err := stackInfoCmd.Run()
@@ -125,7 +127,7 @@ func getDockerComposeListLines() ([]string, error) {
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
 		Logger.Error("Command '%s' did not work: %v. Maybe the wrong version is used.", cmd.String(), err)
-		versionOutputBytes, versionErr := exec.Command("docker-compose", "version").CombinedOutput()
+		versionOutputBytes, versionErr := exec.Command("docker", "compose", "version").CombinedOutput()
 		if versionErr == nil {
 			Logger.Error("Docker Compose version is: %s", string(versionOutputBytes))
 		}
