@@ -1,5 +1,7 @@
 package main
 
+// TODO Copying artifacts is not necessary. I did this initially since "Dockerfile" can only address folder below its path. But when I go to the cloud directory I can simply use docker build -f "path to docker file" and the "Dockerfile" takes its resources from there or so.
+
 import (
 	"fmt"
 	"github.com/spf13/cobra"
@@ -51,6 +53,7 @@ var cloudTestTypes = map[string]func(){
 	"backend":    func() { src.TestBackendComponent(src.Quick) },
 	"frontend":   func() { src.TestCloudFrontendFast() },
 	"acceptance": func() { src.TestCloudAcceptance() },
+	"all":        func() { src.TestCloudAll() },
 }
 
 var testCmd = &cobra.Command{

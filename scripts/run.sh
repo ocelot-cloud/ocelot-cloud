@@ -15,5 +15,6 @@ else
     exit 1
 fi
 
+# TODO Just put the docker-compose.yml in this folder
 $DOCKER_COMPOSE_CMD -p ocelot-cloud -f "$BACKEND_DIR"/stacks/core/ocelot-cloud/docker-compose.yml up -d
 

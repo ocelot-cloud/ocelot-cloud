@@ -121,6 +121,15 @@ func TestCi() {
 	TestCloudAcceptance()
 }
 
+func TestCloudAll() {
+	printTestDescription("Running all cloud tests")
+	testBackendCore()
+	TestBackendComponent(true)
+	TestBackendComponent(false)
+	TestCloudFrontendFast()
+	TestCloudAcceptance()
+}
+
 func RunScheduledTests() {
 	testComponentsInDevelopmentSetupMode()
 	testRunScript()
