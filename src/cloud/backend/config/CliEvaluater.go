@@ -84,7 +84,7 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
-		return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+		return SetGlobalConfig(ProdWithGui, logLevelStr, !isOidcAuthenticationDisabled, true)
 	} else {
 		return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
 	}
@@ -117,6 +117,12 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 		partialConfig = PartialConfig{"localhost", true, false, false, false, false}
 	} else if backendMode == DevelopmentSetup {
 		partialConfig = PartialConfig{"localhost", false, false, true, false, false}
+	}
+
+	if PROFILE == PROD {
+		partialConfig.AreMocksEnabled = true
+	} else if PROFILE == TEST {
+		// TODO
 	}
 
 	config = GlobalConfig{

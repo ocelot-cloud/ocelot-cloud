@@ -96,7 +96,7 @@ func TestCloudAcceptance() {
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true")
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "PROFILE=PROD")
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
