@@ -10,6 +10,16 @@ import (
 
 var logger = shared.ProvideLogger()
 
+// TODO Most of the stuff in this file can be deleted as soon as I simplified the PROFILE setup.
+var PROFILE Profile
+
+type Profile int
+
+const (
+	PROD Profile = iota
+	TEST
+)
+
 const (
 	BackendModeProdWithGui        = "production"
 	BackendModeDependenciesMocked = "dependencies-mocked"
@@ -32,6 +42,15 @@ func (s *BackendComponentMode) String() string {
 }
 
 func GenerateGlobalConfiguration() *GlobalConfig {
+	profile := os.Getenv("PROFILE")
+	if profile == "TEST" {
+		PROFILE = TEST
+	} else {
+		PROFILE = PROD
+	}
+
+	// TODO add env variables: LOG_LEVEL, USE_MOCKS, USE_DUMMY_STACKS (not sure here, do I still need this?)
+
 	var backendModeString string
 	profiles := fmt.Sprintf("%s, %s, %s", BackendModeProdWithGui, BackendModeDependenciesMocked, BackendModeDevelopmentSetup)
 	flag.StringVar(&backendModeString, "profile", BackendModeProdWithGui, "The profile in which the application is run. Possible values: "+profiles)
@@ -59,7 +78,13 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	}
 	var useDummyStacks = shallDummyStacksBeUsed(useDummyStacksCliArgument, backendMode)
 
-	return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+	// TODO Replace each backendMode step by step:
+	if PROFILE == PROD {
+		return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+	} else {
+		return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+	}
+	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
 }
 
 func shallDummyStacksBeUsed(useDummyStacksCliArgument bool, backendMode BackendComponentMode) bool {
