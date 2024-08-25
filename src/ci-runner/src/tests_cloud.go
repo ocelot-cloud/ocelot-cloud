@@ -148,7 +148,7 @@ func testComponentsInDevelopmentSetupMode() {
 	Build(Backend)
 	StartBackendDaemon(BackendModeDevelopmentSetup, "TEST")
 	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeDevelopmentSetup)
+	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+FrontendModeDevelopmentSetup)
 	WaitForIndexPageToBeReady(frontendServerUrl)
 	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeDevelopmentSetup)

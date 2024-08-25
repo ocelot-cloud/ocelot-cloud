@@ -102,6 +102,7 @@ func killPotentiallyDisturbingPreExistingComponentProcesses() {
 		"vue-cli-service",
 		"vue-service",
 		"./hub",
+		"vite",
 	}
 	processKillCommandTemplate := "pgrep -f %s | xargs -I %% kill -9 %%"
 	var processKillCommands []string

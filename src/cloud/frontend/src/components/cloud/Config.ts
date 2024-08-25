@@ -19,7 +19,7 @@ enum VUE_APP_PROFILE_VALUES {
 }
 
 export function initializeGlobalConfig() {
-    VUE_APP_PROFILE = process.env.VUE_APP_PROFILE || VUE_APP_PROFILE_VALUES.productionProfile
+    VUE_APP_PROFILE = import.meta.env.VITE_APP_PROFILE || VUE_APP_PROFILE_VALUES.productionProfile
     if (VUE_APP_PROFILE === VUE_APP_PROFILE_VALUES.separateGuiProfile) {
         backendBaseUrl = 'http://localhost:8080'
         backendClient = new BackendClientImpl()
