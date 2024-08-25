@@ -39,7 +39,7 @@ var buildCmd = &cobra.Command{
 	Long:  "Builds frontend and backend and can detect possible compilation errors.",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.BuildBackendAndFrontend()
-		src.ColoredPrint("\nSuccess! Build worked.\n")
+		src.ColoredPrintln("\nSuccess! Build worked.\n")
 	},
 }
 
@@ -49,7 +49,7 @@ var cleanCmd = &cobra.Command{
 	Long:  "Removes processes and docker artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.Cleanup()
-		src.ColoredPrint("\nSuccess! Cleanup worked.\n")
+		src.ColoredPrintln("\nSuccess! Cleanup worked.\n")
 	},
 }
 
@@ -80,13 +80,13 @@ var cloudCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := cloudTestTypes[inputTestType]; !exists {
-			src.ColoredPrint("\nerror: unknown cloud test type: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
+			src.ColoredPrintln("\nerror: unknown cloud test type: %s\n", inputTestType)
+			src.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			cloudTestTypes[inputTestType]()
 		}
-		src.ColoredPrint("\nSuccess! Cloud tests passed.\n")
+		src.ColoredPrintln("\nSuccess! Cloud tests passed.\n")
 	},
 }
 
@@ -103,7 +103,7 @@ var ciCmd = &cobra.Command{
 	Short: "Run CI-related tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.TestCi()
-		src.ColoredPrint("\nSuccess! CI tests passed.\n")
+		src.ColoredPrintln("\nSuccess! CI tests passed.\n")
 	},
 }
 
@@ -116,13 +116,13 @@ var hubCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := hubTestTypes[inputTestType]; !exists {
-			src.ColoredPrint("\nerror: unknown hub test type: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
+			src.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
+			src.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			hubTestTypes[inputTestType]()
 		}
-		src.ColoredPrint("\nSuccess! Hub tests passed.\n")
+		src.ColoredPrintln("\nSuccess! Hub tests passed.\n")
 	},
 }
 
@@ -131,7 +131,7 @@ var scheduleCmd = &cobra.Command{
 	Short: "Run scheduled tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.RunScheduledTests()
-		src.ColoredPrint("\nSuccess! Scheduled tests passed.\n")
+		src.ColoredPrintln("\nSuccess! Scheduled tests passed.\n")
 	},
 }
 
@@ -141,7 +141,7 @@ var deployCmd = &cobra.Command{
 	Long:  `Starts the server in production mode.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		src.DeployLocally()
-		src.ColoredPrint("\nSuccess! Deploy worked.\n")
+		src.ColoredPrintln("\nSuccess! Deploy worked.\n")
 	},
 }
 
@@ -174,7 +174,7 @@ func main() {
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		src.ColoredPrint("\nError during execution: %s\n", err.Error())
+		src.ColoredPrintln("\nError during execution: %s\n", err.Error())
 		src.CleanupAndExitWithError()
 	}
 }

@@ -35,7 +35,7 @@ func StartDaemon(dir string, commandStr string, envs ...string) {
 		fmt.Printf("Command: '%s' -> failed with error: %v\n", commandStr, err)
 		CleanupAndExitWithError()
 	} else {
-		ColoredPrint("Started daemon with ID '%v' using command '%s'\n", cmd.Process.Pid, commandStr)
+		ColoredPrintln("Started daemon with ID '%v' using command '%s'\n", cmd.Process.Pid, commandStr)
 		go func() {
 			err := cmd.Wait()
 			if err != nil {
@@ -48,7 +48,7 @@ func StartDaemon(dir string, commandStr string, envs ...string) {
 }
 
 func Cleanup() {
-	ColoredPrint("Cleanup method called.\n")
+	ColoredPrintln("Cleanup method called.\n")
 	killDaemonProcessesCreateDuringThisRun()
 	killPotentiallyDisturbingPreExistingComponentProcesses()
 	pruneDockerToEmptySetup()
@@ -87,10 +87,10 @@ func assertThatNoProcessesSurvived() {
 	}
 	for _, line := range strings.Split(out.String(), "\n") {
 		if strings.Contains(line, "./backend") {
-			ColoredPrint("The backend daemon process was not killed after tests were completed.\n")
+			ColoredPrintln("The backend daemon process was not killed after tests were completed.\n")
 			CleanupAndExitWithError()
 		} else if strings.Contains(line, "vue-service") || strings.Contains(line, "vue-cli-service") {
-			ColoredPrint("The frontend daemon process was not killed after tests were completed.\n")
+			ColoredPrintln("The frontend daemon process was not killed after tests were completed.\n")
 			CleanupAndExitWithError()
 		}
 	}

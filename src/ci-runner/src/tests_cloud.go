@@ -52,10 +52,14 @@ func testBackendCore() {
 func TestBackendComponent(fast bool) {
 	printTestDescription("Testing backend component")
 	if fast {
+		ColoredPrintln("Testing units")
 		testBackendCore()
+		ColoredPrintln("Testing backend mocked")
 		TestBackendComponentMocked()
 	} else {
+		ColoredPrintln("Testing backend with default config")
 		testWithDefaultConfig()
+		ColoredPrintln("Testing backend with CORS disabled")
 		testCorsDisabling()
 	}
 }
@@ -64,7 +68,7 @@ func testWithDefaultConfig() {
 	printTestDescription("Testing backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeProduction, "PROFILE=TEST")
+	StartBackendDaemon(BackendModeProduction, "PROD")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeProduction))
 }
 
@@ -76,7 +80,7 @@ func testCorsDisabling() {
 	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup, "PROFILE=TEST")
+	StartBackendDaemon(BackendModeDevelopmentSetup, "TEST")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...", addBackendProfileEnvPrefix(BackendModeDevelopmentSetup))
 }
 
@@ -84,7 +88,7 @@ func TestBackendComponentMocked() {
 	printTestDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDependenciesMocked, "PROFILE=TEST")
+	StartBackendDaemon(BackendModeDependenciesMocked, "TEST")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeDependenciesMocked))
 }
 
@@ -143,14 +147,14 @@ func testBackendImageDownload() {
 }
 
 func printTestDescription(text string) {
-	ColoredPrint("\n=== %s ===\n", text)
+	ColoredPrintln("\n=== %s ===\n", text)
 }
 
 func testComponentsInDevelopmentSetupMode() {
 	printTestDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup, "PROFILE=TEST")
+	StartBackendDaemon(BackendModeDevelopmentSetup, "TEST")
 	Build(Frontend)
 	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeDevelopmentSetup)
 	WaitForIndexPageToBeReady(frontendServerUrl)

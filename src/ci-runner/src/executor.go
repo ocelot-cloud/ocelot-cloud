@@ -20,7 +20,7 @@ const frontendServerUrl = Scheme + "://localhost:8081"
 
 func ExecuteInDir(dir string, commandStr string, envs ...string) {
 	shortDir := strings.Replace(dir, srcDir, "", -1)
-	ColoredPrint("\nIn directory '.%s', executing '%s'\n", shortDir, commandStr)
+	ColoredPrintln("\nIn directory '.%s', executing '%s'\n", shortDir, commandStr)
 
 	cmd := buildCommand(dir, commandStr)
 	if len(envs) != 0 {
@@ -41,20 +41,20 @@ func ExecuteInDir(dir string, commandStr string, envs ...string) {
 	output := stdoutBuf.String() + stderrBuf.String()
 	elapsedTimeSummary := fmt.Sprintf("Time taken: %s seconds.", elapsedStr)
 	if err != nil {
-		ColoredPrint(" => Command failed with error: %v; %s\n", err, elapsedTimeSummary)
+		ColoredPrintln(" => Command failed with error: %v; %s\n", err, elapsedTimeSummary)
 		CleanupAndExitWithError()
 	} else {
 		if strings.Contains(output, "no test files") {
-			ColoredPrint(" => Testing failed because no tests were found. %s\n", elapsedTimeSummary)
+			ColoredPrintln(" => Testing failed because no tests were found. %s\n", elapsedTimeSummary)
 			CleanupAndExitWithError()
 		} else if strings.Contains(commandStr, "go test") && !strings.Contains(output, "PASS:") && !containsOkLine(output) {
-			ColoredPrint(" => Testing failed because no tests were actually executed; all tests were either skipped or not included. %s\n", elapsedTimeSummary)
+			ColoredPrintln(" => Testing failed because no tests were actually executed; all tests were either skipped or not included. %s\n", elapsedTimeSummary)
 			CleanupAndExitWithError()
 		} else if strings.Contains(commandStr, "go test") && strings.Contains(output, "testing: warning: no tests to run") {
-			ColoredPrint(" => Testing failed because no tests were actually executed. %s\n", elapsedTimeSummary)
+			ColoredPrintln(" => Testing failed because no tests were actually executed. %s\n", elapsedTimeSummary)
 			CleanupAndExitWithError()
 		} else {
-			ColoredPrint(" => Command successful. %s\n", elapsedTimeSummary)
+			ColoredPrintln(" => Command successful. %s\n", elapsedTimeSummary)
 		}
 	}
 }
@@ -69,10 +69,10 @@ func containsOkLine(output string) bool {
 	return false
 }
 
-func ColoredPrint(format string, a ...interface{}) {
+func ColoredPrintln(format string, a ...interface{}) {
 	colorReset := "\033[0m"
 	colorCode := "\033[31m"
-	fmt.Printf(colorCode+format+colorReset, a...)
+	fmt.Printf(colorCode+format+"\n"+colorReset, a...)
 }
 
 func buildCommand(dir string, commandStr string) *exec.Cmd {
@@ -96,7 +96,7 @@ func buildCommand(dir string, commandStr string) *exec.Cmd {
 
 // TODO Get rid of the CLI args.
 func StartBackendDaemon(profile string, newProfile string) {
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug -profile="+profile, newProfile)
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug -profile="+profile, "PROFILE="+newProfile)
 	WaitUntilPortIsReady("localhost:8080")
 }
 

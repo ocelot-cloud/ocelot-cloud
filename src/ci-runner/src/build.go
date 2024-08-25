@@ -52,7 +52,7 @@ func Build(comp COMPONENT) {
 	}
 	component := ComponentBuilds[comp]
 	if component.SkipBuild {
-		ColoredPrint(component.name + " build skipped")
+		ColoredPrintln(component.name + " build skipped")
 	} else {
 		component.build()
 		component.SkipBuild = true
