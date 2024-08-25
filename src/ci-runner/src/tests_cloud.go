@@ -128,6 +128,7 @@ func testProdBackendApi() {
 	defer Cleanup()
 	// TODO abstract profiles into variable
 	// TODO Adapt profiles in frontend and acceptance
+	// TODO Get rid of "disable security"
 	Build(Backend)
 	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security", "PROFILE=PROD", "ENABLE_MOCKS=false")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
