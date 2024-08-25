@@ -1,5 +1,24 @@
 TODO:
 
+
+ TODO urgent
+ * simplify profiles
+ * log entry: "user has a valid cookie and is allowed to access protected backend functions" -> which user?
+   * a user requested the frontend resources, who? anonymous
+   * user has a valid cookie and is allowed to access protected backend functions, who?
+   * login logic called, by who?
+ * It would be cool after an acceptance test, if I can see the logs of the backend in an git-ignored directory: test-logs/acceptance.txt,backend.txt
+ * Don't get rid of dummy stacks But rather put them in the hub?
+ * Not sure. Should CliEvaluator_test be re-implemented?
+ * In docker compose, there should be
+ * I want to install ocelot without cloning git. Simply "wget" the docker-compose.yml or a small bash script and go. Git clone, only when you want to build it from scratch.
+ * Introduce structured logging
+ * Also use TEST and PROD profiles in hub. Also print which is used right now.
+ * frontend and acceptance have bash script which can be deleted.
+ * Error in hub GUI: wrong app shows password validation stuff, although it worked to create the app. Maybe create app must reset the "submitted" flag. Also check in acceptance test that this does not happen again
+ * Modernize cloud GUI. Also use new vuejs3 + ts syntax in Home.vue
+ * Can this simply be replaced by a blank string? -> import.meta.env.VITE_BASE_URL
+
 * get rid of the "method" argument in doRequest, all requests are method independent
 * Make hub compatible with cockroackdb
 * cookies should be hashed in database
