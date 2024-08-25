@@ -113,6 +113,7 @@ func TestCi() {
 	testBackendCore()
 	TestBackendComponent(true)
 	TestBackendComponent(false)
+	testComponentsInDevelopmentSetupMode()
 	TestHubAll()
 	TestCloudFrontendFast()
 	TestCloudAcceptance()
@@ -128,7 +129,6 @@ func TestCloudAll() {
 }
 
 func RunScheduledTests() {
-	testComponentsInDevelopmentSetupMode()
 	testRunScript()
 	testBackendImageDownload()
 }

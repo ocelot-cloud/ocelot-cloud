@@ -85,8 +85,11 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
 		return SetGlobalConfig(ProdWithGui, logLevelStr, !isOidcAuthenticationDisabled, true)
-	} else {
+	} else if PROFILE == TEST {
 		return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+	} else {
+		errMsg := fmt.Sprintf("Unknown profile: %v", PROFILE)
+		panic(errMsg)
 	}
 	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
 }
