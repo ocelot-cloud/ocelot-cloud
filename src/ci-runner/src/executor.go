@@ -94,8 +94,9 @@ func buildCommand(dir string, commandStr string) *exec.Cmd {
 	return cmd
 }
 
-func StartBackendDaemon(profile string) {
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug -profile="+profile)
+// TODO Get rid of the CLI args.
+func StartBackendDaemon(profile string, newProfile string) {
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug -profile="+profile, newProfile)
 	WaitUntilPortIsReady("localhost:8080")
 }
 

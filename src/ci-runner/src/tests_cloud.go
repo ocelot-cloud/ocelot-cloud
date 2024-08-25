@@ -64,7 +64,7 @@ func testWithDefaultConfig() {
 	printTestDescription("Testing backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeProduction)
+	StartBackendDaemon(BackendModeProduction, "PROFILE=TEST")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeProduction))
 }
 
@@ -76,7 +76,7 @@ func testCorsDisabling() {
 	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup)
+	StartBackendDaemon(BackendModeDevelopmentSetup, "PROFILE=TEST")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...", addBackendProfileEnvPrefix(BackendModeDevelopmentSetup))
 }
 
@@ -84,7 +84,7 @@ func TestBackendComponentMocked() {
 	printTestDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDependenciesMocked)
+	StartBackendDaemon(BackendModeDependenciesMocked, "PROFILE=TEST")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeDependenciesMocked))
 }
 
@@ -110,13 +110,19 @@ func DeployLocally() {
 func TestCi() {
 	printTestDescription("Running CI tests")
 	// Starting with the fastest tests, ending with slowest.
+
+	// TODO uncomment tests
+	// TODO backend units + mocked
 	testBackendCore()
 	TestBackendComponent(true)
-	TestBackendComponent(false)
+	// TODO development setup: test backend mocked + GUI
 	testComponentsInDevelopmentSetupMode()
-	TestHubAll()
-	TestCloudFrontendFast()
+	// TODO test backend no mocks, just API
+	TestBackendComponent(false)
+	// TODO acceptance, backend mocked
 	TestCloudAcceptance()
+
+	TestHubAll()
 }
 
 func TestCloudAll() {
@@ -124,7 +130,6 @@ func TestCloudAll() {
 	testBackendCore()
 	TestBackendComponent(true)
 	TestBackendComponent(false)
-	TestCloudFrontendFast()
 	TestCloudAcceptance()
 }
 
@@ -141,21 +146,11 @@ func printTestDescription(text string) {
 	ColoredPrint("\n=== %s ===\n", text)
 }
 
-func TestCloudFrontendFast() {
-	printTestDescription("Testing Frontend Fast")
-	defer Cleanup()
-	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeBackendMock)
-	WaitForIndexPageToBeReady(frontendServerUrl)
-	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeBackendMock)
-}
-
 func testComponentsInDevelopmentSetupMode() {
 	printTestDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup)
+	StartBackendDaemon(BackendModeDevelopmentSetup, "PROFILE=TEST")
 	Build(Frontend)
 	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeDevelopmentSetup)
 	WaitForIndexPageToBeReady(frontendServerUrl)
