@@ -84,6 +84,7 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
+		// TODO Using dummy stacks?
 		return SetGlobalConfig(logLevelStr, !isOidcAuthenticationDisabled, true)
 	} else if PROFILE == TEST {
 		return SetGlobalConfig(logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
