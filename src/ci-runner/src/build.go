@@ -1,5 +1,7 @@
 package src
 
+import "fmt"
+
 var (
 	SkipBackendBuild     bool
 	SkipFrontendBuild    bool
@@ -31,7 +33,16 @@ var ComponentBuilds = map[COMPONENT]*Component{
 		ExecuteInDir(frontendDir, "npm run build")
 	}},
 	DockerImage: {"docker image", false, func() {
-		ExecuteInDir(scriptsDir, "./build.sh")
+		// The flags make it executable in Docker containers
+		ExecuteInDir(backendDir, "go build -ldflags '-extldflags \"-static\"'")
+		// TODO Consider installing "vite"?
+		ExecuteInDir(frontendDir, "npm install")
+		ExecuteInDir(frontendDir, "npm run build")
+		ExecuteInDir(projectDir, "docker rm -f ocelotcloud/ocelotcloud")
+		ExecuteInDir(projectDir, "bash -c 'docker network create ocelot-net || true'")
+		ExecuteInDir(projectDir, "bash -c 'if [ -z \"$(docker images -q alpine:3.18.6)\" ]; then docker pull alpine:3.18.6; fi'")
+		cmd := fmt.Sprintf("docker build -t ocelotcloud/ocelotcloud:local -f src/ci-runner/Dockerfile .")
+		ExecuteInDir(projectDir, cmd)
 	}},
 	Acceptance: {"backend", false, func() {
 		ExecuteInDir(acceptanceTestsDir, "npm install")
