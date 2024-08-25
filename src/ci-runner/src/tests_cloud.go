@@ -100,7 +100,6 @@ func TestCi() {
 	printTestDescription("Running CI tests")
 	// Starting with the fastest tests, ending with slowest.
 
-	// TODO uncomment tests
 	// TODO backend units + mocked
 	testBackendCore()
 	TestBackendComponentMocked()
@@ -109,6 +108,7 @@ func TestCi() {
 	testComponentsInDevelopmentSetupMode()
 
 	// TODO test backend no mocks, just API
+	testProdBackendApi()
 	testWithDefaultConfig()
 	testCorsDisabling()
 
@@ -121,6 +121,16 @@ func TestCi() {
 func RunScheduledTests() {
 	testRunScript()
 	testBackendImageDownload()
+}
+
+func testProdBackendApi() {
+	printTestDescription("Testing PROD backend")
+	defer Cleanup()
+	// TODO abstract profiles into variable
+	// TODO Adapt profiles in frontend and acceptance
+	Build(Backend)
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security", "PROFILE=PROD", "ENABLE_MOCKS=false")
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
 
 func testBackendImageDownload() {

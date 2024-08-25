@@ -62,7 +62,6 @@ var hubTestTypes = map[string]func(){
 }
 
 var cloudTestTypes = map[string]func(){
-	"backend":    func() { src.TestBackendComponent(src.Quick) },
 	"acceptance": func() { src.TestCloudAcceptance() },
 }
 
