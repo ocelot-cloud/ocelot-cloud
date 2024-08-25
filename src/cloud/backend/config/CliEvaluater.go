@@ -84,9 +84,9 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
-		return SetGlobalConfig(ProdWithGui, logLevelStr, !isOidcAuthenticationDisabled, true)
+		return SetGlobalConfig(logLevelStr, !isOidcAuthenticationDisabled, true)
 	} else if PROFILE == TEST {
-		return SetGlobalConfig(backendMode, logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+		return SetGlobalConfig(logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
 	} else {
 		errMsg := fmt.Sprintf("Unknown profile: %v", PROFILE)
 		panic(errMsg)
@@ -110,20 +110,16 @@ type PartialConfig struct {
 	IsOidcAuthenticationEnabled      bool
 }
 
-func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOidcAuthenticationEnabled bool, useDummyStacks bool) *GlobalConfig {
+func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDummyStacks bool) *GlobalConfig {
 	config := GlobalConfig{}
 	partialConfig := PartialConfig{}
 
-	if backendMode == DependenciesMocked {
-		partialConfig = PartialConfig{"localhost", true, false, false, false, false}
-	} else if backendMode == DevelopmentSetup {
-		partialConfig = PartialConfig{"localhost", false, false, true, false, false}
-	}
-
+	// TODO PROD should take the root domain from ENV variable, if not present, fail
+	// TODO TEST should be default localhost address
 	if PROFILE == PROD {
 		partialConfig = PartialConfig{"localhost", true, true, false, true, true}
 	} else if PROFILE == TEST {
-		// TODO
+		partialConfig = PartialConfig{"localhost", true, false, true, true, false}
 	}
 
 	config = GlobalConfig{
@@ -138,7 +134,7 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 		"8080",
 	}
 
-	shared.LogLevel = EvaluateLogLevelBasedOn(backendMode, logLevelStr)
+	shared.LogLevel = EvaluateLogLevelBasedOn(logLevelStr)
 	logger = shared.ProvideLogger()
 	logGlobalConfig(config)
 	return &config
@@ -157,15 +153,7 @@ func logGlobalConfig(config GlobalConfig) {
 	logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
 }
 
-func EvaluateLogLevelBasedOn(BackendMode BackendComponentMode, levelStr string) shared.LogLevelValue {
-	if levelStr == "notSet" {
-		if BackendMode == ProdWithGui || BackendMode == DependenciesMocked {
-			return shared.INFO
-		} else if BackendMode == DevelopmentSetup {
-			return shared.DEBUG
-		}
-	}
-
+func EvaluateLogLevelBasedOn(levelStr string) shared.LogLevelValue {
 	switch strings.ToLower(levelStr) {
 	case "trace":
 		return shared.TRACE
@@ -178,7 +166,6 @@ func EvaluateLogLevelBasedOn(BackendMode BackendComponentMode, levelStr string) 
 	case "error":
 		return shared.ERROR
 	default:
-		panicMsg := fmt.Sprintf("Invalid log level: %s. Valid values are '-log-level=x' with x is one of these values: trace, debug, info (default), warn, error", levelStr)
-		panic(panicMsg)
+		return shared.INFO
 	}
 }
