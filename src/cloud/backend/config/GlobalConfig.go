@@ -11,13 +11,12 @@ const NginxDownloading = "nginx-download"
 type GlobalConfig struct {
 	// AreCrossOriginRequestsAllowed controls whether the server will accept cross-origin requests.
 	// Setting this to true relaxes the CORS policy by allowing specific cross-origin requests.
-	AreCrossOriginRequestsAllowed    bool
-	AreMocksEnabled                  bool
-	IsGuiEnabled                     bool // TODO Why is that necessary?
-	IsSecurityEnabled                bool // TODO Should always be enabled	BackendMode                      BackendComponentMode
-	WaitForSecurityBeforeOpeningPort bool
-	UseDummyStacks                   bool
-	Scheme                           string // "http" or "https"
-	RootDomain                       string // e.g. "localhost"
-	Port                             string // e.g. "8082"
+	AreCrossOriginRequestsAllowed bool
+	AreMocksEnabled               bool
+	IsGuiEnabled                  bool // TODO Why is that necessary?
+	IsSecurityEnabled             bool // TODO Should always be enabled
+	UseDummyStacks                bool
+	Scheme                        string // "http" or "https"
+	RootDomain                    string // e.g. "localhost"
+	Port                          string // e.g. "8082"
 }

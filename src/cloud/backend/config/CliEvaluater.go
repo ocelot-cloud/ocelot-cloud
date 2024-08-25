@@ -102,12 +102,11 @@ func shallDummyStacksBeUsed(useDummyStacksCliArgument bool, backendMode BackendC
 }
 
 type PartialConfig struct {
-	RootDomain                       string
-	AreMocksEnabled                  bool
-	IsGuiEnabled                     bool
-	AreCrossOriginRequestsAllowed    bool
-	WaitForSecurityBeforeOpeningPort bool
-	IsOidcAuthenticationEnabled      bool
+	RootDomain                    string
+	AreMocksEnabled               bool
+	IsGuiEnabled                  bool
+	AreCrossOriginRequestsAllowed bool
+	IsOidcAuthenticationEnabled   bool
 }
 
 func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDummyStacks bool) *GlobalConfig {
@@ -117,9 +116,16 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	// TODO TEST should be default localhost address
 	if PROFILE == PROD {
-		partialConfig = PartialConfig{"localhost", true, true, false, true, true}
+		partialConfig = PartialConfig{"localhost", true, true, false, true}
 	} else if PROFILE == TEST {
-		partialConfig = PartialConfig{"localhost", true, false, true, true, false}
+		var areMocksEnabled bool
+		enableMocksEnv := os.Getenv("ENABLE_MOCKS")
+		if enableMocksEnv == "true" {
+			areMocksEnabled = true
+		} else {
+			areMocksEnabled = false
+		}
+		partialConfig = PartialConfig{"localhost", areMocksEnabled, false, true, false}
 	}
 
 	config = GlobalConfig{
@@ -127,7 +133,6 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 		partialConfig.AreMocksEnabled,
 		partialConfig.IsGuiEnabled,
 		isOidcAuthenticationEnabled,
-		partialConfig.WaitForSecurityBeforeOpeningPort,
 		useDummyStacks,
 		"http",
 		partialConfig.RootDomain,

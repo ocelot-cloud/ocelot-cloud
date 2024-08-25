@@ -49,21 +49,6 @@ func testBackendCore() {
 	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
 }
 
-func TestBackendComponent(fast bool) {
-	printTestDescription("Testing backend component")
-	if fast {
-		ColoredPrintln("Testing units")
-		testBackendCore()
-		ColoredPrintln("Testing backend mocked")
-		TestBackendComponentMocked()
-	} else {
-		ColoredPrintln("Testing backend with default config")
-		testWithDefaultConfig()
-		ColoredPrintln("Testing backend with CORS disabled")
-		testCorsDisabling()
-	}
-}
-
 func testWithDefaultConfig() {
 	printTestDescription("Testing backend component")
 	defer Cleanup()
@@ -118,11 +103,15 @@ func TestCi() {
 	// TODO uncomment tests
 	// TODO backend units + mocked
 	testBackendCore()
-	TestBackendComponent(true)
+	TestBackendComponentMocked()
+
 	// TODO development setup: test backend mocked + GUI
 	testComponentsInDevelopmentSetupMode()
+
 	// TODO test backend no mocks, just API
-	TestBackendComponent(false)
+	testWithDefaultConfig()
+	testCorsDisabling()
+
 	// TODO acceptance, backend mocked
 	TestCloudAcceptance()
 
