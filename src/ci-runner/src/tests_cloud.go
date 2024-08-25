@@ -23,23 +23,17 @@ var backendBusinessInternalDir = backendDir + "/business/internal"
 var backendSecurityInternalDir = backendDir + "/security/internal"
 var hubDir = srcDir + "/hub"
 
+// TODO Simplify to TEST and PROD
 const BackendModeProduction = "production"
 const BackendModeDependenciesMocked = "dependencies-mocked"
 const BackendModeDevelopmentSetup = "development-setup"
 
-const FrontendModeDevelopmentSetup = "development-setup"
-const FrontendModeBackendMock = "backend-mock"
+const TestProfile = "TEST"
 
 func GetProjectDir() string {
 	devopsRunnerDir, _ := os.Getwd()
 	src := filepath.Dir(devopsRunnerDir)
 	return filepath.Dir(src)
-}
-
-func BuildBackendAndFrontend() {
-	printTestDescription("Building backend and frontend")
-	Build(Backend)
-	Build(Frontend)
 }
 
 func testBackendCore() {
@@ -148,14 +142,14 @@ func testComponentsInDevelopmentSetupMode() {
 	Build(Backend)
 	StartBackendDaemon(BackendModeDevelopmentSetup, "TEST")
 	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+FrontendModeDevelopmentSetup)
+	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
 	WaitForIndexPageToBeReady(frontendServerUrl)
 	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeDevelopmentSetup)
+	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE=development-setup") // TODO Change PROFILE to TEST
 }
 
 func testRunScript() {
-	printTestDescription("Testing Components In DevelopmentMode")
+	printTestDescription("Testing run script")
 	defer Cleanup()
 	Build(DockerImage)
 	ExecuteInDir(scriptsDir, "bash run-dummy.sh")

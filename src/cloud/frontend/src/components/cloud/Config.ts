@@ -1,42 +1,34 @@
 import {BackendClient} from "@/components/cloud/Shared";
 import {BackendClientImpl} from "@/components/cloud/BackendClientImpl";
-import {BackendClientMock} from "@/components/cloud/BackendClientMock";
 
 export const scheme = "http"
 export const baseDomain = "localhost"
 
-let VUE_APP_PROFILE: string
+let PROFILE: string
 export let backendBaseUrl: string
 export let stackUrl: string
 export let backendClient: BackendClient
-export let waitTimeInMillis: number
 export let isSecurityEnabled: boolean
 
-enum VUE_APP_PROFILE_VALUES {
-    separateGuiProfile = "development-setup",
-    separateGuiWithBackendMockProfile = "backend-mock",
-    productionProfile = "production",
+enum PROFILE_VALUES {
+    TEST = "TEST",
+    PROD = "PROD",
 }
 
 export function initializeGlobalConfig() {
-    VUE_APP_PROFILE = import.meta.env.VITE_APP_PROFILE || VUE_APP_PROFILE_VALUES.productionProfile
-    if (VUE_APP_PROFILE === VUE_APP_PROFILE_VALUES.separateGuiProfile) {
+    PROFILE = import.meta.env.VITE_APP_PROFILE || PROFILE_VALUES.PROD
+    if (PROFILE === PROFILE_VALUES.TEST) {
         backendBaseUrl = 'http://localhost:8080'
         backendClient = new BackendClientImpl()
         isSecurityEnabled = false
-    } else if (VUE_APP_PROFILE === VUE_APP_PROFILE_VALUES.separateGuiWithBackendMockProfile) {
-        backendBaseUrl = 'http://fake.domain'
-        backendClient = new BackendClientMock()
-        isSecurityEnabled = false
-    } else if (VUE_APP_PROFILE === VUE_APP_PROFILE_VALUES.productionProfile) {
+    } else if (PROFILE === PROFILE_VALUES.PROD) {
         backendBaseUrl = scheme + '://ocelot-cloud.' + baseDomain
         backendClient = new BackendClientImpl()
         isSecurityEnabled = true
     } else {
-        throw new Error("error, provided VUE_APP_PROFILE is not known: " + VUE_APP_PROFILE);
+        throw new Error("error, provided VITE_APP_PROFILE is not known: " + PROFILE);
     }
     stackUrl = backendBaseUrl + '/api/stacks/';
-    waitTimeInMillis = VUE_APP_PROFILE === VUE_APP_PROFILE_VALUES.separateGuiWithBackendMockProfile ? 100 : 1000;
 }
 
 initializeGlobalConfig()

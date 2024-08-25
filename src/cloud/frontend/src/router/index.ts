@@ -54,7 +54,6 @@ const router = createRouter({
     routes,
 })
 
-
 router.beforeEach(async (to, from, next) => {
     if (to.path.startsWith('/hub')) {
         if (to.path == '/hub/login' || to.path == '/hub/registration' || session.isAuthenticated) {

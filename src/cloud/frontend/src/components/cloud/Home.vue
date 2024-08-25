@@ -43,7 +43,7 @@
 <script lang="ts">
 
 import {defineComponent} from 'vue';
-import {backendClient, baseDomain, scheme, stackUrl, waitTimeInMillis} from "@/components/cloud/Config";
+import {backendClient, baseDomain, scheme, stackUrl} from "@/components/cloud/Config";
 import {Stack} from "@/components/cloud/Shared";
 
 function getUrlFromStack(stack: Stack) {
@@ -59,7 +59,7 @@ export default defineComponent({
   },
   created() {
     this.fetchData()
-    setInterval(this.fetchData, waitTimeInMillis);
+    setInterval(this.fetchData, 1000);
   },
   methods: {
     async fetchData() {
