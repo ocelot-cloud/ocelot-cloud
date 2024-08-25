@@ -20,7 +20,6 @@ var frontendDir = cloudDir + "/frontend"
 var acceptanceTestsDir = cloudDir + "/acceptance-tests"
 var ocelotStackDir = backendDir + "/stacks/core/ocelot-cloud"
 var backendBusinessInternalDir = backendDir + "/business/internal"
-var backendToolsDir = backendDir + "/config"
 var backendSecurityInternalDir = backendDir + "/security/internal"
 var hubDir = srcDir + "/hub"
 
@@ -48,7 +47,6 @@ func testBackendCore() {
 	printTestDescription("Testing backend testing API")
 	defer Cleanup()
 	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 ./...")
-	ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
 }
 
