@@ -33,8 +33,7 @@ const FrontendModeBackendMock = "backend-mock"
 func GetProjectDir() string {
 	devopsRunnerDir, _ := os.Getwd()
 	src := filepath.Dir(devopsRunnerDir)
-	projectDir := filepath.Dir(src)
-	return projectDir
+	return filepath.Dir(src)
 }
 
 func BuildBackendAndFrontend() {
@@ -110,7 +109,7 @@ func DeployLocally() {
 
 func TestCi() {
 	printTestDescription("Running CI tests")
-	// Starting with fastest tests, ending with slowest.
+	// Starting with the fastest tests, ending with slowest.
 	testBackendCore()
 	TestBackendComponent(true)
 	TestBackendComponent(false)
