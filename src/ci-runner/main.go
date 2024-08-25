@@ -35,10 +35,10 @@ var rootCmd = &cobra.Command{
 
 var buildCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Build frontend and backend",
-	Long:  "Builds frontend and backend and can detect possible compilation errors.",
+	Short: "Build docker image",
+	Long:  "Builds the whole project from scratch and produces a production docker image",
 	Run: func(cmd *cobra.Command, args []string) {
-		src.BuildBackendAndFrontend()
+		src.Build(src.DockerImage)
 		src.ColoredPrintln("\nSuccess! Build worked.\n")
 	},
 }
