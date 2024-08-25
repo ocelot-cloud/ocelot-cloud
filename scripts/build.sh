@@ -40,3 +40,5 @@ docker rm -f backend-builder
 echo "Building production image"
 if [ -z "$(docker images -q alpine:3.18.6)" ]; then docker pull alpine:3.18.6; fi
 docker build -t ocelotcloud/ocelotcloud:local -f Dockerfile.production .
+
+# TODO Problem: using the docker builders makes problems when there is no internet connection. For development I should build the stuff natively. Also remove that from the README. Instead tell to use "install.sh" and then "ci-runner build" or so.
