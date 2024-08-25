@@ -129,14 +129,6 @@ func TestCi() {
 	TestHubAll()
 }
 
-func TestCloudAll() {
-	printTestDescription("Running all cloud tests")
-	testBackendCore()
-	TestBackendComponent(true)
-	TestBackendComponent(false)
-	TestCloudAcceptance()
-}
-
 func RunScheduledTests() {
 	testRunScript()
 	testBackendImageDownload()
