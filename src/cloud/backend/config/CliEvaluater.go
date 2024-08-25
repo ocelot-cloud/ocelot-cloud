@@ -111,16 +111,14 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 	config := GlobalConfig{}
 	partialConfig := PartialConfig{}
 
-	if backendMode == ProdWithGui {
-		partialConfig = PartialConfig{"localhost", false, true, false, true, true}
-	} else if backendMode == DependenciesMocked {
+	if backendMode == DependenciesMocked {
 		partialConfig = PartialConfig{"localhost", true, false, false, false, false}
 	} else if backendMode == DevelopmentSetup {
 		partialConfig = PartialConfig{"localhost", false, false, true, false, false}
 	}
 
 	if PROFILE == PROD {
-		partialConfig.AreMocksEnabled = true
+		partialConfig = PartialConfig{"localhost", true, true, false, true, true}
 	} else if PROFILE == TEST {
 		// TODO
 	}
