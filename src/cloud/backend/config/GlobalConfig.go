@@ -15,7 +15,6 @@ type GlobalConfig struct {
 	AreMocksEnabled                  bool
 	IsGuiEnabled                     bool // TODO Why is that necessary?
 	IsSecurityEnabled                bool // TODO Should always be enabled	BackendMode                      BackendComponentMode
-	BackendMode                      BackendComponentMode
 	WaitForSecurityBeforeOpeningPort bool
 	UseDummyStacks                   bool
 	Scheme                           string // "http" or "https"

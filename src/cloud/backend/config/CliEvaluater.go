@@ -20,6 +20,10 @@ const (
 	TEST
 )
 
+func (p *Profile) String() string {
+	return [...]string{"PROD", "TEST"}[*p]
+}
+
 const (
 	BackendModeProdWithGui        = "production"
 	BackendModeDependenciesMocked = "dependencies-mocked"
@@ -120,7 +124,6 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 		partialConfig.AreMocksEnabled,
 		partialConfig.IsGuiEnabled,
 		isOidcAuthenticationEnabled,
-		backendMode,
 		partialConfig.WaitForSecurityBeforeOpeningPort,
 		useDummyStacks,
 		"http",
@@ -135,7 +138,7 @@ func SetGlobalConfig(backendMode BackendComponentMode, logLevelStr string, isOid
 }
 
 func logGlobalConfig(config GlobalConfig) {
-	logger.Info("Profile is: %s", config.BackendMode.String())
+	logger.Info("Profile is: %s", PROFILE.String())
 	logger.Info("Log level is: %s", shared.LogLevel.String())
 	logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
 	logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
