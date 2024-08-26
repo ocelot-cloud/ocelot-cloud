@@ -17,7 +17,7 @@ func (b *BusinessModule) InitializeApplication() {
 }
 
 func ProvideBusinessModule(router *mux.Router, config *tools.GlobalConfig, securityModule *security.SecurityModule) BusinessModule {
-	internal.Logger = shared.ProvideLogger()
+	internal.Logger = shared.ProvideLogger("info") // TODO use global logger instead, also duplication with logger in internal/Configuration
 	appInitializer := internal.ProvideAppInitializer(router, config, securityModule)
 	return BusinessModule{&appInitializer}
 }

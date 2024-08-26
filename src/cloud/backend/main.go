@@ -30,7 +30,7 @@ import (
 // TODO Also scheduled tests can be simplified (no development profile any longer)?
 // TODO In cloud is use this line "var logger = shared.ProvideLogger()". Is this maybe no longer working with the new version as I have to set it to Info by hand? -> Maybe simplify by using: ProvideLogger("DEBUG") instead.
 
-var logger = shared.ProvideLogger()
+var logger = shared.ProvideLogger("info") // TODO use global logger
 
 func main() {
 	verifyCliToolInstallations()

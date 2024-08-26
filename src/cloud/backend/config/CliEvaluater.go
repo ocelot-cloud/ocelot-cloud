@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"github.com/ocelot-cloud/shared"
 	"os"
-	"strings"
 )
 
-var logger = shared.ProvideLogger()
+var logger = shared.ProvideLogger("info")
 
 // TODO Most of the stuff in this file can be deleted as soon as I simplified the PROFILE setup.
 var PROFILE Profile
@@ -102,15 +101,14 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 		"8080",
 	}
 
-	shared.LogLevel = EvaluateLogLevelBasedOn(logLevelStr)
-	logger = shared.ProvideLogger()
+	logger = shared.ProvideLogger(logLevelStr)
 	logGlobalConfig(config)
 	return &config
 }
 
 func logGlobalConfig(config GlobalConfig) {
 	logger.Info("Profile is: %s", PROFILE.String())
-	logger.Info("Log level is: %s", shared.LogLevel.String())
+	logger.Info("Log level is: %s", shared.GetLogLevel())
 	logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
 	logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
 	logger.Debug("Is the CORS policy relaxed by explicitly allowing cross-origin requests by setting specific response headers? -> %v", config.AreCrossOriginRequestsAllowed)
@@ -119,21 +117,4 @@ func logGlobalConfig(config GlobalConfig) {
 	}
 	logger.Debug("Are mocks enabled for faster testing? -> %v", config.AreMocksEnabled)
 	logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
-}
-
-func EvaluateLogLevelBasedOn(levelStr string) shared.LogLevelValue {
-	switch strings.ToLower(levelStr) {
-	case "trace":
-		return shared.TRACE
-	case "debug":
-		return shared.DEBUG
-	case "info":
-		return shared.INFO
-	case "warn":
-		return shared.WARN
-	case "error":
-		return shared.ERROR
-	default:
-		return shared.INFO
-	}
 }

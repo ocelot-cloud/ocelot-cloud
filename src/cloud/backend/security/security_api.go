@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var Logger = shared.ProvideLogger()
+var Logger = shared.ProvideLogger("info") // TODO use global logger instead
 
 type SecurityModule struct {
 	router *mux.Router

@@ -5,7 +5,7 @@ go 1.21.6
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/mattn/go-sqlite3 v1.14.22
-	github.com/ocelot-cloud/shared v0.0.5
+	github.com/ocelot-cloud/shared v0.0.15
 	gopkg.in/yaml.v3 v3.0.1
 )
 

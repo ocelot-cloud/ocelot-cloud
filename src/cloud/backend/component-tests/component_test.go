@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var logger = shared.ProvideLogger()
+var logger = shared.ProvideLogger("info") // TODO use global logger instead
 
 const endpoint = "http://localhost:8080/api/stacks/"
 const stackOneName = tools.NginxDefault
