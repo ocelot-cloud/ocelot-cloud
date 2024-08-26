@@ -24,26 +24,7 @@ func (p *Profile) String() string {
 	return [...]string{"PROD", "TEST"}[*p]
 }
 
-const (
-	BackendModeProdWithGui        = "production"
-	BackendModeDependenciesMocked = "dependencies-mocked"
-	BackendModeDevelopmentSetup   = "development-setup"
-)
-
 type BackendComponentMode int
-
-const (
-	// ProdWithGui For Production. Secure and all features enabled.
-	ProdWithGui BackendComponentMode = iota
-	// DependenciesMocked For fast testing. Slow dependencies replaced by mocks.
-	DependenciesMocked
-	// DevelopmentSetup For GUI development, when backend should run in the background, testing via manually interactions with GUI talking to backend.
-	DevelopmentSetup
-)
-
-func (s *BackendComponentMode) String() string {
-	return [...]string{"ProdWithGui", "DependenciesMocked", "DevelopmentSetup"}[*s]
-}
 
 func GenerateGlobalConfiguration() *GlobalConfig {
 	profile := os.Getenv("PROFILE")
@@ -54,10 +35,6 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	}
 
 	// TODO add env variables: LOG_LEVEL, USE_MOCKS, USE_DUMMY_STACKS (not sure here, do I still need this?)
-
-	var backendModeString string
-	profiles := fmt.Sprintf("%s, %s, %s", BackendModeProdWithGui, BackendModeDependenciesMocked, BackendModeDevelopmentSetup)
-	flag.StringVar(&backendModeString, "profile", BackendModeProdWithGui, "The profile in which the application is run. Possible values: "+profiles)
 
 	var logLevelStr string
 	flag.StringVar(&logLevelStr, "log-level", "notSet", "set log level (trace, debug, info, warn, error)")
@@ -70,17 +47,7 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 
 	flag.Parse()
 
-	var backendMode BackendComponentMode
-	if backendModeString == BackendModeProdWithGui {
-		backendMode = ProdWithGui
-	} else if backendModeString == BackendModeDependenciesMocked {
-		backendMode = DependenciesMocked
-	} else if backendModeString == BackendModeDevelopmentSetup {
-		backendMode = DevelopmentSetup
-	} else {
-		panic("Backend mode not supported: " + backendModeString)
-	}
-	var useDummyStacks = shallDummyStacksBeUsed(useDummyStacksCliArgument, backendMode)
+	var useDummyStacks = shallDummyStacksBeUsed(useDummyStacksCliArgument)
 
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
@@ -95,11 +62,10 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
 }
 
-func shallDummyStacksBeUsed(useDummyStacksCliArgument bool, backendMode BackendComponentMode) bool {
+func shallDummyStacksBeUsed(useDummyStacksCliArgument bool) bool {
 	useDummyStacksEnvVariable := os.Getenv("USE_DUMMY_STACKS")
 	return useDummyStacksCliArgument ||
-		strings.ToLower(useDummyStacksEnvVariable) == "true" ||
-		backendMode == DevelopmentSetup
+		strings.ToLower(useDummyStacksEnvVariable) == "true" // TODO there should be only the ENV variable
 }
 
 type PartialConfig struct {

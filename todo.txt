@@ -27,3 +27,5 @@
 * always log errors on first occurrence think I didn't do that in the repo code?
 * delete client side cookie after logout (only server side right now)
 * frontend does not need to be build when I want to use "npm run serve" anyway
+* global config should be globally visible, not passed as ar to a submodule.
+* get rid of the "internal" dirs in the backend modules. Simply use private/public methods since they are not that big yet.

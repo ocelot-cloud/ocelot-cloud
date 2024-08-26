@@ -140,12 +140,12 @@ func TestUrlPaths(t *testing.T) {
 */
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
-	onlyExecuteTestForProfile(t, tools.BackendModeDevelopmentSetup)
+	onlyExecuteTestForProfile(t, "TEST") // TODO abstract
 	AssertCorsHeaders(t, "*", "POST, GET, OPTIONS, PUT, DELETE", "Accept, Content-Type, Content-Length, Authorization")
 }
 
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
-	onlyExecuteTestForProfile(t, tools.BackendModeProdWithGui)
+	onlyExecuteTestForProfile(t, "PROD") // TODO abstract
 
 	postJsonWithoutAssertions(endpoint+"stop", tools.StackInfo{tools.NginxSlowStart})
 	logger.Info("Deploying stack '%s'", tools.NginxSlowStart)
@@ -178,7 +178,7 @@ func isStackInState(stackName string, expectedState string, responsePayload []to
 }
 
 func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
-	setEnvProfile, _ := os.LookupEnv("BACKEND_COMPONENT_TEST_PROFILE")
+	setEnvProfile, _ := os.LookupEnv("PROFILE")
 	if setEnvProfile != profileEnablingTheTest {
 		t.Skip()
 	}
