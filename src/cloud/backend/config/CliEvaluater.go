@@ -39,20 +39,20 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	var logLevelStr string
 	flag.StringVar(&logLevelStr, "log-level", "notSet", "set log level (trace, debug, info, warn, error)")
 
-	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
-	var isOidcAuthenticationDisabled bool
-	flag.BoolVar(&isOidcAuthenticationDisabled, "disable-security", false, "disable security, such as authentication via OIDC")
-
 	flag.Parse()
+
+	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
 
 	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
-		// TODO Using dummy stacks?
-		return SetGlobalConfig(logLevelStr, !isOidcAuthenticationDisabled, true)
+		// TODO Should I only use dummy stacks in PROD? Or just real stacks?
+		// TODO security/auth should always be enabled
+		disableSecurity := os.Getenv("DISABLE_SECURITY") == "true"
+		return SetGlobalConfig(logLevelStr, !disableSecurity, true)
 	} else if PROFILE == TEST {
-		return SetGlobalConfig(logLevelStr, !isOidcAuthenticationDisabled, useDummyStacks)
+		return SetGlobalConfig(logLevelStr, false, useDummyStacks)
 	} else {
 		errMsg := fmt.Sprintf("Unknown profile: %v", PROFILE)
 		panic(errMsg)

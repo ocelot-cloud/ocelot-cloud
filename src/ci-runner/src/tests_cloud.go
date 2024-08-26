@@ -43,7 +43,7 @@ func testWithDefaultConfig() {
 	printTestDescription("Testing backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug")
+	StartDaemon(backendDir, "./backend -log-level=debug", "DISABLE_SECURITY=true")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
@@ -52,7 +52,7 @@ func testCorsDisabling() {
 	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile)
+	StartDaemon(backendDir, "./backend -log-level=debug", "PROFILE="+TestProfile)
 	WaitUntilPortIsReady("localhost:8080")
 
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
@@ -63,7 +63,7 @@ func TestBackendComponentMocked() {
 	defer Cleanup()
 	Build(Backend)
 	// TODO Maybe add methods like: envProfile("TEST"), dummyStacksUsageEnv("true")
-	StartDaemon(backendDir, "./backend -disable-security -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true")
+	StartDaemon(backendDir, "./backend -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
@@ -119,7 +119,7 @@ func testProdBackendApi() {
 	defer Cleanup()
 	// TODO Get rid of "disable security" and the other CLI args
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security", "ENABLE_MOCKS=false")
+	StartDaemon(backendDir, "./backend", "ENABLE_MOCKS=false", "DISABLE_SECURITY=true")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
 
@@ -135,7 +135,7 @@ func checkComponentsWithTestProfile() {
 	printTestDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -disable-security -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true") // TODO
+	StartDaemon(backendDir, "./backend -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true") // TODO
 	WaitUntilPortIsReady("localhost:8080")
 
 	Build(Frontend)
