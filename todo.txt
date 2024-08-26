@@ -29,3 +29,9 @@
 * frontend does not need to be build when I want to use "npm run serve" anyway
 * global config should be globally visible, not passed as ar to a submodule.
 * get rid of the "internal" dirs in the backend modules. Simply use private/public methods since they are not that big yet.
+* dont use "sleep" in test for waiting for services in the backend component tests, better use retries
+* re-implement the "download" state checks, maybe use "cypress.config.ts":
+module.exports = {
+  defaultCommandTimeout: 10000, // == 10 seconds
+}
+-> this way, maybe it is no longer necessary to have a test for backend + DockerServiceReal, could simplify things.

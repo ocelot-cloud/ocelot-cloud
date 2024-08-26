@@ -39,6 +39,7 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	var logLevelStr string
 	flag.StringVar(&logLevelStr, "log-level", "notSet", "set log level (trace, debug, info, warn, error)")
 
+	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
 	var isOidcAuthenticationDisabled bool
 	flag.BoolVar(&isOidcAuthenticationDisabled, "disable-security", false, "disable security, such as authentication via OIDC")
 
