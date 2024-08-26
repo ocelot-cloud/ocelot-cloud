@@ -7,8 +7,7 @@ import (
 )
 
 func init() {
-	shared.SetLogLevel(os.Getenv("LOG_LEVEL"))
-	Logger = shared.ProvideLogger()
+	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 	Logger.Info("log level set to: %s", shared.GetLogLevel())
 }
 
