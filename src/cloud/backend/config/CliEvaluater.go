@@ -43,9 +43,6 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	var isOidcAuthenticationDisabled bool
 	flag.BoolVar(&isOidcAuthenticationDisabled, "disable-security", false, "disable security, such as authentication via OIDC")
 
-	var useDummyStacksCliArgument bool
-	flag.BoolVar(&useDummyStacksCliArgument, "enable-dummy-stacks", false, "disable security, such as authentication via OIDC")
-
 	flag.Parse()
 
 	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
