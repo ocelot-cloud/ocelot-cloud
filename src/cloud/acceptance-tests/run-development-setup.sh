@@ -1,3 +1,3 @@
 #!/bin/bash
 
-CYPRESS_PROFILE="development-setup" npx cypress open
+CYPRESS_PROFILE="TEST" npx cypress open

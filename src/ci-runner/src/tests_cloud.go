@@ -145,7 +145,7 @@ func testComponentsInDevelopmentSetupMode() {
 	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
 	WaitForIndexPageToBeReady(frontendServerUrl)
 	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE=development-setup") // TODO Change PROFILE to TEST
+	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+TestProfile)
 }
 
 func testRunScript() {

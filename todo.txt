@@ -1,8 +1,8 @@
-TODO:
 
-
- TODO urgent
+ TODO
  * simplify profiles
+ * ci-runner test cloud backend/frontend etc, do they need adaption?
+ * structured logging, see my notes for specification
  * log entry: "user has a valid cookie and is allowed to access protected backend functions" -> which user?
    * a user requested the frontend resources, who? anonymous
    * user has a valid cookie and is allowed to access protected backend functions, who?
