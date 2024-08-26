@@ -62,7 +62,8 @@ func TestBackendComponentMocked() {
 	printTestDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile)
+	// TODO Maybe add methods like: envProfile("TEST"), dummyStacksUsageEnv("true")
+	StartDaemon(backendDir, "./backend -disable-security -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
@@ -95,7 +96,7 @@ func TestCi() {
 	TestBackendComponentMocked()
 
 	// TODO development setup: test backend mocked + GUI
-	testComponentsInDevelopmentSetupMode()
+	checkComponentsWithTestProfile()
 
 	// TODO test backend no mocks, just API
 	testProdBackendApi()
@@ -130,11 +131,11 @@ func printTestDescription(text string) {
 	ColoredPrintln("\n=== %s ===\n", text)
 }
 
-func testComponentsInDevelopmentSetupMode() {
+func checkComponentsWithTestProfile() {
 	printTestDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile) // TODO
+	StartDaemon(backendDir, "./backend -disable-security -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true") // TODO
 	WaitUntilPortIsReady("localhost:8080")
 
 	Build(Frontend)

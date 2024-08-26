@@ -48,7 +48,7 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 
 	flag.Parse()
 
-	var useDummyStacks = shallDummyStacksBeUsed(useDummyStacksCliArgument)
+	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 
 	// TODO Replace each backendMode step by step:
 	if PROFILE == PROD {
@@ -61,12 +61,6 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 		panic(errMsg)
 	}
 	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
-}
-
-func shallDummyStacksBeUsed(useDummyStacksCliArgument bool) bool {
-	useDummyStacksEnvVariable := os.Getenv("USE_DUMMY_STACKS")
-	return useDummyStacksCliArgument ||
-		strings.ToLower(useDummyStacksEnvVariable) == "true" // TODO there should be only the ENV variable
 }
 
 type PartialConfig struct {
