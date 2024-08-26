@@ -51,6 +51,7 @@ func testWithDefaultConfig() {
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeProduction))
 }
 
+// TODO get rid of that
 func addBackendProfileEnvPrefix(profile string) string {
 	return "BACKEND_COMPONENT_TEST_PROFILE=" + profile
 }
@@ -124,7 +125,7 @@ func testProdBackendApi() {
 	// TODO Adapt profiles in frontend and acceptance
 	// TODO Get rid of "disable security"
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security", "PROFILE=PROD", "ENABLE_MOCKS=false")
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security", "ENABLE_MOCKS=false")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
 
