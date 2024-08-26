@@ -30,9 +30,4 @@
 * global config should be globally visible, not passed as ar to a submodule.
 * get rid of the "internal" dirs in the backend modules. Simply use private/public methods since they are not that big yet.
 * dont use "sleep" in test for waiting for services in the backend component tests, better use retries
-* re-implement the "download" state checks, maybe use "cypress.config.ts":
-module.exports = {
-  defaultCommandTimeout: 10000, // == 10 seconds
-}
--> this way, maybe it is no longer necessary to have a test for backend + DockerServiceReal, could simplify things.
 * create an easy way with which an admin user can reset his password, when he forgets it. Access to server + some bash command to sqlite maybe? Should also be tested.
