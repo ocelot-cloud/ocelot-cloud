@@ -23,6 +23,7 @@ var backendBusinessInternalDir = backendDir + "/business/internal"
 var backendSecurityInternalDir = backendDir + "/security/internal"
 var hubDir = srcDir + "/hub"
 
+// TestProfile There is also the "PROD" profile, but it should be used automatically if no profile is given.
 const TestProfile = "TEST"
 
 func GetProjectDir() string {
@@ -44,12 +45,7 @@ func testWithDefaultConfig() {
 	Build(Backend)
 	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug")
 	WaitUntilPortIsReady("localhost:8080")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix("production")) // simply set env "PROD"
-}
-
-// TODO get rid of that
-func addBackendProfileEnvPrefix(profile string) string {
-	return "BACKEND_COMPONENT_TEST_PROFILE=" + profile
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
 
 func testCorsDisabling() {
@@ -59,7 +55,7 @@ func testCorsDisabling() {
 	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile)
 	WaitUntilPortIsReady("localhost:8080")
 
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...", addBackendProfileEnvPrefix("development-setup")) // TODO
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
 }
 
 func TestBackendComponentMocked() {
@@ -68,7 +64,7 @@ func TestBackendComponentMocked() {
 	Build(Backend)
 	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile)
 	WaitUntilPortIsReady("localhost:8080")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix("development-setup")) // TODO
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
 
 func TestCloudAcceptance() {

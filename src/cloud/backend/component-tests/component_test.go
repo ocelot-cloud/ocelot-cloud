@@ -185,7 +185,7 @@ func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
 }
 
 func dontExecuteTestForProfile(t *testing.T, profileDisablingTheTest string) {
-	setEnvProfile, _ := os.LookupEnv("BACKEND_COMPONENT_TEST_PROFILE")
+	setEnvProfile, _ := os.LookupEnv("PROFILE")
 	if setEnvProfile == profileDisablingTheTest {
 		t.Skip()
 	}
