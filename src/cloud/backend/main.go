@@ -33,13 +33,27 @@ import (
 var logger = shared.ProvideLogger()
 
 func main() {
-	// TODO shouldn't here be all the "read CLI args/env variable/profiles/config/loglevel/db setup stuff" step?
 	verifyCliToolInstallations()
 	config := tools.GenerateGlobalConfiguration()
+	initializeDatabase()
 	router := mux.NewRouter()
 	securityModule := security.ProvideSecurityModule(router, config)
 	businessModule := business.ProvideBusinessModule(router, config, securityModule)
 	businessModule.InitializeApplication()
+}
+
+func initializeDatabase() {
+	// TODO
+	/*
+		create sqlite client
+		isDatabaseAlreadyPresent && isThereAnAdminUser?
+		if yes, return
+		else {
+		 	areThereEnvVariablesPresentAndValid: ADMIN_NAME, ADMIN_PASSWORD
+			if yes -> create admin user and schemes
+			else -> crash with error, "cant initialize ocelot cloud without admin user, please set ADMIN_NAME, ADMIN_PASSWORD" (should be tested)
+		}
+	*/
 }
 
 func verifyCliToolInstallations() {
