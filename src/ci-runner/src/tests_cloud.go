@@ -72,7 +72,7 @@ func TestCloudAcceptance() {
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "PROFILE=PROD")
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommand)
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
@@ -116,9 +116,7 @@ func RunScheduledTests() {
 func testProdBackendApi() {
 	printTestDescription("Testing PROD backend")
 	defer Cleanup()
-	// TODO abstract profiles into variable
-	// TODO Adapt profiles in frontend and acceptance
-	// TODO Get rid of "disable security"
+	// TODO Get rid of "disable security" and the other CLI args
 	Build(Backend)
 	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security", "ENABLE_MOCKS=false")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
