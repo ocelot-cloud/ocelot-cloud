@@ -23,11 +23,6 @@ var backendBusinessInternalDir = backendDir + "/business/internal"
 var backendSecurityInternalDir = backendDir + "/security/internal"
 var hubDir = srcDir + "/hub"
 
-// TODO Simplify to TEST and PROD
-const BackendModeProduction = "production"
-const BackendModeDependenciesMocked = "dependencies-mocked"
-const BackendModeDevelopmentSetup = "development-setup"
-
 const TestProfile = "TEST"
 
 func GetProjectDir() string {
@@ -47,8 +42,9 @@ func testWithDefaultConfig() {
 	printTestDescription("Testing backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeProduction, "PROD")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeProduction))
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug")
+	WaitUntilPortIsReady("localhost:8080")
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix("production")) // simply set env "PROD"
 }
 
 // TODO get rid of that
@@ -60,16 +56,19 @@ func testCorsDisabling() {
 	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup, "TEST")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...", addBackendProfileEnvPrefix(BackendModeDevelopmentSetup))
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile)
+	WaitUntilPortIsReady("localhost:8080")
+
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...", addBackendProfileEnvPrefix("development-setup")) // TODO
 }
 
 func TestBackendComponentMocked() {
 	printTestDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDependenciesMocked, "TEST")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeDependenciesMocked))
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile)
+	WaitUntilPortIsReady("localhost:8080")
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix("development-setup")) // TODO
 }
 
 func TestCloudAcceptance() {
@@ -141,7 +140,9 @@ func testComponentsInDevelopmentSetupMode() {
 	printTestDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup, "TEST")
+	StartDaemon(backendDir, "./backend -enable-dummy-stacks -disable-security -log-level=debug", "PROFILE="+TestProfile) // TODO
+	WaitUntilPortIsReady("localhost:8080")
+
 	Build(Frontend)
 	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
 	WaitForIndexPageToBeReady(frontendServerUrl)
