@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	"github.com/ocelot-cloud/shared"
 	"net/url"
 	"os"
@@ -68,15 +69,15 @@ type HostParams struct {
 	Port   string
 }
 
-func getHostParams(profile BackendProfile, hostEnv string) HostParams {
+func getHostParams(profile BackendProfile, hostEnv string) (*HostParams, error) {
 	if profile == PROD {
 		if hostEnv == "" {
-			Logger.Fatal("HOST environment variable is not set")
+			return nil, fmt.Errorf("HOST environment variable is not set")
 		}
 
 		host, err := url.Parse(hostEnv)
 		if err != nil || host == nil || !host.IsAbs() || host.Path != "" || host.Host == "" {
-			Logger.Fatal("Invalid HOST URL: ", host)
+			return nil, fmt.Errorf("invalid HOST URL: %s", host)
 		}
 
 		var port string
@@ -86,16 +87,16 @@ func getHostParams(profile BackendProfile, hostEnv string) HostParams {
 			} else if host.Scheme == "https" {
 				port = "443"
 			} else {
-				Logger.Fatal("error when evaluating port from HOST env variable")
+				return nil, fmt.Errorf("error when evaluating port from HOST env variable")
 			}
 		} else {
 			port = host.Port()
 		}
 
 		domain := strings.Split(host.Host, ":")[0]
-		return HostParams{host.Scheme, domain, port}
+		return &HostParams{host.Scheme, domain, port}, nil
 	} else {
-		return HostParams{"http", "localhost", "8080"}
+		return &HostParams{"http", "localhost", "8080"}, nil
 	}
 
 }
