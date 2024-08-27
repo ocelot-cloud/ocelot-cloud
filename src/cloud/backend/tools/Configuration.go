@@ -7,9 +7,6 @@ import (
 
 var Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 
-// TODO Most of the stuff in this file can be deleted as soon as I simplified the Profile setup.
-var Profile BackendProfile
-
 type BackendProfile int
 
 const (
@@ -24,10 +21,9 @@ func (p *BackendProfile) String() string {
 type BackendComponentMode int
 
 func GenerateGlobalConfiguration() *GlobalConfig {
-	Profile = getProfile()
-	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
+	Profile := getProfile()
 	config := getGlobalConfigBasedOnProfile(Profile)
-	logGlobalConfig(config)
+	logGlobalConfig(config, Profile)
 	return &config
 }
 
@@ -63,8 +59,8 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	return config
 }
 
-func logGlobalConfig(config GlobalConfig) {
-	Logger.Info("Profile is: %s", Profile.String())
+func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
+	Logger.Info("Profile is: %s", profile.String())
 	Logger.Info("Log level is: %s", shared.GetLogLevel())
 	Logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
 	Logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
