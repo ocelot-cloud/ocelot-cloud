@@ -71,6 +71,15 @@ var testCmd = &cobra.Command{
 	Long:  "Run different types of tests for cloud, hub, ci, or schedule.",
 }
 
+var downloadDependenciesCmd = &cobra.Command{
+	Use:   "download",
+	Short: "Downloads application dependencies",
+	Long:  "Downloads all necessary dependencies for the application. This step must be performed once at the beginning of development to set up the environment. This process is separated from other commands so that they do not check dependencies on each run, making them faster.",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.DownloadDependencies()
+	},
+}
+
 var cloudCmd = &cobra.Command{
 	Use:   "cloud [backend/frontend/acceptance]",
 	Short: "Run cloud-related tests",
@@ -164,6 +173,7 @@ func main() {
 	rootCmd.AddCommand(testCmd)
 	rootCmd.AddCommand(deployCmd)
 	rootCmd.AddCommand(cleanCmd)
+	rootCmd.AddCommand(downloadDependenciesCmd)
 
 	if shouldDoPreChecks() {
 		src.Cleanup()

@@ -5,14 +5,14 @@ import (
 )
 
 func testBackendCore() {
-	printTestDescription("Executing backend unit tests")
+	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
 	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 ./...")
 	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
 }
 
 func testCorsDisabling() {
-	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
+	printTaskDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", getTestProfileEnv())
@@ -21,7 +21,7 @@ func testCorsDisabling() {
 }
 
 func TestBackendComponentMocked() {
-	printTestDescription("Testing mocked backend component")
+	printTaskDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
@@ -30,7 +30,7 @@ func TestBackendComponentMocked() {
 }
 
 func TestCloudAcceptance() {
-	printTestDescription("Testing acceptance")
+	printTaskDescription("Testing acceptance")
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
@@ -41,7 +41,7 @@ func TestCloudAcceptance() {
 }
 
 func DeployLocally() {
-	printTestDescription("Running a production server")
+	printTaskDescription("Running a production server")
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
 	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached)
@@ -49,7 +49,7 @@ func DeployLocally() {
 }
 
 func TestCi() {
-	printTestDescription("Running CI tests")
+	printTaskDescription("Running CI tests")
 	// Starting with the fastest tests, ending with slowest.
 
 	// TODO backend units + mocked
@@ -75,7 +75,7 @@ func RunScheduledTests() {
 }
 
 func testProdBackendApi() {
-	printTestDescription("Testing PROD backend API with real docker service")
+	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
 	// TODO Get rid of "disable security" and the other CLI args
 	Build(Backend)
@@ -88,12 +88,12 @@ func testBackendImageDownload() {
 	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 -run TestDownloadProcessProviderReal", "IS_IMAGE_DOWNLOAD_TEST=true")
 }
 
-func printTestDescription(text string) {
+func printTaskDescription(text string) {
 	ColoredPrintln("\n=== %s ===\n", text)
 }
 
 func checkComponentsWithTestProfile() {
-	printTestDescription("Testing Components In DevelopmentMode")
+	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
@@ -107,7 +107,7 @@ func checkComponentsWithTestProfile() {
 }
 
 func testRunScript() {
-	printTestDescription("Testing run script")
+	printTaskDescription("Testing run script")
 	defer Cleanup()
 	Build(DockerImage)
 	ExecuteInDir(scriptsDir, "bash run-dummy.sh")

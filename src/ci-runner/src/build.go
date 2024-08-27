@@ -29,14 +29,11 @@ var ComponentBuilds = map[COMPONENT]*Component{
 		ExecuteInDir(backendDir, "go build")
 	}},
 	Frontend: {"backend", false, func() {
-		ExecuteInDir(frontendDir, "npm install")
 		ExecuteInDir(frontendDir, "npm run build")
 	}},
 	DockerImage: {"docker image", false, func() {
 		// The flags make it executable in Docker containers
 		ExecuteInDir(backendDir, "go build -ldflags '-extldflags \"-static\"'")
-		// TODO Consider installing "vite"?
-		ExecuteInDir(frontendDir, "npm install")
 		ExecuteInDir(frontendDir, "npm run build")
 		ExecuteInDir(projectDir, "docker rm -f ocelotcloud/ocelotcloud")
 		ExecuteInDir(projectDir, "bash -c 'docker network create ocelot-net || true'")
@@ -68,4 +65,12 @@ func Build(comp COMPONENT) {
 		component.build()
 		component.SkipBuild = true
 	}
+}
+
+func DownloadDependencies() {
+	printTaskDescription("downloading dependencies")
+	ExecuteInDir(acceptanceTestsDir, "npm install")
+	ExecuteInDir(frontendDir, "npm install")
+	ExecuteInDir(backendDir, "go mod tidy")
+	ExecuteInDir(hubDir, "go mod tidy")
 }

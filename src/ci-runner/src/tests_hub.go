@@ -9,13 +9,13 @@ func TestHubAll() {
 }
 
 func TestHubUnits() {
-	printTestDescription("Testing hub units")
+	printTaskDescription("Testing hub units")
 	defer Cleanup()
 	ExecuteInDir(hubDir, "go test -tags=unit ./...", "LOG_LEVEL=DEBUG")
 }
 
 func TestHubBackend() {
-	printTestDescription("Testing hub backend")
+	printTaskDescription("Testing hub backend")
 	defer Cleanup()
 	StartDaemon(hubDir, "go run .", "PROFILE=TEST", "LOG_LEVEL=DEBUG")
 	WaitUntilPortIsReady("localhost:8082")
@@ -23,7 +23,7 @@ func TestHubBackend() {
 }
 
 func TestHubAcceptance() {
-	printTestDescription("Testing hub backend")
+	printTaskDescription("Testing hub backend")
 	defer Cleanup()
 	ExecuteInDir(hubDir, "rm -rf data")
 	StartDaemon(hubDir, "bash run-development-setup.sh")
@@ -36,7 +36,7 @@ func TestHubAcceptance() {
 }
 
 func TestHubPersistence() {
-	printTestDescription("Testing hub persistence")
+	printTaskDescription("Testing hub persistence")
 	defer Cleanup()
 	ExecuteInDir(hubDir, "rm -rf data")
 	ExecuteInDir(hubDir, "go build")

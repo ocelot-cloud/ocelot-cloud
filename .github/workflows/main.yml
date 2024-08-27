@@ -30,4 +30,5 @@ jobs:
         run: |
           cd src/ci-runner
           go build
+          ./ci-runner download
           ./ci-runner test scheduled
