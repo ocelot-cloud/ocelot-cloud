@@ -7,31 +7,31 @@ import (
 
 var Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 
-// TODO Most of the stuff in this file can be deleted as soon as I simplified the PROFILE setup.
-var PROFILE Profile
+// TODO Most of the stuff in this file can be deleted as soon as I simplified the Profile setup.
+var Profile BackendProfile
 
-type Profile int
+type BackendProfile int
 
 const (
-	PROD Profile = iota
+	PROD BackendProfile = iota
 	TEST
 )
 
-func (p *Profile) String() string {
+func (p *BackendProfile) String() string {
 	return [...]string{"PROD", "TEST"}[*p]
 }
 
 type BackendComponentMode int
 
 func GenerateGlobalConfiguration() *GlobalConfig {
-	PROFILE = setProfile()
+	Profile = setProfile()
 	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
-	config := getGlobalConfigBasedOnProfile(PROFILE)
+	config := getGlobalConfigBasedOnProfile(Profile)
 	logGlobalConfig(config)
 	return &config
 }
 
-func setProfile() Profile {
+func setProfile() BackendProfile {
 	profile := os.Getenv("PROFILE")
 	if profile == "TEST" {
 		return TEST
@@ -40,7 +40,7 @@ func setProfile() Profile {
 	}
 }
 
-func getGlobalConfigBasedOnProfile(profile Profile) GlobalConfig {
+func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config := GlobalConfig{}
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	config.Scheme = "http"
@@ -65,7 +65,7 @@ func getGlobalConfigBasedOnProfile(profile Profile) GlobalConfig {
 
 func areMocksEnabled() bool {
 	var isEnabled bool
-	if PROFILE == PROD {
+	if Profile == PROD {
 		isEnabled = true
 	} else {
 		isEnabled = false
@@ -90,7 +90,7 @@ type PartialConfig struct {
 }
 
 func logGlobalConfig(config GlobalConfig) {
-	Logger.Info("Profile is: %s", PROFILE.String())
+	Logger.Info("Profile is: %s", Profile.String())
 	Logger.Info("Log level is: %s", shared.GetLogLevel())
 	Logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
 	Logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
