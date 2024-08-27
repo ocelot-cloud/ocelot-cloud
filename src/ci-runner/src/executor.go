@@ -78,11 +78,11 @@ func ColoredPrintln(format string, a ...interface{}) {
 func buildCommand(dir string, commandStr string) *exec.Cmd {
 	parts, err := ParseCommand(commandStr)
 	if err != nil {
-		fmt.Printf("Error parsing command: %s\n", err)
+		ColoredPrintln("error parsing command: %v", err)
 		CleanupAndExitWithError()
 	}
 	if len(parts) == 0 {
-		fmt.Println("Error: no command provided")
+		ColoredPrintln("error, no command found in commandStr: %v", err)
 		CleanupAndExitWithError()
 	}
 	command := parts[0]
