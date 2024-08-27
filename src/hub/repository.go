@@ -562,6 +562,7 @@ func (u *SqliteRepository) Logout(user string) error {
 	return nil
 }
 
+// TODO I think I should get rid of these two functions. I dont want low level errors to be transported to the top, or even displayed to users.
 func logAndReturnError(message string, args ...interface{}) error {
 	Logger.Error(message, args...)
 	return fmt.Errorf(message, args...)

@@ -2,8 +2,10 @@ package security
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var db *sql.DB
@@ -32,7 +34,7 @@ func initializeTables() {
 	_, err := db.Exec(`
 	CREATE TABLE IF NOT EXISTS users (
 		user_id SERIAL PRIMARY KEY,
-		user_name VARCHAR(255) NOT NULL,
+		user_name VARCHAR(255) NOT NULL UNIQUE,
 		hashed_password VARCHAR(255) NOT NULL,
 		hashed_cookie VARCHAR(255),
 		is_admin BOOLEAN NOT NULL
@@ -46,7 +48,8 @@ func initializeTables() {
 	CREATE TABLE IF NOT EXISTS apps (
 		app_id SERIAL PRIMARY KEY,
 		maintainer_name VARCHAR(255) NOT NULL,
-		app_name VARCHAR(255) NOT NULL
+		app_name VARCHAR(255) NOT NULL,
+		UNIQUE (maintainer_name, app_name)
 	);
 `)
 	if err != nil {
@@ -58,7 +61,8 @@ func initializeTables() {
 		app_id INT REFERENCES apps(app_id) ON DELETE CASCADE,
 		tag_id SERIAL PRIMARY KEY,
 		tag_name VARCHAR(255) NOT NULL,
-		content_blob BYTEA NOT NULL
+		content_blob BYTEA NOT NULL,
+		UNIQUE (app_id, tag_name)
 	);
 `)
 	if err != nil {
@@ -68,7 +72,7 @@ func initializeTables() {
 	_, err = db.Exec(`
 	CREATE TABLE IF NOT EXISTS groups (
 		group_id SERIAL PRIMARY KEY,
-		group_name VARCHAR(255) NOT NULL
+		group_name VARCHAR(255) NOT NULL UNIQUE 
 	);
 `)
 	if err != nil {
@@ -144,7 +148,25 @@ type Repository interface {
 type MyRepository struct{}
 
 func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
+	hashedPassword, err := hashAndSaltPassword(password)
+	if err != nil {
+		Logger.Warn("Failed to hash password: %v", err)
+		return fmt.Errorf("failed to hash password")
+	}
+	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, is_admin) VALUES (?, ?, ?)", user, hashedPassword, isAdmin)
+	if err != nil {
+		Logger.Warn("Failed to create user: %v", err)
+		return fmt.Errorf("failed to create user")
+	}
 	return nil
+}
+
+func hashAndSaltPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 }
 
 func (r *MyRepository) WipeDatabase() {
@@ -152,5 +174,17 @@ func (r *MyRepository) WipeDatabase() {
 }
 
 func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
+	var hashedPassword string
+	err := db.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
+	if err != nil {
+		Logger.Error("Failed to fetch hashed password: %v\n", err)
+		return false
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return false
+	}
+
 	return true
 }

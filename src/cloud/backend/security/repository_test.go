@@ -23,6 +23,8 @@ const (
 // TODO Finish SQLite Client Implementation And Tests
 func TestSqliteClient(t *testing.T) {
 	defer repo.WipeDatabase()
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, true))
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
 	assert.True(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
+	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword+"x"))
+	// TODO error: user already exists
 }
