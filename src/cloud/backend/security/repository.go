@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
-	"time"
 )
 
 var db *sql.DB
+var databaseFile = shared.DataDir + "/sqlite.db"
 
 func initializeDatabaseWithSource(dataSourceName string) {
 	var err error
@@ -105,37 +105,52 @@ type Authorization struct {
 
 // TODO To be implemented
 type Repository interface {
-	// Login/Logout/Register
-	CreateUser(user string, password string) error
-	IsPasswordCorrect(user string, password string) bool
-	Logout(user string) error
-	ChangePassword(user string, newPassword string) error
-	DeleteUser(user string) error
-
-	// Auth
-	DoesUserExist(user string) bool
-	GetUserWithCookie(cookie string) (Authorization, error)
-
-	// TODO Matrial from hub which might be an inspiration. If not used, please delete.
-	DoesAppExist(user string, app string) bool
-	CreateApp(user string, app string) error
-	DeleteApp(user string, app string) error
-	FindApps(query string) ([]string, error)
-	SetCookie(user string, cookie string, expirationDate time.Time) error
-	IsCookieExpired(cookie string) bool
-
-	CreateTag(user string, app string, tag string, data []byte) error
-	DeleteTag(user string, app string, tag string) error
-	GetTagList(user string, app string) ([]string, error)
-
-	SetOrigin(user string, newOrigin string) error
-	IsOriginCorrect(user string, origin string) bool
-	DoesTagExist(user string, app string, tag string) bool
-	GetTagContent(user string, app string, tag string) ([]byte, error)
-	GetUsedSpaceInBytes(user string) (int, error)
-
-	GetAppList(user string) ([]string, error)
+	// User Handling
+	CreateUser(user string, password string, isAdmin bool) error
 	WipeDatabase()
+	IsPasswordCorrect(user string, password string) bool
+	/*
+		DeleteUser(user string) error
+		Logout(user string) error
+		ChangePassword(user string, newPassword string) error
+
+		// Auth
+		DoesUserExist(user string) bool
+		GetUserWithCookie(cookie string) (Authorization, error)
+
+
+		// TODO Matrial from hub which might be an inspiration. If not used, please delete.
+		DoesAppExist(user string, app string) bool
+		CreateApp(user string, app string) error
+		DeleteApp(user string, app string) error
+		FindApps(query string) ([]string, error)
+		SetCookie(user string, cookie string, expirationDate time.Time) error
+		IsCookieExpired(cookie string) bool
+
+		CreateTag(user string, app string, tag string, data []byte) error
+		DeleteTag(user string, app string, tag string) error
+		GetTagList(user string, app string) ([]string, error)
+
+		SetOrigin(user string, newOrigin string) error
+		IsOriginCorrect(user string, origin string) bool
+		DoesTagExist(user string, app string, tag string) bool
+		GetTagContent(user string, app string, tag string) ([]byte, error)
+		GetUsedSpaceInBytes(user string) (int, error)
+
+		GetAppList(user string) ([]string, error)
+	*/
 }
 
-var databaseFile = shared.DataDir + "/sqlite.db"
+type MyRepository struct{}
+
+func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
+	return nil
+}
+
+func (r *MyRepository) WipeDatabase() {
+
+}
+
+func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
+	return true
+}
