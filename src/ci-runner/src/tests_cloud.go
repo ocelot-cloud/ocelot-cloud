@@ -11,22 +11,12 @@ func testBackendCore() {
 	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
 }
 
-func testWithDefaultConfig() {
-	printTestDescription("Testing backend component") // TODO better name
-	defer Cleanup()
-	Build(Backend)
-	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true")
-	WaitUntilPortIsReady("localhost:8080")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
-}
-
 func testCorsDisabling() {
 	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", getTestProfileEnv())
 	WaitUntilPortIsReady("localhost:8080")
-
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
 }
 
@@ -71,7 +61,6 @@ func TestCi() {
 
 	// TODO test backend no mocks, just API
 	testProdBackendApi()
-	testWithDefaultConfig()
 	testCorsDisabling()
 
 	// TODO acceptance, backend mocked
@@ -86,11 +75,11 @@ func RunScheduledTests() {
 }
 
 func testProdBackendApi() {
-	printTestDescription("Testing backend API with real docker service")
+	printTestDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
 	// TODO Get rid of "disable security" and the other CLI args
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getEnableMocksEnv(false), "DISABLE_SECURITY=true")
+	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
