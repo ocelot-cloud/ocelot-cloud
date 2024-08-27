@@ -2,7 +2,9 @@ package tools
 
 import (
 	"github.com/ocelot-cloud/shared"
+	"net/url"
 	"os"
+	"strings"
 )
 
 var Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
@@ -39,6 +41,7 @@ func getProfile() BackendProfile {
 func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config := GlobalConfig{}
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
+
 	config.Scheme = "http"
 	config.RootDomain = "localhost"
 	config.Port = "8080"
@@ -57,6 +60,44 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.IsSecurityEnabled = false
 	}
 	return config
+}
+
+type HostParams struct {
+	Scheme string
+	Domain string
+	Port   string
+}
+
+func getHostParams(profile BackendProfile, hostEnv string) HostParams {
+	if profile == PROD {
+		if hostEnv == "" {
+			Logger.Fatal("HOST environment variable is not set")
+		}
+
+		host, err := url.Parse(hostEnv)
+		if err != nil || host == nil || !host.IsAbs() || host.Path != "" || host.Host == "" {
+			Logger.Fatal("Invalid HOST URL: ", host)
+		}
+
+		var port string
+		if host.Port() == "" {
+			if host.Scheme == "http" {
+				port = "80"
+			} else if host.Scheme == "https" {
+				port = "443"
+			} else {
+				Logger.Fatal("error when evaluating port from HOST env variable")
+			}
+		} else {
+			port = host.Port()
+		}
+
+		domain := strings.Split(host.Host, ":")[0]
+		return HostParams{host.Scheme, domain, port}
+	} else {
+		return HostParams{"http", "localhost", "8080"}
+	}
+
 }
 
 func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
