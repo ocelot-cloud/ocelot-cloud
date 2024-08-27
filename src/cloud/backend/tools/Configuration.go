@@ -48,7 +48,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config.Port = "8080"
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
-	config.AreMocksEnabled = areMocksEnabled()
+	config.AreMocksEnabled = os.Getenv("ENABLE_MOCKS") == "true"
 
 	// TODO security/auth should always be enabled
 	if profile == PROD {
@@ -61,25 +61,6 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.IsSecurityEnabled = false
 	}
 	return config
-}
-
-func areMocksEnabled() bool {
-	var isEnabled bool
-	if Profile == PROD {
-		isEnabled = true
-	} else {
-		isEnabled = false
-	}
-
-	enableMocksEnv := os.Getenv("ENABLE_MOCKS")
-	if enableMocksEnv != "" {
-		if enableMocksEnv == "true" {
-			isEnabled = true
-		} else if enableMocksEnv == "false" {
-			isEnabled = false
-		}
-	}
-	return isEnabled
 }
 
 type PartialConfig struct {
