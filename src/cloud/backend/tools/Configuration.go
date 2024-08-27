@@ -24,14 +24,14 @@ func (p *BackendProfile) String() string {
 type BackendComponentMode int
 
 func GenerateGlobalConfiguration() *GlobalConfig {
-	Profile = setProfile()
+	Profile = getProfile()
 	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 	config := getGlobalConfigBasedOnProfile(Profile)
 	logGlobalConfig(config)
 	return &config
 }
 
-func setProfile() BackendProfile {
+func getProfile() BackendProfile {
 	profile := os.Getenv("PROFILE")
 	if profile == "TEST" {
 		return TEST
@@ -50,7 +50,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	config.AreMocksEnabled = os.Getenv("ENABLE_MOCKS") == "true"
 
-	// TODO security/auth should always be enabled
+	// TODO security/auth should always be enabled. Remove "IsSecurityEnabled" and "DISABLE_SECURITY" from everywhere in the project.
 	if profile == PROD {
 		config.IsGuiEnabled = true
 		config.AreCrossOriginRequestsAllowed = false
@@ -61,13 +61,6 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.IsSecurityEnabled = false
 	}
 	return config
-}
-
-type PartialConfig struct {
-	IsGuiEnabled                  bool
-	AreCrossOriginRequestsAllowed bool
-	UseDummyStacks                bool
-	IsOidcAuthenticationEnabled   bool
 }
 
 func logGlobalConfig(config GlobalConfig) {
