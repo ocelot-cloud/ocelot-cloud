@@ -32,14 +32,11 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 		PROFILE = PROD
 	}
 
-	// TODO add env variables: LOG_LEVEL, USE_MOCKS, USE_DUMMY_STACKS (not sure here, do I still need this?)
-
 	var logLevelStr string
 	flag.StringVar(&logLevelStr, "log-level", "notSet", "set log level (trace, debug, info, warn, error)")
-
 	flag.Parse()
-
-	return SetGlobalConfig(logLevelStr)
+	Logger = shared.ProvideLogger(logLevelStr)
+	return SetGlobalConfig()
 	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
 
 	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
@@ -52,23 +49,27 @@ type PartialConfig struct {
 	IsOidcAuthenticationEnabled   bool
 }
 
-func SetGlobalConfig(logLevelStr string) *GlobalConfig {
+func SetGlobalConfig() *GlobalConfig {
 	// TODO Should I only use dummy stacks in PROD? Or just real stacks?
 	// TODO security/auth should always be enabled
 
 	config := GlobalConfig{}
-	partialConfig := PartialConfig{}
 
 	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	var areMocksEnabled bool
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	// TODO TEST should be default localhost address
 	if PROFILE == PROD {
-		disableSecurity := os.Getenv("DISABLE_SECURITY") == "true"
-		partialConfig = PartialConfig{true, false, true, !disableSecurity}
+		config.IsGuiEnabled = true
+		config.AreCrossOriginRequestsAllowed = false
+		config.UseDummyStacks = true
+		config.IsSecurityEnabled = os.Getenv("DISABLE_SECURITY") != "true"
 		areMocksEnabled = true
-	} else if PROFILE == TEST {
-		partialConfig = PartialConfig{false, true, useDummyStacks, false}
+	} else {
+		config.IsGuiEnabled = false
+		config.AreCrossOriginRequestsAllowed = true
+		config.UseDummyStacks = useDummyStacks
+		config.IsSecurityEnabled = false
 		areMocksEnabled = false
 	}
 
@@ -80,19 +81,12 @@ func SetGlobalConfig(logLevelStr string) *GlobalConfig {
 			areMocksEnabled = false
 		}
 	}
+	config.AreMocksEnabled = areMocksEnabled
 
-	config = GlobalConfig{
-		partialConfig.AreCrossOriginRequestsAllowed,
-		areMocksEnabled,
-		partialConfig.IsGuiEnabled,
-		partialConfig.IsOidcAuthenticationEnabled,
-		partialConfig.UseDummyStacks,
-		"http",
-		"localhost",
-		"8080",
-	}
+	config.Scheme = "http"
+	config.RootDomain = "localhost"
+	config.Port = "8080"
 
-	Logger = shared.ProvideLogger(logLevelStr)
 	logGlobalConfig(config)
 	return &config
 }
