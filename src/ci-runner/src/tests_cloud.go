@@ -5,14 +5,14 @@ import (
 )
 
 func testBackendCore() {
-	printTestDescription("Testing backend testing API")
+	printTestDescription("Executing backend unit tests")
 	defer Cleanup()
 	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 ./...")
 	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
 }
 
 func testWithDefaultConfig() {
-	printTestDescription("Testing backend component")
+	printTestDescription("Testing backend component") // TODO better name
 	defer Cleanup()
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true")
@@ -86,11 +86,12 @@ func RunScheduledTests() {
 }
 
 func testProdBackendApi() {
-	printTestDescription("Testing PROD backend")
+	printTestDescription("Testing backend API with real docker service")
 	defer Cleanup()
 	// TODO Get rid of "disable security" and the other CLI args
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", getEnableMocksEnv(false), "DISABLE_SECURITY=true")
+	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
 

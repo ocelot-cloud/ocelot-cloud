@@ -77,7 +77,7 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 		partialConfig = PartialConfig{"localhost", true, false, true}
 		areMocksEnabled = true
 	} else if PROFILE == TEST {
-		partialConfig = PartialConfig{"localhost", false, true, false}
+		partialConfig = PartialConfig{"localhost", false, true, true} // TODO both auth vars are always true, can be removed
 		areMocksEnabled = false
 	}
 
