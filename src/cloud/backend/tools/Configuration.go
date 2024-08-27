@@ -63,7 +63,6 @@ type PartialConfig struct {
 	RootDomain                    string
 	IsGuiEnabled                  bool
 	AreCrossOriginRequestsAllowed bool
-	IsOidcAuthenticationEnabled   bool
 }
 
 func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDummyStacks bool) *GlobalConfig {
@@ -74,10 +73,10 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	// TODO TEST should be default localhost address
 	if PROFILE == PROD {
-		partialConfig = PartialConfig{"localhost", true, false, true}
+		partialConfig = PartialConfig{"localhost", true, false}
 		areMocksEnabled = true
 	} else if PROFILE == TEST {
-		partialConfig = PartialConfig{"localhost", false, true, true} // TODO both auth vars are always true, can be removed
+		partialConfig = PartialConfig{"localhost", false, true}
 		areMocksEnabled = false
 	}
 
