@@ -8,7 +8,8 @@ func testBackendCore() {
 	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
 	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 ./...")
-	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
+	ExecuteInDir(backendSecurityDir, "go test -v -count=1 ./...")
+	ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 }
 
 func testCorsDisabling() {
