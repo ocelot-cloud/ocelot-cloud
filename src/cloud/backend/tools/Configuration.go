@@ -24,53 +24,62 @@ func (p *Profile) String() string {
 type BackendComponentMode int
 
 func GenerateGlobalConfiguration() *GlobalConfig {
+	PROFILE = setProfile()
+	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
+	config := getGlobalConfigBasedOnProfile(PROFILE)
+	logGlobalConfig(config)
+	return &config
+}
+
+func setProfile() Profile {
 	profile := os.Getenv("PROFILE")
 	if profile == "TEST" {
-		PROFILE = TEST
+		return TEST
 	} else {
-		PROFILE = PROD
+		return PROD
 	}
+}
 
-	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
-	// TODO Should I only use dummy stacks in PROD? Or just real stacks?
-	// TODO security/auth should always be enabled
-
+func getGlobalConfigBasedOnProfile(profile Profile) GlobalConfig {
 	config := GlobalConfig{}
+	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	config.Scheme = "http"
 	config.RootDomain = "localhost"
 	config.Port = "8080"
-	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 
-	var areMocksEnabled bool
-	// TODO PROD should take the root domain from ENV variable, if not present, fail
-	// TODO TEST should be default localhost address
-	if PROFILE == PROD {
+	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
+	config.AreMocksEnabled = areMocksEnabled()
+
+	// TODO security/auth should always be enabled
+	if profile == PROD {
 		config.IsGuiEnabled = true
 		config.AreCrossOriginRequestsAllowed = false
 		config.IsSecurityEnabled = os.Getenv("DISABLE_SECURITY") != "true"
-		areMocksEnabled = true
 	} else {
 		config.IsGuiEnabled = false
 		config.AreCrossOriginRequestsAllowed = true
 		config.IsSecurityEnabled = false
-		areMocksEnabled = false
+	}
+	return config
+}
+
+func areMocksEnabled() bool {
+	var isEnabled bool
+	if PROFILE == PROD {
+		isEnabled = true
+	} else {
+		isEnabled = false
 	}
 
 	enableMocksEnv := os.Getenv("ENABLE_MOCKS")
 	if enableMocksEnv != "" {
 		if enableMocksEnv == "true" {
-			areMocksEnabled = true
+			isEnabled = true
 		} else if enableMocksEnv == "false" {
-			areMocksEnabled = false
+			isEnabled = false
 		}
 	}
-	config.AreMocksEnabled = areMocksEnabled
-
-	logGlobalConfig(config)
-	return &config
-	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
-
-	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
+	return isEnabled
 }
 
 type PartialConfig struct {
