@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"ocelot/backend/config"
+	"ocelot/backend/tools"
 )
 
 func checkSessionHandler(w http.ResponseWriter, r *http.Request) {

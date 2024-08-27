@@ -2,11 +2,9 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/ocelot-cloud/shared"
 	"ocelot/backend/business"
-	"ocelot/backend/config"
 	"ocelot/backend/security"
-	"os"
+	"ocelot/backend/tools"
 	"os/exec"
 	"strings"
 )
@@ -31,7 +29,7 @@ import (
 // TODO Also scheduled tests can be simplified (no development profile any longer)?
 // TODO In cloud is use this line "var logger = shared.ProvideLogger()". Is this maybe no longer working with the new version as I have to set it to Info by hand? -> Maybe simplify by using: ProvideLogger("DEBUG") instead.
 
-var logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL")) // TODO use global logger
+var logger = tools.Logger
 
 func main() {
 	verifyCliToolInstallations()

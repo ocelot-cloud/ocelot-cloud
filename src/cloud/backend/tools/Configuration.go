@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var logger = shared.ProvideLogger("info")
+var Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 
 // TODO Most of the stuff in this file can be deleted as soon as I simplified the PROFILE setup.
 var PROFILE Profile
@@ -101,20 +101,20 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 		"8080",
 	}
 
-	logger = shared.ProvideLogger(logLevelStr)
+	Logger = shared.ProvideLogger(logLevelStr)
 	logGlobalConfig(config)
 	return &config
 }
 
 func logGlobalConfig(config GlobalConfig) {
-	logger.Info("Profile is: %s", PROFILE.String())
-	logger.Info("Log level is: %s", shared.GetLogLevel())
-	logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
-	logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
-	logger.Debug("Is the CORS policy relaxed by explicitly allowing cross-origin requests by setting specific response headers? -> %v", config.AreCrossOriginRequestsAllowed)
+	Logger.Info("Profile is: %s", PROFILE.String())
+	Logger.Info("Log level is: %s", shared.GetLogLevel())
+	Logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
+	Logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
+	Logger.Debug("Is the CORS policy relaxed by explicitly allowing cross-origin requests by setting specific response headers? -> %v", config.AreCrossOriginRequestsAllowed)
 	if config.AreCrossOriginRequestsAllowed {
-		logger.Warn("The CORS policy is relaxed and cross-origin requests are allowed. This is for development, so don't use this option in production!")
+		Logger.Warn("The CORS policy is relaxed and cross-origin requests are allowed. This is for development, so don't use this option in production!")
 	}
-	logger.Debug("Are mocks enabled for faster testing? -> %v", config.AreMocksEnabled)
-	logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
+	Logger.Debug("Are mocks enabled for faster testing? -> %v", config.AreMocksEnabled)
+	Logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
 }

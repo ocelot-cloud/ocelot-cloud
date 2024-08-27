@@ -3,9 +3,11 @@ package security
 import (
 	"github.com/gorilla/mux"
 	"net/http"
-	"ocelot/backend/config"
+	"ocelot/backend/tools"
 	"strings"
 )
+
+var Logger = tools.Logger
 
 type SecurityModule struct {
 	router *mux.Router

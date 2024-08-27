@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
-	"ocelot/backend/config"
+	"ocelot/backend/tools"
 	"testing"
 )
 

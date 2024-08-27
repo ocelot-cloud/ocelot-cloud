@@ -1,9 +1,9 @@
 package internal
 
 import (
-	"github.com/ocelot-cloud/shared"
+	"ocelot/backend/tools"
 )
 
-var Logger = shared.ProvideLogger("info") // TODO use global logger instead
+var Logger = tools.Logger
 var StackFileDir string
 var CoreStackFileDir = "stacks/core"

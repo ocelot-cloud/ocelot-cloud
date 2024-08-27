@@ -4,10 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/ocelot-cloud/shared"
 )
 
-var Logger = shared.ProvideLogger("info") // TODO Should use global logger instead
 var databaseFile = "sqlite.db"
 
 func DoSomeDataBaseStuff() {

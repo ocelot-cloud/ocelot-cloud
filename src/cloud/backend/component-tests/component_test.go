@@ -3,16 +3,15 @@ package component_tests
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
 	"net/http"
-	"ocelot/backend/config"
+	"ocelot/backend/tools"
 	"os"
 	"testing"
 	"time"
 )
 
-var logger = shared.ProvideLogger("info") // TODO use global logger instead
+var logger = tools.Logger
 
 const endpoint = "http://localhost:8080/api/stacks/"
 const stackOneName = tools.NginxDefault
