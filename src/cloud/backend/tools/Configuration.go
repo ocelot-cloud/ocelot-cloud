@@ -2,7 +2,6 @@ package tools
 
 import (
 	"flag"
-	"fmt"
 	"github.com/ocelot-cloud/shared"
 	"os"
 )
@@ -40,43 +39,36 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 
 	flag.Parse()
 
+	return SetGlobalConfig(logLevelStr)
 	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
 
-	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
-
-	// TODO Replace each backendMode step by step:
-	if PROFILE == PROD {
-		// TODO Should I only use dummy stacks in PROD? Or just real stacks?
-		// TODO security/auth should always be enabled
-		disableSecurity := os.Getenv("DISABLE_SECURITY") == "true"
-		return SetGlobalConfig(logLevelStr, !disableSecurity, true)
-	} else if PROFILE == TEST {
-		return SetGlobalConfig(logLevelStr, false, useDummyStacks)
-	} else {
-		errMsg := fmt.Sprintf("Unknown profile: %v", PROFILE)
-		panic(errMsg)
-	}
 	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
 }
 
 type PartialConfig struct {
-	RootDomain                    string
 	IsGuiEnabled                  bool
 	AreCrossOriginRequestsAllowed bool
+	UseDummyStacks                bool
+	IsOidcAuthenticationEnabled   bool
 }
 
-func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDummyStacks bool) *GlobalConfig {
+func SetGlobalConfig(logLevelStr string) *GlobalConfig {
+	// TODO Should I only use dummy stacks in PROD? Or just real stacks?
+	// TODO security/auth should always be enabled
+
 	config := GlobalConfig{}
 	partialConfig := PartialConfig{}
 
+	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	var areMocksEnabled bool
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	// TODO TEST should be default localhost address
 	if PROFILE == PROD {
-		partialConfig = PartialConfig{"localhost", true, false}
+		disableSecurity := os.Getenv("DISABLE_SECURITY") == "true"
+		partialConfig = PartialConfig{true, false, true, !disableSecurity}
 		areMocksEnabled = true
 	} else if PROFILE == TEST {
-		partialConfig = PartialConfig{"localhost", false, true}
+		partialConfig = PartialConfig{false, true, useDummyStacks, false}
 		areMocksEnabled = false
 	}
 
@@ -93,10 +85,10 @@ func SetGlobalConfig(logLevelStr string, isOidcAuthenticationEnabled bool, useDu
 		partialConfig.AreCrossOriginRequestsAllowed,
 		areMocksEnabled,
 		partialConfig.IsGuiEnabled,
-		isOidcAuthenticationEnabled,
-		useDummyStacks,
+		partialConfig.IsOidcAuthenticationEnabled,
+		partialConfig.UseDummyStacks,
 		"http",
-		partialConfig.RootDomain,
+		"localhost",
 		"8080",
 	}
 
