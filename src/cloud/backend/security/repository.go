@@ -170,7 +170,10 @@ func hashAndSaltPassword(password string) (string, error) {
 }
 
 func (r *MyRepository) WipeDatabase() {
-
+	_, err := db.Exec("DELETE FROM users")
+	if err != nil {
+		Logger.Fatal("Database wipe failed: %v", err)
+	}
 }
 
 func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
