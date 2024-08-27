@@ -77,9 +77,9 @@ func RunScheduledTests() {
 func testProdBackendApi() {
 	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
-	// TODO Get rid of "disable security" and the other CLI args
+	// TODO Get rid of "DISABLE_SECURITY", it should always be enabled by default
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true")
+	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true", "USE_DUMMY_STACKS=true")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }

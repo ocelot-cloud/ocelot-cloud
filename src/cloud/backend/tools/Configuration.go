@@ -39,21 +39,19 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 	config.Scheme = "http"
 	config.RootDomain = "localhost"
 	config.Port = "8080"
+	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 
-	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	var areMocksEnabled bool
 	// TODO PROD should take the root domain from ENV variable, if not present, fail
 	// TODO TEST should be default localhost address
 	if PROFILE == PROD {
 		config.IsGuiEnabled = true
 		config.AreCrossOriginRequestsAllowed = false
-		config.UseDummyStacks = true
 		config.IsSecurityEnabled = os.Getenv("DISABLE_SECURITY") != "true"
 		areMocksEnabled = true
 	} else {
 		config.IsGuiEnabled = false
 		config.AreCrossOriginRequestsAllowed = true
-		config.UseDummyStacks = useDummyStacks
 		config.IsSecurityEnabled = false
 		areMocksEnabled = false
 	}
