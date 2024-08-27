@@ -34,7 +34,8 @@ func TestCloudAcceptance() {
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, getEnableMocksEnv(true))
+	// TODO USE_DUMMY_STACKS should not be necessary here, since we use the mocks
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, getEnableMocksEnv(true), "USE_DUMMY_STACKS=true")
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
