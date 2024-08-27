@@ -43,7 +43,7 @@ func testWithDefaultConfig() {
 	printTestDescription("Testing backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -log-level=debug", "DISABLE_SECURITY=true")
+	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
@@ -52,7 +52,7 @@ func testCorsDisabling() {
 	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -log-level=debug", "PROFILE="+TestProfile)
+	StartDaemon(backendDir, "./backend", getTestProfileEnv())
 	WaitUntilPortIsReady("localhost:8080")
 
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
@@ -62,10 +62,22 @@ func TestBackendComponentMocked() {
 	printTestDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
-	// TODO Maybe add methods like: envProfile("TEST"), dummyStacksUsageEnv("true")
-	StartDaemon(backendDir, "./backend -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true")
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
+}
+
+func getTestProfileEnv() string {
+	return "PROFILE=" + TestProfile
+}
+
+func getEnableDummyStacksEnv(enabled bool) string {
+	prefix := "USE_DUMMY_STACKS="
+	if enabled {
+		return prefix + "true"
+	} else {
+		return prefix + "false"
+	}
 }
 
 func TestCloudAcceptance() {
@@ -73,10 +85,19 @@ func TestCloudAcceptance() {
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "ENABLE_MOCKS=true")
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, getEnableMocksEnv(true))
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
+}
+
+func getEnableMocksEnv(enabled bool) string {
+	prefix := "ENABLE_MOCKS="
+	if enabled {
+		return prefix + "true"
+	} else {
+		return prefix + "false"
+	}
 }
 
 func DeployLocally() {
@@ -119,7 +140,7 @@ func testProdBackendApi() {
 	defer Cleanup()
 	// TODO Get rid of "disable security" and the other CLI args
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", "ENABLE_MOCKS=false", "DISABLE_SECURITY=true")
+	StartDaemon(backendDir, "./backend", getEnableMocksEnv(false), "DISABLE_SECURITY=true")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
 
@@ -135,7 +156,7 @@ func checkComponentsWithTestProfile() {
 	printTestDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend -log-level=debug", "PROFILE="+TestProfile, "USE_DUMMY_STACKS=true") // TODO
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	WaitUntilPortIsReady("localhost:8080")
 
 	Build(Frontend)
