@@ -1,4 +1,4 @@
-package internal
+package security
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ var users = map[string]string{
 	"admin": "password",
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func loginHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("login logic called")
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)

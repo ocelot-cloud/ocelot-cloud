@@ -19,7 +19,7 @@ var frontendDir = cloudDir + "/frontend"
 var acceptanceTestsDir = cloudDir + "/acceptance-tests"
 var ocelotStackDir = backendDir + "/stacks/core/ocelot-cloud"
 var backendBusinessInternalDir = backendDir + "/business/internal"
-var backendSecurityInternalDir = backendDir + "/security/internal"
+var backendSecurityInternalDir = backendDir + "/security"
 var hubDir = srcDir + "/hub"
 
 // TestProfile There is also the "PROD" profile, but it should be used automatically if no profile is given.

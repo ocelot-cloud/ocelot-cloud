@@ -2,14 +2,10 @@ package security
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"ocelot/backend/config"
-	"ocelot/backend/security/internal"
 	"strings"
 )
-
-var Logger = shared.ProvideLogger("info") // TODO use global logger instead
 
 type SecurityModule struct {
 	router *mux.Router
@@ -17,7 +13,7 @@ type SecurityModule struct {
 }
 
 func ProvideSecurityModule(router *mux.Router, config *tools.GlobalConfig) *SecurityModule {
-	router.HandleFunc("/api/login", internal.LoginHandler).Methods("POST")
+	router.HandleFunc("/api/login", loginHandler).Methods("POST")
 	return &SecurityModule{router, config}
 }
 
