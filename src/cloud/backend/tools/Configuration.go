@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"flag"
 	"github.com/ocelot-cloud/shared"
 	"os"
 )
@@ -32,28 +31,14 @@ func GenerateGlobalConfiguration() *GlobalConfig {
 		PROFILE = PROD
 	}
 
-	var logLevelStr string
-	flag.StringVar(&logLevelStr, "log-level", "notSet", "set log level (trace, debug, info, warn, error)")
-	flag.Parse()
-	Logger = shared.ProvideLogger(logLevelStr)
-	return SetGlobalConfig()
-	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
-
-	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
-}
-
-type PartialConfig struct {
-	IsGuiEnabled                  bool
-	AreCrossOriginRequestsAllowed bool
-	UseDummyStacks                bool
-	IsOidcAuthenticationEnabled   bool
-}
-
-func SetGlobalConfig() *GlobalConfig {
+	Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 	// TODO Should I only use dummy stacks in PROD? Or just real stacks?
 	// TODO security/auth should always be enabled
 
 	config := GlobalConfig{}
+	config.Scheme = "http"
+	config.RootDomain = "localhost"
+	config.Port = "8080"
 
 	var useDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	var areMocksEnabled bool
@@ -83,12 +68,18 @@ func SetGlobalConfig() *GlobalConfig {
 	}
 	config.AreMocksEnabled = areMocksEnabled
 
-	config.Scheme = "http"
-	config.RootDomain = "localhost"
-	config.Port = "8080"
-
 	logGlobalConfig(config)
 	return &config
+	// TODO get rid of all "disable-security" and "enable-dummy-stacks"
+
+	// TODO Test cases to handle in ci-runner: backend mocked, backend full, frontend + backend mocked
+}
+
+type PartialConfig struct {
+	IsGuiEnabled                  bool
+	AreCrossOriginRequestsAllowed bool
+	UseDummyStacks                bool
+	IsOidcAuthenticationEnabled   bool
 }
 
 func logGlobalConfig(config GlobalConfig) {
