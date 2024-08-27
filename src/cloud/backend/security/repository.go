@@ -113,8 +113,8 @@ type Repository interface {
 	CreateUser(user string, password string, isAdmin bool) error
 	WipeDatabase()
 	IsPasswordCorrect(user string, password string) bool
+	DeleteUser(user string) error
 	/*
-		DeleteUser(user string) error
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
 
@@ -187,4 +187,13 @@ func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
 	}
 
 	return true
+}
+
+func (r *MyRepository) DeleteUser(user string) error {
+	_, err := db.Exec("DELETE FROM users WHERE user_name = ?", user)
+	if err != nil {
+		Logger.Warn("Failed to delete user: %v", err)
+		return fmt.Errorf("failed to delete user")
+	}
+	return nil
 }

@@ -26,5 +26,11 @@ func TestSqliteClient(t *testing.T) {
 	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
 	assert.True(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
 	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword+"x"))
-	// TODO error: user already exists
+
+	assert.NotNil(t, repo.CreateUser(sampleUser, samplePassword+"x", false))
+
+	assert.Nil(t, repo.DeleteUser(sampleUser))
+	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
 }
+
+// TODO error: user already exists -> in the handlers
