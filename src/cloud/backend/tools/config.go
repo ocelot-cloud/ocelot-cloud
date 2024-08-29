@@ -115,6 +115,6 @@ func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
 	if config.AreCrossOriginRequestsAllowed {
 		Logger.Warn("The CORS policy is relaxed and cross-origin requests are allowed. This is for development, so don't use this option in production!")
 	}
-	Logger.Debug("Are mocks enabled for faster testing? -> %v", config.AreMocksEnabled)
+	Logger.Debug("Are mocks enabled? -> %v", config.AreMocksEnabled)
 	Logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
 }
