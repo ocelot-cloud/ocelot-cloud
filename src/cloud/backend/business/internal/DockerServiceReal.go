@@ -41,11 +41,7 @@ func logAndCreateStackNotFoundError(stackName string) error {
 }
 
 func getStackPath(stackName string) string {
-	if stackName == "ocelot-cloud" {
-		return fmt.Sprintf("%s/%s/docker-compose.yml", CoreStackFileDir, stackName)
-	} else {
-		return fmt.Sprintf("%s/%s/docker-compose.yml", StackFileDir, stackName)
-	}
+	return fmt.Sprintf("%s/%s/docker-compose.yml", StackFileDir, stackName)
 }
 
 func (d *DockerServiceReal) StopStack(stackName string) error {
