@@ -46,7 +46,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		Logger.Fatal("Failed to get host params: %v", err)
 		// TODO Give examples/explanation how to fix it. "https://my-domain.com"
 	}
-	config.Scheme = hostParams.Scheme
+	config.HttpScheme = hostParams.Scheme
 	config.RootDomain = hostParams.Domain
 	config.DockerContainerPort = hostParams.Port
 	config.BackendExecutablePort = "8080"
