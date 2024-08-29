@@ -57,8 +57,8 @@ func (a *ApplicationInitializer) initializeDockerNetwork() {
 func (a *ApplicationInitializer) initializeHandlers() {
 	a.initializeFunctionalEndpoints()
 	proxyHandler := a.buildProxyHandler()
-	Logger.Info("Starting server listening on port " + a.config.Port)
-	err := http.ListenAndServe(":"+a.config.Port, http.HandlerFunc(proxyHandler))
+	Logger.Info("Starting server listening on port ", a.config.BackendExecutablePort)
+	err := http.ListenAndServe(":"+a.config.BackendExecutablePort, http.HandlerFunc(proxyHandler))
 	if err != nil {
 		Logger.Fatal("Failed to start server: " + err.Error())
 	}
@@ -67,7 +67,8 @@ func (a *ApplicationInitializer) initializeHandlers() {
 func (a *ApplicationInitializer) buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		ocelotDomain := "ocelot-cloud." + a.config.RootDomain
-		localDomain := a.config.RootDomain + ":" + a.config.Port
+		// TODO Surprising, why would I need a localDomain? Remove or add an explanation
+		localDomain := a.config.RootDomain + ":" + a.config.DockerContainerPort
 		if r.Host == ocelotDomain || r.Host == localDomain {
 			a.router.ServeHTTP(w, r)
 		} else {

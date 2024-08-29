@@ -41,11 +41,15 @@ func getProfile() BackendProfile {
 
 func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config := GlobalConfig{}
-	// TODO PROD should take the root domain from ENV variable, if not present, fail
-
-	config.Scheme = "http"
-	config.RootDomain = "localhost"
-	config.Port = "8080"
+	hostParams, err := getHostParams(profile, os.Getenv("HOST"))
+	if err != nil {
+		Logger.Fatal("Failed to get host params: %v", err)
+		// TODO Give examples/explanation how to fix it. "https://my-domain.com"
+	}
+	config.Scheme = hostParams.Scheme
+	config.RootDomain = hostParams.Domain
+	config.DockerContainerPort = hostParams.Port
+	config.BackendExecutablePort = "8080"
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	config.AreMocksEnabled = os.Getenv("ENABLE_MOCKS") == "true"

@@ -18,5 +18,6 @@ type GlobalConfig struct {
 	UseDummyStacks                bool
 	Scheme                        string // "http" or "https"
 	RootDomain                    string // e.g. "localhost"
-	Port                          string // e.g. "8082"
+	DockerContainerPort           string // e.g. "8080"
+	BackendExecutablePort         string
 }

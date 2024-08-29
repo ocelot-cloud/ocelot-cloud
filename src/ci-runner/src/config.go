@@ -33,15 +33,6 @@ func GetProjectDir() string {
 	return filepath.Dir(src)
 }
 
-func getEnableMocksEnv(enabled bool) string {
-	prefix := "ENABLE_MOCKS="
-	if enabled {
-		return prefix + "true"
-	} else {
-		return prefix + "false"
-	}
-}
-
 func getTestProfileEnv() string {
 	return "PROFILE=" + TestProfile
 }

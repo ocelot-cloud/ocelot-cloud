@@ -36,7 +36,7 @@ func TestCloudAcceptance() {
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
 	// TODO USE_DUMMY_STACKS should not be necessary here, since we use the mocks
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, getEnableMocksEnv(true), "USE_DUMMY_STACKS=true")
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "ENABLE_MOCKS=true", "USE_DUMMY_STACKS=true", "HOST=http://localhost")
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
@@ -81,7 +81,7 @@ func testProdBackendApi() {
 	defer Cleanup()
 	// TODO Get rid of "DISABLE_SECURITY", it should always be enabled by default
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true", "USE_DUMMY_STACKS=true")
+	StartDaemon(backendDir, "./backend", "DISABLE_SECURITY=true", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080")
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
