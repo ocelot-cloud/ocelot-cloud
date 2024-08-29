@@ -1,6 +1,11 @@
 
  TODO
 
+* PROD deploy -> hub does not work, probably because root domain "http://ocelot-cloud.localhost/hub/registration" instead of http://localhost/hub/registration or so
+* Extract the docker service into its own package
+* add admin-creation at startup logic
+* make proper login endpoint with real cookie etc.
+* Then integrate security into the "cloud-client"?
  * ci-runner test cloud backend/frontend etc, do they need adaption?
  * structured logging, see my notes for specification
  * log entry: "user has a valid cookie and is allowed to access protected backend functions" -> which user?
@@ -31,3 +36,29 @@
 * get rid of the "internal" dirs in the backend modules. Simply use private/public methods since they are not that big yet.
 * dont use "sleep" in test for waiting for services in the backend component tests, better use retries
 * create an easy way with which an admin user can reset his password, when he forgets it. Access to server + some bash command to sqlite maybe? Should also be tested.
+* frontend build step skipping via ci-runner flag "-f" does not work somehow?
+
+HOST=httpx://localhost throws:
+ocelot-cloud  | 2024-08-29T08:18:13Z FTL ../../home/dev/Dokumente/workspace/ocelot-cloud/src/cloud/backend/tools/config.go:46 > Failed to get host params: error when evaluating port from HOST env variable
+although the port is not the problem
+
+There is sth wrong in this log entry:
+```
+Starting server listening on port %!(EXTRA string=8080)
+
+ci-runner deploy logs this:
+# ocelot/backend
+/usr/bin/ld: /tmp/go-link-1923660456/000011.o: in function `unixDlOpen':
+/home/dev/go/pkg/mod/github.com/mattn/go-sqlite3@v1.14.22/sqlite3-binding.c:44707: warning: Using 'dlopen' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+/usr/bin/ld: /tmp/go-link-1923660456/000017.o: in function `_cgo_9c8efe9babca_C2func_getaddrinfo':
+/tmp/go-build/cgo_unix_cgo.cgo2.c:58: warning: Using 'getaddrinfo' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
+-> maybe take the "unusual logs search approach" and ingerate it intp the ci tool
+```
+
+get rid of these of these logs?
+WARN[0000] The "PROFILE" variable is not set. Defaulting to a blank string.
+WARN[0000] The "LOG_LEVEL" variable is not set. Defaulting to a blank string.
+WARN[0000] /home/dev/Dokumente/workspace/ocelot-cloud/src/cloud/backend/stacks/core/ocelot-cloud/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+
+
+
