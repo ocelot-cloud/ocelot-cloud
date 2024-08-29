@@ -52,7 +52,7 @@ const validationConfig = {
     id: 'input-app',
     type: 'text',
     pattern: getDefaultValidationRegex(),
-    errorMessage: generateInvalidInputMessage('app', defaultAllowedSymbols, minLengthPassword, maxLengthPassword),
+    errorMessage: generateInvalidInputMessage('app', defaultAllowedSymbols, defaultMinLength, defaultMaxLength),
     placeholder: 'New app to create',
   },
 };

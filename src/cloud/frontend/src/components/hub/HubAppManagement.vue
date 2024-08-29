@@ -79,6 +79,7 @@ export default defineComponent({
       if (response) {
         await getApps()
         newAppToCreate.value = ""
+        // TODO submitted.value = false
       }
     };
 
