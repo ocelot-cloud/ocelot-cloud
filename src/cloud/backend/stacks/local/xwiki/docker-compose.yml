@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   xwiki:
-    image: "xwiki:stable-postgres-tomcat"
+    image: "xwiki:15.7.0-postgres-tomcat"
     container_name: xwiki
     healthcheck:
       test: curl -L http://localhost:8080

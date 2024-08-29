@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   openproject:
-    image: openproject/community:12
+    image: openproject/community:12.5.8
     container_name: openproject
     healthcheck:
       test: curl http://localhost:8080 | grep "https://www.openproject.org"

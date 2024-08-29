@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   gitlab:
-    image: 'gitlab/gitlab-ce:latest'
+    image: 'gitlab/gitlab-ce:17.1.6'
     container_name: gitlab
     healthcheck:
       test: curl -L http://localhost:80 | grep -v "GitLab is taking too much time to respond."
@@ -28,19 +28,8 @@ services:
       - ocelot-net
       - gitlab-net
 
-  gitlab-runner:
-    image: 'gitlab/gitlab-runner:latest'
-    container_name: gitlab-runner
-    volumes:
-      - gitlab-runner-etc:/etc/gitlab-runner
-      - gitlab-runner-ssh:/root/.ssh
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
-    networks:
-      - gitlab-net
-
   gitlab-db:
-    image: postgres:16-alpine
+    image: postgres:14.13-alpine3.20
     container_name: gitlab-db
     restart: unless-stopped
     environment:
