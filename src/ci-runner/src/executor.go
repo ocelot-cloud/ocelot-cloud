@@ -23,9 +23,7 @@ func ExecuteInDir(dir string, commandStr string, envs ...string) {
 	ColoredPrintln("\nIn directory '.%s', executing '%s'\n", shortDir, commandStr)
 
 	cmd := buildCommand(dir, commandStr)
-	if len(envs) != 0 {
-		cmd.Env = append(os.Environ(), envs...)
-	}
+	setEnvsAndDebugLogLevelEnv(cmd, envs)
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 	stdoutMulti := io.MultiWriter(os.Stdout, &stdoutBuf)

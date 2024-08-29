@@ -15,9 +15,9 @@ var idsOfDaemonProcessesCreatedDuringThisRun []int
 func StartDaemon(dir string, commandStr string, envs ...string) {
 	var cmd *exec.Cmd
 	cmd = buildCommand(dir, commandStr)
-	if len(envs) != 0 {
-		cmd.Env = append(os.Environ(), envs...)
-	}
+
+	setEnvsAndDebugLogLevelEnv(cmd, envs)
+
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 
 	cmd.Stdout = os.Stdout
@@ -45,6 +45,11 @@ func StartDaemon(dir string, commandStr string, envs ...string) {
 			}
 		}()
 	}
+}
+
+func setEnvsAndDebugLogLevelEnv(cmd *exec.Cmd, envs []string) {
+	envsWithLogLevel := append(envs, "LOG_LEVEL=DEBUG")
+	cmd.Env = append(os.Environ(), envsWithLogLevel...)
 }
 
 func Cleanup() {
