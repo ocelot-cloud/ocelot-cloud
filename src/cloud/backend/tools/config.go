@@ -52,17 +52,18 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config.BackendExecutablePort = "8080"
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
-	config.AreMocksEnabled = os.Getenv("ENABLE_MOCKS") == "true"
 
 	// TODO security/auth should always be enabled. Remove "IsSecurityEnabled" and "DISABLE_SECURITY" from everywhere in the project.
 	if profile == PROD {
 		config.IsGuiEnabled = true
 		config.AreCrossOriginRequestsAllowed = false
 		config.IsSecurityEnabled = os.Getenv("DISABLE_SECURITY") != "true"
+		config.AreMocksEnabled = false
 	} else {
 		config.IsGuiEnabled = false
 		config.AreCrossOriginRequestsAllowed = true
 		config.IsSecurityEnabled = false
+		config.AreMocksEnabled = true
 	}
 	return config
 }

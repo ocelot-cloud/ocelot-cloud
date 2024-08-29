@@ -36,7 +36,6 @@ func TestCloudAcceptance() {
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
 	// TODO USE_DUMMY_STACKS should not be necessary here, since we use the mocks
-	// TODO Get rif of "USE_MOCKS" env in backend?
 	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true", "HOST=http://localhost")
 	WaitForIndexPageToBeReady(ocelotUrl)
 	Build(Acceptance)

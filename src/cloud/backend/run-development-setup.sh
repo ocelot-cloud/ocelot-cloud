@@ -3,4 +3,4 @@
 set -e
 
 go build
-PROFILE=TEST ./backend
+PROFILE=TEST LOG_LEVEL=DEBUG ./backend
