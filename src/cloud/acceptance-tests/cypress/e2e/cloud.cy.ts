@@ -4,9 +4,7 @@ import {
   StackOperator,
   VisitHomePage
 } from "./StackOperator";
-import {
-  isFrontendMocked,
-} from "./Config";
+import {PROFILE, PROFILE_VALUES} from "./Config";
 
 describe('template spec', () => {
 
@@ -33,15 +31,13 @@ describe('template spec', () => {
   });
 
   it('verify operations on stacks', () => {
-    if (!isFrontendMocked) {
-      new StackOperator('nginx-default')
-          .assertState('Uninitialized')
-          .operate('start')
-          .assertState('Available')
-          .assertWebsiteContent('nginx index page')
-          .operate('stop')
-          .assertState('Uninitialized')
-    }
+    new StackOperator('nginx-default')
+        .assertState('Uninitialized')
+        .operate('start')
+        .assertState('Available')
+        .assertWebsiteContent('nginx index page')
+        .operate('stop')
+        .assertState('Uninitialized')
   });
 
   it('check open-button urls', () => {
@@ -60,7 +56,7 @@ describe('template spec', () => {
   });
 
   it('check whether custom ports and proxying to stacks work', () => {
-    if (!isFrontendMocked) {
+    if (PROFILE == PROFILE_VALUES.PROD) {
       new StackOperator('nginx-custom-port')
           .operate("start")
           .assertWebsiteContent("nginx custom port")

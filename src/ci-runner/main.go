@@ -1,19 +1,5 @@
 package main
 
-// TODO Simplify cloud ci logic:
-/*
-	There are two modes:
-		1) TEST profile, native backend deploy (allow CORS, no origin checks, mocks) and frontend run in parallel
-		2) PROD profile, backend/frontend deployed via docker, no mocks by default (maybe can be enabled manually?)
-	frontend: PROD and TEST profile, no mocked frontend any longer
-	testing:
-		1) fast backend testing: unit tests + mocked TEST backend with API tests
-		2) frontend + TEST backend + cypress
-		3) not sure: run API tests against PROD container?
-		4) PROD with cypress
-*/
-// TODO Copying artifacts is not necessary. I did this initially since "Dockerfile" can only address folder below its path. But when I go to the cloud directory I can simply use docker build -f "path to docker file" and the "Dockerfile" takes its resources from there or so.
-
 import (
 	"fmt"
 	"github.com/spf13/cobra"
