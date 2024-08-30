@@ -1,4 +1,4 @@
-package business
+package setup
 
 import (
 	"github.com/gorilla/mux"

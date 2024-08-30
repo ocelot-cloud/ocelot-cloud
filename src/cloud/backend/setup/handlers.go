@@ -1,4 +1,4 @@
-package business
+package setup
 
 import (
 	"encoding/json"
@@ -79,7 +79,7 @@ func createStopHandler(stackService apps.StackService) http.HandlerFunc {
 			return
 		}
 
-		if err := stackService.StopStack(stackName); err != nil {
+		if err = stackService.StopStack(stackName); err != nil {
 			if err != nil {
 				apps.Logger.Warn("error when trying to stop stack, %s", err.Error())
 				http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
