@@ -42,15 +42,15 @@ func TestTagDownload(t *testing.T) {
 func TestCookie(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	assert.Equal(t, cookieName, hub.Cookie.Name)
-	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(hub.Cookie.Expires))
-	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(hub.Cookie.Expires))
-	assert.Equal(t, 64, len(hub.Cookie.Value))
+	assert.Equal(t, cookieName, hub.Parent.Cookie.Name)
+	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(hub.Parent.Cookie.Expires))
+	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(hub.Parent.Cookie.Expires))
+	assert.Equal(t, 64, len(hub.Parent.Cookie.Value))
 
-	cookie1 := hub.Cookie
+	cookie1 := hub.Parent.Cookie
 	err := hub.login()
 	assert.Nil(t, err)
-	cookie2 := hub.Cookie
+	cookie2 := hub.Parent.Cookie
 	assert.NotNil(t, cookie2)
 	assert.NotEqual(t, cookie1.Value, cookie2.Value)
 }
@@ -67,7 +67,7 @@ func TestCreateApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundApps))
 	foundApp := foundApps[0]
-	assert.Equal(t, hub.User, foundApp.User)
+	assert.Equal(t, hub.Parent.User, foundApp.User)
 	assert.Equal(t, hub.App, foundApp.App)
 
 	err = hub.createApp()
@@ -119,18 +119,18 @@ func TestLogin(t *testing.T) {
 func TestChangePassword(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	hub.NewPassword = hub.Password + "x"
+	hub.Parent.NewPassword = hub.Parent.Password + "x"
 
 	assert.Nil(t, hub.changePassword())
 	err := hub.login()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
 
-	hub.Password = hub.NewPassword
-	hub.Cookie = nil
+	hub.Parent.Password = hub.Parent.NewPassword
+	hub.Parent.Cookie = nil
 	err = hub.login()
 	assert.Nil(t, err)
-	assert.NotNil(t, hub.Cookie)
+	assert.NotNil(t, hub.Parent.Cookie)
 }
 
 func TestRegistration(t *testing.T) {

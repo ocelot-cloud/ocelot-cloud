@@ -11,8 +11,8 @@ import (
 func TestFindAppsSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
+	hub.Parent.SetCookieHeader = false
+	hub.Parent.SetOriginHeader = false
 
 	_, err := hub.findApps("notexistingapp")
 	assert.Nil(t, err)
@@ -26,8 +26,8 @@ func TestDownloadAppSecurity(t *testing.T) {
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag())
 
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
+	hub.Parent.SetCookieHeader = false
+	hub.Parent.SetOriginHeader = false
 	downloadedContent, err := hub.downloadTag()
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
@@ -43,8 +43,8 @@ func TestGetTagsSecurity(t *testing.T) {
 	assert.Nil(t, hub.createApp())
 	assert.Nil(t, hub.uploadTag())
 
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
+	hub.Parent.SetCookieHeader = false
+	hub.Parent.SetOriginHeader = false
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
@@ -56,8 +56,8 @@ func TestGetTagsSecurity(t *testing.T) {
 
 func TestRegisterSecurity(t *testing.T) {
 	hub := getHub()
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
+	hub.Parent.SetCookieHeader = false
+	hub.Parent.SetOriginHeader = false
 	testInputInvalidation(t, hub, "invalid-password-with-letter-ä", PasswordField, Register)
 	testInputInvalidation(t, hub, "invalid-username", UserField, Register)
 	testInputInvalidation(t, hub, "asd@asd.d", EmailField, Register)
@@ -66,13 +66,13 @@ func TestRegisterSecurity(t *testing.T) {
 func TestChangePasswordSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 
-	hub.NewPassword = samplePassword + "x"
+	hub.Parent.NewPassword = samplePassword + "x"
 	correctlyFormattedButNotMatchingPassword := samplePassword + "xy"
-	hub.Password = correctlyFormattedButNotMatchingPassword
+	hub.Parent.Password = correctlyFormattedButNotMatchingPassword
 	err := hub.changePassword()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
-	hub.Password = samplePassword
+	hub.Parent.Password = samplePassword
 
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
 	testInputInvalidation(t, hub, "invalid-password-ä", NewPasswordField, ChangePassword)
@@ -83,22 +83,22 @@ func TestLoginSecurity(t *testing.T) {
 	err := hub.registerUser()
 	assert.Nil(t, err)
 
-	assert.Nil(t, hub.Cookie)
+	assert.Nil(t, hub.Parent.Cookie)
 	err = hub.login()
 	assert.Nil(t, err)
-	assert.NotNil(t, hub.Cookie)
-	hub.Cookie = nil
+	assert.NotNil(t, hub.Parent.Cookie)
+	hub.Parent.Cookie = nil
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, Login)
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, Login)
 	testInputInvalidation(t, hub, "https:/only-single-slash-invalid-domain.de", OriginField, Login)
 
 	correctlyFormattedButNotMatchingPassword := samplePassword + "x"
-	hub.Password = correctlyFormattedButNotMatchingPassword
+	hub.Parent.Password = correctlyFormattedButNotMatchingPassword
 	err = hub.login()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
-	hub.Password = samplePassword
+	hub.Parent.Password = samplePassword
 }
 
 // TestDeleteUserSecurity is not necessary, since there are no further tests to conducted.
@@ -130,24 +130,24 @@ func TestDeleteTagSecurity(t *testing.T) {
 // There is some specific logic for this user in the production code when handling cookie.
 func TestCookieExpirationAndRenewal(t *testing.T) {
 	hub := getHubAndLogin(t)
-	hub.User = testUserWithExpiredCookie
+	hub.Parent.User = testUserWithExpiredCookie
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
-	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
+	assert.True(t, time.Now().UTC().After(hub.Parent.Cookie.Expires))
 	err := hub.createApp()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
-	hub.User = sampleUser
+	hub.Parent.User = sampleUser
 
-	hub.User = testUserWithOldButNotExpiredCookie
+	hub.Parent.User = testUserWithOldButNotExpiredCookie
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
-	assert.True(t, time.Now().UTC().Before(hub.Cookie.Expires))
-	assert.True(t, time.Now().UTC().Add(48*time.Hour).After(hub.Cookie.Expires))
+	assert.True(t, time.Now().UTC().Before(hub.Parent.Cookie.Expires))
+	assert.True(t, time.Now().UTC().Add(48*time.Hour).After(hub.Parent.Cookie.Expires))
 	assert.Nil(t, hub.createApp())
-	assert.True(t, time.Now().UTC().AddDate(0, 0, 29).Before(hub.Cookie.Expires))
-	assert.True(t, time.Now().UTC().AddDate(0, 0, 31).After(hub.Cookie.Expires))
-	hub.User = sampleUser
+	assert.True(t, time.Now().UTC().AddDate(0, 0, 29).Before(hub.Parent.Cookie.Expires))
+	assert.True(t, time.Now().UTC().AddDate(0, 0, 31).After(hub.Parent.Cookie.Expires))
+	hub.Parent.User = sampleUser
 }
 
 func TestCookieAndHostProtection(t *testing.T) {
@@ -167,49 +167,49 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
 
-	hub.SetCookieHeader = false
-	hub.SetOriginHeader = false
+	hub.Parent.SetCookieHeader = false
+	hub.Parent.SetOriginHeader = false
 
 	err := operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "cookie not set in request"), err.Error())
 
-	hub.SetCookieHeader = true
-	hub.Cookie.Value = "some-invalid-cookie-value"
+	hub.Parent.SetCookieHeader = true
+	hub.Parent.Cookie.Value = "some-invalid-cookie-value"
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(400, "invalid cookie"), err.Error())
 
 	err = hub.login()
 	assert.Nil(t, err)
-	hub.Origin = "http:/single-slash-invalid-origin"
+	hub.Parent.Origin = "http:/single-slash-invalid-origin"
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(400, "invalid origin"), err.Error())
 
-	hub.SetOriginHeader = true
-	hub.Origin = "http://valid-but-incorrect-origin.com"
+	hub.Parent.SetOriginHeader = true
+	hub.Parent.Origin = "http://valid-but-incorrect-origin.com"
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
 
-	hub.Origin = sampleOrigin
+	hub.Parent.Origin = sampleOrigin
 	validButNonExistentCookie := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
-	hub.Cookie.Value = validButNonExistentCookie
+	hub.Parent.Cookie.Value = validButNonExistentCookie
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(401, "cookie not found"), err.Error())
 
 	assert.Nil(t, hub.login())
 
-	hub.User = testUserWithExpiredCookie
+	hub.Parent.User = testUserWithExpiredCookie
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
 	err = operation()
 	assert.NotNil(t, err)
 	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
-	assert.True(t, time.Now().UTC().After(hub.Cookie.Expires))
-	hub.User = sampleUser
+	assert.True(t, time.Now().UTC().After(hub.Parent.Cookie.Expires))
+	hub.Parent.User = sampleUser
 }
 
 type FieldType int
@@ -269,20 +269,20 @@ func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value st
 	var originalValue string
 	switch fieldType {
 	case PasswordField:
-		originalValue = hub.Password
-		hub.Password = value
+		originalValue = hub.Parent.Password
+		hub.Parent.Password = value
 	case NewPasswordField:
-		originalValue = hub.NewPassword
-		hub.NewPassword = value
+		originalValue = hub.Parent.NewPassword
+		hub.Parent.NewPassword = value
 	case UserField:
-		originalValue = hub.User
-		hub.User = value
+		originalValue = hub.Parent.User
+		hub.Parent.User = value
 	case EmailField:
 		originalValue = hub.Email
 		hub.Email = value
 	case OriginField:
-		originalValue = hub.Origin
-		hub.Origin = value
+		originalValue = hub.Parent.Origin
+		hub.Parent.Origin = value
 	case AppField:
 		originalValue = hub.App
 		hub.App = value

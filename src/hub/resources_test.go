@@ -26,18 +26,22 @@ var (
 	}
 )
 
-type HubClient struct {
+type ComponentClient struct {
 	User            string
 	Password        string
 	NewPassword     string
 	Origin          string
-	Email           string
-	App             string
 	Cookie          *http.Cookie
-	Tag             string
 	SetOriginHeader bool
 	SetCookieHeader bool
-	UploadContent   []byte
+}
+
+type HubClient struct {
+	Parent        ComponentClient
+	Email         string
+	App           string
+	Tag           string
+	UploadContent []byte
 }
 
 type Operation int
@@ -58,23 +62,26 @@ const (
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
-		User:     hub.User,
-		Password: hub.Password,
+		User:     hub.Parent.User,
+		Password: hub.Parent.Password,
 		Email:    hub.Email,
 	}
 }
 
 func getHub() *HubClient {
 	hub := &HubClient{
-		User:            sampleUser,
-		Password:        samplePassword,
-		Origin:          rootUrl,
-		Email:           sampleEmail,
-		App:             sampleApp,
-		Tag:             sampleTag,
-		SetOriginHeader: true,
-		SetCookieHeader: true,
-		UploadContent:   []byte(sampleTagFileContent),
+		Parent: ComponentClient{
+			User:            sampleUser,
+			Password:        samplePassword,
+			Origin:          rootUrl,
+			SetOriginHeader: true,
+			SetCookieHeader: true,
+		},
+
+		Email:         sampleEmail,
+		App:           sampleApp,
+		Tag:           sampleTag,
+		UploadContent: []byte(sampleTagFileContent),
 	}
 	hub.wipeData()
 	return hub
@@ -88,9 +95,9 @@ func (h *HubClient) registerUser() error {
 
 func (h *HubClient) login() error {
 	creds := LoginCredentials{
-		User:     h.User,
-		Password: h.Password,
-		Origin:   h.Origin,
+		User:     h.Parent.User,
+		Password: h.Parent.Password,
+		Origin:   h.Parent.Origin,
 	}
 
 	resp, err := h.doRequestWithFullResponse(loginPath, creds, "")
@@ -102,7 +109,7 @@ func (h *HubClient) login() error {
 	if len(cookies) != 1 {
 		return fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
-	h.Cookie = cookies[0]
+	h.Parent.Cookie = cookies[0]
 	return nil
 }
 
@@ -157,7 +164,7 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 	}
 
 	if len(resp.Cookies()) == 1 {
-		h.Cookie = resp.Cookies()[0]
+		h.Parent.Cookie = resp.Cookies()[0]
 	}
 
 	// Response body can only be read once. When reading it after this function, an error occurs. So a copy is created.
@@ -170,11 +177,11 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 }
 
 func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
-	if h.SetOriginHeader {
-		req.Header.Set(OriginHeader, h.Origin)
+	if h.Parent.SetOriginHeader {
+		req.Header.Set(OriginHeader, h.Parent.Origin)
 	}
-	if h.SetCookieHeader && h.Cookie != nil {
-		req.AddCookie(h.Cookie)
+	if h.Parent.SetCookieHeader && h.Parent.Cookie != nil {
+		req.AddCookie(h.Parent.Cookie)
 	}
 }
 
@@ -257,7 +264,7 @@ func (h *HubClient) uploadTag() error {
 
 func (h *HubClient) downloadTag() (string, error) {
 	tagInfo := &TagInfo{
-		User: h.User,
+		User: h.Parent.User,
 		App:  h.App,
 		Tag:  h.Tag,
 	}
@@ -277,7 +284,7 @@ func (h *HubClient) downloadTag() (string, error) {
 
 func (h *HubClient) getTags() ([]string, error) {
 	usernameAndApp := &UserAndApp{
-		User: h.User,
+		User: h.Parent.User,
 		App:  h.App,
 	}
 
@@ -324,8 +331,8 @@ func (h *HubClient) deleteApp() error {
 
 func (h *HubClient) changePassword() error {
 	form := ChangePasswordForm{
-		OldPassword: h.Password,
-		NewPassword: h.NewPassword,
+		OldPassword: h.Parent.Password,
+		NewPassword: h.Parent.NewPassword,
 	}
 
 	_, err := h.doRequest(changePasswordPath, form, "")
