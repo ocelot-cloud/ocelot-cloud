@@ -41,10 +41,9 @@
 
 
 <script lang="ts">
-
-import {defineComponent} from 'vue';
-import {backendClient, baseDomain, scheme, stackUrl} from "@/components/cloud/Config";
-import {Stack} from "@/components/cloud/Shared";
+import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
+import { backendClient, baseDomain, scheme, stackUrl } from "@/components/cloud/Config";
+import { Stack } from "@/components/cloud/Shared";
 
 function getUrlFromStack(stack: Stack) {
   return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;
@@ -52,49 +51,44 @@ function getUrlFromStack(stack: Stack) {
 
 export default defineComponent({
   name: 'home-component',
-  data() {
-    return {
-      stacks: [] as Stack[]
-    };
-  },
-  created() {
-    this.fetchData()
-    setInterval(this.fetchData, 1000);
-  },
-  methods: {
-    async fetchData() {
-      // TODO When I load "home" and then cloud, the fetching continue. Maybe add a condition, do this "only on the cloud home page"
+  setup() {
+    const stacks = ref<Stack[]>([]);
+    let intervalId: number | undefined;
+
+    // TODO When I load "home" and then cloud, the fetching continue. Maybe add a condition, do this "only on the cloud home page"
+    const fetchData = async () => {
       try {
         const response = await backendClient.getResponsePromise(stackUrl);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         } else if (response.status === 302 || response.status === 301) {
-          console.log("Redirecting to keycloak: " + response.headers.get("X-Redirect-URL"))
+          console.log("Redirecting to keycloak: " + response.headers.get("X-Redirect-URL"));
           window.location.href = response.headers.get("X-Redirect-URL") || response.url;
         } else {
-          this.stacks = await response.json();
-          this.stacks.sort((a, b) => a.name.localeCompare(b.name));
+          stacks.value = await response.json();
+          stacks.value.sort((a, b) => a.name.localeCompare(b.name));
         }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
-    },
-    start(name: string) {
+    };
+
+    const start = (name: string) => {
       console.log('Starting:', name);
-      backendClient.postRequest(name, stackUrl, "deploy")
-    },
-    stop(name: string) {
+      backendClient.postRequest(name, stackUrl, "deploy");
+    };
+
+    const stop = (name: string) => {
       console.log('Deleting:', name);
-      backendClient.postRequest(name, stackUrl, "stop")
-    },
-    openNewTab(stack: Stack) {
+      backendClient.postRequest(name, stackUrl, "stop");
+    };
+
+    const openNewTab = (stack: Stack) => {
       window.open(getUrlFromStack(stack), '_blank');
-    },
-    getUrlFromStack(stack: Stack) {
-      return getUrlFromStack(stack)
-    },
-    getBootstrapBackgroundClass(state: string) {
-      switch(state) {
+    };
+
+    const getBootstrapBackgroundClass = (state: string) => {
+      switch (state) {
         case 'Available': return 'bg-success text-white state-column';
         case 'Starting': return 'bg-warning text-dark state-column';
         case 'Downloading': return 'bg-warning text-dark state-column';
@@ -102,13 +96,37 @@ export default defineComponent({
         case 'Uninitialized': return 'bg-dark text-white state-column';
         default: return '';
       }
-    },
-    visitHub() {
-      this.$router.push('/hub');
-    },
-  }
+    };
+
+    const visitHub = () => {
+      // Assuming you're using Vue Router
+      window.location.href = '/hub';
+    };
+
+    onMounted(() => {
+      fetchData();
+      intervalId = setInterval(fetchData, 1000);
+    });
+
+    onBeforeUnmount(() => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    });
+
+    return {
+      stacks,
+      start,
+      stop,
+      openNewTab,
+      getBootstrapBackgroundClass,
+      visitHub,
+      getUrlFromStack,
+    };
+  },
 });
 </script>
+
 
 <style scoped lang="sass">
 .table-container
