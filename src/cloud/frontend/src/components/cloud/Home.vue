@@ -5,13 +5,13 @@
       <button type="button" class="btn btn-primary" @click="visitHub">Visit Ocelot Hub</button>
       <br>
       <br>
-      <table class="table table-dark table-hover" id="stack-table">
+      <table class="table table-dark" id="stack-table">
         <thead>
         <tr>
           <th scope="col">Name</th>
-          <th scope="col" style="width: 250px;">State</th>
-          <th scope="col">Link</th>
-          <th scope="col">Actions</th>
+          <th scope="col" class="text-center">State</th>
+          <th scope="col" class="text-center">Link</th>
+          <th scope="col" class="text-center">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -25,10 +25,10 @@
                 </span>
             </div>
           </td>
-          <td>
+          <td class="text-center">
             <button class="btn btn-primary" :id="'open-button-' + stack.name" :data-stack-url="getUrlFromStack(stack)" @click="openNewTab(stack)" :disabled="stack.state !== 'Available'">Open</button>
           </td>
-          <td>
+          <td class="text-center">
             <button @click="start(stack.name)" class="btn btn-success start-button" :disabled="stack.state !== 'Uninitialized'">Start</button>
             <button @click="stop(stack.name)" class="btn btn-danger stop-button" :disabled="stack.state !== 'Available'">Stop</button>
           </td>
