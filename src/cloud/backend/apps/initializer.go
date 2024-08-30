@@ -11,16 +11,18 @@ import (
 
 // TODO add router to global config
 var (
-	Logger             = tools.Logger // TODO should be private
-	config             *tools.GlobalConfig
-	router             *mux.Router
+	logger = tools.Logger // TODO should be private
+	config *tools.GlobalConfig
+	router *mux.Router
+	// TODO to small to be its own file
+	// TODO The definition of the stack file dir  depending on the global config should be here I guess.
+	stackFileDir       string
 	stackService       StackService
 	stackConfigService StackConfigService // TODO why is this needed? Should be rather a pointer?
 )
 
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
-	// TODO Are local variables needed?
 	stackFileDir = getStackFileDir(config)
 	stackConfigService = provideStackConfigService(stackFileDir)
 	stackService = getStackService(config, stackConfigService)
@@ -41,10 +43,10 @@ func getStackFileDir(config *tools.GlobalConfig) string {
 
 func getStackService(config *tools.GlobalConfig, stackConfigService StackConfigService) StackService {
 	if config.AreMocksEnabled {
-		Logger.Debug("Using mock DockerService")
+		logger.Debug("Using mock DockerService")
 		return ProvideStackServiceMocked(stackConfigService)
 	} else {
-		Logger.Debug("Using real DockerService")
+		logger.Debug("Using real DockerService")
 		return ProvideStackServiceReal(stackConfigService)
 	}
 }
@@ -86,7 +88,7 @@ func createDeployHandler(stackService StackService) http.HandlerFunc {
 
 		if err = stackService.DeployStack(stackName); err != nil {
 			if err != nil {
-				Logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
+				logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
 				http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
 			}
 			return
@@ -109,7 +111,7 @@ func createStopHandler(stackService StackService) http.HandlerFunc {
 
 		if err = stackService.StopStack(stackName); err != nil {
 			if err != nil {
-				Logger.Warn("error when trying to stop stack, %s", err.Error())
+				logger.Warn("error when trying to stop stack, %s", err.Error())
 				http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
 			}
 			return
