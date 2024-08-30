@@ -152,14 +152,18 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 
 func TestCookieAndHostProtection(t *testing.T) {
 	hub := getHub()
-	doCookieAndHostPolicyChecks(t, hub, hub.deleteUser)
-	doCookieAndHostPolicyChecks(t, hub, hub.createApp)
-	doCookieAndHostPolicyChecks(t, hub, hub.deleteApp)
-	doCookieAndHostPolicyChecks(t, hub, hub.uploadTag)
-	doCookieAndHostPolicyChecks(t, hub, hub.deleteTag)
-	doCookieAndHostPolicyChecks(t, hub, hub.changePassword)
-
-	doCookieAndHostPolicyChecks(t, hub, hub.checkAuth)
+	tests := []func() error{
+		hub.deleteUser,
+		hub.createApp,
+		hub.deleteApp,
+		hub.uploadTag,
+		hub.deleteTag,
+		hub.changePassword,
+		hub.checkAuth,
+	}
+	for _, test := range tests {
+		doCookieAndHostPolicyChecks(t, hub, test)
+	}
 }
 
 func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() error) {
