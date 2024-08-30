@@ -56,7 +56,7 @@ func createDeployHandler(stackService apps.StackService) http.HandlerFunc {
 			return
 		}
 
-		if err := stackService.DeployStack(stackName); err != nil {
+		if err = stackService.DeployStack(stackName); err != nil {
 			if err != nil {
 				apps.Logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
 				http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
