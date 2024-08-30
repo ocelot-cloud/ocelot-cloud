@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
+	"github.com/ocelot-cloud/shared/secutils"
 	"io"
 	"net/http"
 	"strings"
@@ -178,7 +179,7 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 
 func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
 	if h.Parent.SetOriginHeader {
-		req.Header.Set(OriginHeader, h.Parent.Origin)
+		req.Header.Set(secutils.OriginHeader, h.Parent.Origin)
 	}
 	if h.Parent.SetCookieHeader && h.Parent.Cookie != nil {
 		req.AddCookie(h.Parent.Cookie)
@@ -220,12 +221,12 @@ func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appCreationPath, SingleString{h.App}, "")
+	_, err := h.doRequest(appCreationPath, secutils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
-	result, err := h.doRequest(searchAppsPath, SingleString{searchTerm}, "")
+	result, err := h.doRequest(searchAppsPath, secutils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -325,12 +326,12 @@ func (h *HubClient) deleteTag() error {
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appDeletePath, SingleString{h.App}, "")
+	_, err := h.doRequest(appDeletePath, secutils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) changePassword() error {
-	form := ChangePasswordForm{
+	form := secutils.ChangePasswordForm{
 		OldPassword: h.Parent.Password,
 		NewPassword: h.Parent.NewPassword,
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ocelot-cloud/shared/secutils"
 	"net/http"
 )
 
@@ -134,7 +135,7 @@ func getTagsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJsonResponse(w, tagsList)
+	secutils.SendJsonResponse(w, tagsList)
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {

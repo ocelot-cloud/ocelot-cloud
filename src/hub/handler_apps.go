@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ocelot-cloud/shared/secutils"
 	"net/http"
 )
 
@@ -82,7 +83,7 @@ func appGetListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Logger.Info("got apps of user '%s'", user)
-	sendJsonResponse(w, list)
+	secutils.SendJsonResponse(w, list)
 }
 
 func searchAppsHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,5 +102,5 @@ func searchAppsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Logger.Info("conducted app search with search term '%s'", appSearchTerm)
-	sendJsonResponse(w, apps)
+	secutils.SendJsonResponse(w, apps)
 }

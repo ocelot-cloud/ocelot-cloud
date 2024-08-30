@@ -5,25 +5,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/ocelot-cloud/shared/secutils"
 	"io"
 	"net/http"
 	"time"
 )
-
-const OriginHeader = "Origin"
-
-func sendJsonResponse(w http.ResponseWriter, data interface{}) {
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		Logger.Error("unmarshalling failed: %v", err)
-		http.Error(w, "failed to prepare response data", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
-}
 
 var repo Repository = &SqliteRepository{}
 
@@ -58,7 +44,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.Password, Password},
 			{v.Email, Email},
 		}
-	case ChangePasswordForm:
+	case secutils.ChangePasswordForm:
 		jobs = []ValidationJob{
 			{v.OldPassword, Password},
 			{v.NewPassword, Password},
@@ -98,7 +84,7 @@ func validateJobs(jobs []ValidationJob) error {
 }
 
 func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {
-	singleString, err := readBody[SingleString](r)
+	singleString, err := readBody[secutils.SingleString](r)
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +134,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if err = validate(r.Header.Get(OriginHeader), Origin); err != nil {
+	if err = validate(r.Header.Get(secutils.OriginHeader), Origin); err != nil {
 		http.Error(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -160,8 +146,8 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if !repo.IsOriginCorrect(user, r.Header.Get(OriginHeader)) {
-		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(OriginHeader))
+	if !repo.IsOriginCorrect(user, r.Header.Get(secutils.OriginHeader)) {
+		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(secutils.OriginHeader))
 		http.Error(w, "origin not matching", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
