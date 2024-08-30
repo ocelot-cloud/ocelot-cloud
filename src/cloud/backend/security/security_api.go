@@ -7,28 +7,28 @@ import (
 	"strings"
 )
 
-var Logger = tools.Logger
-
-type SecurityModule struct {
+var (
+	Logger = tools.Logger
 	router *mux.Router
 	config *tools.GlobalConfig
-}
+)
 
-func ProvideSecurityModule(router *mux.Router, config *tools.GlobalConfig) *SecurityModule {
+func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
+	router = routerArg
+	config = configArg
 	router.HandleFunc("/api/login", loginHandler)
 	router.HandleFunc("/api/check-session", checkSessionHandler)
-	return &SecurityModule{router, config}
 }
 
-func (s *SecurityModule) ApplyAuthMiddlewares(h http.Handler) http.Handler {
-	if s.config.IsSecurityEnabled {
-		return s.applyAuthMiddleware(h)
+func ApplyAuthMiddlewares(h http.Handler) http.Handler {
+	if config.IsSecurityEnabled {
+		return applyAuthMiddleware(h)
 	} else {
-		return s.disableCorsPolicy(h)
+		return disableCorsPolicy(h)
 	}
 }
 
-func (s *SecurityModule) applyAuthMiddleware(next http.Handler) http.Handler {
+func applyAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO Add "Origin" header check to prevent CSRF attacks.
 		// 1) Scheme must be the same
@@ -57,7 +57,7 @@ func handleBackendApiRequest(w http.ResponseWriter, r *http.Request, next http.H
 	}
 }
 
-func (s *SecurityModule) disableCorsPolicy(next http.Handler) http.Handler {
+func disableCorsPolicy(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")

@@ -13,17 +13,15 @@ import (
 )
 
 var (
-	securityModule     *security.SecurityModule
 	router             *mux.Router
 	stackService       apps.StackService
 	config             *tools.GlobalConfig
 	stackConfigService apps.StackConfigService
 )
 
-func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig, securityModuleArg *security.SecurityModule) {
+func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router = routerArg
 	config = configArg
-	securityModule = securityModuleArg
 
 	apps.StackFileDir = getStackFileDir()
 	stackConfigService = apps.ProvideStackConfigService(apps.StackFileDir)
@@ -113,7 +111,7 @@ func initializeFunctionalEndpoints() {
 }
 
 func initializeFrontendResourceDelivery() {
-	router.PathPrefix("/").Handler(securityModule.ApplyAuthMiddlewares(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.PathPrefix("/").Handler(security.ApplyAuthMiddlewares(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 
@@ -135,5 +133,5 @@ func initializeFrontendResourceDelivery() {
 }
 
 func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
-	router.Handle("/api"+path, securityModule.ApplyAuthMiddlewares(handlerFunc))
+	router.Handle("/api"+path, security.ApplyAuthMiddlewares(handlerFunc))
 }
