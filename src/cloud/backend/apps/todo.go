@@ -20,18 +20,18 @@ var (
 
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
-	router = routerArg
 	// TODO Are local variables needed?
-	stackFileDir = getStackFileDir()
+	stackFileDir = getStackFileDir(config)
 	stackConfigService = provideStackConfigService(stackFileDir)
-	stackService = getStackService(stackConfigService)
+	stackService = getStackService(config, stackConfigService)
 
+	router = routerArg
 	registerSecuredEndpoint("/stacks/read", createReadHandler(stackService))
 	registerSecuredEndpoint("/stacks/deploy", createDeployHandler(stackService))
 	registerSecuredEndpoint("/stacks/stop", createStopHandler(stackService))
 }
 
-func getStackFileDir() string {
+func getStackFileDir(config *tools.GlobalConfig) string {
 	if config.UseDummyStacks {
 		return "stacks/dummy"
 	} else {
@@ -39,7 +39,7 @@ func getStackFileDir() string {
 	}
 }
 
-func getStackService(stackConfigService StackConfigService) StackService {
+func getStackService(config *tools.GlobalConfig, stackConfigService StackConfigService) StackService {
 	if config.AreMocksEnabled {
 		Logger.Debug("Using mock DockerService")
 		return ProvideStackServiceMocked(stackConfigService)
