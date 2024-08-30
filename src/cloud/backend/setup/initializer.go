@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"fmt"
 	"github.com/gorilla/mux" // TODO To be wrapped?
 	"github.com/ocelot-cloud/shared"
 	"net/http"
@@ -106,4 +107,9 @@ func initializeFrontendResourceDelivery() {
 		Logger.Debug("Serving static content at '%s'", r.URL.Path)
 		http.FileServer(http.Dir("./dist")).ServeHTTP(w, r)
 	})))
+}
+
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprint(w, "<html><body>Hello</body></html>")
 }

@@ -1,9 +1,9 @@
 package apps
 
-type StackState int
+type stackState int
 
 const (
-	Uninitialized StackState = iota
+	Uninitialized stackState = iota
 	Running
 	Starting
 	Available
@@ -11,6 +11,6 @@ const (
 	Stopping
 )
 
-func (s *StackState) String() string {
+func (s *stackState) toString() string {
 	return [...]string{"Uninitialized", "Running", "Starting", "Available", "Downloading", "Stopping"}[*s]
 }

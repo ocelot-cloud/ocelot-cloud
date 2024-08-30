@@ -11,7 +11,7 @@ var stack2ToDeploy = tools.NginxDefault2
 
 func createStackService() *StackServiceImpl {
 	stackFileDir = DefaultStackFileDir
-	return &StackServiceImpl{ProvideServiceMock(), provideStackConfigService(stackFileDir), ProvideDownloadManagerMock(), make(map[string]StackAction)}
+	return &StackServiceImpl{provideServiceMock(), provideStackConfigService(stackFileDir), provideDownloaderMock(), make(map[string]StackAction)}
 }
 
 func TestHappyPathDeployAndStop(t *testing.T) {
@@ -32,7 +32,7 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	assertState(t, infoAfterStop, stack2ToDeploy, Uninitialized)
 }
 
-func assertState(t *testing.T, stackInfo map[string]StackDetails, name string, state StackState) {
+func assertState(t *testing.T, stackInfo map[string]StackDetails, name string, state stackState) {
 	if _, ok := stackInfo[name]; ok {
 		assert.Equal(t, state, stackInfo[name].State, "Stack was present but had wrong state.")
 	} else {
@@ -121,7 +121,7 @@ func (s *StackServiceTestApi) stop() *StackServiceTestApi {
 	return s
 }
 
-func (s *StackServiceTestApi) assertState(expectedState StackState) *StackServiceTestApi {
+func (s *StackServiceTestApi) assertState(expectedState stackState) *StackServiceTestApi {
 	stackStateInfo := s.stackService.GetStackStateInfo()
 	if _, ok := stackStateInfo[s.stackName]; ok {
 		assert.Equal(s.t, expectedState, stackStateInfo[s.stackName].State)

@@ -5,16 +5,16 @@ import (
 	"ocelot/backend/tools"
 )
 
-type DockerServiceMock struct {
-	stackStates                  map[string]StackState
+type dockerServiceMock struct {
+	stackStates                  map[string]stackState
 	hasWaitedToPassDownloadState bool
 }
 
-func ProvideServiceMock() *DockerServiceMock {
-	return &DockerServiceMock{stackStates: make(map[string]StackState), hasWaitedToPassDownloadState: false}
+func provideServiceMock() *dockerServiceMock {
+	return &dockerServiceMock{stackStates: make(map[string]stackState), hasWaitedToPassDownloadState: false}
 }
 
-func (d *DockerServiceMock) DeployStack(stackName string) error {
+func (d *dockerServiceMock) deployStack(stackName string) error {
 	if stackName == "not-existing-stack" {
 		return logAndCreateStackNotFoundError(stackName)
 	} else if stackName == tools.NginxSlowStart || stackName == tools.NginxDownloading {
@@ -23,11 +23,11 @@ func (d *DockerServiceMock) DeployStack(stackName string) error {
 		d.stackStates[stackName] = Available
 	}
 	state := d.stackStates[stackName]
-	logger.Debug("Mock pretends to have deployed stack '%s' with state %s.", stackName, state.String())
+	logger.Debug("Mock pretends to have deployed stack '%s' with state %s.", stackName, state.toString())
 	return nil
 }
 
-func (d *DockerServiceMock) StopStack(stackName string) error {
+func (d *dockerServiceMock) stopStack(stackName string) error {
 	if _, ok := d.stackStates[stackName]; ok {
 		d.stackStates[stackName] = Uninitialized
 	} else {
@@ -37,7 +37,7 @@ func (d *DockerServiceMock) StopStack(stackName string) error {
 	return nil
 }
 
-func (d *DockerServiceMock) GetRunningStackStateInfo() (map[string]StackDetails, error) {
+func (d *dockerServiceMock) getRunningStackStateInfo() (map[string]StackDetails, error) {
 	logger.Trace("Mock return stack state info of virtually managed stacks")
 
 	clonedStates := make(map[string]StackDetails)

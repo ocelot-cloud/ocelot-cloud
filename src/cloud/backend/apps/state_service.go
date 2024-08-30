@@ -5,9 +5,10 @@ import (
 )
 
 type StackStateService struct {
-	stacks map[string]StackState
+	stacks map[string]stackState
 }
 
+// TODO Dead code?
 func ProvideStackStateService() *StackStateService {
 	service := StackStateService{}
 	stackNames, _ := stackNamesInDirectory()
@@ -33,6 +34,7 @@ func stackNamesInDirectory() ([]string, error) {
 	return stackNames, nil
 }
 
+// TODO Dead code?
 func DeployStack(stackName string) error {
 	// if deploy is running right now, then abort second deploy, allow stopping however
 	// start downloading

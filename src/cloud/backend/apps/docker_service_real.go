@@ -11,9 +11,9 @@ import (
 
 // TODO Run initial test, either "docker compose" or "docker-compose" must be installed. If not, exit. If one is installed, set it globally as dockerComposeCommand or so
 
-type DockerServiceReal struct{}
+type dockerServiceReal struct{}
 
-func (d *DockerServiceReal) DeployStack(stackName string) error {
+func (d *dockerServiceReal) deployStack(stackName string) error {
 	cmdPath := getStackPath(stackName)
 
 	if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
@@ -44,7 +44,7 @@ func getStackPath(stackName string) string {
 	return fmt.Sprintf("%s/%s/docker-compose.yml", stackFileDir, stackName)
 }
 
-func (d *DockerServiceReal) StopStack(stackName string) error {
+func (d *dockerServiceReal) stopStack(stackName string) error {
 	configPath := getStackPath(stackName)
 	cmd := exec.Command("docker", "compose", "-p", stackName, "-f", configPath, "down")
 	output, err := cmd.CombinedOutput()
@@ -57,7 +57,7 @@ func (d *DockerServiceReal) StopStack(stackName string) error {
 	}
 }
 
-func (d *DockerServiceReal) GetRunningStackStateInfo() (map[string]StackDetails, error) {
+func (d *dockerServiceReal) getRunningStackStateInfo() (map[string]StackDetails, error) {
 	lines, err := getDockerComposeListLines()
 	if err != nil {
 		logger.Error("error, 'docker compose' command seemed not to have worked properly: %s", err.Error())
@@ -80,7 +80,7 @@ func setHealthStates(stackStateInfo map[string]StackDetails) map[string]StackDet
 	return resultInfo
 }
 
-func getHealthStateOf(stackName string) StackState {
+func getHealthStateOf(stackName string) stackState {
 	if areAllStackContainersWithHealthChecksReallyHealthy(stackName) {
 		return Available
 	} else {
@@ -155,7 +155,7 @@ func isHeaderOrEmpty(line string) bool {
 func transformToStackStackInfo(fields []string) (string, StackDetails) {
 	name := fields[0]
 	rawStatus := fields[1]
-	var status StackState
+	var status stackState
 	if strings.Contains(rawStatus, "running") {
 		status = Running
 	} else {

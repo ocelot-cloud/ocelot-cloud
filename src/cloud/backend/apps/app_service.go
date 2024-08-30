@@ -14,11 +14,11 @@ type StackServiceImpl struct {
 }
 
 func ProvideStackServiceMocked(stackConfigService StackConfigService) StackService {
-	return &StackServiceImpl{ProvideServiceMock(), stackConfigService, ProvideDownloadManagerMock(), make(map[string]StackAction)}
+	return &StackServiceImpl{provideServiceMock(), stackConfigService, provideDownloaderMock(), make(map[string]StackAction)}
 }
 
 func ProvideStackServiceReal(stackConfigService StackConfigService) StackService {
-	return &StackServiceImpl{&DockerServiceReal{}, stackConfigService, ProvideStackDownloadManagerReal(), make(map[string]StackAction)}
+	return &StackServiceImpl{&dockerServiceReal{}, stackConfigService, provideDownloaderReal(), make(map[string]StackAction)}
 }
 
 type StackAction int
@@ -35,34 +35,34 @@ type StackService interface {
 }
 
 type StackDetails struct {
-	State StackState
+	State stackState
 	Path  string
 }
 
 type DockerService interface {
-	DeployStack(stackName string) error
-	StopStack(stackName string) error
-	GetRunningStackStateInfo() (map[string]StackDetails, error)
+	deployStack(stackName string) error
+	stopStack(stackName string) error
+	getRunningStackStateInfo() (map[string]StackDetails, error)
 }
 
 type StackConfigService interface {
-	GetStackConfig(stackName string) StackConfig
+	GetStackConfig(stackName string) appConfig
 }
 
 type StackDownloadManager interface {
-	GetStackDownloadStates() map[string]DownloadState
-	DownloadStack(stackName string)
+	getDownloadStates() map[string]downloadState
+	download(stackName string)
 }
 
 func (sm *StackServiceImpl) DeployStack(stackName string) error {
 	sm.lastActionOnStack[stackName] = Deploy
-	sm.StackDownloadManager.DownloadStack(stackName)
-	return sm.DockerService.DeployStack(stackName)
+	sm.StackDownloadManager.download(stackName)
+	return sm.DockerService.deployStack(stackName)
 }
 
 func (sm *StackServiceImpl) GetStackStateInfo() map[string]StackDetails {
 	logger.Trace("Stack state info was requested.")
-	resultInfos, err := sm.DockerService.GetRunningStackStateInfo()
+	resultInfos, err := sm.DockerService.getRunningStackStateInfo()
 
 	stacksInDir, err := sm.stackNamesInDirectory()
 	if err != nil {
@@ -78,10 +78,10 @@ func (sm *StackServiceImpl) GetStackStateInfo() map[string]StackDetails {
 		resultInfos[stackName] = StackDetails{stackDetail.State, newPath}
 	}
 
-	downloadStates := sm.StackDownloadManager.GetStackDownloadStates()
+	downloadStates := sm.StackDownloadManager.getDownloadStates()
 	for stackName, stackDetails := range resultInfos {
 		if _, ok := downloadStates[stackName]; ok {
-			if downloadStates[stackName] == Ongoing {
+			if downloadStates[stackName] == ongoing {
 				resultInfos[stackName] = StackDetails{Downloading, stackDetails.Path}
 			} else if stackDetails.State == Uninitialized && sm.lastActionOnStack[stackName] == Deploy {
 				resultInfos[stackName] = StackDetails{Starting, stackDetails.Path}
@@ -100,9 +100,9 @@ func logStackStateInfo(info map[string]StackDetails) {
 	currentIndex := 0
 	for stackName, stackDetails := range info {
 		if currentIndex == 0 {
-			logString += fmt.Sprintf("\n  {%s: %s}", stackName, stackDetails.State.String())
+			logString += fmt.Sprintf("\n  {%s: %s}", stackName, stackDetails.State.toString())
 		} else {
-			logString += fmt.Sprintf("\n,  {%s: %s}", stackName, stackDetails.State.String())
+			logString += fmt.Sprintf("\n,  {%s: %s}", stackName, stackDetails.State.toString())
 		}
 		currentIndex++
 	}
@@ -150,11 +150,11 @@ func (sm *StackServiceImpl) StopStack(stackToStopName string) error {
 	if doesStackExist == false {
 		return logAndCreateStackNotFoundError(stackToStopName)
 	} else if !(existingStack.State == Starting || existingStack.State == Available || existingStack.State == Stopping) {
-		logger.Warn("only 'Starting' and 'Available' stacks can be stopped. State is: %s", existingStack.State.String())
+		logger.Warn("only 'Starting' and 'Available' stacks can be stopped. State is: %s", existingStack.State.toString())
 		return errors.New("error - stopping stack failed")
 	} else {
 		logger.Debug("Stack does exist and is now stopped: %s", stackToStopName)
-		return sm.DockerService.StopStack(stackToStopName)
+		return sm.DockerService.stopStack(stackToStopName)
 	}
 }
 

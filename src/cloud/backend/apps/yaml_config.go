@@ -6,25 +6,26 @@ import (
 	"path/filepath"
 )
 
-type StackConfig struct {
+type appConfig struct {
 	UrlPath string `yaml:"urlPath"`
 	Port    string `yaml:"port"`
 }
 
-type StackConfigServiceImpl struct {
-	stackConfigs map[string]StackConfig
+type configServiceImpl struct {
+	stackConfigs map[string]appConfig
 }
 
-func (s *StackConfigServiceImpl) GetStackConfig(stackName string) StackConfig {
+// TODO why is that used in initiliazer module? can reference be removed?
+func (s *configServiceImpl) GetStackConfig(stackName string) appConfig {
 	if stackConfig, found := s.stackConfigs[stackName]; found {
 		return stackConfig
 	}
 	logger.Error("error: StackConfig not found for '%s'", stackName)
-	return StackConfig{"/", "80"}
+	return appConfig{"/", "80"}
 }
 
 func provideStackConfigService(stackDir string) StackConfigService {
-	stackConfigs := make(map[string]StackConfig)
+	stackConfigs := make(map[string]appConfig)
 
 	files, err := os.ReadDir(stackDir)
 	if err != nil {
@@ -38,11 +39,11 @@ func provideStackConfigService(stackDir string) StackConfigService {
 		stackConfigFilePath := filepath.Join(stackDir, file.Name(), "app.yml")
 		stackConfigs[file.Name()] = loadConfig(stackConfigFilePath)
 	}
-	return &StackConfigServiceImpl{stackConfigs: stackConfigs}
+	return &configServiceImpl{stackConfigs: stackConfigs}
 }
 
-func loadConfig(configPath string) StackConfig {
-	newConfig := StackConfig{UrlPath: "/", Port: "80"}
+func loadConfig(configPath string) appConfig {
+	newConfig := appConfig{UrlPath: "/", Port: "80"}
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		logger.Debug("file %s does not exist, providing default config instead", configPath)
 		return newConfig

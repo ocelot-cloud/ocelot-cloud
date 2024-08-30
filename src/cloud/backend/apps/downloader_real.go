@@ -5,82 +5,82 @@ import (
 	"sync"
 )
 
-type DownloadState int
+type downloadState int
 
 const (
-	Ongoing DownloadState = iota
-	Finished
-	Error
+	ongoing downloadState = iota
+	finished
+	failure
 )
 
-func (s *DownloadState) String() string {
+func (s *downloadState) toString() string {
 	return [...]string{"Ongoing", "Finished", "Error"}[*s]
 }
 
-type StackDownloadState struct {
+type stackDownloadState struct {
 	stackName string
-	State     DownloadState
+	State     downloadState
 }
 
-type StackDownloadManagerReal struct {
+type downloaderReal struct {
 	mu                      sync.Mutex
-	downloadStates          []*StackDownloadState
+	downloadStates          []*stackDownloadState
 	downloadProcessProvider DownloadProcessProvider
 }
 
-func ProvideStackDownloadManagerReal() *StackDownloadManagerReal {
-	return &StackDownloadManagerReal{downloadProcessProvider: &DownloadProcessProviderReal{}}
+func provideDownloaderReal() *downloaderReal {
+	return &downloaderReal{downloadProcessProvider: &DownloadProcessProviderReal{}}
 }
 
-func (s *StackDownloadManagerReal) GetStackDownloadStates() map[string]DownloadState {
+func (s *downloaderReal) getDownloadStates() map[string]downloadState {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	downloadStateClone := make(map[string]DownloadState)
+	downloadStateClone := make(map[string]downloadState)
 	for _, v := range s.downloadStates {
 		downloadStateClone[v.stackName] = v.State
 	}
 	return downloadStateClone
 }
 
-func (s *StackDownloadManagerReal) DownloadStack(stackName string) {
+func (s *downloaderReal) download(stackName string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	for _, downloadState := range s.downloadStates {
 		if downloadState.stackName == stackName {
-			downloadState.State = Ongoing
+			downloadState.State = ongoing
 			s.downloadProcessProvider.StartDownloadProcessAndSetStateWhenFinished(downloadState)
 			return
 		}
 	}
 
-	newDownloadState := &StackDownloadState{stackName: stackName, State: Ongoing}
+	newDownloadState := &stackDownloadState{stackName: stackName, State: ongoing}
 	s.downloadStates = append(s.downloadStates, newDownloadState)
 	s.downloadProcessProvider.StartDownloadProcessAndSetStateWhenFinished(newDownloadState)
 }
 
 type DownloadProcessProvider interface {
-	StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *StackDownloadState)
+	StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *stackDownloadState)
 }
 
 type DownloadProcessProviderMock struct {
-	stackDownloadState *StackDownloadState
+	stackDownloadState *stackDownloadState
 }
 
-func (d *DownloadProcessProviderMock) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *StackDownloadState) {
+func (d *DownloadProcessProviderMock) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *stackDownloadState) {
 	d.stackDownloadState = stackDownloadState
 }
 
 type DownloadProcessProviderReal struct{}
 
-func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *StackDownloadState) {
+func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *stackDownloadState) {
 	go func() {
 		stackDockerComposePath := stackFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
 		pullCmd := exec.Command("docker", "compose", "-f", stackDockerComposePath, "pull")
 		err := pullCmd.Run()
 		if err != nil {
 			logger.Error("Error executing command '%s': %v\n", pullCmd.String(), err)
-			stackDownloadState.State = Error
+			stackDownloadState.State = failure
 			return
 		}
 
@@ -88,10 +88,10 @@ func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinishe
 		err = buildCmd.Run()
 		if err == nil {
 			logger.Debug("Successfully downloaded images for stack: %s", stackDownloadState.stackName)
-			stackDownloadState.State = Finished
+			stackDownloadState.State = finished
 		} else {
 			logger.Error("Error executing command '%s': %v\n", buildCmd.String(), err)
-			stackDownloadState.State = Error
+			stackDownloadState.State = failure
 		}
 	}()
 }
