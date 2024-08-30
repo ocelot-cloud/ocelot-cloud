@@ -23,7 +23,7 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	router = routerArg
 	config = configArg
 
-	apps.Todo(router, config)
+	apps.InitializeAppService(router, config)
 
 	initializeDockerNetwork()
 	initializeHandlers()

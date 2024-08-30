@@ -18,7 +18,7 @@ var (
 	stackConfigService StackConfigService // TODO why is this needed? Should be rather a pointer?
 )
 
-func Todo(routerArg *mux.Router, configArg *tools.GlobalConfig) {
+func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
 	router = routerArg
 	// TODO Are local variables needed?
