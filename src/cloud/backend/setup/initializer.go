@@ -12,36 +12,36 @@ import (
 	"strings"
 )
 
-type ApplicationInitializer struct {
+var (
 	securityModule     *security.SecurityModule
 	router             *mux.Router
 	stackService       apps.StackService
 	config             *tools.GlobalConfig
 	stackConfigService apps.StackConfigService
+)
+
+func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig, securityModuleArg *security.SecurityModule) {
+	router = routerArg
+	config = configArg
+	securityModule = securityModuleArg
+
+	apps.StackFileDir = getStackFileDir()
+	stackConfigService = apps.ProvideStackConfigService(apps.StackFileDir)
+	stackService = getStackService(stackConfigService)
+	initializeDockerNetwork()
+	initializeHandlers()
 }
 
-func ProvideAppInitializer(router *mux.Router, config *tools.GlobalConfig, securityModule *security.SecurityModule) ApplicationInitializer {
-	return ApplicationInitializer{securityModule, router, nil, config, nil}
-}
-
-func (a *ApplicationInitializer) InitializeApplicationInternally() {
-	apps.StackFileDir = a.getStackFileDir()
-	a.stackConfigService = apps.ProvideStackConfigService(apps.StackFileDir)
-	a.stackService = a.getStackService(a.stackConfigService)
-	a.initializeDockerNetwork()
-	a.initializeHandlers()
-}
-
-func (a *ApplicationInitializer) getStackFileDir() string {
-	if a.config.UseDummyStacks {
+func getStackFileDir() string {
+	if config.UseDummyStacks {
 		return "stacks/dummy"
 	} else {
 		return "stacks/local"
 	}
 }
 
-func (a *ApplicationInitializer) getStackService(stackConfigService apps.StackConfigService) apps.StackService {
-	if a.config.AreMocksEnabled {
+func getStackService(stackConfigService apps.StackConfigService) apps.StackService {
+	if config.AreMocksEnabled {
 		apps.Logger.Debug("Using mock DockerService")
 		return apps.ProvideStackServiceMocked(stackConfigService)
 	} else {
@@ -50,40 +50,40 @@ func (a *ApplicationInitializer) getStackService(stackConfigService apps.StackCo
 	}
 }
 
-func (a *ApplicationInitializer) initializeDockerNetwork() {
+func initializeDockerNetwork() {
 	// TODO I remember that this is somewhere else used. So duplication? Maybe in ci-runner?
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q ocelot-net || docker network create ocelot-net")
 }
 
-func (a *ApplicationInitializer) initializeHandlers() {
-	a.initializeFunctionalEndpoints()
-	proxyHandler := a.buildProxyHandler()
-	apps.Logger.Info("Starting server listening on port ", a.config.BackendExecutablePort)
-	err := http.ListenAndServe(":"+a.config.BackendExecutablePort, http.HandlerFunc(proxyHandler))
+func initializeHandlers() {
+	initializeFunctionalEndpoints()
+	proxyHandler := buildProxyHandler()
+	apps.Logger.Info("Starting server listening on port ", config.BackendExecutablePort)
+	err := http.ListenAndServe(":"+config.BackendExecutablePort, http.HandlerFunc(proxyHandler))
 	if err != nil {
 		apps.Logger.Fatal("Failed to start server: " + err.Error())
 	}
 }
 
-func (a *ApplicationInitializer) buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
+func buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		ocelotDomain := "ocelot-cloud." + a.config.RootDomain
+		ocelotDomain := "ocelot-cloud." + config.RootDomain
 		// TODO Surprising, why would I need a localDomain? Remove or add an explanation
-		localDomain := a.config.RootDomain + ":" + a.config.DockerContainerPort
+		localDomain := config.RootDomain + ":" + config.DockerContainerPort
 		if r.Host == ocelotDomain || r.Host == localDomain {
-			a.router.ServeHTTP(w, r)
+			router.ServeHTTP(w, r)
 		} else {
-			a.proxyRequestToTheDockerContainer(w, r)
+			proxyRequestToTheDockerContainer(w, r)
 		}
 	}
 	return handler
 }
 
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
-func (a *ApplicationInitializer) proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
+func proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 	apps.Logger.Trace("Proxying request with target host %s", r.Host)
-	targetContainer := strings.TrimSuffix(r.Host, "."+a.config.RootDomain)
-	targetPort := a.stackConfigService.GetStackConfig(targetContainer).Port
+	targetContainer := strings.TrimSuffix(r.Host, "."+config.RootDomain)
+	targetPort := stackConfigService.GetStackConfig(targetContainer).Port
 	targetURL, err := url.Parse("http://" + targetContainer + ":" + targetPort)
 	if err != nil {
 		apps.Logger.Error("error when parsing URL, %s", err.Error())
@@ -99,22 +99,22 @@ func (a *ApplicationInitializer) proxyRequestToTheDockerContainer(w http.Respons
 	proxy.ServeHTTP(w, r)
 }
 
-func (a *ApplicationInitializer) initializeFunctionalEndpoints() {
-	api := a.router.PathPrefix("/api").Subrouter()
+func initializeFunctionalEndpoints() {
+	api := router.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/check-session", checkSessionHandler).Methods("GET")
-	api.HandleFunc("/hello", a.helloHandler)
+	api.HandleFunc("/hello", helloHandler)
 
-	a.registerSecuredEndpoint("/stacks/read", createReadHandler(a.stackService))
-	a.registerSecuredEndpoint("/stacks/deploy", createDeployHandler(a.stackService))
-	a.registerSecuredEndpoint("/stacks/stop", createStopHandler(a.stackService))
+	registerSecuredEndpoint("/stacks/read", createReadHandler(stackService))
+	registerSecuredEndpoint("/stacks/deploy", createDeployHandler(stackService))
+	registerSecuredEndpoint("/stacks/stop", createStopHandler(stackService))
 
-	if a.config.IsGuiEnabled {
-		a.InitializeFrontendResourceDelivery()
+	if config.IsGuiEnabled {
+		initializeFrontendResourceDelivery()
 	}
 }
 
-func (a *ApplicationInitializer) InitializeFrontendResourceDelivery() {
-	a.router.PathPrefix("/").Handler(a.securityModule.ApplyAuthMiddlewares(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func initializeFrontendResourceDelivery() {
+	router.PathPrefix("/").Handler(securityModule.ApplyAuthMiddlewares(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 
@@ -135,6 +135,6 @@ func (a *ApplicationInitializer) InitializeFrontendResourceDelivery() {
 	})))
 }
 
-func (a *ApplicationInitializer) registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
-	a.router.Handle("/api"+path, a.securityModule.ApplyAuthMiddlewares(handlerFunc))
+func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
+	router.Handle("/api"+path, securityModule.ApplyAuthMiddlewares(handlerFunc))
 }

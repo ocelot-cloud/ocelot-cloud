@@ -37,8 +37,7 @@ func main() {
 	initializeDatabase()
 	router := mux.NewRouter()
 	securityModule := security.ProvideSecurityModule(router, config)
-	setupModule := setup.ProvideBusinessModule(router, config, securityModule)
-	setupModule.InitializeApplication()
+	setup.InitializeApplication(router, config, securityModule)
 }
 
 func initializeDatabase() {
