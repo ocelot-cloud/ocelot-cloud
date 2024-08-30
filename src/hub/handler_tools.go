@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/ocelot-cloud/shared/secutils"
+	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
 	"time"
@@ -44,7 +44,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.Password, Password},
 			{v.Email, Email},
 		}
-	case secutils.ChangePasswordForm:
+	case utils.ChangePasswordForm:
 		jobs = []ValidationJob{
 			{v.OldPassword, Password},
 			{v.NewPassword, Password},
@@ -84,7 +84,7 @@ func validateJobs(jobs []ValidationJob) error {
 }
 
 func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {
-	singleString, err := readBody[secutils.SingleString](r)
+	singleString, err := readBody[utils.SingleString](r)
 	if err != nil {
 		return "", err
 	}
@@ -134,7 +134,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if err = validate(r.Header.Get(secutils.OriginHeader), Origin); err != nil {
+	if err = validate(r.Header.Get(utils.OriginHeader), Origin); err != nil {
 		http.Error(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -146,8 +146,8 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if !repo.IsOriginCorrect(user, r.Header.Get(secutils.OriginHeader)) {
-		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(secutils.OriginHeader))
+	if !repo.IsOriginCorrect(user, r.Header.Get(utils.OriginHeader)) {
+		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(utils.OriginHeader))
 		http.Error(w, "origin not matching", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}

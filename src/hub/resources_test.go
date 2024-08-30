@@ -1,14 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
-	"github.com/ocelot-cloud/shared/secutils"
-	"io"
-	"net/http"
-	"strings"
+	"github.com/ocelot-cloud/shared/utils"
 	"testing"
 )
 
@@ -27,18 +23,8 @@ var (
 	}
 )
 
-type ComponentClient struct {
-	User            string
-	Password        string
-	NewPassword     string
-	Origin          string
-	Cookie          *http.Cookie
-	SetOriginHeader bool
-	SetCookieHeader bool
-}
-
 type HubClient struct {
-	Parent        ComponentClient
+	Parent        utils.ComponentClient
 	Email         string
 	App           string
 	Tag           string
@@ -71,12 +57,13 @@ func getRegistrationForm(hub *HubClient) *RegistrationForm {
 
 func getHub() *HubClient {
 	hub := &HubClient{
-		Parent: ComponentClient{
+		Parent: utils.ComponentClient{
 			User:            sampleUser,
 			Password:        samplePassword,
 			Origin:          rootUrl,
 			SetOriginHeader: true,
 			SetCookieHeader: true,
+			RootUrl:         rootUrl,
 		},
 
 		Email:         sampleEmail,
@@ -90,7 +77,7 @@ func getHub() *HubClient {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.Parent.doRequest(registrationPath, form, "")
+	_, err := h.Parent.DoRequest(registrationPath, form, "")
 	return err
 }
 
@@ -101,7 +88,7 @@ func (h *HubClient) login() error {
 		Origin:   h.Parent.Origin,
 	}
 
-	resp, err := h.Parent.doRequestWithFullResponse(loginPath, creds, "")
+	resp, err := h.Parent.DoRequestWithFullResponse(loginPath, creds, "")
 	if err != nil {
 		return err
 	}
@@ -115,118 +102,17 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.Parent.doRequest(deleteUserPath, nil, "")
+	_, err := h.Parent.DoRequest(deleteUserPath, nil, "")
 	return err
 }
 
-func (c *ComponentClient) doRequest(path string, payload interface{}, expectedMessage string) (interface{}, error) {
-	resp, err := c.doRequestWithFullResponse(path, payload, expectedMessage)
-	if err != nil {
-		return nil, err
-	}
-
-	respBody, err := assertOkStatusAndExtractBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return respBody, nil
-}
-
-func (c *ComponentClient) doRequestWithFullResponse(path string, payload interface{}, expectedMessage string) (*http.Response, error) {
-	url := rootUrl + path
-
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal payload: %v", err)
-	}
-	payloadReader := bytes.NewReader(payloadBytes)
-	req, err := http.NewRequest("POST", url, payloadReader)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create request: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	setCookieAndOriginHeaders(req, c)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to send request: %v", err)
-	}
-
-	respBody, err := assertOkStatusAndExtractBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	responseMessage, _ := strings.CutSuffix(string(respBody), "\n")
-	if expectedMessage != "" && expectedMessage != responseMessage {
-		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, responseMessage)
-	}
-
-	if len(resp.Cookies()) == 1 {
-		c.Cookie = resp.Cookies()[0]
-	}
-
-	// Response body can only be read once. When reading it after this function, an error occurs. So a copy is created.
-	newResp := &http.Response{
-		StatusCode: resp.StatusCode,
-		Header:     resp.Header,
-		Body:       io.NopCloser(bytes.NewBuffer(respBody)),
-	}
-	return newResp, nil
-}
-
-func setCookieAndOriginHeaders(req *http.Request, c *ComponentClient) {
-	if c.SetOriginHeader {
-		req.Header.Set(secutils.OriginHeader, c.Origin)
-	}
-	if c.SetCookieHeader && c.Cookie != nil {
-		req.AddCookie(c.Cookie)
-	}
-}
-
-func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
-	defer resp.Body.Close()
-
-	var bodyBuffer bytes.Buffer
-	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
-
-	if resp.StatusCode != http.StatusOK {
-		respBody, err := io.ReadAll(teeReader)
-		if err != nil {
-			return nil, fmt.Errorf("Expected status code 200, but got %d. Also failed to read response body: %v", resp.StatusCode, err)
-		}
-		errorMessage := getErrMsg(resp.StatusCode, string(respBody))
-		trimmedStr := strings.TrimSuffix(errorMessage, "\n")
-		return nil, fmt.Errorf(trimmedStr)
-	}
-
-	respBody, err := io.ReadAll(teeReader)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read response body: %v", err)
-	}
-
-	return respBody, nil
-}
-
-func getErrMsg(actualStatusCode int, respBodyMsg string) string {
-	var msg string
-	if respBodyMsg == "" {
-		msg = ""
-	} else {
-		msg = fmt.Sprintf(" Response body: %s", respBodyMsg)
-	}
-	return fmt.Sprintf("Expected status code 200, but got %d.%s", actualStatusCode, msg)
-}
-
 func (h *HubClient) createApp() error {
-	_, err := h.Parent.doRequest(appCreationPath, secutils.SingleString{h.App}, "")
+	_, err := h.Parent.DoRequest(appCreationPath, utils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
-	result, err := h.Parent.doRequest(searchAppsPath, secutils.SingleString{searchTerm}, "")
+	result, err := h.Parent.DoRequest(searchAppsPath, utils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +126,7 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 }
 
 func (h *HubClient) GetApps() ([]string, error) {
-	result, err := h.Parent.doRequest(appGetListPath, nil, "")
+	result, err := h.Parent.DoRequest(appGetListPath, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +145,7 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.Parent.doRequest(tagUploadPath, tapUpload, "")
+	_, err := h.Parent.DoRequest(tagUploadPath, tapUpload, "")
 	return err
 }
 
@@ -270,7 +156,7 @@ func (h *HubClient) downloadTag() (string, error) {
 		Tag:  h.Tag,
 	}
 
-	result, err := h.Parent.doRequest(downloadPath, tagInfo, "")
+	result, err := h.Parent.DoRequest(downloadPath, tagInfo, "")
 	if err != nil {
 		return "", err
 	}
@@ -289,7 +175,7 @@ func (h *HubClient) getTags() ([]string, error) {
 		App:  h.App,
 	}
 
-	result, err := h.Parent.doRequest(getTagsPath, usernameAndApp, "")
+	result, err := h.Parent.DoRequest(getTagsPath, usernameAndApp, "")
 	if err != nil {
 		return nil, err
 	}
@@ -321,22 +207,22 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.Parent.doRequest(tagDeletePath, tagInfo, "")
+	_, err := h.Parent.DoRequest(tagDeletePath, tagInfo, "")
 	return err
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.Parent.doRequest(appDeletePath, secutils.SingleString{h.App}, "")
+	_, err := h.Parent.DoRequest(appDeletePath, utils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) changePassword() error {
-	form := secutils.ChangePasswordForm{
+	form := utils.ChangePasswordForm{
 		OldPassword: h.Parent.Password,
 		NewPassword: h.Parent.NewPassword,
 	}
 
-	_, err := h.Parent.doRequest(changePasswordPath, form, "")
+	_, err := h.Parent.DoRequest(changePasswordPath, form, "")
 	return err
 }
 
@@ -349,16 +235,16 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.Parent.doRequest(wipeDataPath, nil, "")
+	_, err := h.Parent.DoRequest(wipeDataPath, nil, "")
 	return err
 }
 
 func (h *HubClient) logout() error {
-	_, err := h.Parent.doRequest(logoutPath, nil, "")
+	_, err := h.Parent.DoRequest(logoutPath, nil, "")
 	return err
 }
 
 func (h *HubClient) checkAuth() error {
-	_, err := h.Parent.doRequest(authCheckPath, nil, "")
+	_, err := h.Parent.DoRequest(authCheckPath, nil, "")
 	return err
 }

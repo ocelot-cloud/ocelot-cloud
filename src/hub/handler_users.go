@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ocelot-cloud/shared/secutils"
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"time"
 )
@@ -70,7 +70,7 @@ func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	secutils.SendJsonResponse(w, secutils.SingleString{user})
+	utils.SendJsonResponse(w, utils.SingleString{user})
 }
 
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +127,7 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form, err := readBody[secutils.ChangePasswordForm](r)
+	form, err := readBody[utils.ChangePasswordForm](r)
 	if err != nil {
 		Logger.Warn("could not read request body: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)

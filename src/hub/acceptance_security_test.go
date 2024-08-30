@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"github.com/ocelot-cloud/shared/utils"
 	"testing"
 	"time"
 )
@@ -71,7 +72,7 @@ func TestChangePasswordSecurity(t *testing.T) {
 	hub.Parent.Password = correctlyFormattedButNotMatchingPassword
 	err := hub.changePassword()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(401, "incorrect username or password"), err.Error())
 	hub.Parent.Password = samplePassword
 
 	testInputInvalidation(t, hub, "invalid-password-ä", PasswordField, ChangePassword)
@@ -97,7 +98,7 @@ func TestLoginSecurity(t *testing.T) {
 	hub.Parent.Password = correctlyFormattedButNotMatchingPassword
 	err = hub.login()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "incorrect username or password"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(401, "incorrect username or password"), err.Error())
 	hub.Parent.Password = samplePassword
 }
 
@@ -136,7 +137,7 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 	assert.True(t, time.Now().UTC().After(hub.Parent.Cookie.Expires))
 	err := hub.createApp()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(400, "cookie expired"), err.Error())
 	hub.Parent.User = sampleUser
 
 	hub.Parent.User = testUserWithOldButNotExpiredCookie
@@ -176,33 +177,33 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 
 	err := operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "cookie not set in request"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(401, "cookie not set in request"), err.Error())
 
 	hub.Parent.SetCookieHeader = true
 	hub.Parent.Cookie.Value = "some-invalid-cookie-value"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "invalid cookie"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(400, "invalid cookie"), err.Error())
 
 	err = hub.login()
 	assert.Nil(t, err)
 	hub.Parent.Origin = "http:/single-slash-invalid-origin"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "invalid origin"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(400, "invalid origin"), err.Error())
 
 	hub.Parent.SetOriginHeader = true
 	hub.Parent.Origin = "http://valid-but-incorrect-origin.com"
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "origin not matching"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(400, "origin not matching"), err.Error())
 
 	hub.Parent.Origin = sampleOrigin
 	validButNonExistentCookie := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
 	hub.Parent.Cookie.Value = validButNonExistentCookie
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(401, "cookie not found"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(401, "cookie not found"), err.Error())
 
 	assert.Nil(t, hub.login())
 
@@ -211,7 +212,7 @@ func doCookieAndHostPolicyChecks(t *testing.T, hub *HubClient, operation func() 
 	assert.Nil(t, hub.login())
 	err = operation()
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "cookie expired"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(400, "cookie expired"), err.Error())
 	assert.True(t, time.Now().UTC().After(hub.Parent.Cookie.Expires))
 	hub.Parent.User = sampleUser
 }
@@ -266,7 +267,7 @@ func testInputInvalidation(t *testing.T, hub *HubClient, invalidValue string, fi
 
 func assertInvalidInputError(t *testing.T, err error) {
 	assert.NotNil(t, err)
-	assert.Equal(t, getErrMsg(400, "invalid input"), err.Error())
+	assert.Equal(t, utils.GetErrMsg(400, "invalid input"), err.Error())
 }
 
 func returnCurrentValueAndSetField(hub *HubClient, fieldType FieldType, value string) string {
