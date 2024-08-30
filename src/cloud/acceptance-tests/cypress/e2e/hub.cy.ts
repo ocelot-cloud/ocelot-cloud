@@ -143,7 +143,7 @@ function checkInputValidationOnTagPage() {
         contents: Cypress.Buffer.from(''),
         fileName: 'asdf.tar.gz',
     }, {force: true})
-    cy.should('not.contain', 'Invalid tag,'); // TODO
+    cy.get('.entity-management-container').should('not.contain', '.invalid-feedback')
     cy.get('#tag-list').find('li').click()
     cy.get('#button-delete-tag').click()
     cy.get('#button-delete-confirmation').click()

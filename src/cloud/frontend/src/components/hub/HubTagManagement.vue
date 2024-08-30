@@ -66,8 +66,7 @@ import {defineComponent, onMounted, ref} from 'vue';
 import { useRoute } from 'vue-router';
 import {
   alertError,
-  defaultAllowedSymbols,
-  doRequest, generateInvalidInputMessage, getDefaultValidationRegex,
+  doRequest, generateInvalidInputMessage,
   goToHubPage,
   defaultMaxLength,
   defaultMinLength, tagAllowedSymbols
