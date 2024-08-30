@@ -60,5 +60,15 @@ WARN[0000] The "PROFILE" variable is not set. Defaulting to a blank string.
 WARN[0000] The "LOG_LEVEL" variable is not set. Defaulting to a blank string.
 WARN[0000] /home/dev/Dokumente/workspace/ocelot-cloud/src/cloud/backend/stacks/core/ocelot-cloud/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
 
-
-
+Remove the ocelot-cloud-auth header, when proxying to apps behind it, so they can't steal this cookie. Should be tested by API (both statuses) and once in prod environment, maybe "PROD backend". Nginx config:
+```
+server {
+    listen 80;
+    location /api/check {
+        if ($http_ocelot_cloud_auth) {
+            return 400 'ocelot-cloud-auth header should have been removed by ocelot-cloud proxy, but wasn't';
+        }
+        return 200 'no ocelot-auth header found as desired';
+    }
+}
+```
