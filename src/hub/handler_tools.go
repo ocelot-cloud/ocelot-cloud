@@ -190,8 +190,3 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 
 	return user, nil
 }
-
-func handleInvalidRequestMethod(w http.ResponseWriter, r *http.Request, endpoint string) {
-	Logger.Warn("invalid request method '%s' on endpoint '%s'", r.Method, endpoint)
-	http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
-}

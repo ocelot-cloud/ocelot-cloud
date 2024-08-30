@@ -65,16 +65,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func authCheckHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		user, err := checkAuthentication(w, r)
-		if err != nil {
-			return
-		}
-		sendJsonResponse(w, SingleString{user})
-	} else {
-		handleInvalidRequestMethod(w, r, userPath)
+	user, err := checkAuthentication(w, r)
+	if err != nil {
 		return
 	}
+	sendJsonResponse(w, SingleString{user})
 }
 
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -126,11 +121,6 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		handleInvalidRequestMethod(w, r, userPath)
-		return
-	}
-
 	user, err := checkAuthentication(w, r)
 	if err != nil {
 		return
