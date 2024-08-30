@@ -90,7 +90,7 @@ func getHub() *HubClient {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "")
+	_, err := h.Parent.doRequest(registrationPath, form, "")
 	return err
 }
 
@@ -101,7 +101,7 @@ func (h *HubClient) login() error {
 		Origin:   h.Parent.Origin,
 	}
 
-	resp, err := h.doRequestWithFullResponse(loginPath, creds, "")
+	resp, err := h.Parent.doRequestWithFullResponse(loginPath, creds, "")
 	if err != nil {
 		return err
 	}
@@ -115,12 +115,12 @@ func (h *HubClient) login() error {
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(deleteUserPath, nil, "")
+	_, err := h.Parent.doRequest(deleteUserPath, nil, "")
 	return err
 }
 
-func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string) (interface{}, error) {
-	resp, err := h.doRequestWithFullResponse(path, payload, expectedMessage)
+func (c *ComponentClient) doRequest(path string, payload interface{}, expectedMessage string) (interface{}, error) {
+	resp, err := c.doRequestWithFullResponse(path, payload, expectedMessage)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage 
 	return respBody, nil
 }
 
-func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, expectedMessage string) (*http.Response, error) {
+func (c *ComponentClient) doRequestWithFullResponse(path string, payload interface{}, expectedMessage string) (*http.Response, error) {
 	url := rootUrl + path
 
 	payloadBytes, err := json.Marshal(payload)
@@ -146,7 +146,7 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 		return nil, fmt.Errorf("Failed to create request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	setCookieAndOriginHeaders(req, h)
+	setCookieAndOriginHeaders(req, c)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -165,7 +165,7 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 	}
 
 	if len(resp.Cookies()) == 1 {
-		h.Parent.Cookie = resp.Cookies()[0]
+		c.Cookie = resp.Cookies()[0]
 	}
 
 	// Response body can only be read once. When reading it after this function, an error occurs. So a copy is created.
@@ -177,12 +177,12 @@ func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, 
 	return newResp, nil
 }
 
-func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
-	if h.Parent.SetOriginHeader {
-		req.Header.Set(secutils.OriginHeader, h.Parent.Origin)
+func setCookieAndOriginHeaders(req *http.Request, c *ComponentClient) {
+	if c.SetOriginHeader {
+		req.Header.Set(secutils.OriginHeader, c.Origin)
 	}
-	if h.Parent.SetCookieHeader && h.Parent.Cookie != nil {
-		req.AddCookie(h.Parent.Cookie)
+	if c.SetCookieHeader && c.Cookie != nil {
+		req.AddCookie(c.Cookie)
 	}
 }
 
@@ -221,12 +221,12 @@ func getErrMsg(actualStatusCode int, respBodyMsg string) string {
 }
 
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appCreationPath, secutils.SingleString{h.App}, "")
+	_, err := h.Parent.doRequest(appCreationPath, secutils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
-	result, err := h.doRequest(searchAppsPath, secutils.SingleString{searchTerm}, "")
+	result, err := h.Parent.doRequest(searchAppsPath, secutils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +240,7 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 }
 
 func (h *HubClient) GetApps() ([]string, error) {
-	result, err := h.doRequest(appGetListPath, nil, "")
+	result, err := h.Parent.doRequest(appGetListPath, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.doRequest(tagUploadPath, tapUpload, "")
+	_, err := h.Parent.doRequest(tagUploadPath, tapUpload, "")
 	return err
 }
 
@@ -270,7 +270,7 @@ func (h *HubClient) downloadTag() (string, error) {
 		Tag:  h.Tag,
 	}
 
-	result, err := h.doRequest(downloadPath, tagInfo, "")
+	result, err := h.Parent.doRequest(downloadPath, tagInfo, "")
 	if err != nil {
 		return "", err
 	}
@@ -289,7 +289,7 @@ func (h *HubClient) getTags() ([]string, error) {
 		App:  h.App,
 	}
 
-	result, err := h.doRequest(getTagsPath, usernameAndApp, "")
+	result, err := h.Parent.doRequest(getTagsPath, usernameAndApp, "")
 	if err != nil {
 		return nil, err
 	}
@@ -321,12 +321,12 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.doRequest(tagDeletePath, tagInfo, "")
+	_, err := h.Parent.doRequest(tagDeletePath, tagInfo, "")
 	return err
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appDeletePath, secutils.SingleString{h.App}, "")
+	_, err := h.Parent.doRequest(appDeletePath, secutils.SingleString{h.App}, "")
 	return err
 }
 
@@ -336,7 +336,7 @@ func (h *HubClient) changePassword() error {
 		NewPassword: h.Parent.NewPassword,
 	}
 
-	_, err := h.doRequest(changePasswordPath, form, "")
+	_, err := h.Parent.doRequest(changePasswordPath, form, "")
 	return err
 }
 
@@ -349,16 +349,16 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.doRequest(wipeDataPath, nil, "")
+	_, err := h.Parent.doRequest(wipeDataPath, nil, "")
 	return err
 }
 
 func (h *HubClient) logout() error {
-	_, err := h.doRequest(logoutPath, nil, "")
+	_, err := h.Parent.doRequest(logoutPath, nil, "")
 	return err
 }
 
 func (h *HubClient) checkAuth() error {
-	_, err := h.doRequest(authCheckPath, nil, "")
+	_, err := h.Parent.doRequest(authCheckPath, nil, "")
 	return err
 }
