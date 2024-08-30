@@ -23,7 +23,7 @@ func (s *StackConfigServiceImpl) GetStackConfig(stackName string) StackConfig {
 	return StackConfig{"/", "80"}
 }
 
-func ProvideStackConfigService(stackDir string) StackConfigService {
+func provideStackConfigService(stackDir string) StackConfigService {
 	stackConfigs := make(map[string]StackConfig)
 
 	files, err := os.ReadDir(stackDir)
@@ -42,18 +42,18 @@ func ProvideStackConfigService(stackDir string) StackConfigService {
 }
 
 func loadConfig(configPath string) StackConfig {
-	config := StackConfig{UrlPath: "/", Port: "80"}
+	newConfig := StackConfig{UrlPath: "/", Port: "80"}
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		logger.Debug("file %s does not exist, providing default config instead", configPath)
-		return config
+		return newConfig
 	}
 
 	fileContent, err := os.ReadFile(configPath)
 	if err != nil {
 		logger.Fatal("error when reading file %s: %w", configPath, err)
 	}
-	if err := yaml.Unmarshal(fileContent, &config); err != nil {
+	if err = yaml.Unmarshal(fileContent, &newConfig); err != nil {
 		logger.Fatal("error when unmarshalling %s: %w", configPath, err)
 	}
-	return config
+	return newConfig
 }

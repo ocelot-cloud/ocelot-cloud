@@ -15,7 +15,6 @@ import (
 var (
 	Logger             = tools.Logger
 	router             *mux.Router
-	stackService       apps.StackService
 	config             *tools.GlobalConfig
 	stackConfigService apps.StackConfigService
 )
@@ -24,29 +23,10 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	router = routerArg
 	config = configArg
 
-	apps.StackFileDir = getStackFileDir()
-	stackConfigService = apps.ProvideStackConfigService(apps.StackFileDir)
-	stackService = getStackService(stackConfigService)
+	apps.Todo(router, config)
+
 	initializeDockerNetwork()
 	initializeHandlers()
-}
-
-func getStackFileDir() string {
-	if config.UseDummyStacks {
-		return "stacks/dummy"
-	} else {
-		return "stacks/local"
-	}
-}
-
-func getStackService(stackConfigService apps.StackConfigService) apps.StackService {
-	if config.AreMocksEnabled {
-		Logger.Debug("Using mock DockerService")
-		return apps.ProvideStackServiceMocked(stackConfigService)
-	} else {
-		Logger.Debug("Using real DockerService")
-		return apps.ProvideStackServiceReal(stackConfigService)
-	}
 }
 
 func initializeDockerNetwork() {
@@ -99,12 +79,7 @@ func proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 func initializeFunctionalEndpoints() {
-	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/hello", helloHandler)
-
-	registerSecuredEndpoint("/stacks/read", createReadHandler(stackService))
-	registerSecuredEndpoint("/stacks/deploy", createDeployHandler(stackService))
-	registerSecuredEndpoint("/stacks/stop", createStopHandler(stackService))
+	router.HandleFunc("/api/hello", helloHandler)
 
 	if config.IsGuiEnabled {
 		initializeFrontendResourceDelivery()
@@ -131,8 +106,4 @@ func initializeFrontendResourceDelivery() {
 		Logger.Debug("Serving static content at '%s'", r.URL.Path)
 		http.FileServer(http.Dir("./dist")).ServeHTTP(w, r)
 	})))
-}
-
-func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
-	router.Handle("/api"+path, security.ApplyAuthMiddlewares(handlerFunc))
 }

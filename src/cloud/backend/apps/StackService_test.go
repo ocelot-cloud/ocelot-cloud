@@ -10,8 +10,8 @@ var stackToDeploy = tools.NginxDefault
 var stack2ToDeploy = tools.NginxDefault2
 
 func createStackService() *StackServiceImpl {
-	StackFileDir = DefaultStackFileDir
-	return &StackServiceImpl{ProvideServiceMock(), ProvideStackConfigService(StackFileDir), ProvideDownloadManagerMock(), make(map[string]StackAction)}
+	stackFileDir = DefaultStackFileDir
+	return &StackServiceImpl{ProvideServiceMock(), provideStackConfigService(stackFileDir), ProvideDownloadManagerMock(), make(map[string]StackAction)}
 }
 
 func TestHappyPathDeployAndStop(t *testing.T) {

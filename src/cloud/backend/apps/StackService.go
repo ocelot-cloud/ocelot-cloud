@@ -110,9 +110,9 @@ func logStackStateInfo(info map[string]StackDetails) {
 }
 
 func (sm *StackServiceImpl) stackNamesInDirectory() ([]string, error) {
-	files, err := os.ReadDir(StackFileDir)
+	files, err := os.ReadDir(stackFileDir)
 	if err != nil {
-		logger.Warn("Could not read stack from directory '" + StackFileDir + "': " + err.Error())
+		logger.Warn("Could not read stack from directory '" + stackFileDir + "': " + err.Error())
 		return nil, err
 	}
 

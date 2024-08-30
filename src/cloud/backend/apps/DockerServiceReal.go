@@ -41,7 +41,7 @@ func logAndCreateStackNotFoundError(stackName string) error {
 }
 
 func getStackPath(stackName string) string {
-	return fmt.Sprintf("%s/%s/docker-compose.yml", StackFileDir, stackName)
+	return fmt.Sprintf("%s/%s/docker-compose.yml", stackFileDir, stackName)
 }
 
 func (d *DockerServiceReal) StopStack(stackName string) error {

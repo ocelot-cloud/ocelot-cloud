@@ -9,11 +9,11 @@ import (
 var DefaultStackFileDir = "../stacks/dummy"
 
 func init() {
-	StackFileDir = DefaultStackFileDir
+	stackFileDir = DefaultStackFileDir
 }
 
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
-	yamlConfig := ProvideStackConfigService(StackFileDir)
+	yamlConfig := provideStackConfigService(stackFileDir)
 	limesurveyUrlPath := yamlConfig.GetStackConfig(tools.NginxCustomPath).UrlPath
 	assert.Equal(t, "/custom-path", limesurveyUrlPath)
 }
@@ -23,7 +23,7 @@ func TestMissingYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
 }
 
 func assertEmptyUrlPathForStack(t *testing.T, stackName string) {
-	yamlConfig := ProvideStackConfigService(StackFileDir)
+	yamlConfig := provideStackConfigService(stackFileDir)
 	missingYamlFileUrlPathDefaultValue := yamlConfig.GetStackConfig(stackName).UrlPath
 	assert.Equal(t, "/", missingYamlFileUrlPathDefaultValue)
 }
@@ -33,7 +33,7 @@ func TestMissingUrlPathVariableInYamlFileLeadsToReturnOfIndexPath(t *testing.T) 
 }
 
 func TestNonExistentStackShouldReturnDefaultConfig(t *testing.T) {
-	yamlConfig := ProvideStackConfigService(StackFileDir)
+	yamlConfig := provideStackConfigService(stackFileDir)
 	resultConfig := yamlConfig.GetStackConfig("non-existent-stack")
 	assert.Equal(t, "/", resultConfig.UrlPath)
 	assert.Equal(t, "80", resultConfig.Port)
@@ -53,7 +53,7 @@ func TestStackConfig(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			stackConfigService := ProvideStackConfigService(DefaultStackFileDir)
+			stackConfigService := provideStackConfigService(DefaultStackFileDir)
 			config := stackConfigService.GetStackConfig(tc.StackName)
 			assert.Equal(t, tc.ExpectedPort, config.Port)
 			assert.Equal(t, tc.ExpectedPath, config.UrlPath)
