@@ -3,7 +3,6 @@ package security
 import (
 	"encoding/json"
 	"net/http"
-	"ocelot/backend/apps"
 )
 
 type Credentials struct {
@@ -48,10 +47,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func checkSessionHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("auth")
 	if err != nil || cookie.Value != "valid" {
-		apps.Logger.Trace("Cookie error.")
+		Logger.Trace("Cookie error.")
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {
-		apps.Logger.Trace("Cookie was okay.")
+		Logger.Trace("Cookie was okay.")
 		w.WriteHeader(http.StatusOK)
 	}
 }

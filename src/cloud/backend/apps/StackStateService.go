@@ -20,7 +20,7 @@ func ProvideStackStateService() *StackStateService {
 func stackNamesInDirectory() ([]string, error) {
 	files, err := os.ReadDir(StackFileDir)
 	if err != nil {
-		Logger.Warn("Could not read stack from directory '" + StackFileDir + "': " + err.Error())
+		logger.Warn("Could not read stack from directory '" + StackFileDir + "': " + err.Error())
 		return nil, err
 	}
 

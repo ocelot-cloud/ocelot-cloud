@@ -23,7 +23,7 @@ func (d *DockerServiceMock) DeployStack(stackName string) error {
 		d.stackStates[stackName] = Available
 	}
 	state := d.stackStates[stackName]
-	Logger.Debug("Mock pretends to have deployed stack '%s' with state %s.", stackName, state.String())
+	logger.Debug("Mock pretends to have deployed stack '%s' with state %s.", stackName, state.String())
 	return nil
 }
 
@@ -33,12 +33,12 @@ func (d *DockerServiceMock) StopStack(stackName string) error {
 	} else {
 		return fmt.Errorf("error, stack %s does not exist in mock", stackName)
 	}
-	Logger.Debug("Mock pretends to have stopped stack '%s'", stackName)
+	logger.Debug("Mock pretends to have stopped stack '%s'", stackName)
 	return nil
 }
 
 func (d *DockerServiceMock) GetRunningStackStateInfo() (map[string]StackDetails, error) {
-	Logger.Trace("Mock return stack state info of virtually managed stacks")
+	logger.Trace("Mock return stack state info of virtually managed stacks")
 
 	clonedStates := make(map[string]StackDetails)
 	for stackName, stackState := range d.stackStates {

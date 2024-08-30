@@ -117,7 +117,7 @@ func TestDownloadProcessProviderReal(t *testing.T) {
 			t.Fatal("Test failed: Download did not finish in time.")
 		case <-tick:
 			if downloadState.State == Finished {
-				Logger.Info("Download finished successfully in time.")
+				logger.Info("Download finished successfully in time.")
 				return
 			}
 		}

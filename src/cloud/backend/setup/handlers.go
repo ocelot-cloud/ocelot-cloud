@@ -47,7 +47,7 @@ func createDeployHandler(stackService apps.StackService) http.HandlerFunc {
 
 		if err = stackService.DeployStack(stackName); err != nil {
 			if err != nil {
-				apps.Logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
+				Logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
 				http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
 			}
 			return
@@ -70,7 +70,7 @@ func createStopHandler(stackService apps.StackService) http.HandlerFunc {
 
 		if err = stackService.StopStack(stackName); err != nil {
 			if err != nil {
-				apps.Logger.Warn("error when trying to stop stack, %s", err.Error())
+				Logger.Warn("error when trying to stop stack, %s", err.Error())
 				http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
 			}
 			return

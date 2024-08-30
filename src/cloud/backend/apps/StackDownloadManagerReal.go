@@ -79,7 +79,7 @@ func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinishe
 		pullCmd := exec.Command("docker", "compose", "-f", stackDockerComposePath, "pull")
 		err := pullCmd.Run()
 		if err != nil {
-			Logger.Error("Error executing command '%s': %v\n", pullCmd.String(), err)
+			logger.Error("Error executing command '%s': %v\n", pullCmd.String(), err)
 			stackDownloadState.State = Error
 			return
 		}
@@ -87,10 +87,10 @@ func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinishe
 		buildCmd := exec.Command("docker", "compose", "-f", stackDockerComposePath, "build", "--pull")
 		err = buildCmd.Run()
 		if err == nil {
-			Logger.Debug("Successfully downloaded images for stack: %s", stackDownloadState.stackName)
+			logger.Debug("Successfully downloaded images for stack: %s", stackDownloadState.stackName)
 			stackDownloadState.State = Finished
 		} else {
-			Logger.Error("Error executing command '%s': %v\n", buildCmd.String(), err)
+			logger.Error("Error executing command '%s': %v\n", buildCmd.String(), err)
 			stackDownloadState.State = Error
 		}
 	}()

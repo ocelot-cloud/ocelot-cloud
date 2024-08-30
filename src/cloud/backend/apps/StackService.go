@@ -61,12 +61,12 @@ func (sm *StackServiceImpl) DeployStack(stackName string) error {
 }
 
 func (sm *StackServiceImpl) GetStackStateInfo() map[string]StackDetails {
-	Logger.Trace("Stack state info was requested.")
+	logger.Trace("Stack state info was requested.")
 	resultInfos, err := sm.DockerService.GetRunningStackStateInfo()
 
 	stacksInDir, err := sm.stackNamesInDirectory()
 	if err != nil {
-		Logger.Error("error when reading stack names from directory: %s", err.Error())
+		logger.Error("error when reading stack names from directory: %s", err.Error())
 		return nil
 	}
 
@@ -106,13 +106,13 @@ func logStackStateInfo(info map[string]StackDetails) {
 		}
 		currentIndex++
 	}
-	Logger.Trace("Stack state info is returned: [%s\n]", logString)
+	logger.Trace("Stack state info is returned: [%s\n]", logString)
 }
 
 func (sm *StackServiceImpl) stackNamesInDirectory() ([]string, error) {
 	files, err := os.ReadDir(StackFileDir)
 	if err != nil {
-		Logger.Warn("Could not read stack from directory '" + StackFileDir + "': " + err.Error())
+		logger.Warn("Could not read stack from directory '" + StackFileDir + "': " + err.Error())
 		return nil, err
 	}
 
@@ -136,7 +136,7 @@ func (sm *StackServiceImpl) addUninitializedStacks(resultInfos map[string]StackD
 
 func (sm *StackServiceImpl) StopStack(stackToStopName string) error {
 	sm.lastActionOnStack[stackToStopName] = Stop
-	Logger.Info("Stopping stack: %s", stackToStopName)
+	logger.Info("Stopping stack: %s", stackToStopName)
 	stackStateInfo := sm.GetStackStateInfo()
 	var doesStackExist = false
 	var existingStack StackDetails
@@ -150,10 +150,10 @@ func (sm *StackServiceImpl) StopStack(stackToStopName string) error {
 	if doesStackExist == false {
 		return logAndCreateStackNotFoundError(stackToStopName)
 	} else if !(existingStack.State == Starting || existingStack.State == Available || existingStack.State == Stopping) {
-		Logger.Warn("only 'Starting' and 'Available' stacks can be stopped. State is: %s", existingStack.State.String())
+		logger.Warn("only 'Starting' and 'Available' stacks can be stopped. State is: %s", existingStack.State.String())
 		return errors.New("error - stopping stack failed")
 	} else {
-		Logger.Debug("Stack does exist and is now stopped: %s", stackToStopName)
+		logger.Debug("Stack does exist and is now stopped: %s", stackToStopName)
 		return sm.DockerService.StopStack(stackToStopName)
 	}
 }

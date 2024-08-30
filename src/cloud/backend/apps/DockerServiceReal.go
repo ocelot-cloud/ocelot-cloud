@@ -26,17 +26,17 @@ func (d *DockerServiceReal) DeployStack(stackName string) error {
 	stackDeployCmd := exec.Command("docker", "compose", "-f", cmdPath, "-p", stackName, "up", "-d")
 	output, err := stackDeployCmd.CombinedOutput()
 	if err != nil {
-		Logger.Warn("failed to deploy stack: %v, Output: %s", err, string(output))
+		logger.Warn("failed to deploy stack: %v, Output: %s", err, string(output))
 		return fmt.Errorf("failed stack deployment")
 	} else {
-		Logger.Debug("Docker service deployed stack '%s'", stackName)
+		logger.Debug("Docker service deployed stack '%s'", stackName)
 		return nil
 	}
 }
 
 func logAndCreateStackNotFoundError(stackName string) error {
 	errorMessage := "Could not find stack: " + stackName
-	Logger.Error(errorMessage)
+	logger.Error(errorMessage)
 	return fmt.Errorf(errorMessage)
 }
 
@@ -49,10 +49,10 @@ func (d *DockerServiceReal) StopStack(stackName string) error {
 	cmd := exec.Command("docker", "compose", "-p", stackName, "-f", configPath, "down")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		Logger.Error("Command '%s' failed to stop stack: %v, Output: %s", cmd.String(), err, output)
+		logger.Error("Command '%s' failed to stop stack: %v, Output: %s", cmd.String(), err, output)
 		return fmt.Errorf("stack stopping error")
 	} else {
-		Logger.Debug("Docker service stopped stack '%s'", stackName)
+		logger.Debug("Docker service stopped stack '%s'", stackName)
 		return nil
 	}
 }
@@ -60,7 +60,7 @@ func (d *DockerServiceReal) StopStack(stackName string) error {
 func (d *DockerServiceReal) GetRunningStackStateInfo() (map[string]StackDetails, error) {
 	lines, err := getDockerComposeListLines()
 	if err != nil {
-		Logger.Error("error, 'docker compose' command seemed not to have worked properly: %s", err.Error())
+		logger.Error("error, 'docker compose' command seemed not to have worked properly: %s", err.Error())
 		return nil, err
 	}
 	genericRunningStateStacksInfo := extractNamesOfRunningStacksFromLines(lines)
@@ -95,7 +95,7 @@ func areAllStackContainersWithHealthChecksReallyHealthy(stackName string) bool {
 	stackInfoCmd.Stdout = &out
 	err := stackInfoCmd.Run()
 	if err != nil {
-		Logger.Error("Failed to read CLI output of stack specific container info for stack '%s'", stackName)
+		logger.Error("Failed to read CLI output of stack specific container info for stack '%s'", stackName)
 		return false
 	}
 
@@ -112,7 +112,7 @@ func areAllStackContainersWithHealthChecksReallyHealthy(stackName string) bool {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		Logger.Error("Scanner error occurred for stack '%s'", stackName)
+		logger.Error("Scanner error occurred for stack '%s'", stackName)
 		return false
 	}
 	return true
@@ -122,10 +122,10 @@ func getDockerComposeListLines() ([]string, error) {
 	cmd := exec.Command("docker", "compose", "ls", "-a")
 	outputBytes, err := cmd.CombinedOutput()
 	if err != nil {
-		Logger.Error("Command '%s' did not work: %v. Maybe the wrong version is used.", cmd.String(), err)
+		logger.Error("Command '%s' did not work: %v. Maybe the wrong version is used.", cmd.String(), err)
 		versionOutputBytes, versionErr := exec.Command("docker", "compose", "version").CombinedOutput()
 		if versionErr == nil {
-			Logger.Error("Docker Compose version is: %s", string(versionOutputBytes))
+			logger.Error("Docker Compose version is: %s", string(versionOutputBytes))
 		}
 		return nil, err
 	}

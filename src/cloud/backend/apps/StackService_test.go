@@ -76,7 +76,7 @@ func TestIgnoreStackInStackInfo(t *testing.T) {
 
 	stackStateInfo := stackService.GetStackStateInfo()
 	if _, ok := stackStateInfo[stackName]; ok {
-		Logger.Error("%s was not ignored as expected.", stackName)
+		logger.Error("%s was not ignored as expected.", stackName)
 		t.Fail()
 	}
 }
