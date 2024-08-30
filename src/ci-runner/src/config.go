@@ -18,7 +18,7 @@ var backendComponentTestsDir = backendDir + "/component-tests"
 var frontendDir = cloudDir + "/frontend"
 var acceptanceTestsDir = cloudDir + "/acceptance-tests"
 var ocelotStackDir = backendDir + "/stacks/ocelot-cloud"
-var backendBusinessInternalDir = backendDir + "/business/internal"
+var backendAppsDir = backendDir + "/apps"
 var backendSecurityDir = backendDir + "/security"
 var backendToolsDir = backendDir + "/tools"
 

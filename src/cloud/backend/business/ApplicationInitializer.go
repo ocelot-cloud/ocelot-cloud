@@ -1,4 +1,4 @@
-package internal
+package business
 
 import (
 	"github.com/gorilla/mux" // TODO To be wrapped?
@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"ocelot/backend/apps"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
 	"strings"
@@ -14,9 +15,9 @@ import (
 type ApplicationInitializer struct {
 	securityModule     *security.SecurityModule
 	router             *mux.Router
-	stackService       StackService
+	stackService       apps.StackService
 	config             *tools.GlobalConfig
-	stackConfigService StackConfigService
+	stackConfigService apps.StackConfigService
 }
 
 func ProvideAppInitializer(router *mux.Router, config *tools.GlobalConfig, securityModule *security.SecurityModule) ApplicationInitializer {
@@ -24,8 +25,8 @@ func ProvideAppInitializer(router *mux.Router, config *tools.GlobalConfig, secur
 }
 
 func (a *ApplicationInitializer) InitializeApplicationInternally() {
-	StackFileDir = a.getStackFileDir()
-	a.stackConfigService = ProvideStackConfigService(StackFileDir)
+	apps.StackFileDir = a.getStackFileDir()
+	a.stackConfigService = apps.ProvideStackConfigService(apps.StackFileDir)
 	a.stackService = a.getStackService(a.stackConfigService)
 	a.initializeDockerNetwork()
 	a.initializeHandlers()
@@ -39,13 +40,13 @@ func (a *ApplicationInitializer) getStackFileDir() string {
 	}
 }
 
-func (a *ApplicationInitializer) getStackService(stackConfigService StackConfigService) StackService {
+func (a *ApplicationInitializer) getStackService(stackConfigService apps.StackConfigService) apps.StackService {
 	if a.config.AreMocksEnabled {
-		Logger.Debug("Using mock DockerService")
-		return ProvideStackServiceMocked(stackConfigService)
+		apps.Logger.Debug("Using mock DockerService")
+		return apps.ProvideStackServiceMocked(stackConfigService)
 	} else {
-		Logger.Debug("Using real DockerService")
-		return ProvideStackServiceReal(stackConfigService)
+		apps.Logger.Debug("Using real DockerService")
+		return apps.ProvideStackServiceReal(stackConfigService)
 	}
 }
 
@@ -57,10 +58,10 @@ func (a *ApplicationInitializer) initializeDockerNetwork() {
 func (a *ApplicationInitializer) initializeHandlers() {
 	a.initializeFunctionalEndpoints()
 	proxyHandler := a.buildProxyHandler()
-	Logger.Info("Starting server listening on port ", a.config.BackendExecutablePort)
+	apps.Logger.Info("Starting server listening on port ", a.config.BackendExecutablePort)
 	err := http.ListenAndServe(":"+a.config.BackendExecutablePort, http.HandlerFunc(proxyHandler))
 	if err != nil {
-		Logger.Fatal("Failed to start server: " + err.Error())
+		apps.Logger.Fatal("Failed to start server: " + err.Error())
 	}
 }
 
@@ -80,12 +81,12 @@ func (a *ApplicationInitializer) buildProxyHandler() func(w http.ResponseWriter,
 
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func (a *ApplicationInitializer) proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
-	Logger.Trace("Proxying request with target host %s", r.Host)
+	apps.Logger.Trace("Proxying request with target host %s", r.Host)
 	targetContainer := strings.TrimSuffix(r.Host, "."+a.config.RootDomain)
 	targetPort := a.stackConfigService.GetStackConfig(targetContainer).Port
 	targetURL, err := url.Parse("http://" + targetContainer + ":" + targetPort)
 	if err != nil {
-		Logger.Error("error when parsing URL, %s", err.Error())
+		apps.Logger.Error("error when parsing URL, %s", err.Error())
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -122,14 +123,14 @@ func (a *ApplicationInitializer) InitializeFrontendResourceDelivery() {
 		// allowing frontend routes to be handled by index.html.
 		// This means that users can directly access pages with paths such as "example.com/some/path".
 		if err != nil && !strings.Contains(r.URL.Path, ".") {
-			Logger.Debug("Serving index.html for SPA route ''", r.URL.Path)
+			apps.Logger.Debug("Serving index.html for SPA route ''", r.URL.Path)
 			http.ServeFile(w, r, "./dist/index.html")
 			return
 		}
 
 		// If the request is for a static file or if the file exists, serve it directly.
 		// This handles requests for JS, CSS, images, etc.
-		Logger.Debug("Serving static content at '%s'", r.URL.Path)
+		apps.Logger.Debug("Serving static content at '%s'", r.URL.Path)
 		http.FileServer(http.Dir("./dist")).ServeHTTP(w, r)
 	})))
 }

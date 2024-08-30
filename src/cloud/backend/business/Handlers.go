@@ -1,20 +1,21 @@
-package internal
+package business
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"ocelot/backend/apps"
 	"ocelot/backend/tools"
 )
 
 func checkSessionHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("auth")
 	if err != nil || cookie.Value != "valid" {
-		Logger.Trace("Cookie error.")
+		apps.Logger.Trace("Cookie error.")
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {
-		Logger.Trace("Cookie was okay.")
+		apps.Logger.Trace("Cookie was okay.")
 		w.WriteHeader(http.StatusOK)
 	}
 }
@@ -24,7 +25,7 @@ func (a *ApplicationInitializer) helloHandler(w http.ResponseWriter, r *http.Req
 	fmt.Fprint(w, "<html><body>Hello</body></html>")
 }
 
-func createReadHandler(stackService StackService) http.HandlerFunc {
+func createReadHandler(stackService apps.StackService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			http.Error(w, "Only GET method is supported.", http.StatusMethodNotAllowed)
@@ -42,7 +43,7 @@ func createReadHandler(stackService StackService) http.HandlerFunc {
 	}
 }
 
-func createDeployHandler(stackService StackService) http.HandlerFunc {
+func createDeployHandler(stackService apps.StackService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
@@ -57,7 +58,7 @@ func createDeployHandler(stackService StackService) http.HandlerFunc {
 
 		if err := stackService.DeployStack(stackName); err != nil {
 			if err != nil {
-				Logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
+				apps.Logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
 				http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
 			}
 			return
@@ -65,7 +66,7 @@ func createDeployHandler(stackService StackService) http.HandlerFunc {
 	}
 }
 
-func createStopHandler(stackService StackService) http.HandlerFunc {
+func createStopHandler(stackService apps.StackService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
@@ -80,7 +81,7 @@ func createStopHandler(stackService StackService) http.HandlerFunc {
 
 		if err := stackService.StopStack(stackName); err != nil {
 			if err != nil {
-				Logger.Warn("error when trying to stop stack, %s", err.Error())
+				apps.Logger.Warn("error when trying to stop stack, %s", err.Error())
 				http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
 			}
 			return

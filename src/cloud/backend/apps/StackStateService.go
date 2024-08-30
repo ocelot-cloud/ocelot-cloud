@@ -1,6 +1,8 @@
-package internal
+package apps
 
-import "os"
+import (
+	"os"
+)
 
 type StackStateService struct {
 	stacks map[string]StackState

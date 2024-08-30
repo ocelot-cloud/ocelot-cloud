@@ -7,7 +7,7 @@ import (
 func testBackendCore() {
 	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
-	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 ./...")
+	ExecuteInDir(backendAppsDir, "go test -v -count=1 ./...")
 	ExecuteInDir(backendSecurityDir, "go test -v -count=1 ./...")
 	ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 }
@@ -87,7 +87,7 @@ func testProdBackendApi() {
 }
 
 func testBackendImageDownload() {
-	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 -run TestDownloadProcessProviderReal", "IS_IMAGE_DOWNLOAD_TEST=true")
+	ExecuteInDir(backendAppsDir, "go test -v -count=1 -run TestDownloadProcessProviderReal", "IS_IMAGE_DOWNLOAD_TEST=true")
 }
 
 func printTaskDescription(text string) {

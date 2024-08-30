@@ -1,4 +1,4 @@
-package internal
+package apps
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var DefaultStackFileDir = "../../stacks/dummy"
+var DefaultStackFileDir = "../stacks/dummy"
 
 func init() {
 	StackFileDir = DefaultStackFileDir

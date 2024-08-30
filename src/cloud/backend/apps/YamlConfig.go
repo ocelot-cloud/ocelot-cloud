@@ -1,4 +1,4 @@
-package internal
+package apps
 
 import (
 	"gopkg.in/yaml.v3"
@@ -28,7 +28,7 @@ func ProvideStackConfigService(stackDir string) StackConfigService {
 
 	files, err := os.ReadDir(stackDir)
 	if err != nil {
-		Logger.Fatal("error when reading directory %s: %w", stackDir, err)
+		Logger.Fatal("error when reading directory %s: %v", stackDir, err)
 	}
 
 	for _, file := range files {
