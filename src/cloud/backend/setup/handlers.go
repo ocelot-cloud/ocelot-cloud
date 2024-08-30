@@ -9,17 +9,6 @@ import (
 	"ocelot/backend/tools"
 )
 
-func checkSessionHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("auth")
-	if err != nil || cookie.Value != "valid" {
-		apps.Logger.Trace("Cookie error.")
-		w.WriteHeader(http.StatusUnauthorized)
-	} else {
-		apps.Logger.Trace("Cookie was okay.")
-		w.WriteHeader(http.StatusOK)
-	}
-}
-
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprint(w, "<html><body>Hello</body></html>")

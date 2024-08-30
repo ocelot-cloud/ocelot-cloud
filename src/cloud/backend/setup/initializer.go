@@ -101,7 +101,6 @@ func proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 
 func initializeFunctionalEndpoints() {
 	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/check-session", checkSessionHandler).Methods("GET")
 	api.HandleFunc("/hello", helloHandler)
 
 	registerSecuredEndpoint("/stacks/read", createReadHandler(stackService))
