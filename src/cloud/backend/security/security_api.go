@@ -47,19 +47,3 @@ func handleBackendApiRequest(w http.ResponseWriter, r *http.Request, next http.H
 		next.ServeHTTP(w, r)
 	}
 }
-
-// TODO It can be shared with hub? But here it should only be used when TEST profile is enabled
-// TODO Should only be enabled in test mode
-func DisableCorsPolicy(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}

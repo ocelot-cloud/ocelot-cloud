@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"os"
 )
@@ -18,7 +19,7 @@ func main() {
 	initializeHandlers(mux)
 
 	Logger.Info("Server starting on port %s", port)
-	err := http.ListenAndServe(":"+port, getCorsDisablingHandler(mux))
+	err := http.ListenAndServe(":"+port, utils.GetCorsDisablingHandler(mux))
 	if err != nil {
 		Logger.Fatal("Server stopped: %v", err)
 	}
@@ -100,22 +101,6 @@ func authMiddleware(next http.Handler) http.Handler {
 		}
 		ctx := context.WithValue(r.Context(), "user", user)
 		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
-}
-
-// getCorsDisablingHandler This is necessary to allow cross-origin requests from the ocelot-cloud GUI to the hub.
-// The "Origin" header is managed and checked with custom logic to prevent CSRF attacks.
-func getCorsDisablingHandler(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
 		next.ServeHTTP(w, r)
 	})
 }

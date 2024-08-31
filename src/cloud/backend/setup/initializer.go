@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/gorilla/mux" // TODO To be wrapped?
 	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"ocelot/backend/apps"
-	"ocelot/backend/security"
 	"ocelot/backend/tools"
 	"strings"
 )
@@ -27,7 +27,8 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 
 	proxyHandler := buildProxyHandler()
 	Logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
-	err := http.ListenAndServe(":"+config.BackendExecutablePort, security.DisableCorsPolicy(http.HandlerFunc(proxyHandler)))
+	// TODO utils.GetCorsDisablingHandler should only be enabled in TEST profile
+	err := http.ListenAndServe(":"+config.BackendExecutablePort, utils.GetCorsDisablingHandler(http.HandlerFunc(proxyHandler)))
 	if err != nil {
 		Logger.Fatal("Failed to start server: " + err.Error())
 	}
@@ -61,7 +62,8 @@ func initializeFunctionalEndpoints() {
 }
 
 func initializeFrontendResourceDelivery() {
-	router.PathPrefix("/").Handler(security.DisableCorsPolicy(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// TODO utils.GetCorsDisablingHandler should be used only once.
+	router.PathPrefix("/").Handler(utils.GetCorsDisablingHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 
