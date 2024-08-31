@@ -1,6 +1,7 @@
 
  TODO
 
+* GUI: I dont want an start/stop/open button for each app. I want a list of apps, select one and then click on one of the buttons below the table.
 * PROD deploy -> hub does not work, probably because root domain "http://ocelot-cloud.localhost/hub/registration" instead of http://localhost/hub/registration or so
 * Extract the docker service into its own package
 * add admin-creation at startup logic

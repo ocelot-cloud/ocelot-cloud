@@ -95,7 +95,7 @@ async function isThereValidHubSessionCookie(): Promise<boolean> {
 async function isThereValidCloudSessionCookie(): Promise<boolean> {
     try {
         // TODO I think the first part of the URL is missing, right?
-        await axios.get('/api/check-session', { withCredentials: true });
+        await axios.get('/api/check-auth', { withCredentials: true });
         return true;
     } catch (error) {
         return false;
