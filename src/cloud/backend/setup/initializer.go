@@ -22,24 +22,20 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	config = configArg
 
 	apps.InitializeAppService(router, config)
-
 	initializeDockerNetwork()
-	initializeHandlers()
+	initializeFunctionalEndpoints()
+
+	proxyHandler := buildProxyHandler()
+	Logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
+	err := http.ListenAndServe(":"+config.BackendExecutablePort, security.DisableCorsPolicy(http.HandlerFunc(proxyHandler)))
+	if err != nil {
+		Logger.Fatal("Failed to start server: " + err.Error())
+	}
 }
 
 func initializeDockerNetwork() {
 	// TODO I remember that this is somewhere else used. So duplication? Maybe in ci-runner?
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q ocelot-net || docker network create ocelot-net")
-}
-
-func initializeHandlers() {
-	initializeFunctionalEndpoints()
-	proxyHandler := buildProxyHandler()
-	Logger.Info("Starting server listening on port ", config.BackendExecutablePort)
-	err := http.ListenAndServe(":"+config.BackendExecutablePort, security.DisableCorsPolicy(http.HandlerFunc(proxyHandler)))
-	if err != nil {
-		Logger.Fatal("Failed to start server: " + err.Error())
-	}
 }
 
 func buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {

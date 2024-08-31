@@ -24,7 +24,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {backendBaseUrl, PROFILE} from './Config';
+import {backendBaseUrl} from './Config';
 
 export default defineComponent({
   name: 'login-component',

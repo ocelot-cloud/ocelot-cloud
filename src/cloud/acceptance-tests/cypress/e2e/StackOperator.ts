@@ -1,4 +1,4 @@
-import {isFrontendMocked, ocelotUrl, rootDomain, scheme} from "./Config";
+import {ocelotUrl, PROFILE, PROFILE_VALUES, rootDomain, scheme} from "./Config";
 
 type ButtonType = 'Open' | 'Start' | 'Stop'
 type StackOperation = 'start' | 'stop'
@@ -73,8 +73,7 @@ export class StackOperator {
 
     assertWebsiteContent(expectedContent: string): StackOperator {
         let stackUrl = `http://${this.stackName}.` + rootDomain;
-        // TODO?
-        if (isFrontendMocked) {
+        if (PROFILE == PROFILE_VALUES.PROD) {
             cy.exec(`curl ${stackUrl}`).then((response) => {
                 expect(response.stdout).to.include(expectedContent);
             });
