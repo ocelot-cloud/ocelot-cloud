@@ -1,42 +1,87 @@
+# TODO
 
- TODO
+* hub: instead of doing "checkAuthentication" at the beginning of each protected handler, I should add a middleware doing that. E.g. "ignore unprotected paths/handlers, but protected one should be checked and the users context info should be added for subsequent requests":
+
+```
+func authMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        user, err := authenticate(r)
+        if err != nil {
+            http.Error(w, "Unauthorized", http.StatusUnauthorized)
+            return
+        }
+        ctx := context.WithValue(r.Context(), "user", user)
+        r = r.WithContext(ctx)
+        next.ServeHTTP(w, r)
+    })
+}
+```
+
+* hub: stuff like this should be hidden in the repo, because this construct is used multiple times in handlers which causes duplication:
+
+```
+    err = repo.CreateTag(user, tagUpload.App, tagUpload.Tag, tagUpload.Content)
+    if err != nil {
+        Logger.Error("creating tag '%s' for user '%s' failed: %v", tagUpload.App, user, err)
+        http.Error(w, "invalid input", http.StatusInternalServerError)
+        return
+    }
+```
 
 * GUI: I dont want an start/stop/open button for each app. I want a list of apps, select one and then click on one of the buttons below the table.
+
 * PROD deploy -> hub does not work, probably because root domain "http://ocelot-cloud.localhost/hub/registration" instead of http://localhost/hub/registration or so
+
 * Extract the docker service into its own package
+
 * add admin-creation at startup logic
+
 * make proper login endpoint with real cookie etc.
+
 * Then integrate security into the "cloud-client"?
- * ci-runner test cloud backend/frontend etc, do they need adaption?
- * structured logging, see my notes for specification
- * log entry: "user has a valid cookie and is allowed to access protected backend functions" -> which user?
-   * a user requested the frontend resources, who? anonymous
-   * user has a valid cookie and is allowed to access protected backend functions, who?
-   * login logic called, by who?
- * It would be cool after an acceptance test, if I can see the logs of the backend in an git-ignored directory: test-logs/acceptance.txt,backend.txt
- * Don't get rid of dummy stacks But rather put them in the hub?
- * Not sure. Should CliEvaluator_test be re-implemented?
- * In docker compose, there should be
- * I want to install ocelot without cloning git. Simply "wget" the docker-compose.yml or a small bash script and go. Git clone, only when you want to build it from scratch.
- * Introduce structured logging
- * Also use TEST and PROD profiles in hub. Also print which is used right now.
- * frontend and acceptance have bash script which can be deleted.
- * Error in hub GUI: wrong app shows password validation stuff, although it worked to create the app. Maybe create app must reset the "submitted" flag. Also check in acceptance test that this does not happen again
- * Modernize cloud GUI. Also use new vuejs3 + ts syntax in Home.vue
- * Can this simply be replaced by a blank string? -> import.meta.env.VITE_BASE_URL
+  
+  * ci-runner test cloud backend/frontend etc, do they need adaption?
+  * structured logging, see my notes for specification
+  * log entry: "user has a valid cookie and is allowed to access protected backend functions" -> which user?
+    * a user requested the frontend resources, who? anonymous
+    * user has a valid cookie and is allowed to access protected backend functions, who?
+    * login logic called, by who?
+  * It would be cool after an acceptance test, if I can see the logs of the backend in an git-ignored directory: test-logs/acceptance.txt,backend.txt
+  * Don't get rid of dummy stacks But rather put them in the hub?
+  * Not sure. Should CliEvaluator_test be re-implemented?
+  * In docker compose, there should be
+  * I want to install ocelot without cloning git. Simply "wget" the docker-compose.yml or a small bash script and go. Git clone, only when you want to build it from scratch.
+  * Introduce structured logging
+  * Also use TEST and PROD profiles in hub. Also print which is used right now.
+  * frontend and acceptance have bash script which can be deleted.
+  * Error in hub GUI: wrong app shows password validation stuff, although it worked to create the app. Maybe create app must reset the "submitted" flag. Also check in acceptance test that this does not happen again
+  * Modernize cloud GUI. Also use new vuejs3 + ts syntax in Home.vue
+  * Can this simply be replaced by a blank string? -> import.meta.env.VITE_BASE_URL
 
 * get rid of the "method" argument in doRequest, all requests are method independent
+
 * Make hub compatible with cockroackdb
+
 * cookies should be hashed in database
+
 * Password min length should be 16 chars?
+
 * open a new connection to db for each query and close it afterwards, set timeout of 5 min or so?
+
 * always log errors on first occurrence think I didn't do that in the repo code?
+
 * delete client side cookie after logout (only server side right now)
+
 * frontend does not need to be build when I want to use "npm run serve" anyway
+
 * global config should be globally visible, not passed as ar to a submodule.
+
 * get rid of the "internal" dirs in the backend modules. Simply use private/public methods since they are not that big yet.
+
 * dont use "sleep" in test for waiting for services in the backend component tests, better use retries
+
 * create an easy way with which an admin user can reset his password, when he forgets it. Access to server + some bash command to sqlite maybe? Should also be tested.
+
 * frontend build step skipping via ci-runner flag "-f" does not work somehow?
 
 HOST=httpx://localhost throws:
@@ -44,6 +89,7 @@ ocelot-cloud  | 2024-08-29T08:18:13Z FTL ../../home/dev/Dokumente/workspace/ocel
 although the port is not the problem
 
 There is sth wrong in this log entry:
+
 ```
 Starting server listening on port %!(EXTRA string=8080)
 
@@ -62,6 +108,7 @@ WARN[0000] The "LOG_LEVEL" variable is not set. Defaulting to a blank string.
 WARN[0000] /home/dev/Dokumente/workspace/ocelot-cloud/src/cloud/backend/stacks/core/ocelot-cloud/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
 
 Remove the ocelot-cloud-auth header, when proxying to apps behind it, so they can't steal this cookie. Should be tested by API (both statuses) and once in prod environment, maybe "PROD backend". Nginx config:
+
 ```
 server {
     listen 80;
