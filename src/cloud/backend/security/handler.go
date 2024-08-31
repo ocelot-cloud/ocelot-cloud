@@ -44,7 +44,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func checkSessionHandler(w http.ResponseWriter, r *http.Request) {
+func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("auth")
 	if err != nil || cookie.Value != "valid" {
 		Logger.Trace("Cookie error.")

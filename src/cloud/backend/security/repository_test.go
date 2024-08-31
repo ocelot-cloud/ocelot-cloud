@@ -34,3 +34,5 @@ func TestSqliteClient(t *testing.T) {
 }
 
 // TODO error: user already exists -> in the handlers
+
+// TODO SetCookie, DeleteCookie, IsCookieValid

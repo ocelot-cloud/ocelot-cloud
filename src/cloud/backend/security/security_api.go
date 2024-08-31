@@ -17,7 +17,7 @@ func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router = routerArg
 	config = configArg
 	router.HandleFunc("/api/login", loginHandler)
-	router.HandleFunc("/api/check-auth", checkSessionHandler)
+	router.HandleFunc("/api/check-auth", checkAuthHandler)
 }
 
 func ApplyAuthMiddlewares(h http.Handler) http.Handler {
