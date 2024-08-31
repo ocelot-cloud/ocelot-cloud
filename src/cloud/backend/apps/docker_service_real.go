@@ -41,7 +41,7 @@ func logAndCreateStackNotFoundError(stackName string) error {
 }
 
 func getStackPath(stackName string) string {
-	return fmt.Sprintf("%s/%s/docker-compose.yml", stackFileDir, stackName)
+	return fmt.Sprintf("%s/%s/docker-compose.yml", appFileDir, stackName)
 }
 
 func (d *dockerServiceReal) stopStack(stackName string) error {
@@ -57,7 +57,7 @@ func (d *dockerServiceReal) stopStack(stackName string) error {
 	}
 }
 
-func (d *dockerServiceReal) getRunningStackStateInfo() (map[string]StackDetails, error) {
+func (d *dockerServiceReal) getRunningStackStateInfo() (map[string]appDetailsType, error) {
 	lines, err := getDockerComposeListLines()
 	if err != nil {
 		logger.Error("error, 'docker compose' command seemed not to have worked properly: %s", err.Error())
@@ -69,8 +69,8 @@ func (d *dockerServiceReal) getRunningStackStateInfo() (map[string]StackDetails,
 	return fullStacksInfoWithMoreSpecificHealthState, nil
 }
 
-func setHealthStates(stackStateInfo map[string]StackDetails) map[string]StackDetails {
-	resultInfo := make(map[string]StackDetails)
+func setHealthStates(stackStateInfo map[string]appDetailsType) map[string]appDetailsType {
+	resultInfo := make(map[string]appDetailsType)
 	for stackName, stackDetail := range stackStateInfo {
 		if stackDetail.State == Running {
 			stackDetail.State = getHealthStateOf(stackName)
@@ -135,8 +135,8 @@ func getDockerComposeListLines() ([]string, error) {
 	return lines, nil
 }
 
-func extractNamesOfRunningStacksFromLines(lines []string) map[string]StackDetails {
-	var resultInfos = make(map[string]StackDetails)
+func extractNamesOfRunningStacksFromLines(lines []string) map[string]appDetailsType {
+	var resultInfos = make(map[string]appDetailsType)
 	for _, line := range lines {
 		if isHeaderOrEmpty(line) {
 			continue
@@ -152,7 +152,7 @@ func isHeaderOrEmpty(line string) bool {
 	return strings.HasPrefix(line, "NAME") || len(strings.TrimSpace(line)) == 0
 }
 
-func transformToStackStackInfo(fields []string) (string, StackDetails) {
+func transformToStackStackInfo(fields []string) (string, appDetailsType) {
 	name := fields[0]
 	rawStatus := fields[1]
 	var status stackState
@@ -161,5 +161,5 @@ func transformToStackStackInfo(fields []string) (string, StackDetails) {
 	} else {
 		status = Uninitialized
 	}
-	return name, StackDetails{status, "/"}
+	return name, appDetailsType{status, "/"}
 }

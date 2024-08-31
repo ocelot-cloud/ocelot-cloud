@@ -16,15 +16,15 @@ var (
 	router *mux.Router
 	// TODO to small to be its own file
 	// TODO The definition of the stack file dir  depending on the global config should be here I guess.
-	stackFileDir       string
-	stackService       StackService
-	stackConfigService StackConfigService // TODO why is this needed? Should be rather a pointer?
+	appFileDir         string
+	stackService       appServiceType
+	stackConfigService configServiceType // TODO why is this needed? Should be rather a pointer?
 )
 
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
-	stackFileDir = getStackFileDir(config)
-	stackConfigService = provideStackConfigService(stackFileDir)
+	appFileDir = getStackFileDir(config)
+	stackConfigService = provideStackConfigService(appFileDir)
 	stackService = getStackService(config, stackConfigService)
 
 	router = routerArg
@@ -41,13 +41,13 @@ func getStackFileDir(config *tools.GlobalConfig) string {
 	}
 }
 
-func getStackService(config *tools.GlobalConfig, stackConfigService StackConfigService) StackService {
+func getStackService(config *tools.GlobalConfig, stackConfigService configServiceType) appServiceType {
 	if config.AreMocksEnabled {
 		logger.Debug("Using mock DockerService")
-		return ProvideStackServiceMocked(stackConfigService)
+		return provideAppServiceMocked(stackConfigService)
 	} else {
 		logger.Debug("Using real DockerService")
-		return ProvideStackServiceReal(stackConfigService)
+		return provideAppServiceReal(stackConfigService)
 	}
 }
 
@@ -55,14 +55,14 @@ func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
 	router.Handle("/api"+path, security.ApplyAuthMiddlewares(handlerFunc))
 }
 
-func createReadHandler(stackService StackService) http.HandlerFunc {
+func createReadHandler(stackService appServiceType) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			http.Error(w, "Only GET method is supported.", http.StatusMethodNotAllowed)
 			return
 		}
 
-		stackStateInfo := stackService.GetStackStateInfo()
+		stackStateInfo := stackService.getAppStateInfo()
 		response := make([]tools.ResponsePayloadDto, 0)
 		for stackName, stackDetails := range stackStateInfo {
 			response = append(response, tools.ResponsePayloadDto{stackName, stackDetails.State.toString(), stackDetails.Path})
@@ -73,7 +73,7 @@ func createReadHandler(stackService StackService) http.HandlerFunc {
 	}
 }
 
-func createDeployHandler(stackService StackService) http.HandlerFunc {
+func createDeployHandler(stackService appServiceType) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
@@ -86,7 +86,7 @@ func createDeployHandler(stackService StackService) http.HandlerFunc {
 			return
 		}
 
-		if err = stackService.DeployStack(stackName); err != nil {
+		if err = stackService.deployApp(stackName); err != nil {
 			if err != nil {
 				logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
 				http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func createDeployHandler(stackService StackService) http.HandlerFunc {
 	}
 }
 
-func createStopHandler(stackService StackService) http.HandlerFunc {
+func createStopHandler(stackService appServiceType) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
@@ -109,7 +109,7 @@ func createStopHandler(stackService StackService) http.HandlerFunc {
 			return
 		}
 
-		if err = stackService.StopStack(stackName); err != nil {
+		if err = stackService.stopApp(stackName); err != nil {
 			if err != nil {
 				logger.Warn("error when trying to stop stack, %s", err.Error())
 				http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)

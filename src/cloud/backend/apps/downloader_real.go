@@ -75,7 +75,7 @@ type DownloadProcessProviderReal struct{}
 
 func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *stackDownloadState) {
 	go func() {
-		stackDockerComposePath := stackFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
+		stackDockerComposePath := appFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
 		pullCmd := exec.Command("docker", "compose", "-f", stackDockerComposePath, "pull")
 		err := pullCmd.Run()
 		if err != nil {

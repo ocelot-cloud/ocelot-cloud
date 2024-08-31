@@ -6,96 +6,96 @@ import (
 	"os"
 )
 
-type StackServiceImpl struct {
-	DockerService        DockerService
-	StackConfigService   StackConfigService
-	StackDownloadManager StackDownloadManager
-	lastActionOnStack    map[string]StackAction
+type appServiceImpl struct {
+	dockerService     dockerService
+	appConfigService  configServiceType
+	downloadManager   downloadManager
+	lastActionOnStack map[string]appAction
 }
 
-func ProvideStackServiceMocked(stackConfigService StackConfigService) StackService {
-	return &StackServiceImpl{provideServiceMock(), stackConfigService, provideDownloaderMock(), make(map[string]StackAction)}
+func provideAppServiceMocked(appConfigService configServiceType) appServiceType {
+	return &appServiceImpl{provideServiceMock(), appConfigService, provideDownloaderMock(), make(map[string]appAction)}
 }
 
-func ProvideStackServiceReal(stackConfigService StackConfigService) StackService {
-	return &StackServiceImpl{&dockerServiceReal{}, stackConfigService, provideDownloaderReal(), make(map[string]StackAction)}
+func provideAppServiceReal(stackConfigService configServiceType) appServiceType {
+	return &appServiceImpl{&dockerServiceReal{}, stackConfigService, provideDownloaderReal(), make(map[string]appAction)}
 }
 
-type StackAction int
+type appAction int
 
 const (
-	Deploy StackAction = iota
+	Deploy appAction = iota
 	Stop
 )
 
-type StackService interface {
-	DeployStack(stackName string) error
-	StopStack(stackName string) error
-	GetStackStateInfo() map[string]StackDetails
+type appServiceType interface {
+	deployApp(appName string) error
+	stopApp(appName string) error
+	getAppStateInfo() map[string]appDetailsType
 }
 
-type StackDetails struct {
+type appDetailsType struct {
 	State stackState
 	Path  string
 }
 
-type DockerService interface {
-	deployStack(stackName string) error
-	stopStack(stackName string) error
-	getRunningStackStateInfo() (map[string]StackDetails, error)
+type dockerService interface {
+	deployStack(appName string) error
+	stopStack(appName string) error
+	getRunningStackStateInfo() (map[string]appDetailsType, error)
 }
 
-type StackConfigService interface {
-	getStackConfig(stackName string) appConfig
+type configServiceType interface {
+	getAppConfig(appName string) appConfig
 }
 
-type StackDownloadManager interface {
+type downloadManager interface {
 	getDownloadStates() map[string]downloadState
-	download(stackName string)
+	download(appName string)
 }
 
-func (sm *StackServiceImpl) DeployStack(stackName string) error {
-	sm.lastActionOnStack[stackName] = Deploy
-	sm.StackDownloadManager.download(stackName)
-	return sm.DockerService.deployStack(stackName)
+func (sm *appServiceImpl) deployApp(appName string) error {
+	sm.lastActionOnStack[appName] = Deploy
+	sm.downloadManager.download(appName)
+	return sm.dockerService.deployStack(appName)
 }
 
-func (sm *StackServiceImpl) GetStackStateInfo() map[string]StackDetails {
-	logger.Trace("Stack state info was requested.")
-	resultInfos, err := sm.DockerService.getRunningStackStateInfo()
+func (sm *appServiceImpl) getAppStateInfo() map[string]appDetailsType {
+	logger.Trace("App state info was requested.")
+	resultInfos, err := sm.dockerService.getRunningStackStateInfo()
 
-	stacksInDir, err := sm.stackNamesInDirectory()
+	appsInDir, err := sm.appNamesInDirectory()
 	if err != nil {
 		logger.Error("error when reading stack names from directory: %s", err.Error())
 		return nil
 	}
 
-	resultInfos = sm.addUninitializedStacks(resultInfos, stacksInDir)
+	resultInfos = sm.addUninitializedStacks(resultInfos, appsInDir)
 	delete(resultInfos, "ocelot-cloud")
 
-	for stackName, stackDetail := range resultInfos {
-		newPath := sm.StackConfigService.getStackConfig(stackName).UrlPath
-		resultInfos[stackName] = StackDetails{stackDetail.State, newPath}
+	for appName, stackDetail := range resultInfos {
+		newPath := sm.appConfigService.getAppConfig(appName).UrlPath
+		resultInfos[appName] = appDetailsType{stackDetail.State, newPath}
 	}
 
-	downloadStates := sm.StackDownloadManager.getDownloadStates()
+	downloadStates := sm.downloadManager.getDownloadStates()
 	for stackName, stackDetails := range resultInfos {
 		if _, ok := downloadStates[stackName]; ok {
 			if downloadStates[stackName] == ongoing {
-				resultInfos[stackName] = StackDetails{Downloading, stackDetails.Path}
+				resultInfos[stackName] = appDetailsType{Downloading, stackDetails.Path}
 			} else if stackDetails.State == Uninitialized && sm.lastActionOnStack[stackName] == Deploy {
-				resultInfos[stackName] = StackDetails{Starting, stackDetails.Path}
+				resultInfos[stackName] = appDetailsType{Starting, stackDetails.Path}
 			} else if stackDetails.State != Uninitialized && sm.lastActionOnStack[stackName] == Stop {
-				resultInfos[stackName] = StackDetails{Stopping, stackDetails.Path}
+				resultInfos[stackName] = appDetailsType{Stopping, stackDetails.Path}
 			}
 		}
 	}
 
-	logStackStateInfo(resultInfos)
+	logAppStateInfo(resultInfos)
 	return resultInfos
 }
 
-func logStackStateInfo(info map[string]StackDetails) {
+func logAppStateInfo(info map[string]appDetailsType) {
 	var logString = ""
 	currentIndex := 0
 	for stackName, stackDetails := range info {
@@ -106,40 +106,40 @@ func logStackStateInfo(info map[string]StackDetails) {
 		}
 		currentIndex++
 	}
-	logger.Trace("Stack state info is returned: [%s\n]", logString)
+	logger.Trace("App state info is returned: [%s\n]", logString)
 }
 
-func (sm *StackServiceImpl) stackNamesInDirectory() ([]string, error) {
-	files, err := os.ReadDir(stackFileDir)
+func (sm *appServiceImpl) appNamesInDirectory() ([]string, error) {
+	files, err := os.ReadDir(appFileDir)
 	if err != nil {
-		logger.Warn("Could not read stack from directory '" + stackFileDir + "': " + err.Error())
+		logger.Warn("Could not read stack from directory '" + appFileDir + "': " + err.Error())
 		return nil, err
 	}
 
-	var stackNames []string
+	var appNames []string
 	for _, f := range files {
 		if f.IsDir() {
-			stackNames = append(stackNames, f.Name())
+			appNames = append(appNames, f.Name())
 		}
 	}
-	return stackNames, nil
+	return appNames, nil
 }
 
-func (sm *StackServiceImpl) addUninitializedStacks(resultInfos map[string]StackDetails, stacksInDir []string) map[string]StackDetails {
+func (sm *appServiceImpl) addUninitializedStacks(resultInfos map[string]appDetailsType, stacksInDir []string) map[string]appDetailsType {
 	for _, stackName := range stacksInDir {
 		if _, ok := resultInfos[stackName]; !ok {
-			resultInfos[stackName] = StackDetails{Uninitialized, "/"}
+			resultInfos[stackName] = appDetailsType{Uninitialized, "/"}
 		}
 	}
 	return resultInfos
 }
 
-func (sm *StackServiceImpl) StopStack(stackToStopName string) error {
+func (sm *appServiceImpl) stopApp(stackToStopName string) error {
 	sm.lastActionOnStack[stackToStopName] = Stop
 	logger.Info("Stopping stack: %s", stackToStopName)
-	stackStateInfo := sm.GetStackStateInfo()
+	stackStateInfo := sm.getAppStateInfo()
 	var doesStackExist = false
-	var existingStack StackDetails
+	var existingStack appDetailsType
 	for stackName, stackDetails := range stackStateInfo {
 		if stackName == stackToStopName {
 			doesStackExist = true
@@ -154,17 +154,17 @@ func (sm *StackServiceImpl) StopStack(stackToStopName string) error {
 		return errors.New("error - stopping stack failed")
 	} else {
 		logger.Debug("Stack does exist and is now stopped: %s", stackToStopName)
-		return sm.DockerService.stopStack(stackToStopName)
+		return sm.dockerService.stopStack(stackToStopName)
 	}
 }
 
-func (sm *StackServiceImpl) StopAllStacks() error {
-	stackStateInfo := sm.GetStackStateInfo()
+func (sm *appServiceImpl) StopAllStacks() error {
+	stackStateInfo := sm.getAppStateInfo()
 
 	for stackName, stackDetails := range stackStateInfo {
 		if stackDetails.State == Starting || stackDetails.State == Available {
 			stackName := stackName
-			err := sm.StopStack(stackName)
+			err := sm.stopApp(stackName)
 			if err != nil {
 				return err
 			}

@@ -15,7 +15,7 @@ type configServiceImpl struct {
 	stackConfigs map[string]appConfig
 }
 
-func (s *configServiceImpl) getStackConfig(stackName string) appConfig {
+func (s *configServiceImpl) getAppConfig(stackName string) appConfig {
 	if stackConfig, found := s.stackConfigs[stackName]; found {
 		return stackConfig
 	}
@@ -23,7 +23,7 @@ func (s *configServiceImpl) getStackConfig(stackName string) appConfig {
 	return appConfig{"/", "80"}
 }
 
-func provideStackConfigService(stackDir string) StackConfigService {
+func provideStackConfigService(stackDir string) configServiceType {
 	stackConfigs := make(map[string]appConfig)
 
 	files, err := os.ReadDir(stackDir)

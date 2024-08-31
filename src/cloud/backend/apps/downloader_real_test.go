@@ -12,7 +12,7 @@ var testStack = "test-stack"
 var testStack2 = "test-stack2"
 
 var downloadProcessProviderMock *DownloadProcessProviderMock
-var stackDownloadManager StackDownloadManager
+var stackDownloadManager downloadManager
 
 func setup() {
 	downloadProcessProviderMock = &DownloadProcessProviderMock{}

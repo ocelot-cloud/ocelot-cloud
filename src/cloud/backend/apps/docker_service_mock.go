@@ -37,12 +37,12 @@ func (d *dockerServiceMock) stopStack(stackName string) error {
 	return nil
 }
 
-func (d *dockerServiceMock) getRunningStackStateInfo() (map[string]StackDetails, error) {
+func (d *dockerServiceMock) getRunningStackStateInfo() (map[string]appDetailsType, error) {
 	logger.Trace("Mock return stack state info of virtually managed stacks")
 
-	clonedStates := make(map[string]StackDetails)
+	clonedStates := make(map[string]appDetailsType)
 	for stackName, stackState := range d.stackStates {
-		clonedStates[stackName] = StackDetails{stackState, "/"}
+		clonedStates[stackName] = appDetailsType{stackState, "/"}
 	}
 
 	for key, value := range d.stackStates {
