@@ -68,9 +68,6 @@ func initializeHandlers(mux *http.ServeMux) {
 }
 
 func initializeDatabase() {
-	// Strange phenomenon: When I run ./hub via terminal and run tests in separate terminal, everything works
-	// as expected. But when I run hub as a daemon process, via bash (&) or ci-runner, the tests fail with
-	// this DB error: "attempt to write readonly database". So I use in-memory database for all tests.
 	if profile == TEST {
 		initializeDatabaseWithSource(":memory:")
 		Logger.Warn("initializing database only in-memory - when application stops, all data will be deleted")
@@ -79,6 +76,8 @@ func initializeDatabase() {
 	}
 }
 
+// applyCorsPolicy This is necessary to allow cross-origin requests from the ocelot-cloud GUI to the hub.
+// The "Origin" header is managed and checked with custom logic to prevent CSRF attacks.
 func applyCorsPolicy(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
