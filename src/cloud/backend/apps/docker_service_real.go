@@ -81,14 +81,14 @@ func setHealthStates(stackStateInfo map[string]appDetailsType) map[string]appDet
 }
 
 func getHealthStateOf(stackName string) appState {
-	if areAllStackContainersWithHealthChecksReallyHealthy(stackName) {
+	if areAllStackContainersWithHealthChecksHealthy(stackName) {
 		return Available
 	} else {
 		return Starting
 	}
 }
 
-func areAllStackContainersWithHealthChecksReallyHealthy(stackName string) bool {
+func areAllStackContainersWithHealthChecksHealthy(stackName string) bool {
 	dockerComposeYamlPathOfStack := getStackPath(stackName)
 	stackInfoCmd := exec.Command("docker", "compose", "-f", dockerComposeYamlPathOfStack, "ps")
 	var out bytes.Buffer
@@ -111,7 +111,7 @@ func areAllStackContainersWithHealthChecksReallyHealthy(stackName string) bool {
 			return false
 		}
 	}
-	if err := scanner.Err(); err != nil {
+	if err = scanner.Err(); err != nil {
 		logger.Error("Scanner error occurred for stack '%s'", stackName)
 		return false
 	}
