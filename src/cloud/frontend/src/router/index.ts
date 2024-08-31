@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from "@/components/cloud/Home.vue";
 import Login from "@/components/cloud/Login.vue";
 import axios from "axios";
-import {isSecurityEnabled} from "@/components/cloud/Config";
 import HubComponent from "@/components/hub/HubHome.vue";
 import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
@@ -70,8 +69,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // TODO Apply the upper approach to this router.
-    // TODO Get rid of "isSecurityEnabled"
-    if (isSecurityEnabled && to.matched.some(record => record.meta.requiresAuth) && !(await isThereValidCloudSessionCookie())) {
+    if (to.matched.some(record => record.meta.requiresAuth) && !(await isThereValidCloudSessionCookie())) {
         next({ name: 'Login' });
     } else {
         next();
@@ -92,14 +90,18 @@ async function isThereValidHubSessionCookie(): Promise<boolean> {
     }
 }
 
+// TODO Here should a request to the backend happen to check if a cookie is valid or not. Like I already did in the hub.
 async function isThereValidCloudSessionCookie(): Promise<boolean> {
-    try {
-        // TODO I think the first part of the URL is missing, right?
-        await axios.get('/api/check-auth', { withCredentials: true });
+    const authCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('auth'));
+
+    if (authCookie && authCookie.split('=')[1] === 'valid') {
         return true;
-    } catch (error) {
+    } else {
         return false;
     }
 }
+
 
 export default router;

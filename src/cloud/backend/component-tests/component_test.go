@@ -43,7 +43,16 @@ func postJsonWithoutAssertions(endpoint string, data tools.StackInfo) {
 }
 
 func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
-	resp, err := http.Get(endpoint)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", endpoint, nil)
+	assert.Nil(t, err)
+
+	req.AddCookie(&http.Cookie{
+		Name:  "auth",
+		Value: "valid",
+	})
+
+	resp, err := client.Do(req)
 	assert.Nil(t, err)
 	defer resp.Body.Close()
 
@@ -68,7 +77,17 @@ func postJSON(t *testing.T, endpoint string, stackName string) *http.Response {
 	stackNameJson := tools.StackInfo{Name: stackName}
 	jsonData, marshalErr := json.Marshal(stackNameJson)
 	assert.Nil(t, marshalErr)
-	resp, postErr := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonData))
+	assert.Nil(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(&http.Cookie{
+		Name:  "auth",
+		Value: "valid",
+	})
+
+	resp, postErr := client.Do(req)
 	assert.Nil(t, postErr)
 	assert.Equal(t, 200, resp.StatusCode)
 	return resp
@@ -86,7 +105,21 @@ func postStackAndCheckResponse(t *testing.T, action string, expectedHttpStatus i
 	data := tools.StackInfo{"not-existing-stack"}
 	jsonData, err := json.Marshal(data)
 	assert.Nil(t, err)
-	resp, err := http.Post(endpoint+action, "application/json", bytes.NewBuffer(jsonData))
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", endpoint+action, bytes.NewBuffer(jsonData))
+	assert.Nil(t, err)
+
+	// Set the Content-Type header
+	req.Header.Set("Content-Type", "application/json")
+
+	// Add the "auth=valid" cookie to the request
+	req.AddCookie(&http.Cookie{
+		Name:  "auth",
+		Value: "valid",
+	})
+
+	resp, err := client.Do(req)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedHttpStatus, resp.StatusCode)
 }

@@ -22,12 +22,13 @@ var (
 )
 
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
+	router = routerArg
 	config = configArg
+
 	appFileDir = getStackFileDir(config)
 	stackConfigService = provideAppConfigService(appFileDir)
 	stackService = getStackService(config, stackConfigService)
 
-	router = routerArg
 	registerSecuredEndpoint("/stacks/read", createReadHandler(stackService))
 	registerSecuredEndpoint("/stacks/deploy", createDeployHandler(stackService))
 	registerSecuredEndpoint("/stacks/stop", createStopHandler(stackService))
@@ -52,7 +53,7 @@ func getStackService(config *tools.GlobalConfig, stackConfigService configServic
 }
 
 func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
-	router.Handle("/api"+path, security.ApplyAuthMiddlewares(handlerFunc))
+	router.Handle("/api"+path, security.ApplyAuthMiddleware(handlerFunc))
 }
 
 func createReadHandler(stackService appServiceType) http.HandlerFunc {

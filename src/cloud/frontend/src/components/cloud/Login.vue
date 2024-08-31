@@ -24,6 +24,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import {backendBaseUrl, PROFILE} from './Config';
 
 export default defineComponent({
   name: 'login-component',
@@ -34,11 +35,12 @@ export default defineComponent({
 
     const login = async () => {
       try {
-        const response = await fetch('/api/login', {
+        const response = await fetch(backendBaseUrl + '/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({
             username: username.value,
             password: password.value,

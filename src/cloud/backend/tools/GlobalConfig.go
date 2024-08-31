@@ -10,7 +10,6 @@ type GlobalConfig struct {
 	AreCrossOriginRequestsAllowed bool
 	AreMocksEnabled               bool
 	IsGuiEnabled                  bool
-	IsSecurityEnabled             bool // TODO Should always be enabled
 	UseDummyStacks                bool
 	HttpScheme                    string
 	RootDomain                    string

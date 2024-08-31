@@ -1,4 +1,4 @@
-import {isFrontendMocked, ocelotUrl, isSecurityEnabled, rootDomain, scheme} from "./Config";
+import {isFrontendMocked, ocelotUrl, rootDomain, scheme} from "./Config";
 
 type ButtonType = 'Open' | 'Start' | 'Stop'
 type StackOperation = 'start' | 'stop'
@@ -66,16 +66,14 @@ export class StackOperator {
     }
 
     waitSeconds(seconds: number): StackOperator {
-        if (isFrontendMocked) {
-            cy.wait(seconds * 100);
-        } else {
-            cy.wait(seconds * 1000);
-        }
+        // TODO refactoring?
+        cy.wait(seconds * 1000);
         return this;
     }
 
     assertWebsiteContent(expectedContent: string): StackOperator {
         let stackUrl = `http://${this.stackName}.` + rootDomain;
+        // TODO?
         if (isFrontendMocked) {
             cy.exec(`curl ${stackUrl}`).then((response) => {
                 expect(response.stdout).to.include(expectedContent);
@@ -111,12 +109,11 @@ export function assertColumnTitles() {
 
 export function VisitHomePage() {
     cy.visit(ocelotUrl);
-    if (isSecurityEnabled) {
-        cy.url().should('include', '/login');
-        cy.get('#username-field').type('admin');
-        cy.get('#password-field').type('password');
-        cy.get('#login-button').click();
-    }
+    cy.url().should('include', '/login');
+    cy.get('#username-field').type('admin');
+    cy.get('#password-field').type('password');
+    cy.get('#login-button').click();
+    // TODO assert redirection to path "/"
 }
 
 export function stopAllRunningStacks() {

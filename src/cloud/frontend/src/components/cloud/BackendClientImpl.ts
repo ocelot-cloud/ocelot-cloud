@@ -18,6 +18,8 @@ export class BackendClientImpl implements BackendClient {
         return await fetch(stackUrl + 'read');
     }
 
+    // TODO the mock "postRequest" and maybe even the whole file can be removed
+
     async postRequest(name: string, stackUrl: string, endpoint: string): Promise<void> {
         const data = {
             name: name
@@ -29,6 +31,7 @@ export class BackendClientImpl implements BackendClient {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(data)
             });
             await response;

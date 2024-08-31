@@ -8,7 +8,6 @@ let PROFILE: string
 export let backendBaseUrl: string
 export let stackUrl: string
 export let backendClient: BackendClient
-export let isSecurityEnabled: boolean
 
 enum PROFILE_VALUES {
     TEST = "TEST",
@@ -20,11 +19,9 @@ export function initializeGlobalConfig() {
     if (PROFILE === PROFILE_VALUES.TEST) {
         backendBaseUrl = 'http://localhost:8080'
         backendClient = new BackendClientImpl()
-        isSecurityEnabled = false
     } else if (PROFILE === PROFILE_VALUES.PROD) {
         backendBaseUrl = scheme + '://ocelot-cloud.' + baseDomain
         backendClient = new BackendClientImpl()
-        isSecurityEnabled = true
     } else {
         throw new Error("error, provided VITE_APP_PROFILE is not known: " + PROFILE);
     }

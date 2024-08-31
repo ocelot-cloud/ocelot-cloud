@@ -17,6 +17,7 @@ var users = map[string]string{
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug("login logic called")
+
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -38,9 +39,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    "valid",
 		Path:     "/",
 		MaxAge:   3600,
-		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode, // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
 	})
 
+	Logger.Debug("cookie was set")
 	w.WriteHeader(http.StatusOK)
 }
 

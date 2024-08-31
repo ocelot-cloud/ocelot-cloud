@@ -108,7 +108,6 @@ func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
 	Logger.Info("Profile is: %s", profile.String())
 	Logger.Info("Log level is: %s", shared.GetLogLevel())
 	Logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
-	Logger.Debug("Is security enabled? -> %v", config.IsSecurityEnabled)
 	Logger.Debug("Is the CORS policy relaxed by explicitly allowing cross-origin requests by setting specific response headers? -> %v", config.AreCrossOriginRequestsAllowed)
 	if config.AreCrossOriginRequestsAllowed {
 		Logger.Warn("The CORS policy is relaxed and cross-origin requests are allowed. This is for development, so don't use this option in production!")

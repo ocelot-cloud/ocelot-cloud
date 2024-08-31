@@ -36,7 +36,7 @@ func initializeHandlers() {
 	initializeFunctionalEndpoints()
 	proxyHandler := buildProxyHandler()
 	Logger.Info("Starting server listening on port ", config.BackendExecutablePort)
-	err := http.ListenAndServe(":"+config.BackendExecutablePort, http.HandlerFunc(proxyHandler))
+	err := http.ListenAndServe(":"+config.BackendExecutablePort, security.DisableCorsPolicy(http.HandlerFunc(proxyHandler)))
 	if err != nil {
 		Logger.Fatal("Failed to start server: " + err.Error())
 	}
@@ -65,7 +65,7 @@ func initializeFunctionalEndpoints() {
 }
 
 func initializeFrontendResourceDelivery() {
-	router.PathPrefix("/").Handler(security.ApplyAuthMiddlewares(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.PathPrefix("/").Handler(security.DisableCorsPolicy(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 

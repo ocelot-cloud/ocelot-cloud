@@ -58,7 +58,11 @@ export default defineComponent({
     // TODO When I load "home" and then cloud, the fetching continue. Maybe add a condition, do this "only on the cloud home page"
     const fetchData = async () => {
       try {
-        const response = await backendClient.getResponsePromise(stackUrl);
+        const response = await fetch(stackUrl + "/read", {
+          method: 'GET',
+          credentials: 'include',  // Include cookies in the request
+        });
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         } else if (response.status === 302 || response.status === 301) {
