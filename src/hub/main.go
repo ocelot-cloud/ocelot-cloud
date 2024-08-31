@@ -17,7 +17,7 @@ func main() {
 	mux := http.NewServeMux()
 	initializeHandlers(mux)
 
-	handlerWithCors := applyCorsPolicy(authMiddleware(mux))
+	handlerWithCors := applyCorsPolicy(mux)
 	Logger.Info("Server starting on port %s", port)
 	err := http.ListenAndServe(":"+port, handlerWithCors)
 	if err != nil {
@@ -26,25 +26,25 @@ func main() {
 }
 
 func initializeHandlers(mux *http.ServeMux) {
-	mux.HandleFunc(loginPath, loginHandler)
-	mux.HandleFunc(registrationPath, registrationHandler)
-	mux.HandleFunc(downloadPath, downloadHandler)
-	mux.HandleFunc(getTagsPath, getTagsHandler)
-	mux.HandleFunc(searchAppsPath, searchAppsHandler)
+	registerUnprotectedHandler(mux, loginPath, loginHandler)
+	registerUnprotectedHandler(mux, registrationPath, registrationHandler)
+	registerUnprotectedHandler(mux, downloadPath, downloadHandler)
+	registerUnprotectedHandler(mux, getTagsPath, getTagsHandler)
+	registerUnprotectedHandler(mux, searchAppsPath, searchAppsHandler)
 
-	mux.HandleFunc(authCheckPath, authCheckHandler)
-	mux.HandleFunc(tagUploadPath, tagUploadHandler)
-	mux.HandleFunc(tagDeletePath, tagDeleteHandler)
-	mux.HandleFunc(changePasswordPath, changePasswordHandler)
-	mux.HandleFunc(appCreationPath, appCreationHandler)
-	mux.HandleFunc(appGetListPath, appGetListHandler)
-	mux.HandleFunc(appDeletePath, appDeleteHandler)
-	mux.HandleFunc(deleteUserPath, userDeleteHandler)
-	mux.HandleFunc(logoutPath, logoutHandler)
+	registerProtectedHandler(mux, authCheckPath, authCheckHandler)
+	registerProtectedHandler(mux, tagUploadPath, tagUploadHandler)
+	registerProtectedHandler(mux, tagDeletePath, tagDeleteHandler)
+	registerProtectedHandler(mux, changePasswordPath, changePasswordHandler)
+	registerProtectedHandler(mux, appCreationPath, appCreationHandler)
+	registerProtectedHandler(mux, appGetListPath, appGetListHandler)
+	registerProtectedHandler(mux, appDeletePath, appDeleteHandler)
+	registerProtectedHandler(mux, deleteUserPath, userDeleteHandler)
+	registerProtectedHandler(mux, logoutPath, logoutHandler)
 
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
-		mux.HandleFunc(wipeDataPath, wipeDataHandler)
+		registerUnprotectedHandler(mux, wipeDataPath, wipeDataHandler)
 
 		sampleUser := "sample"
 		// TODO Handle error -> logger.Fatal
@@ -52,6 +52,8 @@ func initializeHandlers(mux *http.ServeMux) {
 		Logger.Warn("Created '%s' user with weak password for manual testing", sampleUser)
 	}
 }
+
+// TODO Handle error of "repo.CreateUser(&RegistrationForm..." -> logger.Fatal
 
 func initializeDatabase() {
 	// Strange phenomenon: When I run ./hub via terminal and run tests in separate terminal, everything works
@@ -81,11 +83,6 @@ func applyCorsPolicy(next http.Handler) http.Handler {
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == loginPath || r.URL.Path == registrationPath || r.URL.Path == downloadPath || r.URL.Path == getTagsPath || r.URL.Path == searchAppsPath || r.URL.Path == wipeDataPath {
-			next.ServeHTTP(w, r)
-			return
-		}
-
 		user, err := checkAuthentication(w, r)
 		if err != nil {
 			return
@@ -96,6 +93,15 @@ func authMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// getUserFromContext Since only authenticated users are added to the context, it only works in protected handlers.
 func getUserFromContext(r *http.Request) string {
-	return r.Context().Value("user").(string) // TODO
+	return r.Context().Value("user").(string)
+}
+
+func registerProtectedHandler(mux *http.ServeMux, path string, handler http.HandlerFunc) {
+	mux.Handle(path, authMiddleware(handler))
+}
+
+func registerUnprotectedHandler(mux *http.ServeMux, path string, handler http.HandlerFunc) {
+	mux.HandleFunc(path, handler)
 }
