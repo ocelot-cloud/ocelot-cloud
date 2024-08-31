@@ -17,11 +17,19 @@ func main() {
 	mux := http.NewServeMux()
 	initializeHandlers(mux)
 
-	handlerWithCors := applyCorsPolicy(mux)
 	Logger.Info("Server starting on port %s", port)
-	err := http.ListenAndServe(":"+port, handlerWithCors)
+	err := http.ListenAndServe(":"+port, getCorsDisablingHandler(mux))
 	if err != nil {
 		Logger.Fatal("Server stopped: %v", err)
+	}
+}
+
+func initializeDatabase() {
+	if profile == TEST {
+		initializeDatabaseWithSource(":memory:")
+		Logger.Warn("initializing database only in-memory - when application stops, all data will be deleted")
+	} else {
+		initializeDatabaseWithSource(databaseFile)
 	}
 }
 
@@ -67,43 +75,6 @@ func initializeHandlers(mux *http.ServeMux) {
 	registerProtectedRoutes(mux, protectedRoutes)
 }
 
-func initializeDatabase() {
-	if profile == TEST {
-		initializeDatabaseWithSource(":memory:")
-		Logger.Warn("initializing database only in-memory - when application stops, all data will be deleted")
-	} else {
-		initializeDatabaseWithSource(databaseFile)
-	}
-}
-
-// applyCorsPolicy This is necessary to allow cross-origin requests from the ocelot-cloud GUI to the hub.
-// The "Origin" header is managed and checked with custom logic to prevent CSRF attacks.
-func applyCorsPolicy(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-func authMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user, err := checkAuthentication(w, r)
-		if err != nil {
-			return
-		}
-		ctx := context.WithValue(r.Context(), "user", user)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
-}
-
 // getUserFromContext Since only authenticated users are added to the context, it only works in protected handlers.
 func getUserFromContext(r *http.Request) string {
 	return r.Context().Value("user").(string)
@@ -119,4 +90,32 @@ func registerProtectedRoutes(mux *http.ServeMux, routes []route) {
 	for _, r := range routes {
 		mux.Handle(r.path, authMiddleware(r.handler))
 	}
+}
+
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, err := checkAuthentication(w, r)
+		if err != nil {
+			return
+		}
+		ctx := context.WithValue(r.Context(), "user", user)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+// getCorsDisablingHandler This is necessary to allow cross-origin requests from the ocelot-cloud GUI to the hub.
+// The "Origin" header is managed and checked with custom logic to prevent CSRF attacks.
+func getCorsDisablingHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
