@@ -13,11 +13,11 @@ import (
 
 type dockerServiceReal struct{}
 
-func (d *dockerServiceReal) deployStack(stackName string) error {
+func (d *dockerServiceReal) deployApp(stackName string) error {
 	cmdPath := getStackPath(stackName)
 
 	if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-		return logAndCreateStackNotFoundError(stackName)
+		return logAndCreateAppNotFoundError(stackName)
 	}
 
 	networkCreationBashCmd := fmt.Sprintf("docker network ls | grep -q %s-net || docker network create %s-net", stackName, stackName)
@@ -34,7 +34,7 @@ func (d *dockerServiceReal) deployStack(stackName string) error {
 	}
 }
 
-func logAndCreateStackNotFoundError(stackName string) error {
+func logAndCreateAppNotFoundError(stackName string) error {
 	errorMessage := "Could not find stack: " + stackName
 	logger.Error(errorMessage)
 	return fmt.Errorf(errorMessage)
@@ -44,7 +44,7 @@ func getStackPath(stackName string) string {
 	return fmt.Sprintf("%s/%s/docker-compose.yml", appFileDir, stackName)
 }
 
-func (d *dockerServiceReal) stopStack(stackName string) error {
+func (d *dockerServiceReal) stopApp(stackName string) error {
 	configPath := getStackPath(stackName)
 	cmd := exec.Command("docker", "compose", "-p", stackName, "-f", configPath, "down")
 	output, err := cmd.CombinedOutput()
@@ -57,7 +57,7 @@ func (d *dockerServiceReal) stopStack(stackName string) error {
 	}
 }
 
-func (d *dockerServiceReal) getRunningStackStateInfo() (map[string]appDetailsType, error) {
+func (d *dockerServiceReal) getRunningAppStateInfo() (map[string]appDetailsType, error) {
 	lines, err := getDockerComposeListLines()
 	if err != nil {
 		logger.Error("error, 'docker compose' command seemed not to have worked properly: %s", err.Error())
@@ -80,7 +80,7 @@ func setHealthStates(stackStateInfo map[string]appDetailsType) map[string]appDet
 	return resultInfo
 }
 
-func getHealthStateOf(stackName string) stackState {
+func getHealthStateOf(stackName string) appState {
 	if areAllStackContainersWithHealthChecksReallyHealthy(stackName) {
 		return Available
 	} else {
@@ -155,7 +155,7 @@ func isHeaderOrEmpty(line string) bool {
 func transformToStackStackInfo(fields []string) (string, appDetailsType) {
 	name := fields[0]
 	rawStatus := fields[1]
-	var status stackState
+	var status appState
 	if strings.Contains(rawStatus, "running") {
 		status = Running
 	} else {

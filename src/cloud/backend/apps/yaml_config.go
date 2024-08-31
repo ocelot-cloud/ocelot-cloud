@@ -23,7 +23,7 @@ func (s *configServiceImpl) getAppConfig(stackName string) appConfig {
 	return appConfig{"/", "80"}
 }
 
-func provideStackConfigService(stackDir string) configServiceType {
+func provideAppConfigService(stackDir string) configServiceType {
 	stackConfigs := make(map[string]appConfig)
 
 	files, err := os.ReadDir(stackDir)

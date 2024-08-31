@@ -24,7 +24,7 @@ var (
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
 	appFileDir = getStackFileDir(config)
-	stackConfigService = provideStackConfigService(appFileDir)
+	stackConfigService = provideAppConfigService(appFileDir)
 	stackService = getStackService(config, stackConfigService)
 
 	router = routerArg

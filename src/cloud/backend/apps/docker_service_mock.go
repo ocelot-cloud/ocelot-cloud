@@ -6,17 +6,17 @@ import (
 )
 
 type dockerServiceMock struct {
-	stackStates                  map[string]stackState
+	stackStates                  map[string]appState
 	hasWaitedToPassDownloadState bool
 }
 
 func provideServiceMock() *dockerServiceMock {
-	return &dockerServiceMock{stackStates: make(map[string]stackState), hasWaitedToPassDownloadState: false}
+	return &dockerServiceMock{stackStates: make(map[string]appState), hasWaitedToPassDownloadState: false}
 }
 
-func (d *dockerServiceMock) deployStack(stackName string) error {
+func (d *dockerServiceMock) deployApp(stackName string) error {
 	if stackName == "not-existing-stack" {
-		return logAndCreateStackNotFoundError(stackName)
+		return logAndCreateAppNotFoundError(stackName)
 	} else if stackName == tools.NginxSlowStart || stackName == tools.NginxDownloading {
 		d.stackStates[stackName] = Starting
 	} else {
@@ -27,7 +27,7 @@ func (d *dockerServiceMock) deployStack(stackName string) error {
 	return nil
 }
 
-func (d *dockerServiceMock) stopStack(stackName string) error {
+func (d *dockerServiceMock) stopApp(stackName string) error {
 	if _, ok := d.stackStates[stackName]; ok {
 		d.stackStates[stackName] = Uninitialized
 	} else {
@@ -37,7 +37,7 @@ func (d *dockerServiceMock) stopStack(stackName string) error {
 	return nil
 }
 
-func (d *dockerServiceMock) getRunningStackStateInfo() (map[string]appDetailsType, error) {
+func (d *dockerServiceMock) getRunningAppStateInfo() (map[string]appDetailsType, error) {
 	logger.Trace("Mock return stack state info of virtually managed stacks")
 
 	clonedStates := make(map[string]appDetailsType)

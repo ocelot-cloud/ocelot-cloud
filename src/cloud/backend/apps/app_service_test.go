@@ -6,33 +6,33 @@ import (
 	"testing"
 )
 
-var stackToDeploy = tools.NginxDefault
-var stack2ToDeploy = tools.NginxDefault2
+var appToDeploy = tools.NginxDefault
+var app2ToDeploy = tools.NginxDefault2
 
-func createStackService() *appServiceImpl {
-	appFileDir = DefaultStackFileDir
-	return &appServiceImpl{provideServiceMock(), provideStackConfigService(appFileDir), provideDownloaderMock(), make(map[string]appAction)}
+func createAppService() *appServiceImpl {
+	appFileDir = DefaultAppFileDir
+	return &appServiceImpl{provideServiceMock(), provideAppConfigService(appFileDir), provideDownloaderMock(), make(map[string]appAction)}
 }
 
 func TestHappyPathDeployAndStop(t *testing.T) {
-	stackService := createStackService()
+	appService := createAppService()
 
-	err := stackService.deployApp(stackToDeploy)
+	err := appService.deployApp(appToDeploy)
 	assert.Nil(t, err)
 
-	currentStackInfo := stackService.getAppStateInfo()
-	assertState(t, currentStackInfo, stackToDeploy, Available)
-	assertState(t, currentStackInfo, stack2ToDeploy, Uninitialized)
+	currentStackInfo := appService.getAppStateInfo()
+	assertState(t, currentStackInfo, appToDeploy, Available)
+	assertState(t, currentStackInfo, app2ToDeploy, Uninitialized)
 
-	err = stackService.stopApp(stackToDeploy)
+	err = appService.stopApp(appToDeploy)
 	assert.Nil(t, err)
 
-	infoAfterStop := stackService.getAppStateInfo()
-	assertState(t, infoAfterStop, stackToDeploy, Uninitialized)
-	assertState(t, infoAfterStop, stack2ToDeploy, Uninitialized)
+	infoAfterStop := appService.getAppStateInfo()
+	assertState(t, infoAfterStop, appToDeploy, Uninitialized)
+	assertState(t, infoAfterStop, app2ToDeploy, Uninitialized)
 }
 
-func assertState(t *testing.T, stackInfo map[string]appDetailsType, name string, state stackState) {
+func assertState(t *testing.T, stackInfo map[string]appDetailsType, name string, state appState) {
 	if _, ok := stackInfo[name]; ok {
 		assert.Equal(t, state, stackInfo[name].State, "Stack was present but had wrong state.")
 	} else {
@@ -41,40 +41,40 @@ func assertState(t *testing.T, stackInfo map[string]appDetailsType, name string,
 }
 
 func TestAllStacksStop(t *testing.T) {
-	stackService := createStackService()
-	assert.Nil(t, stackService.deployApp(stackToDeploy))
-	assert.Nil(t, stackService.deployApp(stack2ToDeploy))
+	appService := createAppService()
+	assert.Nil(t, appService.deployApp(appToDeploy))
+	assert.Nil(t, appService.deployApp(app2ToDeploy))
 
-	infoAfterDeploy := stackService.getAppStateInfo()
-	assertState(t, infoAfterDeploy, stackToDeploy, Available)
-	assertState(t, infoAfterDeploy, stack2ToDeploy, Available)
+	infoAfterDeploy := appService.getAppStateInfo()
+	assertState(t, infoAfterDeploy, appToDeploy, Available)
+	assertState(t, infoAfterDeploy, app2ToDeploy, Available)
 
-	assert.Nil(t, stackService.StopAllStacks())
+	assert.Nil(t, appService.stopAllApps())
 
-	infoAfterStopAll := stackService.getAppStateInfo()
-	assertState(t, infoAfterStopAll, stackToDeploy, Uninitialized)
-	assertState(t, infoAfterStopAll, stack2ToDeploy, Uninitialized)
+	infoAfterStopAll := appService.getAppStateInfo()
+	assertState(t, infoAfterStopAll, appToDeploy, Uninitialized)
+	assertState(t, infoAfterStopAll, app2ToDeploy, Uninitialized)
 }
 
 func TestToDeploySameStackTwice(t *testing.T) {
-	stackService := createStackService()
-	assert.Nil(t, stackService.deployApp(stackToDeploy))
-	assert.Nil(t, stackService.deployApp(stackToDeploy))
+	appService := createAppService()
+	assert.Nil(t, appService.deployApp(appToDeploy))
+	assert.Nil(t, appService.deployApp(appToDeploy))
 }
 
 func TestToNotRunningStack(t *testing.T) {
-	stackService := createStackService()
-	err := stackService.stopApp(stackToDeploy)
+	appService := createAppService()
+	err := appService.stopApp(appToDeploy)
 	assert.NotNil(t, err)
-	assert.Equal(t, "error - stopping stack failed", err.Error())
+	assert.Equal(t, "error - stopping app failed", err.Error())
 }
 
 func TestIgnoreStackInStackInfo(t *testing.T) {
-	stackService := createStackService()
+	appService := createAppService()
 	stackName := "ocelot-cloud"
-	assert.Nil(t, stackService.deployApp(stackName))
+	assert.Nil(t, appService.deployApp(stackName))
 
-	stackStateInfo := stackService.getAppStateInfo()
+	stackStateInfo := appService.getAppStateInfo()
 	if _, ok := stackStateInfo[stackName]; ok {
 		logger.Error("%s was not ignored as expected.", stackName)
 		t.Fail()
@@ -82,21 +82,21 @@ func TestIgnoreStackInStackInfo(t *testing.T) {
 }
 
 func TestNginxCustomUrlPath(t *testing.T) {
-	stackService := createStackService()
-	assert.Nil(t, stackService.deployApp(tools.NginxCustomPath))
-	actualUrlPath := getUrlPathForStack(t, stackService, tools.NginxCustomPath)
+	appService := createAppService()
+	assert.Nil(t, appService.deployApp(tools.NginxCustomPath))
+	actualUrlPath := getUrlPathForStack(t, appService, tools.NginxCustomPath)
 	assert.Equal(t, "/custom-path", actualUrlPath)
 }
 
 func TestNginxDefaultUrlPath(t *testing.T) {
-	stackService := createStackService()
-	assert.Nil(t, stackService.deployApp(tools.NginxDefault))
-	actualUrlPath := getUrlPathForStack(t, stackService, tools.NginxDefault)
+	appService := createAppService()
+	assert.Nil(t, appService.deployApp(tools.NginxDefault))
+	actualUrlPath := getUrlPathForStack(t, appService, tools.NginxDefault)
 	assert.Equal(t, "/", actualUrlPath)
 }
 
-func getUrlPathForStack(t *testing.T, stackService appServiceType, stackName string) string {
-	stackStateInfo := stackService.getAppStateInfo()
+func getUrlPathForStack(t *testing.T, appService appServiceType, stackName string) string {
+	stackStateInfo := appService.getAppStateInfo()
 	if _, ok := stackStateInfo[stackName]; ok {
 		return stackStateInfo[stackName].Path
 	} else {
@@ -105,24 +105,24 @@ func getUrlPathForStack(t *testing.T, stackService appServiceType, stackName str
 	}
 }
 
-type StackServiceTestApi struct {
-	t            *testing.T
-	stackService appServiceType
-	stackName    string
+type appServiceTestApi struct {
+	t          *testing.T
+	appService appServiceType
+	stackName  string
 }
 
-func (s *StackServiceTestApi) deploy() *StackServiceTestApi {
-	assert.Nil(s.t, s.stackService.deployApp(s.stackName))
+func (s *appServiceTestApi) deploy() *appServiceTestApi {
+	assert.Nil(s.t, s.appService.deployApp(s.stackName))
 	return s
 }
 
-func (s *StackServiceTestApi) stop() *StackServiceTestApi {
-	assert.Nil(s.t, s.stackService.stopApp(s.stackName))
+func (s *appServiceTestApi) stop() *appServiceTestApi {
+	assert.Nil(s.t, s.appService.stopApp(s.stackName))
 	return s
 }
 
-func (s *StackServiceTestApi) assertState(expectedState stackState) *StackServiceTestApi {
-	stackStateInfo := s.stackService.getAppStateInfo()
+func (s *appServiceTestApi) assertState(expectedState appState) *appServiceTestApi {
+	stackStateInfo := s.appService.getAppStateInfo()
 	if _, ok := stackStateInfo[s.stackName]; ok {
 		assert.Equal(s.t, expectedState, stackStateInfo[s.stackName].State)
 	} else {
@@ -132,14 +132,14 @@ func (s *StackServiceTestApi) assertState(expectedState stackState) *StackServic
 }
 
 func TestHealthStateHandling(t *testing.T) {
-	api := StackServiceTestApi{t, createStackService(), tools.NginxSlowStart}
+	api := appServiceTestApi{t, createAppService(), tools.NginxSlowStart}
 	api.deploy().assertState(Starting).assertState(Available)
 	api.stop().assertState(Uninitialized)
 	api.deploy().assertState(Starting).stop().assertState(Uninitialized)
 }
 
 func TestDownloadStateHandling(t *testing.T) {
-	api := StackServiceTestApi{t, createStackService(), tools.NginxDownloading}
+	api := appServiceTestApi{t, createAppService(), tools.NginxDownloading}
 	api.deploy().assertState(Downloading).assertState(Starting).assertState(Available)
 	api.stop().assertState(Uninitialized)
 }
