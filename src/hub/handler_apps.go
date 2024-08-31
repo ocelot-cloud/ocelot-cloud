@@ -5,11 +5,8 @@ import (
 	"net/http"
 )
 
-func appHandler(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+func appCreationHandler(w http.ResponseWriter, r *http.Request) {
+	user := getUserFromContext(r)
 
 	app, err := readBodyAsSingleString(r, App)
 	if err != nil {
@@ -18,26 +15,26 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesUserExist(authenticatedUser) {
-		Logger.Info("user '%s' tried to create app '%s' but it does not exist", authenticatedUser, app)
+	if !repo.DoesUserExist(user) {
+		Logger.Info("user '%s' tried to create app '%s' but it does not exist", user, app)
 		http.Error(w, "user does not exists", http.StatusNotFound)
 		return
 	}
-	if repo.DoesAppExist(authenticatedUser, app) {
-		Logger.Info("user '%s' tried to create app '%s' but it already exists", authenticatedUser, app)
+	if repo.DoesAppExist(user, app) {
+		Logger.Info("user '%s' tried to create app '%s' but it already exists", user, app)
 		http.Error(w, "app already exists", http.StatusConflict)
 		return
 	}
 
-	err = repo.CreateApp(authenticatedUser, app)
+	err = repo.CreateApp(user, app)
 	if err != nil {
-		Logger.Error("user '%s' tried to create app '%s' but it failed: %v", authenticatedUser, app, err)
+		Logger.Error("user '%s' tried to create app '%s' but it failed: %v", user, app, err)
 		http.Error(w, "app creation failed", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	Logger.Info("user '%s' created app '%s'", authenticatedUser, app)
+	Logger.Info("user '%s' created app '%s'", user, app)
 }
 
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {

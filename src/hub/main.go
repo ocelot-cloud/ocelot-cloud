@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/ocelot-cloud/shared"
 	"net/http"
 	"os"
@@ -16,7 +17,7 @@ func main() {
 	mux := http.NewServeMux()
 	initializeHandlers(mux)
 
-	handlerWithCors := applyCorsPolicy(mux)
+	handlerWithCors := applyCorsPolicy(authMiddleware(mux))
 	Logger.Info("Server starting on port %s", port)
 	err := http.ListenAndServe(":"+port, handlerWithCors)
 	if err != nil {
@@ -25,26 +26,28 @@ func main() {
 }
 
 func initializeHandlers(mux *http.ServeMux) {
+	mux.HandleFunc(loginPath, loginHandler)
+	mux.HandleFunc(registrationPath, registrationHandler)
 	mux.HandleFunc(downloadPath, downloadHandler)
+	mux.HandleFunc(getTagsPath, getTagsHandler)
+	mux.HandleFunc(searchAppsPath, searchAppsHandler)
+
+	mux.HandleFunc(authCheckPath, authCheckHandler)
 	mux.HandleFunc(tagUploadPath, tagUploadHandler)
 	mux.HandleFunc(tagDeletePath, tagDeleteHandler)
-	mux.HandleFunc(getTagsPath, getTagsHandler)
 	mux.HandleFunc(changePasswordPath, changePasswordHandler)
-	mux.HandleFunc(appCreationPath, appHandler)
+	mux.HandleFunc(appCreationPath, appCreationHandler)
 	mux.HandleFunc(appGetListPath, appGetListHandler)
 	mux.HandleFunc(appDeletePath, appDeleteHandler)
-	mux.HandleFunc(searchAppsPath, searchAppsHandler)
 	mux.HandleFunc(deleteUserPath, userDeleteHandler)
 	mux.HandleFunc(logoutPath, logoutHandler)
-	mux.HandleFunc(loginPath, loginHandler)
-	mux.HandleFunc(authCheckPath, authCheckHandler)
-	mux.HandleFunc(registrationPath, registrationHandler)
 
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
 		mux.HandleFunc(wipeDataPath, wipeDataHandler)
 
 		sampleUser := "sample"
+		// TODO Handle error -> logger.Fatal
 		repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
 		Logger.Warn("Created '%s' user with weak password for manual testing", sampleUser)
 	}
@@ -74,4 +77,25 @@ func applyCorsPolicy(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == loginPath || r.URL.Path == registrationPath || r.URL.Path == downloadPath || r.URL.Path == getTagsPath || r.URL.Path == searchAppsPath || r.URL.Path == wipeDataPath {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		user, err := checkAuthentication(w, r)
+		if err != nil {
+			return
+		}
+		ctx := context.WithValue(r.Context(), "user", user)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func getUserFromContext(r *http.Request) string {
+	return r.Context().Value("user").(string) // TODO
 }

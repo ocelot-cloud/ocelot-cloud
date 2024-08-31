@@ -128,9 +128,9 @@ func TestDeleteTagSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-tag", TagField, DeleteTag)
 }
 
-// There is some specific logic for this user in the production code when handling cookie.
 func TestCookieExpirationAndRenewal(t *testing.T) {
 	hub := getHubAndLogin(t)
+	// There is some specific logic for this user in the production code when handling cookie.
 	hub.Parent.User = testUserWithExpiredCookie
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
@@ -140,6 +140,7 @@ func TestCookieExpirationAndRenewal(t *testing.T) {
 	assert.Equal(t, utils.GetErrMsg(400, "cookie expired"), err.Error())
 	hub.Parent.User = sampleUser
 
+	// There is some specific logic for this user in the production code when handling cookie.
 	hub.Parent.User = testUserWithOldButNotExpiredCookie
 	assert.Nil(t, hub.registerUser())
 	assert.Nil(t, hub.login())
