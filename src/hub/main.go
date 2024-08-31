@@ -25,35 +25,47 @@ func main() {
 	}
 }
 
-func initializeHandlers(mux *http.ServeMux) {
-	registerUnprotectedHandler(mux, loginPath, loginHandler)
-	registerUnprotectedHandler(mux, registrationPath, registrationHandler)
-	registerUnprotectedHandler(mux, downloadPath, downloadHandler)
-	registerUnprotectedHandler(mux, getTagsPath, getTagsHandler)
-	registerUnprotectedHandler(mux, searchAppsPath, searchAppsHandler)
+type route struct {
+	path    string
+	handler http.HandlerFunc
+}
 
-	registerProtectedHandler(mux, authCheckPath, authCheckHandler)
-	registerProtectedHandler(mux, tagUploadPath, tagUploadHandler)
-	registerProtectedHandler(mux, tagDeletePath, tagDeleteHandler)
-	registerProtectedHandler(mux, changePasswordPath, changePasswordHandler)
-	registerProtectedHandler(mux, appCreationPath, appCreationHandler)
-	registerProtectedHandler(mux, appGetListPath, appGetListHandler)
-	registerProtectedHandler(mux, appDeletePath, appDeleteHandler)
-	registerProtectedHandler(mux, deleteUserPath, userDeleteHandler)
-	registerProtectedHandler(mux, logoutPath, logoutHandler)
+func initializeHandlers(mux *http.ServeMux) {
+	unprotectedRoutes := []route{
+		{loginPath, loginHandler},
+		{registrationPath, registrationHandler},
+		{downloadPath, downloadHandler},
+		{getTagsPath, getTagsHandler},
+		{searchAppsPath, searchAppsHandler},
+	}
+
+	protectedRoutes := []route{
+		{authCheckPath, authCheckHandler},
+		{tagUploadPath, tagUploadHandler},
+		{tagDeletePath, tagDeleteHandler},
+		{changePasswordPath, changePasswordHandler},
+		{appCreationPath, appCreationHandler},
+		{appGetListPath, appGetListHandler},
+		{appDeletePath, appDeleteHandler},
+		{deleteUserPath, userDeleteHandler},
+		{logoutPath, logoutHandler},
+	}
 
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
-		registerUnprotectedHandler(mux, wipeDataPath, wipeDataHandler)
+		unprotectedRoutes = append(unprotectedRoutes, route{wipeDataPath, wipeDataHandler})
 
 		sampleUser := "sample"
-		// TODO Handle error -> logger.Fatal
-		repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
+		err := repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
+		if err != nil {
+			Logger.Fatal("Failed to create '%s' user: %v.", sampleUser, err)
+		}
 		Logger.Warn("Created '%s' user with weak password for manual testing", sampleUser)
 	}
-}
 
-// TODO Handle error of "repo.CreateUser(&RegistrationForm..." -> logger.Fatal
+	registerUnprotectedRoutes(mux, unprotectedRoutes)
+	registerProtectedRoutes(mux, protectedRoutes)
+}
 
 func initializeDatabase() {
 	// Strange phenomenon: When I run ./hub via terminal and run tests in separate terminal, everything works
@@ -98,10 +110,14 @@ func getUserFromContext(r *http.Request) string {
 	return r.Context().Value("user").(string)
 }
 
-func registerProtectedHandler(mux *http.ServeMux, path string, handler http.HandlerFunc) {
-	mux.Handle(path, authMiddleware(handler))
+func registerUnprotectedRoutes(mux *http.ServeMux, routes []route) {
+	for _, r := range routes {
+		mux.HandleFunc(r.path, r.handler)
+	}
 }
 
-func registerUnprotectedHandler(mux *http.ServeMux, path string, handler http.HandlerFunc) {
-	mux.HandleFunc(path, handler)
+func registerProtectedRoutes(mux *http.ServeMux, routes []route) {
+	for _, r := range routes {
+		mux.Handle(r.path, authMiddleware(r.handler))
+	}
 }
