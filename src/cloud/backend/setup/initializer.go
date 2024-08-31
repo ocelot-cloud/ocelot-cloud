@@ -5,8 +5,6 @@ import (
 	"github.com/gorilla/mux" // TODO To be wrapped?
 	"github.com/ocelot-cloud/shared"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"ocelot/backend/apps"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
@@ -14,10 +12,9 @@ import (
 )
 
 var (
-	Logger             = tools.Logger
-	router             *mux.Router
-	config             *tools.GlobalConfig
-	stackConfigService apps.StackConfigService
+	Logger = tools.Logger
+	router *mux.Router
+	config *tools.GlobalConfig
 )
 
 func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig) {
@@ -53,30 +50,10 @@ func buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
 		if r.Host == ocelotDomain || r.Host == localDomain {
 			router.ServeHTTP(w, r)
 		} else {
-			proxyRequestToTheDockerContainer(w, r)
+			apps.ProxyRequestToTheDockerContainer(w, r)
 		}
 	}
 	return handler
-}
-
-// TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
-func proxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
-	Logger.Trace("Proxying request with target host %s", r.Host)
-	targetContainer := strings.TrimSuffix(r.Host, "."+config.RootDomain)
-	targetPort := stackConfigService.GetStackConfig(targetContainer).Port
-	targetURL, err := url.Parse("http://" + targetContainer + ":" + targetPort)
-	if err != nil {
-		Logger.Error("error when parsing URL, %s", err.Error())
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	// the path of original request is preserved
-	proxy := httputil.NewSingleHostReverseProxy(targetURL)
-	r.URL.Host = targetContainer
-	r.URL.Scheme = "http"
-	r.Header.Set("X-Forwarded-Host", r.Host)
-	proxy.ServeHTTP(w, r)
 }
 
 func initializeFunctionalEndpoints() {

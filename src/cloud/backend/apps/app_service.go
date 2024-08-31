@@ -46,7 +46,7 @@ type DockerService interface {
 }
 
 type StackConfigService interface {
-	GetStackConfig(stackName string) appConfig
+	getStackConfig(stackName string) appConfig
 }
 
 type StackDownloadManager interface {
@@ -74,7 +74,7 @@ func (sm *StackServiceImpl) GetStackStateInfo() map[string]StackDetails {
 	delete(resultInfos, "ocelot-cloud")
 
 	for stackName, stackDetail := range resultInfos {
-		newPath := sm.StackConfigService.GetStackConfig(stackName).UrlPath
+		newPath := sm.StackConfigService.getStackConfig(stackName).UrlPath
 		resultInfos[stackName] = StackDetails{stackDetail.State, newPath}
 	}
 

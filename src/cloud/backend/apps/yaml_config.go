@@ -15,8 +15,7 @@ type configServiceImpl struct {
 	stackConfigs map[string]appConfig
 }
 
-// TODO why is that used in initiliazer module? can reference be removed?
-func (s *configServiceImpl) GetStackConfig(stackName string) appConfig {
+func (s *configServiceImpl) getStackConfig(stackName string) appConfig {
 	if stackConfig, found := s.stackConfigs[stackName]; found {
 		return stackConfig
 	}
