@@ -10,7 +10,7 @@ var appToDeploy = tools.NginxDefault
 var app2ToDeploy = tools.NginxDefault2
 
 func createAppService() *appServiceImpl {
-	appFileDir = DefaultAppFileDir
+	appFileDir = dummyAppAssetsDirForTests
 	return &appServiceImpl{provideServiceMock(), provideAppConfigService(appFileDir), provideDownloaderMock(), make(map[string]appAction)}
 }
 

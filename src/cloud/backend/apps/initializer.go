@@ -35,9 +35,9 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 
 func getStackFileDir(config *tools.GlobalConfig) string {
 	if config.UseDummyStacks {
-		return "stacks/dummy"
+		return dummyAppAssetsDir
 	} else {
-		return "stacks/local"
+		return realAppAssetsDir
 	}
 }
 

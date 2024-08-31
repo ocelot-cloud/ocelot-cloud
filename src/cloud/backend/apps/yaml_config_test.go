@@ -6,10 +6,8 @@ import (
 	"testing"
 )
 
-var DefaultAppFileDir = "../stacks/dummy"
-
 func init() {
-	appFileDir = DefaultAppFileDir
+	appFileDir = dummyAppAssetsDirForTests
 }
 
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
@@ -53,7 +51,7 @@ func TestStackConfig(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			stackConfigService := provideAppConfigService(DefaultAppFileDir)
+			stackConfigService := provideAppConfigService(dummyAppAssetsDirForTests)
 			config := stackConfigService.getAppConfig(tc.StackName)
 			assert.Equal(t, tc.ExpectedPort, config.Port)
 			assert.Equal(t, tc.ExpectedPath, config.UrlPath)
