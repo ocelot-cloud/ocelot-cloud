@@ -38,10 +38,7 @@ func appCreationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+	user := getUserFromContext(r)
 
 	app, err := readBodyAsSingleString(r, App)
 	if err != nil {
@@ -68,10 +65,7 @@ func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appGetListHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+	user := getUserFromContext(r)
 
 	list, err := repo.GetAppList(user)
 	if err != nil {

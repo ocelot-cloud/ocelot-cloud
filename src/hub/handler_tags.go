@@ -11,16 +11,13 @@ const maxPayloadSize = 1024 * 1024 // = 1 MiB
 const maxStorageSize = 10 * maxPayloadSize
 
 func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+	user := getUserFromContext(r)
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxPayloadSize)
 	defer r.Body.Close()
 
 	var tagUpload TagUpload
-	err = json.NewDecoder(r.Body).Decode(&tagUpload)
+	err := json.NewDecoder(r.Body).Decode(&tagUpload)
 	if err != nil {
 		if err.Error() == "http: request body too large" {
 			Logger.Info("tag upload tag content of user '%s' was too large", user)
@@ -80,10 +77,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	authenticatedUser, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+	user := getUserFromContext(r)
 
 	tagInfo, err := readBody[AppAndTag](r)
 	if err != nil {
@@ -92,19 +86,19 @@ func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesTagExist(authenticatedUser, tagInfo.App, tagInfo.Tag) {
-		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", authenticatedUser, tagInfo.App, tagInfo.Tag)
+	if !repo.DoesTagExist(user, tagInfo.App, tagInfo.Tag) {
+		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", user, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
-	err = repo.DeleteTag(authenticatedUser, tagInfo.App, tagInfo.Tag)
+	err = repo.DeleteTag(user, tagInfo.App, tagInfo.Tag)
 	if err != nil {
-		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", authenticatedUser, tagInfo.App, tagInfo.Tag)
+		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", user, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "invalid input", http.StatusInternalServerError)
 		return
 	}
-	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", authenticatedUser, tagInfo.App, tagInfo.Tag)
+	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", user, tagInfo.App, tagInfo.Tag)
 	http.Error(w, "tag deleted", http.StatusOK)
 }
 
