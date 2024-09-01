@@ -6,12 +6,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 var db *sql.DB
-var databaseFile = shared.DataDir + "/sqlite.db"
+var DatabaseFile = shared.DataDir + "/sqlite.db"
 
-func initializeDatabaseWithSource(dataSourceName string) {
+func InitializeDatabaseWithSource(dataSourceName string) {
 	var err error
 	db, err = sql.Open("sqlite3", dataSourceName)
 	if err != nil {
@@ -36,7 +37,8 @@ func initializeTables() {
 			user_id SERIAL PRIMARY KEY,
 			user_name VARCHAR(255) NOT NULL UNIQUE,
 			hashed_password VARCHAR(255) NOT NULL,
-			hashed_cookie VARCHAR(255),
+			hashed_cookie_value VARCHAR(255),
+			cookie_expiration_date VARCHAR(255),
 			is_admin BOOLEAN NOT NULL
 		);
 	`)
@@ -114,6 +116,7 @@ type Repository interface {
 	WipeDatabase()
 	IsPasswordCorrect(user string, password string) bool
 	DeleteUser(user string) error
+	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
 	/*
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
@@ -200,3 +203,15 @@ func (r *MyRepository) DeleteUser(user string) error {
 	}
 	return nil
 }
+
+func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
+	hashedCookieValue := cookieValue + "x" // TODO
+	_, err := db.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
+	if err != nil {
+		Logger.Warn("Failed to delete user: %v", err)
+		return fmt.Errorf("failed to delete user")
+	}
+	return nil
+}
+
+// TODO deleteCookie(user string), isCookieValid(user string, cookie string)

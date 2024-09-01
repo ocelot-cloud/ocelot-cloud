@@ -11,6 +11,7 @@ type GlobalConfig struct {
 	AreMocksEnabled               bool
 	IsGuiEnabled                  bool
 	UseDummyStacks                bool
+	UseRealDatabase               bool
 	HttpScheme                    string
 	RootDomain                    string
 	DockerContainerPort           string

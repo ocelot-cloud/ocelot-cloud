@@ -34,14 +34,21 @@ var logger = tools.Logger
 func main() {
 	verifyCliToolInstallations()
 	config := tools.GenerateGlobalConfiguration()
-	initializeDatabase()
+	initializeDatabase(config)
 	router := mux.NewRouter()
 
 	security.InitializeSecurity(router)
 	setup.InitializeApplication(router, config)
 }
 
-func initializeDatabase() {
+// TODO Maybe put that stuff in the security module? Also this isn't just security, but also other stuff. Maybe create a "repository" package?
+func initializeDatabase(config *tools.GlobalConfig) {
+	if config.UseRealDatabase {
+		security.InitializeDatabaseWithSource(security.DatabaseFile)
+	} else {
+		security.InitializeDatabaseWithSource(":memory:")
+	}
+
 	// TODO
 	/*
 		create sqlite client

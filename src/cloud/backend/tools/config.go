@@ -56,12 +56,14 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	// TODO security/auth should always be enabled. Remove "IsSecurityEnabled" from everywhere in the project.
 	if profile == PROD {
 		config.IsGuiEnabled = true
-		config.AreCrossOriginRequestsAllowed = false
+		config.UseRealDatabase = true
 		config.AreMocksEnabled = false
+		config.AreCrossOriginRequestsAllowed = false
 	} else {
 		config.IsGuiEnabled = false
-		config.AreCrossOriginRequestsAllowed = true
+		config.UseRealDatabase = false
 		config.AreMocksEnabled = true
+		config.AreCrossOriginRequestsAllowed = true
 	}
 	return config
 }

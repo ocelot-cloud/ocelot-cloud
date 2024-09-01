@@ -4,12 +4,13 @@ import (
 	"github.com/ocelot-cloud/shared/assert"
 	"os"
 	"testing"
+	"time"
 )
 
 var repo Repository = &MyRepository{}
 
 func TestMain(m *testing.M) {
-	initializeDatabaseWithSource(":memory:")
+	InitializeDatabaseWithSource(":memory:")
 	repo.WipeDatabase()
 	code := m.Run()
 	os.Exit(code)
@@ -36,3 +37,10 @@ func TestSqliteClient(t *testing.T) {
 // TODO error: user already exists -> in the handlers
 
 // TODO SetCookie, DeleteCookie, IsCookieValid
+
+func TestCookieManagement(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, "sample-cookie", time.Now()))
+	// TODO
+}
