@@ -37,8 +37,9 @@ func ApplyAuthMiddleware(next http.Handler) http.Handler {
 
 func handleBackendApiRequest(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	cookie, err := r.Cookie("auth")
-	// TODO Not secure.
-	if err != nil || cookie.Value != "valid" {
+	// TODO store generated cookie in a repo and check if their value is correct.
+	println("cookie: %s", cookie.Value) // TODO to be removed
+	if err != nil {
 		Logger.Debug("requests cookie is invalid")
 		w.WriteHeader(http.StatusUnauthorized)
 		return

@@ -2,6 +2,7 @@ package security
 
 import (
 	"encoding/json"
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 )
 
@@ -33,22 +34,23 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO Use safe, randomly generated cookies instead. I think gorilla provides some.
-	http.SetCookie(w, &http.Cookie{
-		Name:     "auth",
-		Value:    "valid",
-		Path:     "/",
-		MaxAge:   3600,
-		SameSite: http.SameSiteLaxMode, // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
-	})
+	cookie, err := utils.GenerateCookie()
+	if err != nil {
+		// TODO
+	}
+	cookie.SameSite = http.SameSiteLaxMode // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
+	http.SetCookie(w, cookie)
 
 	Logger.Debug("cookie was set")
 	w.WriteHeader(http.StatusOK)
 }
 
+// TODO Duplication with handleBackendApiRequest
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("auth")
-	if err != nil || cookie.Value != "valid" {
+	// TODO store generated cookie in a repo and check if their value is correct.
+	println("cookie: %s", cookie.Value) // TODO to be removed
+	if err != nil {
 		Logger.Trace("Cookie error.")
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {

@@ -8,6 +8,7 @@ import HubRegistration from "@/components/hub/HubRegistration.vue";
 import HubChangePassword from "@/components/hub/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
 import {session} from "@/components/hub/shared";
+import {backendBaseUrl} from "@/components/cloud/Config";
 
 const routes = [
     {
@@ -92,13 +93,15 @@ async function isThereValidHubSessionCookie(): Promise<boolean> {
 
 // TODO Here should a request to the backend happen to check if a cookie is valid or not. Like I already did in the hub.
 async function isThereValidCloudSessionCookie(): Promise<boolean> {
-    const authCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('auth'));
-
-    if (authCookie && authCookie.split('=')[1] === 'valid') {
-        return true;
-    } else {
+    try {
+        const response = await axios.get(backendBaseUrl + '/api/check-auth');
+        if (response.status === 200) {
+            session.user = response.data.value;
+            session.isAuthenticated = true
+            return true;
+        }
+        return false
+    } catch (error) {
         return false;
     }
 }
