@@ -38,12 +38,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := generateCookie()
+	cookie, err := utils.GenerateCookie()
 	if err != nil {
 		Logger.Error("cookie generation failed: %v", err)
 		http.Error(w, "cookie generation failed", http.StatusInternalServerError)
 		return
 	}
+	cookie.SameSite = http.SameSiteLaxMode
 
 	if profile == TEST {
 		if creds.User == testUserWithExpiredCookie {

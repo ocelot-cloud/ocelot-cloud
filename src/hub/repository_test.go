@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"github.com/ocelot-cloud/shared/utils"
 	"os"
 	"sort"
 	"strings"
@@ -149,8 +150,8 @@ func TestCookieExpiration(t *testing.T) {
 
 	assert.True(t, repo.IsCookieExpired("non-existing-cookie"))
 
-	timeIn30Days := getTimeIn30Days()
-	cookie, _ := generateCookie()
+	timeIn30Days := utils.GetTimeIn30Days()
+	cookie, _ := utils.GenerateCookie()
 	assert.Nil(t, repo.SetCookie(sampleUser, cookie.Value, timeIn30Days))
 	assert.False(t, repo.IsCookieExpired(cookie.Value))
 

@@ -44,8 +44,8 @@ func TestCookie(t *testing.T) {
 	hub := getHubAndLogin(t)
 
 	assert.Equal(t, cookieName, hub.Parent.Cookie.Name)
-	assert.True(t, getTimeIn30Days().Add(1*time.Second).After(hub.Parent.Cookie.Expires))
-	assert.True(t, getTimeIn30Days().Add(-1*time.Second).Before(hub.Parent.Cookie.Expires))
+	assert.True(t, utils.GetTimeIn30Days().Add(1*time.Second).After(hub.Parent.Cookie.Expires))
+	assert.True(t, utils.GetTimeIn30Days().Add(-1*time.Second).Before(hub.Parent.Cookie.Expires))
 	assert.Equal(t, 64, len(hub.Parent.Cookie.Value))
 
 	cookie1 := hub.Parent.Cookie

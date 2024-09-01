@@ -1,14 +1,11 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
-	"time"
 )
 
 var repo Repository = &SqliteRepository{}
@@ -97,24 +94,6 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	return result, nil
 }
 
-func getTimeIn30Days() time.Time {
-	return time.Now().UTC().AddDate(0, 0, 30)
-}
-
-func generateCookie() (*http.Cookie, error) {
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		Logger.Error("Failed to generate cookie: %v", err)
-		return nil, err
-	}
-	return &http.Cookie{
-		Name:     cookieName,
-		Value:    hex.EncodeToString(bytes),
-		Expires:  getTimeIn30Days(),
-		SameSite: http.SameSiteLaxMode,
-	}, nil
-}
-
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
 	Logger.Warn("database wipe completed")
@@ -158,7 +137,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	newExpirationTime := getTimeIn30Days()
+	newExpirationTime := utils.GetTimeIn30Days()
 	err = repo.SetCookie(user, cookie.Value, newExpirationTime)
 	if err != nil {
 		Logger.Error("setting new cookie failed: %v", err)
