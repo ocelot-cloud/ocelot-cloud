@@ -119,6 +119,7 @@ type Repository interface {
 	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
 	IsCookieValid(user string, cookieValue string) bool
 	DeleteCookie(user string) error
+	DoesUserExist(user string) bool
 	/*
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
@@ -245,5 +246,14 @@ func (r *MyRepository) DeleteCookie(user string) error {
 	return nil
 }
 
-// TODO deleteCookie(user string), isCookieValid(user string, cookie string) bool
+func (r *MyRepository) DoesUserExist(user string) bool {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
+	if err != nil {
+		Logger.Error("Failed to check if user exists: %v", err)
+		return false
+	}
+	return exists
+}
+
 // TODO doesUserExist(), getUserWithCookie()

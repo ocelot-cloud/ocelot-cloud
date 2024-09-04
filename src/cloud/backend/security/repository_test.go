@@ -50,6 +50,15 @@ func TestCookieManagement(t *testing.T) {
 	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie))
 }
 
+func TestDoesUserExist(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.False(t, repo.DoesUserExist(sampleUser))
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	assert.True(t, repo.DoesUserExist(sampleUser))
+	assert.Nil(t, repo.DeleteUser(sampleUser))
+	assert.False(t, repo.DoesUserExist(sampleUser))
+}
+
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
 // TODO error: user already exists
