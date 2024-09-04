@@ -35,21 +35,6 @@ func TestSqliteClient(t *testing.T) {
 	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
 }
 
-func TestCookieManagement(t *testing.T) {
-	defer repo.WipeDatabase()
-
-	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie))
-
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-
-	assert.True(t, repo.IsCookieValid(sampleUser, sampleCookie))
-	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie+"x"))
-
-	assert.Nil(t, repo.DeleteCookie(sampleUser))
-	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie))
-}
-
 func TestDoesUserExist(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.False(t, repo.DoesUserExist(sampleUser))
@@ -59,6 +44,18 @@ func TestDoesUserExist(t *testing.T) {
 	assert.False(t, repo.DoesUserExist(sampleUser))
 }
 
+func TestGetUserWithCookie(t *testing.T) {
+	defer repo.WipeDatabase()
+	_, err := repo.GetUserWithCookie(sampleCookie)
+	assert.NotNil(t, err)
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	user, err := repo.GetUserWithCookie(sampleCookie)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleUser, user)
+}
+
+// TODO check if expiration is working
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
 // TODO error: user already exists

@@ -1,7 +1,9 @@
 package security
 
 import (
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
@@ -117,9 +119,9 @@ type Repository interface {
 	IsPasswordCorrect(user string, password string) bool
 	DeleteUser(user string) error
 	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
-	IsCookieValid(user string, cookieValue string) bool
 	DeleteCookie(user string) error
 	DoesUserExist(user string) bool
+	GetUserWithCookie(cookieValue string) (string, error)
 	/*
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
@@ -176,6 +178,16 @@ func hashAndSalt(clearText string) (string, error) {
 	return string(hash), nil
 }
 
+func hash(clearText string) (string, error) {
+	hashValue := sha256.New()
+	_, err := hashValue.Write([]byte(clearText))
+	if err != nil {
+		Logger.Error("Failed to hash text: %v", err)
+		return "", fmt.Errorf("hashing failed")
+	}
+	return hex.EncodeToString(hashValue.Sum(nil)), nil
+}
+
 func (r *MyRepository) WipeDatabase() {
 	_, err := db.Exec("DELETE FROM users")
 	if err != nil {
@@ -209,7 +221,7 @@ func (r *MyRepository) DeleteUser(user string) error {
 }
 
 func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
-	hashedCookieValue, err := hashAndSalt(cookieValue)
+	hashedCookieValue, err := hash(cookieValue)
 	if err != nil {
 		return err
 	}
@@ -220,21 +232,6 @@ func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookie
 		return fmt.Errorf("failed to update cookie")
 	}
 	return nil
-}
-
-func (r *MyRepository) IsCookieValid(user string, cookieValue string) bool {
-	var hashedCookieValueFromDb string
-	err := db.QueryRow("SELECT hashed_cookie_value FROM users WHERE user_name = ?", user).Scan(&hashedCookieValueFromDb)
-	if err != nil {
-		Logger.Error("Failed to fetch hashed cookie value: %v", err)
-		return false
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(hashedCookieValueFromDb), []byte(cookieValue))
-	if err != nil {
-		return false
-	}
-	return true
 }
 
 func (r *MyRepository) DeleteCookie(user string) error {
@@ -256,4 +253,17 @@ func (r *MyRepository) DoesUserExist(user string) bool {
 	return exists
 }
 
-// TODO doesUserExist(), getUserWithCookie()
+func (r *MyRepository) GetUserWithCookie(cookieValue string) (string, error) {
+	hashedCookieValue, err := hash(cookieValue)
+	if err != nil {
+		return "", err
+	}
+
+	var user string
+	err = db.QueryRow("SELECT user_name FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user)
+	if err != nil {
+		Logger.Error("Failed to fetch hashed cookie value: %v", err)
+		return "", fmt.Errorf("failed to fetch hashed cookie")
+	}
+	return user, nil
+}
