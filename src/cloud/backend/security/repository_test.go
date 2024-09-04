@@ -19,6 +19,7 @@ func TestMain(m *testing.M) {
 const (
 	sampleUser     = "user"
 	samplePassword = "password"
+	sampleCookie   = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 )
 
 // TODO Finish SQLite Client Implementation And Tests
@@ -34,13 +35,22 @@ func TestSqliteClient(t *testing.T) {
 	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
 }
 
-// TODO error: user already exists -> in the handlers
-
-// TODO SetCookie, DeleteCookie, IsCookieValid
-
 func TestCookieManagement(t *testing.T) {
 	defer repo.WipeDatabase()
+
+	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie))
+
 	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, "sample-cookie", time.Now()))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+
+	// TODO This line fails:
+	assert.True(t, repo.IsCookieValid(sampleUser, sampleCookie))
+	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie+"x"))
+
 	// TODO
 }
+
+// TODO can't set a cookie without user
+// TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
+// TODO error: user already exists
+// TODO SetCookie, DeleteCookie, IsCookieValid

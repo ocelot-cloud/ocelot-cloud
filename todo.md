@@ -1,5 +1,8 @@
 # TODO
 
+* cloud authorization - hasAccess(user, app)
+* rename "tag" to "version"?
+* Admin should be asked to change password after first login?
 * hub: instead of doing "checkAuthentication" at the beginning of each protected handler, I should add a middleware doing that. E.g. "ignore unprotected paths/handlers, but protected one should be checked and the users context info should be added for subsequent requests":
 
 ```
@@ -31,6 +34,8 @@ func authMiddleware(next http.Handler) http.Handler {
 * GUI: I dont want an start/stop/open button for each app. I want a list of apps, select one and then click on one of the buttons below the table.
 
 * PROD deploy -> hub does not work, probably because root domain "http://ocelot-cloud.localhost/hub/registration" instead of http://localhost/hub/registration or so
+
+* in PROD, when visiting http://localhost, you should be redirect to http://ocelot-cloud.localhost
 
 * Extract the docker service into its own package
 

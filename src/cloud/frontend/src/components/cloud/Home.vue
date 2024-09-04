@@ -17,7 +17,7 @@
         <tbody>
         <tr v-for="stack in stacks" :key="stack.name">
           <td>{{ stack.name }}</td>
-          <td :class="getBootstrapBackgroundClass(stack.state)">
+          <td :class="getBootstrapBackgroundClass(stack.state)" class="state-column">
             <div class="d-flex align-items-center justify-content-center">
               <span class="me-2">{{ stack.state }}</span>
                 <span v-if="stack.state === 'Starting' || stack.state === 'Downloading' || stack.state === 'Stopping'">
@@ -137,4 +137,7 @@ export default defineComponent({
   @media (min-width: 576px)
     max-width: 75%
     margin: auto
+
+.state-column
+  width: 250px
 </style>

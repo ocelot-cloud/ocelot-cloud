@@ -117,6 +117,7 @@ type Repository interface {
 	IsPasswordCorrect(user string, password string) bool
 	DeleteUser(user string) error
 	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
+	IsCookieValid(user string, cookieValue string) bool
 	/*
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
@@ -151,10 +152,9 @@ type Repository interface {
 type MyRepository struct{}
 
 func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
-	hashedPassword, err := hashAndSaltPassword(password)
+	hashedPassword, err := hashAndSalt(password)
 	if err != nil {
-		Logger.Warn("Failed to hash password: %v", err)
-		return fmt.Errorf("failed to hash password")
+		return err
 	}
 	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, is_admin) VALUES (?, ?, ?)", user, hashedPassword, isAdmin)
 	if err != nil {
@@ -164,12 +164,14 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 	return nil
 }
 
-func hashAndSaltPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+// TODO shift to shared module
+func hashAndSalt(clearText string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(clearText), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		Logger.Error("Failed to hash text: %v", err)
+		return "", fmt.Errorf("hashing failed")
 	}
-	return string(hashedPassword), nil
+	return string(hash), nil
 }
 
 func (r *MyRepository) WipeDatabase() {
@@ -183,7 +185,7 @@ func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
 	var hashedPassword string
 	err := db.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
 	if err != nil {
-		Logger.Error("Failed to fetch hashed password: %v\n", err)
+		Logger.Error("Failed to fetch hashed password: %v", err)
 		return false
 	}
 
@@ -205,13 +207,33 @@ func (r *MyRepository) DeleteUser(user string) error {
 }
 
 func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
-	hashedCookieValue := cookieValue + "x" // TODO
-	_, err := db.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
+	hashedCookieValue, err := hashAndSalt(cookieValue)
 	if err != nil {
-		Logger.Warn("Failed to delete user: %v", err)
-		return fmt.Errorf("failed to delete user")
+		return err
+	}
+
+	_, err = db.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
+	if err != nil {
+		Logger.Warn("Failed to update cookie of user '%s': %v", user, err)
+		return fmt.Errorf("failed to update cookie")
 	}
 	return nil
 }
 
-// TODO deleteCookie(user string), isCookieValid(user string, cookie string)
+func (r *MyRepository) IsCookieValid(user string, cookieValue string) bool {
+	var hashedCookieValueFromDb string
+	err := db.QueryRow("SELECT hashed_cookie_value FROM users WHERE user_name = ?", user).Scan(&hashedCookieValueFromDb)
+	if err != nil {
+		Logger.Error("Failed to fetch hashed cookie value: %v", err)
+		return false
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedCookieValueFromDb), []byte(cookieValue))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// TODO deleteCookie(user string), isCookieValid(user string, cookie string) bool
+// TODO doesUserExist(), getUserWithCookie()
