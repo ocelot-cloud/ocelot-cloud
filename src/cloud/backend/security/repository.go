@@ -118,6 +118,7 @@ type Repository interface {
 	DeleteUser(user string) error
 	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
 	IsCookieValid(user string, cookieValue string) bool
+	DeleteCookie(user string) error
 	/*
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
@@ -233,6 +234,15 @@ func (r *MyRepository) IsCookieValid(user string, cookieValue string) bool {
 		return false
 	}
 	return true
+}
+
+func (r *MyRepository) DeleteCookie(user string) error {
+	_, err := db.Exec("DELETE FROM users WHERE user_name = ?", user)
+	if err != nil {
+		Logger.Error("Failed to delete hashed cookie value: %v", err)
+		return fmt.Errorf("failed to delete cookie")
+	}
+	return nil
 }
 
 // TODO deleteCookie(user string), isCookieValid(user string, cookie string) bool

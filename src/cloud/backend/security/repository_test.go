@@ -43,11 +43,11 @@ func TestCookieManagement(t *testing.T) {
 	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
 	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
 
-	// TODO This line fails:
 	assert.True(t, repo.IsCookieValid(sampleUser, sampleCookie))
 	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie+"x"))
 
-	// TODO
+	assert.Nil(t, repo.DeleteCookie(sampleUser))
+	assert.False(t, repo.IsCookieValid(sampleUser, sampleCookie))
 }
 
 // TODO can't set a cookie without user
