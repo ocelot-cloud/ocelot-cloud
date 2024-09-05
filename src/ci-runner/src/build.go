@@ -28,7 +28,7 @@ var ComponentBuilds = map[COMPONENT]*Component{
 	Backend: {"backend", false, func() {
 		ExecuteInDir(backendDir, "go build")
 	}},
-	Frontend: {"backend", false, func() {
+	Frontend: {"frontend", false, func() {
 		ExecuteInDir(frontendDir, "npm run build")
 	}},
 	DockerImage: {"docker image", false, func() {
@@ -40,9 +40,6 @@ var ComponentBuilds = map[COMPONENT]*Component{
 		ExecuteInDir(projectDir, "bash -c 'if [ -z \"$(docker images -q alpine:3.18.6)\" ]; then docker pull alpine:3.18.6; fi'")
 		cmd := fmt.Sprintf("docker build -t ocelotcloud/ocelotcloud:local -f src/ci-runner/Dockerfile .")
 		ExecuteInDir(projectDir, cmd)
-	}},
-	Acceptance: {"backend", false, func() {
-		ExecuteInDir(acceptanceTestsDir, "npm install")
 	}},
 }
 

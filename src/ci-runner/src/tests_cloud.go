@@ -38,7 +38,6 @@ func TestCloudAcceptance() {
 	// TODO USE_DUMMY_STACKS should not be necessary here, since we use the mocks
 	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true", "HOST=http://localhost")
 	WaitForIndexPageToBeReady(ocelotUrl)
-	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
 
@@ -59,7 +58,7 @@ func TestCi() {
 	TestBackendComponentMocked()
 
 	// TODO development setup: test backend mocked + GUI
-	checkComponentsWithTestProfile()
+	TestCloudComponentsWithTestProfile()
 
 	// TODO test backend no mocks, just API
 	testProdBackendApi()
@@ -93,7 +92,7 @@ func printTaskDescription(text string) {
 	ColoredPrintln("\n=== %s ===\n", text)
 }
 
-func checkComponentsWithTestProfile() {
+func TestCloudComponentsWithTestProfile() {
 	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
@@ -103,7 +102,6 @@ func checkComponentsWithTestProfile() {
 	Build(Frontend)
 	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
 	WaitForIndexPageToBeReady(frontendServerUrl)
-	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+TestProfile)
 }
 
@@ -113,6 +111,5 @@ func testRunScript() {
 	Build(DockerImage)
 	ExecuteInDir(scriptsDir, "bash run-dummy.sh")
 	WaitForIndexPageToBeReady(ocelotUrl)
-	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }

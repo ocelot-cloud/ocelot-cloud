@@ -49,6 +49,7 @@ var hubTestTypes = map[string]func(){
 
 var cloudTestTypes = map[string]func(){
 	"acceptance": func() { src.TestCloudAcceptance() },
+	"frontend":   func() { src.TestCloudComponentsWithTestProfile() },
 }
 
 var testCmd = &cobra.Command{
@@ -67,7 +68,7 @@ var downloadDependenciesCmd = &cobra.Command{
 }
 
 var cloudCmd = &cobra.Command{
-	Use:   "cloud [backend/frontend/acceptance]",
+	Use:   "cloud [" + strings.Join(getKeys(cloudTestTypes), ", ") + "]",
 	Short: "Run cloud-related tests",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

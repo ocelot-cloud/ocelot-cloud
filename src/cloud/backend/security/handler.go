@@ -47,9 +47,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 // TODO Duplication with handleBackendApiRequest
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("auth")
 	// TODO store generated cookie in a repo and check if their value is correct.
-	println("cookie: %s", cookie.Value) // TODO to be removed
+	_, err := r.Cookie("auth")
 	if err != nil {
 		Logger.Trace("Cookie error.")
 		w.WriteHeader(http.StatusUnauthorized)
