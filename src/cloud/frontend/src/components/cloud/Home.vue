@@ -2,9 +2,12 @@
   <div class="container-fluid table-container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Ocelot Cloud</h3>
-      <button type="button" class="btn btn-primary" @click="visitHub">Visit Ocelot Hub</button>
+      <div>
+        <button type="button" class="btn btn-primary" @click="logout">Logout</button>
+        <button type="button" class="btn btn-primary" @click="visitHub">Visit Ocelot Hub</button>
+      </div>
     </div>
-    <table class="table table-hover table-striped table-responsive">
+    <table id="stack-table" class="table table-hover table-striped table-responsive">
       <thead class="table-light">
       <tr>
         <th scope="col">Name</th>
@@ -105,6 +108,10 @@ export default defineComponent({
       window.location.href = '/hub';
     };
 
+    const logout = () => {
+      // TODO To implement
+    };
+
     onMounted(() => {
       fetchData();
       intervalId = setInterval(fetchData, 1000);
@@ -124,6 +131,7 @@ export default defineComponent({
       getBootstrapBackgroundClass,
       visitHub,
       getUrlFromStack,
+      logout,
     };
   },
 });

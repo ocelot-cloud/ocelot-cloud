@@ -34,7 +34,7 @@ html, body, input, .form-control, .modal-content, .dropdown-menu
 
 #app
   font-family: Avenir, Helvetica, Arial, sans-serif
-  -webkit-font-smoothing: antialiased
+  -weskit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
   text-align: left
   color: $text-light
@@ -107,5 +107,4 @@ input:-webkit-autofill:active
 .state-column
   min-width: 150px
   padding: 0.5rem
-
 </style>

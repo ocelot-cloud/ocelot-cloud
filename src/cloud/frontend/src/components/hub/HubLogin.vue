@@ -29,8 +29,7 @@
                 href="#"
                 class="text-primary"
             >
-              here
-            </a>.
+              here</a>.
           </p>
         </div>
       </div>
@@ -40,7 +39,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { doRequest, goToHubPage } from "@/components/hub/shared";
+import { doRequest, goToHubPage } from "@/components/shared";
 import ValidatedInput from "@/components/hub/ValidatedInput.vue";
 
 export default defineComponent({
