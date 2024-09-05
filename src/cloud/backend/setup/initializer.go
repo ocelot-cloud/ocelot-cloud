@@ -54,6 +54,7 @@ func buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
 }
 
 func initializeFunctionalEndpoints() {
+	// TODO Is that still necessary?
 	router.HandleFunc("/api/hello", helloHandler)
 
 	if config.IsGuiEnabled {

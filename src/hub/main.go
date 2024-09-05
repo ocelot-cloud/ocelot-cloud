@@ -25,7 +25,7 @@ func main() {
 	}
 }
 
-// TODO shift the initialization functions into the "setup" package
+// TODO shift the initialization functions into the "setup" package?
 func initializeDatabase() {
 	if profile == TEST {
 		initializeDatabaseWithSource(":memory:")
@@ -33,12 +33,16 @@ func initializeDatabase() {
 	} else {
 		initializeDatabaseWithSource(databaseFile)
 	}
-	createAdminUserIfNotExistent()
+	err := createAdminUserIfNotExistent()
+	if err != nil {
+		Logger.Fatal("Admin user creation failed: %v", err)
+	}
 }
 
-func createAdminUserIfNotExistent() {
+func createAdminUserIfNotExistent() error {
 	// TODO Check if admin user exists. If not take it from the env variables. If not existent, crash.
 	// TODO Add tests: 1) neither admin in repo nor in envs -> crash, 2) no admin in repo, but in envs -> no crash, 3) admin in repo, but not in envs -> no crash
+	return nil
 }
 
 type route struct {
