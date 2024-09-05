@@ -1,12 +1,11 @@
 package security
 
 import (
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -156,7 +155,7 @@ type Repository interface {
 type MyRepository struct{}
 
 func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
-	hashedPassword, err := hashAndSalt(password)
+	hashedPassword, err := utils.SaltAndHash(password)
 	if err != nil {
 		return err
 	}
@@ -169,24 +168,6 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 }
 
 // TODO shift to shared module
-func hashAndSalt(clearText string) (string, error) {
-	hashValue, err := bcrypt.GenerateFromPassword([]byte(clearText), bcrypt.DefaultCost)
-	if err != nil {
-		Logger.Error("Failed to hash text: %v", err)
-		return "", fmt.Errorf("hashing failed")
-	}
-	return string(hashValue), nil
-}
-
-func hash(clearText string) (string, error) {
-	hashValue := sha256.New()
-	_, err := hashValue.Write([]byte(clearText))
-	if err != nil {
-		Logger.Error("Failed to hash text: %v", err)
-		return "", fmt.Errorf("hashing failed")
-	}
-	return hex.EncodeToString(hashValue.Sum(nil)), nil
-}
 
 func (r *MyRepository) WipeDatabase() {
 	_, err := db.Exec("DELETE FROM users")
@@ -221,7 +202,7 @@ func (r *MyRepository) DeleteUser(user string) error {
 }
 
 func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
-	hashedCookieValue, err := hash(cookieValue)
+	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
 		return err
 	}
@@ -254,7 +235,7 @@ func (r *MyRepository) DoesUserExist(user string) bool {
 }
 
 func (r *MyRepository) GetUserWithCookie(cookieValue string) (string, error) {
-	hashedCookieValue, err := hash(cookieValue)
+	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
 		return "", err
 	}

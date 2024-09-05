@@ -4,8 +4,8 @@ go 1.21.6
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.22
-	github.com/ocelot-cloud/shared v0.0.22
-	golang.org/x/crypto v0.24.0
+	github.com/ocelot-cloud/shared v0.0.23
+	golang.org/x/crypto v0.26.0
 )
 
 require (
@@ -15,6 +15,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

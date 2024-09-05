@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/ocelot-cloud/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -24,11 +25,12 @@ func initializeDatabaseWithSource(dataSourceName string) {
 
 	EnsureSchemaVersionTable()
 
+	// TODO Store only hashed cookies. Should also be UNIQUE
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name TEXT UNIQUE NOT NULL,
-			hashed_password TEXT NOT NULL,
+			hashed_password TEXT NOT NULL UNIQUE,
 			origin TEXT,
 			cookie TEXT,
 			expiration_date TEXT,
@@ -138,7 +140,7 @@ func (u *SqliteRepository) DoesUserExist(user string) bool {
 }
 
 func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
-	hashedPassword, err := hashAndSaltPassword(form.Password)
+	hashedPassword, err := utils.SaltAndHash(form.Password)
 	if err != nil {
 		return logAndReturnError("Failed to hash password: %v\n", err)
 	}
@@ -148,14 +150,6 @@ func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 		return logAndReturnError("Failed to create user: %v", err)
 	}
 	return nil
-}
-
-func hashAndSaltPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
 }
 
 func (u *SqliteRepository) DeleteUser(user string) error {
