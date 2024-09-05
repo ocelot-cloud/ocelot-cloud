@@ -43,7 +43,7 @@ func handleBackendApiRequest(w http.ResponseWriter, r *http.Request, next http.H
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	} else {
-		Logger.Debug("user has a valid cookie and is allowed to access protected backend functions")
+		Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")
 		next.ServeHTTP(w, r)
 	}
 }
