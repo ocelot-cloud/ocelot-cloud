@@ -79,7 +79,7 @@ type Repository interface {
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]UserAndApp, error)
-	SetCookie(user string, cookie string, expirationDate time.Time) error
+	HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieExpired(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
 	CreateTag(user string, app string, tag string, data []byte) error
@@ -275,9 +275,8 @@ func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
 	return apps, nil
 }
 
-// TODO Maybe better name: "saveHashedCookie"?
 // TODO check for all repo methods: The error should be logged here. Return a more generic error message without error details.
-func (u *SqliteRepository) SetCookie(user string, cookie string, expirationDate time.Time) error {
+func (u *SqliteRepository) HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error {
 	hashedCookieValue, err := utils.Hash(cookie)
 	if err != nil {
 		return fmt.Errorf("hashing failed")

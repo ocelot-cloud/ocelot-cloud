@@ -152,11 +152,11 @@ func TestCookieExpiration(t *testing.T) {
 
 	timeIn30Days := utils.GetTimeIn30Days()
 	cookie, _ := utils.GenerateCookie()
-	assert.Nil(t, repo.SetCookie(sampleUser, cookie.Value, timeIn30Days))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, cookie.Value, timeIn30Days))
 	assert.False(t, repo.IsCookieExpired(cookie.Value))
 
 	past := time.Now().Add(-1 * time.Second)
-	assert.Nil(t, repo.SetCookie(sampleUser, cookie.Value, past))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, cookie.Value, past))
 	assert.True(t, repo.IsCookieExpired(cookie.Value))
 
 	user, err := repo.GetUserWithCookie(cookie.Value)
@@ -261,7 +261,7 @@ func TestRepoLogout(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	sampleCookie := "asdasdasd"
-	err := repo.SetCookie(sampleUser, sampleCookie, time.Now().Add(1*time.Hour))
+	err := repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now().Add(1*time.Hour))
 	assert.Nil(t, err)
 	assert.False(t, repo.IsCookieExpired(sampleCookie))
 	assert.Nil(t, repo.Logout(sampleUser))

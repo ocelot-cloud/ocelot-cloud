@@ -54,7 +54,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
+	err = repo.HashAndSaveCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {
 		Logger.Error("setting cookie failed: %v", err)
 		http.Error(w, "setting cookie failed", http.StatusInternalServerError)
