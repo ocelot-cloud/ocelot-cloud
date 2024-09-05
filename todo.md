@@ -5,6 +5,7 @@
   2. cloud authorization - hasAccess(user, app), if app is access, check if user should have access to it
 * rename "tag" to "version"?
 * Admin should be asked to change password after first login?
+* To protect the cloud endpoints, do a similar approach as in the hub,see "registerProtectedRoutes", but add a distinctions for handlers that require admin role and handlers that requires user role
 * origin checks should be done for all endpoints. Even if they are not secured like the login endpoint.
 * hub: instead of doing "checkAuthentication" at the beginning of each protected handler, I should add a middleware doing that. E.g. "ignore unprotected paths/handlers, but protected one should be checked and the users context info should be added for subsequent requests":
 
