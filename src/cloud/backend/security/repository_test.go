@@ -55,6 +55,15 @@ func TestGetUserWithCookie(t *testing.T) {
 	assert.Equal(t, sampleUser, user)
 }
 
+func TestDoesAnyAdminUserExist(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.False(t, repo.DoesAnyAdminUserExist())
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	assert.False(t, repo.DoesAnyAdminUserExist())
+	assert.Nil(t, repo.CreateUser(sampleUser+"x", samplePassword, true))
+	assert.True(t, repo.DoesAnyAdminUserExist())
+}
+
 // TODO check if expiration is working
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
