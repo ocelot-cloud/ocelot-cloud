@@ -35,7 +35,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie.SameSite = http.SameSiteLaxMode // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
 	http.SetCookie(w, cookie)
 
-	Logger.Debug("cookie was set")
+	Logger.Debug("login successful")
 	w.WriteHeader(http.StatusOK)
 }
 

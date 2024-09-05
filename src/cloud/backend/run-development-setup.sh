@@ -4,4 +4,4 @@ set -e
 
 rm -rf data
 go build
-PROFILE=TEST ./backend
+PROFILE=TEST USE_DUMMY_STACKS=true ./backend

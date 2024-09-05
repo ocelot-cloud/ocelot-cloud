@@ -113,14 +113,14 @@ func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
 	if profile == PROD {
 		Logger.Info("Profile is: %s", profile.String())
 	} else {
-		Logger.Warn("Profile is: %s", profile.String())
+		Logger.Warn("Profile is: %s. This is for development, so don't use this profile in production!", profile.String())
 	}
 	Logger.Info("Log level is: %s", shared.GetLogLevel())
 	Logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
 	Logger.Debug("Create default admin user? -> %v", config.CreateDefaultAdminUser)
 	Logger.Debug("Is the CORS policy relaxed by explicitly allowing cross-origin requests by setting specific response headers? -> %v", config.AreCrossOriginRequestsAllowed)
 	if config.AreCrossOriginRequestsAllowed {
-		Logger.Warn("The CORS policy is relaxed and cross-origin requests are allowed. This is for development, so don't use this option in production!")
+		Logger.Warn("The CORS policy is relaxed and cross-origin requests are allowed.")
 	}
 	Logger.Debug("Are mocks enabled? -> %v", config.AreMocksEnabled)
 	Logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
