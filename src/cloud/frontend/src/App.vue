@@ -107,4 +107,5 @@ input:-webkit-autofill:active
 .state-column
   min-width: 150px
   padding: 0.5rem
+
 </style>
