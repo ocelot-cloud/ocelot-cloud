@@ -12,11 +12,16 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      # Necessary
+      HOST: $HOST
+      INITIAL_ADMIN_NAME: $INITIAL_ADMIN_NAME
+      INITIAL_ADMIN_PASSWORD: $INITIAL_ADMIN_PASSWORD
+
+      # Optional
       USE_DUMMY_STACKS: $USE_DUMMY_STACKS
       PROFILE: $PROFILE
       LOG_LEVEL: $LOG_LEVEL
       ENABLE_MOCKS: $ENABLE_MOCKS
-      HOST: $HOST
 
 networks:
   ocelot-net:

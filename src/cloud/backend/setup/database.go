@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
+	"os"
 )
 
 const (
@@ -21,12 +22,10 @@ func InitializeDatabase(config *tools.GlobalConfig) {
 		security.InitializeDatabaseWithSource(":memory:")
 	}
 
-	/* TODO Uncomment and adapt tests/handlers
 	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv))
 	if err != nil {
 		logger.Fatal("Admin user initialization failed: %v", err)
 	}
-	*/
 }
 
 // TODO Add Input validation to env credentials

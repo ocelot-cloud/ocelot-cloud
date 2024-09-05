@@ -4,6 +4,11 @@ import (
 	"os/exec"
 )
 
+const (
+	INITIAL_ADMIN_NAME_ENV     = "INITIAL_ADMIN_NAME=admin"
+	INITIAL_ADMIN_PASSWORD_ENV = "INITIAL_ADMIN_PASSWORD=password"
+)
+
 func testBackendCore() {
 	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
@@ -16,7 +21,7 @@ func testCorsDisabling() {
 	printTaskDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv())
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
 }
@@ -25,18 +30,20 @@ func TestBackendComponentMocked() {
 	printTaskDescription("Testing mocked backend component")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
+	// TODO Aggregate the envs
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true), INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
 
+// TODO There are quite a lot of envs. Maybe I should refactor that into sth like "envs := getEnvs(...)".
+// TODO TEST PROFILE -> LOG_LEVEL=DEBUG, initial admin user = admin:password
 func TestCloudAcceptance() {
 	printTaskDescription("Testing acceptance")
 	defer Cleanup()
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	// TODO USE_DUMMY_STACKS should not be necessary here, since we use the mocks
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true", "HOST=http://localhost")
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true", "HOST=http://localhost", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitForIndexPageToBeReady(ocelotUrl)
 	ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
@@ -79,7 +86,7 @@ func testProdBackendApi() {
 	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080")
+	StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
 }
@@ -96,7 +103,7 @@ func TestCloudComponentsWithTestProfile() {
 	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true), INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitUntilPortIsReady("localhost:8080")
 
 	Build(Frontend)
