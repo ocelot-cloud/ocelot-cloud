@@ -38,8 +38,8 @@ func initializeTables() {
 		CREATE TABLE IF NOT EXISTS users (
 			user_id SERIAL PRIMARY KEY,
 			user_name VARCHAR(255) NOT NULL UNIQUE,
-			hashed_password VARCHAR(255) NOT NULL,
-			hashed_cookie_value VARCHAR(255),
+			hashed_password VARCHAR(255) NOT NULL UNIQUE,
+			hashed_cookie_value VARCHAR(255) UNIQUE,
 			cookie_expiration_date VARCHAR(255),
 			is_admin BOOLEAN NOT NULL
 		);
