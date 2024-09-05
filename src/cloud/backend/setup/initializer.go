@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	Logger = tools.Logger
+	logger = tools.Logger
 	router *mux.Router
 	config *tools.GlobalConfig
 )
@@ -26,11 +26,11 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	initializeFunctionalEndpoints()
 
 	proxyHandler := buildProxyHandler()
-	Logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
+	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
 	// TODO utils.GetCorsDisablingHandler should only be enabled in TEST profile
 	err := http.ListenAndServe(":"+config.BackendExecutablePort, utils.GetCorsDisablingHandler(http.HandlerFunc(proxyHandler)))
 	if err != nil {
-		Logger.Fatal("Failed to start server: " + err.Error())
+		logger.Fatal("Failed to start server: " + err.Error())
 	}
 }
 
@@ -73,14 +73,14 @@ func initializeFrontendResourceDelivery() {
 		// allowing frontend routes to be handled by index.html.
 		// This means that users can directly access pages with paths such as "example.com/some/path".
 		if err != nil && !strings.Contains(r.URL.Path, ".") {
-			Logger.Debug("Serving index.html for SPA route ''", r.URL.Path)
+			logger.Debug("Serving index.html for SPA route ''", r.URL.Path)
 			http.ServeFile(w, r, "./dist/index.html")
 			return
 		}
 
 		// If the request is for a static file or if the file exists, serve it directly.
 		// This handles requests for JS, CSS, images, etc.
-		Logger.Debug("Serving static content at '%s'", r.URL.Path)
+		logger.Debug("Serving static content at '%s'", r.URL.Path)
 		http.FileServer(http.Dir("./dist")).ServeHTTP(w, r)
 	})))
 }

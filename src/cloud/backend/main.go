@@ -5,8 +5,6 @@ import (
 	"ocelot/backend/security"
 	"ocelot/backend/setup"
 	"ocelot/backend/tools"
-	"os/exec"
-	"strings"
 )
 
 // TODO Make CI pipeline running again
@@ -29,59 +27,12 @@ import (
 // TODO Also scheduled tests can be simplified (no development profile any longer)?
 // TODO In cloud is use this line "var logger = shared.ProvideLogger()". Is this maybe no longer working with the new version as I have to set it to Info by hand? -> Maybe simplify by using: ProvideLogger("DEBUG") instead.
 
-var logger = tools.Logger
-
 func main() {
-	verifyCliToolInstallations()
+	setup.VerifyCliToolInstallations()
 	config := tools.GenerateGlobalConfiguration()
-	initializeDatabase(config)
+	setup.InitializeDatabase(config)
 	router := mux.NewRouter()
 
 	security.InitializeSecurity(router)
 	setup.InitializeApplication(router, config)
-}
-
-// TODO Maybe put that stuff in the security module? Also this isn't just security, but also other stuff. Maybe create a "repository" package?
-func initializeDatabase(config *tools.GlobalConfig) {
-	if config.UseRealDatabase {
-		security.InitializeDatabaseWithSource(security.DatabaseFile)
-	} else {
-		security.InitializeDatabaseWithSource(":memory:")
-	}
-
-	// TODO
-	/*
-		create sqlite client
-		isDatabaseAlreadyPresent && isThereAnAdminUser?
-		if yes, return
-		else {
-		 	areThereEnvVariablesPresentAndValid: ADMIN_NAME, ADMIN_PASSWORD
-			if yes -> create admin user and schemes
-			else -> crash with error, "cant initialize ocelot cloud without admin user, please set ADMIN_NAME, ADMIN_PASSWORD" (should be tested)
-		}
-	*/
-}
-
-func verifyCliToolInstallations() {
-	cliTools := []string{
-		"sqlite3 --version",
-		"docker version",
-		"docker compose version",
-	}
-
-	for _, fullCmd := range cliTools {
-		parts := strings.Split(fullCmd, " ")
-		toolName := parts[0]
-		cmdArgs := parts[1:]
-
-		crashIfToolIsNotInstalled(toolName, cmdArgs)
-	}
-	logger.Info("All required CLI tools seem to be installed.")
-}
-
-func crashIfToolIsNotInstalled(toolName string, args []string) {
-	cmd := exec.Command(toolName, args...)
-	if err := cmd.Run(); err != nil {
-		logger.Fatal("Error, tried command '%s %s' but CLI tool seems not to be installed properly.", toolName, strings.Join(args, " "))
-	}
 }
