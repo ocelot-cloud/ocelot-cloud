@@ -17,11 +17,10 @@ var users = map[string]string{
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	Logger.Debug("login logic called")
-
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
+		Logger.Info("decoding credentials failed: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
