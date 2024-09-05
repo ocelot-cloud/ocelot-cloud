@@ -170,12 +170,12 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 
 // TODO shift to shared module
 func hashAndSalt(clearText string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(clearText), bcrypt.DefaultCost)
+	hashValue, err := bcrypt.GenerateFromPassword([]byte(clearText), bcrypt.DefaultCost)
 	if err != nil {
 		Logger.Error("Failed to hash text: %v", err)
 		return "", fmt.Errorf("hashing failed")
 	}
-	return string(hash), nil
+	return string(hashValue), nil
 }
 
 func hash(clearText string) (string, error) {
