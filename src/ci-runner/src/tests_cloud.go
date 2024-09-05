@@ -52,7 +52,7 @@ func DeployLocally() {
 	printTaskDescription("Running a production server")
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached, "HOST=http://localhost")
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached, "HOST=http://localhost", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitForIndexPageToBeReady(ocelotUrl)
 }
 

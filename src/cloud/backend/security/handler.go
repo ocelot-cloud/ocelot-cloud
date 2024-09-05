@@ -11,11 +11,6 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-// TODO Insecure
-var users = map[string]string{
-	"admin": "password",
-}
-
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
@@ -25,17 +20,17 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expectedPassword, ok := users[creds.Username]
-
-	if !ok || expectedPassword != creds.Password {
-		Logger.Debug("password not matching")
+	if !Repo.IsPasswordCorrect(creds.Username, creds.Password) {
+		Logger.Info("password of user '%s' not matching", creds.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	cookie, err := utils.GenerateCookie()
 	if err != nil {
-		// TODO
+		Logger.Error("generating cookie failed: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	cookie.SameSite = http.SameSiteLaxMode // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
 	http.SetCookie(w, cookie)

@@ -50,10 +50,11 @@ func createAdminsUserFromEnvs(adminNameEnv string, adminPasswordEnv string) erro
 	} else if adminPasswordEnv == "" {
 		return fmt.Errorf("necessary env variable '%s' is not set", initialAdminPasswordEnv)
 	} else {
-		err := repo.CreateUser(adminPasswordEnv, adminPasswordEnv, true)
+		err := repo.CreateUser(adminNameEnv, adminPasswordEnv, true)
 		if err != nil {
 			return fmt.Errorf("initial admin user creation from env variables failed: %v", err)
 		}
+		logger.Info("Initial admin user '%s' created", adminNameEnv)
 		return nil
 	}
 }
