@@ -31,7 +31,6 @@ func TestHubAcceptance() {
 	Build(Frontend)
 	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
 	WaitForIndexPageToBeReady(frontendServerUrl)
-	Build(Acceptance)
 	ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
 }
 
