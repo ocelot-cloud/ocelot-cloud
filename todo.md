@@ -1,6 +1,8 @@
 # TODO
 
-* cloud authorization - hasAccess(user, app)
+* security
+  1. in handler: getAuth -> auth { user, isAdmin }, check if handler needs admin access or just user access
+  2. cloud authorization - hasAccess(user, app), if app is access, check if user should have access to it
 * rename "tag" to "version"?
 * Admin should be asked to change password after first login?
 * hub: instead of doing "checkAuthentication" at the beginning of each protected handler, I should add a middleware doing that. E.g. "ignore unprotected paths/handlers, but protected one should be checked and the users context info should be added for subsequent requests":
