@@ -48,11 +48,21 @@ func TestGetUserWithCookie(t *testing.T) {
 	defer repo.WipeDatabase()
 	_, err := repo.GetUserWithCookie(sampleCookie)
 	assert.NotNil(t, err)
+
 	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
 	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-	user, err := repo.GetUserWithCookie(sampleCookie)
+	auth, err := repo.GetUserWithCookie(sampleCookie)
 	assert.Nil(t, err)
-	assert.Equal(t, sampleUser, user)
+	assert.Equal(t, sampleUser, auth.User)
+	assert.False(t, auth.IsAdmin)
+	repo.WipeDatabase()
+
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, true))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	auth, err = repo.GetUserWithCookie(sampleCookie)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleUser, auth.User)
+	assert.True(t, auth.IsAdmin)
 }
 
 func TestDoesAnyAdminUserExist(t *testing.T) {

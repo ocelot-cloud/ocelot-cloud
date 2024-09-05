@@ -5,6 +5,7 @@ import (
 	"ocelot/backend/security"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -35,5 +36,10 @@ func TestDefaultAdminCreation(t *testing.T) {
 	assert.Nil(t, createAdminUserIfNotExistent("", "", true))
 	assert.True(t, repo.DoesAnyAdminUserExist())
 	assert.True(t, repo.IsPasswordCorrect("admin", "password"))
-	// TODO Also assert isAdmin == true
+
+	assert.Nil(t, repo.HashAndSaveCookie("admin", "some-cookie", time.Now()))
+	auth, err := repo.GetUserWithCookie("some-cookie")
+	assert.Nil(t, err)
+	assert.Equal(t, "admin", auth.User)
+	assert.True(t, auth.IsAdmin)
 }

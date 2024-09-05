@@ -108,8 +108,8 @@ func initializeTables() {
 }
 
 type Authorization struct {
-	user    string
-	isAdmin bool
+	User    string
+	IsAdmin bool
 }
 
 // TODO To be implemented
@@ -122,7 +122,7 @@ type Repository interface {
 	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
 	DeleteCookie(user string) error
 	DoesUserExist(user string) bool
-	GetUserWithCookie(cookieValue string) (string, error)
+	GetUserWithCookie(cookieValue string) (*Authorization, error)
 	DoesAnyAdminUserExist() bool
 	/*
 		Logout(user string) error
@@ -247,17 +247,19 @@ func (r *MyRepository) DoesUserExist(user string) bool {
 	return exists
 }
 
-func (r *MyRepository) GetUserWithCookie(cookieValue string) (string, error) {
+// TODO Test if isAdmin is correct in authorization.
+func (r *MyRepository) GetUserWithCookie(cookieValue string) (*Authorization, error) {
 	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var user string
-	err = db.QueryRow("SELECT user_name FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user)
+	var isAdmin bool
+	err = db.QueryRow("SELECT user_name, is_admin FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user, &isAdmin)
 	if err != nil {
-		Logger.Error("Failed to fetch hashed cookie value: %v", err)
-		return "", fmt.Errorf("failed to fetch hashed cookie")
+		Logger.Error("Failed to fetch user data: %v", err)
+		return nil, fmt.Errorf("failed to fetch user data")
 	}
-	return user, nil
+	return &Authorization{user, isAdmin}, nil
 }
