@@ -1,10 +1,31 @@
 package setup
 
-import "testing"
+import (
+	"github.com/ocelot-cloud/shared/assert"
+	"ocelot/backend/security"
+	"os"
+	"testing"
+)
 
-func TestAsdf(t *testing.T) {
-	// TODO Check if admin user exists. If not take it from the env variables. If not existent, crash.
-	// TODO Add tests: 1) neither admin in repo nor in envs -> crash, 2) no admin in repo, but in envs -> no crash, 3) admin in repo, but not in envs -> no crash
+func TestMain(m *testing.M) {
+	security.InitializeDatabaseWithSource(":memory:")
+	repo.WipeDatabase()
+	code := m.Run()
+	os.Exit(code)
+}
 
-	// TODO createAdminUserIfNotExistent()
+func TestEmptyAdminInitializationEnvsShouldFail(t *testing.T) {
+	assert.NotNil(t, createAdminUserIfNotExistent("", ""))
+	assert.NotNil(t, createAdminUserIfNotExistent("admin", ""))
+	assert.NotNil(t, createAdminUserIfNotExistent("", "password"))
+}
+
+func TestAdminInitializationWithCorrectEnvs(t *testing.T) {
+	assert.Nil(t, createAdminUserIfNotExistent("admin", "password"))
+}
+
+func TestAdminInitializationIsIgnoredWhenAlreadyExistsInDatabase(t *testing.T) {
+	err := repo.CreateUser("admin", "password", true)
+	assert.Nil(t, err)
+	assert.Nil(t, createAdminUserIfNotExistent("", ""))
 }

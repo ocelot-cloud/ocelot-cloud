@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+var Repo Repository = &MyRepository{}
+
 var db *sql.DB
 var DatabaseFile = shared.DataDir + "/sqlite.db"
 
@@ -121,6 +123,7 @@ type Repository interface {
 	DeleteCookie(user string) error
 	DoesUserExist(user string) bool
 	GetUserWithCookie(cookieValue string) (string, error)
+	DoesAnyAdminUserExist() bool
 	/*
 		Logout(user string) error
 		ChangePassword(user string, newPassword string) error
@@ -153,6 +156,16 @@ type Repository interface {
 }
 
 type MyRepository struct{}
+
+func (r *MyRepository) DoesAnyAdminUserExist() bool {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE is_admin = ?)", true).Scan(&exists)
+	if err != nil {
+		Logger.Error("Failed to check if there is any admin user: %v", err)
+		return false
+	}
+	return exists
+}
 
 func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
 	hashedPassword, err := utils.SaltAndHash(password)
