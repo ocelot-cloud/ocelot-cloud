@@ -97,15 +97,4 @@ input:-webkit-autofill:active
 
     &:hover
       background-color: lighten($secondary-background-color, 5%)
-
-// TODO Check if the generate changes by chatgpt can be further simplified.
-.table-container
-  @media (min-width: 768px)
-    max-width: 70%
-    margin: auto
-
-.state-column
-  min-width: 150px
-  padding: 0.5rem
-
 </style>

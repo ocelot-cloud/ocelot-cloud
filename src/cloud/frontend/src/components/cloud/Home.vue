@@ -1,39 +1,41 @@
 <template>
-  <div class="container-fluid table-container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="container-fluid table-container">
+    <div class="mt-5">
       <h3>Ocelot Cloud</h3>
       <button type="button" class="btn btn-primary" @click="visitHub">Visit Ocelot Hub</button>
+      <br>
+      <br>
+      <table class="table table-dark" id="stack-table">
+        <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col" class="text-center">State</th>
+          <th scope="col" class="text-center">Link</th>
+          <th scope="col" class="text-center">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="stack in stacks" :key="stack.name">
+          <td>{{ stack.name }}</td>
+          <td :class="getBootstrapBackgroundClass(stack.state)" class="state-column">
+            <div class="d-flex align-items-center justify-content-center">
+              <span class="me-2">{{ stack.state }}</span>
+                <span v-if="stack.state === 'Starting' || stack.state === 'Downloading' || stack.state === 'Stopping'">
+                  <span class="spinner-border" role="status" style="width: 1rem; height: 1rem;"></span>
+                </span>
+            </div>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-primary" :id="'open-button-' + stack.name" :data-stack-url="getUrlFromStack(stack)" @click="openNewTab(stack)" :disabled="stack.state !== 'Available'">Open</button>
+          </td>
+          <td class="text-center">
+            <button @click="start(stack.name)" class="btn btn-success start-button" :disabled="stack.state !== 'Uninitialized'">Start</button>
+            <button @click="stop(stack.name)" class="btn btn-danger stop-button" :disabled="stack.state !== 'Available'">Stop</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-    <table class="table table-hover table-striped table-responsive">
-      <thead class="table-light">
-      <tr>
-        <th scope="col">Name</th>
-        <th scope="col" class="text-center">State</th>
-        <th scope="col" class="text-center">Link</th>
-        <th scope="col" class="text-center">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="stack in stacks" :key="stack.name">
-        <td>{{ stack.name }}</td>
-        <td :class="getBootstrapBackgroundClass(stack.state)" class="text-center state-column">
-          <div class="d-flex align-items-center justify-content-center">
-            <span class="me-2">{{ stack.state }}</span>
-            <span v-if="stack.state === 'Starting' || stack.state === 'Downloading' || stack.state === 'Stopping'">
-                <span class="spinner-border" role="status" style="width: 1rem; height: 1rem;"></span>
-              </span>
-          </div>
-        </td>
-        <td class="text-center">
-          <button class="btn btn-primary" :id="'open-button-' + stack.name" :data-stack-url="getUrlFromStack(stack)" @click="openNewTab(stack)" :disabled="stack.state !== 'Available'">Open</button>
-        </td>
-        <td class="text-center">
-          <button @click="start(stack.name)" class="btn btn-success me-2" :disabled="stack.state !== 'Uninitialized'">Start</button>
-          <button @click="stop(stack.name)" class="btn btn-danger" :disabled="stack.state !== 'Available'">Stop</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
   </div>
 </template>
 
@@ -95,7 +97,7 @@ export default defineComponent({
         case 'Starting': return 'bg-warning text-dark state-column';
         case 'Downloading': return 'bg-warning text-dark state-column';
         case 'Stopping': return 'bg-warning text-dark state-column';
-        case 'Uninitialized': return '$background-color text-white state-column';
+        case 'Uninitialized': return 'bg-dark text-white state-column';
         default: return '';
       }
     };
@@ -128,3 +130,14 @@ export default defineComponent({
   },
 });
 </script>
+
+
+<style scoped lang="sass">
+.table-container
+  @media (min-width: 576px)
+    max-width: 75%
+    margin: auto
+
+.state-column
+  width: 250px
+</style>
