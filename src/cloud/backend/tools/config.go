@@ -59,11 +59,13 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.UseRealDatabase = true
 		config.AreMocksEnabled = false
 		config.AreCrossOriginRequestsAllowed = false
+		config.CreateDefaultAdminUser = false
 	} else {
 		config.IsGuiEnabled = false
 		config.UseRealDatabase = false
 		config.AreMocksEnabled = true
 		config.AreCrossOriginRequestsAllowed = true
+		config.CreateDefaultAdminUser = true
 	}
 	return config
 }

@@ -22,16 +22,21 @@ func InitializeDatabase(config *tools.GlobalConfig) {
 		security.InitializeDatabaseWithSource(":memory:")
 	}
 
-	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv))
+	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv), config.CreateDefaultAdminUser)
 	if err != nil {
 		logger.Fatal("Admin user initialization failed: %v", err)
 	}
 }
 
 // TODO Add Input validation to env credentials
-func createAdminUserIfNotExistent(adminNameEnv string, adminPasswordEnv string) error {
+func createAdminUserIfNotExistent(adminNameEnv string, adminPasswordEnv string, createDefaultAdminUser bool) error {
+	// TODO That means I can remove the ENV variable from the TEST profile backend start in ci-runner
+	if createDefaultAdminUser {
+		return repo.CreateUser("admin", "password", true)
+	}
+
 	if repo.DoesAnyAdminUserExist() {
-		logger.Info("There is at least one admin user in the database, so env admin initialization env variables will be ignored")
+		logger.Info("There is at least one admin user in the database, so admin initialization via env variables will not be conducted.")
 		return nil
 	} else {
 		logger.Info("Application needs at least one admin user, but none was found in database. Trying to create the admin user from env variables.")

@@ -12,6 +12,7 @@ type GlobalConfig struct {
 	IsGuiEnabled                  bool
 	UseDummyStacks                bool
 	UseRealDatabase               bool
+	CreateDefaultAdminUser        bool
 	HttpScheme                    string
 	RootDomain                    string
 	DockerContainerPort           string
