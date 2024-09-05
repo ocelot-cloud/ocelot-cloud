@@ -34,7 +34,7 @@ html, body, input, .form-control, .modal-content, .dropdown-menu
 
 #app
   font-family: Avenir, Helvetica, Arial, sans-serif
-  -weskit-font-smoothing: antialiased
+  -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
   text-align: left
   color: $text-light
