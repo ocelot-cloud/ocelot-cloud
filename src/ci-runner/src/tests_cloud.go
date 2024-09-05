@@ -21,7 +21,7 @@ func testCorsDisabling() {
 	printTaskDescription("Testing whether backend sets CORS headers to disable CORS policy")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
+	StartDaemon(backendDir, "./backend", getTestProfileEnv())
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
 }
@@ -31,7 +31,7 @@ func TestBackendComponentMocked() {
 	defer Cleanup()
 	Build(Backend)
 	// TODO Aggregate the envs
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true), INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	WaitUntilPortIsReady("localhost:8080")
 	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
 }
@@ -103,7 +103,7 @@ func TestCloudComponentsWithTestProfile() {
 	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true), INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	WaitUntilPortIsReady("localhost:8080")
 
 	Build(Frontend)
