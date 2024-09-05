@@ -128,4 +128,4 @@ server {
 }
 ```
 
-* Currently there a horizontally layered architecture. Convert it to a service oriented architecture.
+* Currently, there is a horizontally layered architecture in both components. Convert it to a service oriented architecture.
