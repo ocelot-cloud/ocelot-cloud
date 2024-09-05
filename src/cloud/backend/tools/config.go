@@ -66,6 +66,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.AreMocksEnabled = true
 		config.AreCrossOriginRequestsAllowed = true
 		config.CreateDefaultAdminUser = true
+		Logger = shared.ProvideLogger("DEBUG")
 	}
 	return config
 }

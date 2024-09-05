@@ -17,7 +17,7 @@ func TestHubUnits() {
 func TestHubBackend() {
 	printTaskDescription("Testing hub backend")
 	defer Cleanup()
-	StartDaemon(hubDir, "go run .", "PROFILE=TEST", "LOG_LEVEL=DEBUG")
+	StartDaemon(hubDir, "go run .", "PROFILE=TEST")
 	WaitUntilPortIsReady("localhost:8082")
 	ExecuteInDir(hubDir, "go test -tags=acceptance ./...")
 }

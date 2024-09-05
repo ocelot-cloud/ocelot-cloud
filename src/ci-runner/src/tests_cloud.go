@@ -37,7 +37,6 @@ func TestBackendComponentMocked() {
 }
 
 // TODO There are quite a lot of envs. Maybe I should refactor that into sth like "envs := getEnvs(...)".
-// TODO TEST PROFILE -> LOG_LEVEL=DEBUG, initial admin user = admin:password
 func TestCloudAcceptance() {
 	printTaskDescription("Testing acceptance")
 	defer Cleanup()
