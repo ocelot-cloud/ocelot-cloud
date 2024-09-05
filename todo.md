@@ -127,3 +127,5 @@ server {
     }
 }
 ```
+
+* Currently there a horizontally layered architecture. Convert it to a service oriented architecture.
