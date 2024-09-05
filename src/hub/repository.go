@@ -25,14 +25,13 @@ func initializeDatabaseWithSource(dataSourceName string) {
 
 	EnsureSchemaVersionTable()
 
-	// TODO Store only hashed cookies. Should also be UNIQUE
 	_, err = db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name TEXT UNIQUE NOT NULL,
 			hashed_password TEXT NOT NULL UNIQUE,
 			origin TEXT,
-			cookie TEXT,
+			hashed_cookie_value TEXT UNIQUE,
 			expiration_date TEXT,
 		    used_space BIGINT NOT NULL
 		);
@@ -276,17 +275,31 @@ func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
 	return apps, nil
 }
 
+// TODO Maybe better name: "saveHashedCookie"?
+// TODO check for all repo methods: The error should be logged here. Return a more generic error message without error details.
 func (u *SqliteRepository) SetCookie(user string, cookie string, expirationDate time.Time) error {
-	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", cookie, expirationDate.Format(time.RFC3339), user)
+	hashedCookieValue, err := utils.Hash(cookie)
+	if err != nil {
+		return fmt.Errorf("hashing failed")
+	}
+
+	_, err = db.Exec("UPDATE users SET hashed_cookie_value = ?, expiration_date = ? WHERE user_name = ?", hashedCookieValue, expirationDate.Format(time.RFC3339), user)
 	if err != nil {
 		return logAndReturnError("Failed to set cookie: %v", err)
 	}
 	return nil
 }
 
+// TODO Can be put in shared module?
 func (u *SqliteRepository) IsCookieExpired(cookie string) bool {
+	hashedCookieValue, err := utils.Hash(cookie)
+	if err != nil {
+		Logger.Error("Error hashing cookie: %v", err)
+		return false
+	}
+
 	var expirationDateStr string
-	err := db.QueryRow("SELECT expiration_date FROM users WHERE cookie = ?", cookie).Scan(&expirationDateStr)
+	err = db.QueryRow("SELECT expiration_date FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&expirationDateStr)
 	if err != nil {
 		Logger.Error("Failed to fetch expiration date: %v", err)
 		return true
@@ -308,8 +321,13 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 		return "", logAndReturnError("Can't search for empty string cookies")
 	}
 
+	hashedCookieValue, err := utils.Hash(cookie)
+	if err != nil {
+		return "", fmt.Errorf("hashing failed")
+	}
+
 	var user string
-	err := db.QueryRow("SELECT user_name FROM users WHERE cookie = ?", cookie).Scan(&user)
+	err = db.QueryRow("SELECT user_name FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return "", logAndReturnInfo("cookie not found")
@@ -549,7 +567,7 @@ func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
 }
 
 func (u *SqliteRepository) Logout(user string) error {
-	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", nil, nil, user)
+	_, err := db.Exec("UPDATE users SET hashed_cookie_value = ?, expiration_date = ? WHERE user_name = ?", nil, nil, user)
 	if err != nil {
 		return logAndReturnError("Failed to logout: %v", err)
 	}
