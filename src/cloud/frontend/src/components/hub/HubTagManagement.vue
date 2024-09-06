@@ -71,6 +71,7 @@ import {
   defaultMinLength, tagAllowedSymbols
 } from "@/components/shared/shared";
 import HubDeletionConfirmationDialog from "@/components/shared/HubDeletionConfirmationDialog.vue";
+import {alertError} from "@/components/shared/requests";
 
 export default defineComponent({
   name: "HubTagManagement",
