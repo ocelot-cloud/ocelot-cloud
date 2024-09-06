@@ -14,7 +14,6 @@ export interface Session {
     isAuthenticated: boolean;
 }
 
-// Initialize cloud and hub sessions
 export const cloudSession: Session = {
     user: "",
     isAuthenticated: false,
