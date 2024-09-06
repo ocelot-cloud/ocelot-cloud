@@ -65,7 +65,6 @@
 import {defineComponent, onMounted, ref} from 'vue';
 import { useRoute } from 'vue-router';
 import {
-  alertError,
   doHubRequest, generateInvalidInputMessage,
   goToHubPage,
   defaultMaxLength,

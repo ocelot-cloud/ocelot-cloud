@@ -42,7 +42,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import {backendClient, baseDomain, scheme, Stack, stackUrl} from "@/components/cloud/Config";
+import {baseDomain, config, scheme, Stack} from "@/components/cloud/Config";
+import {doCloudRequest} from "@/components/requests";
 
 function getUrlFromStack(stack: Stack) {
   return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;
@@ -57,7 +58,7 @@ export default defineComponent({
     // TODO When I load "home" and then cloud, the fetching continue. Maybe add a condition, do this "only on the cloud home page"
     const fetchData = async () => {
       try {
-        const response = await fetch(stackUrl + "/read", {
+        const response = await fetch(config.stackUrl + "/read", {
           method: 'GET',
           credentials: 'include',  // Include cookies in the request
         });
@@ -77,13 +78,11 @@ export default defineComponent({
     };
 
     const start = (name: string) => {
-      console.log('Starting:', name);
-      backendClient.postRequest(name, stackUrl, "deploy");
+      doCloudRequest("/api/stacks/deploy", {name: name})
     };
 
     const stop = (name: string) => {
-      console.log('Deleting:', name);
-      backendClient.postRequest(name, stackUrl, "stop");
+      doCloudRequest("/api/stacks/stop", {name: name})
     };
 
     const openNewTab = (stack: Stack) => {

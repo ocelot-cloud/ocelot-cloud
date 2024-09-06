@@ -1,6 +1,7 @@
 import router from "@/router";
 import axios, {AxiosResponse} from "axios";
 import {cloudBaseUrl} from "@/components/cloud/Config";
+import {doRequest} from "@/components/requests";
 
 export const hubBaseUrl = 'http://localhost:8082';
 
@@ -12,36 +13,14 @@ export function goToCloudPage(path: string) {
     router.push(path)
 }
 
-export function alertError(error: any) {
-    if (axios.isAxiosError(error) && error.response) {
-        const errorMessage = error.response.data || 'An unknown error occurred';
-        alert(`An error occurred: ${errorMessage}`);
-    } else {
-        alert('An unknown error occurred');
-    }
-}
-
+/* TODO
 export async function doCloudRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
     return doRequest(cloudBaseUrl + path, data)
 }
+ */
 
 export async function doHubRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
     return doRequest(hubBaseUrl + path, data)
-}
-
-async function doRequest(url: string, data: any): Promise<(AxiosResponse | null)> {
-    try {
-        const response = await axios.post(url, data, {
-            withCredentials: true,
-        });
-        if (response.status !== 200) {
-            throw new Error(response.data);
-        }
-        return response
-    } catch (error) {
-        alertError(error);
-        return null
-    }
 }
 
 export const defaultAllowedSymbols = '[0-9a-zA-Z]';

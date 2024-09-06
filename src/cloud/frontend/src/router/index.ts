@@ -7,7 +7,7 @@ import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
 import HubChangePassword from "@/components/hub/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
-import { cloudBaseUrl } from "@/components/cloud/Config";
+import {config} from "@/components/cloud/Config";
 
 export interface Session {
     user: string;
@@ -98,7 +98,7 @@ router.beforeEach(async (to, from, next) => {
     if (to.path === '/login' || cloudSession.isAuthenticated) {
         next();
     } else {
-        if (await isThereValidSession(cloudSession, cloudBaseUrl + '/api/check-auth')) {
+        if (await isThereValidSession(cloudSession, config.cloudBaseUrl + '/api/check-auth')) {
             next();
         } else {
             next({ name: 'Login' });

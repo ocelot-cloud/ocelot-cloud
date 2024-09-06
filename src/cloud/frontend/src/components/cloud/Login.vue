@@ -23,8 +23,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import {cloudBaseUrl} from './Config';
-import {doCloudRequest, doHubRequest, goToCloudPage} from "@/components/shared";
+import { goToCloudPage} from "@/components/shared";
+import {doCloudRequest} from "@/components/requests";
 
 export default defineComponent({
   name: 'login-component',
