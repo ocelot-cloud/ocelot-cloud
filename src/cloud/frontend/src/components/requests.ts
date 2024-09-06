@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {config} from "@/components/cloud/Config";
+import {config} from "@/components/Config";
 
 export function alertError(error: any) {
     if (axios.isAxiosError(error) && error.response) {

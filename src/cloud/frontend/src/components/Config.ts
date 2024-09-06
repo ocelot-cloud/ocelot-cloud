@@ -4,6 +4,7 @@ export const baseDomain = "localhost"
 interface GlobalConfig {
     cloudBaseUrl: string;
     stackUrl: string;
+    hubBaseUrl: string;
 }
 
 function getGlobalConfig(): GlobalConfig {
@@ -23,6 +24,7 @@ function getGlobalConfig(): GlobalConfig {
     return {
         cloudBaseUrl,
         stackUrl,
+        hubBaseUrl: 'http://localhost:8082',
     };
 }
 

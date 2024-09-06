@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import {baseDomain, config, scheme, Stack} from "@/components/cloud/Config";
+import {baseDomain, config, scheme, Stack} from "@/components/Config";
 import {doCloudRequest} from "@/components/requests";
 
 function getUrlFromStack(stack: Stack) {
