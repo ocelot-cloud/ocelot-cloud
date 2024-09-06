@@ -1,13 +1,13 @@
 export const scheme = "http"
 export const baseDomain = "localhost"
 
-interface GlobalConfig {
+interface Global_config {
     cloudBaseUrl: string;
     stackUrl: string;
     hubBaseUrl: string;
 }
 
-function getGlobalConfig(): GlobalConfig {
+function getGlobalConfig(): Global_config {
     const PROFILE = import.meta.env.VITE_APP_PROFILE || PROFILE_VALUES.PROD;
     let cloudBaseUrl: string;
 

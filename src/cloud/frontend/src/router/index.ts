@@ -7,7 +7,7 @@ import HubLogin from "@/components/hub/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
 import HubChangePassword from "@/components/hub/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
-import {globalConfig} from "@/components/GlobalConfig";
+import {globalConfig} from "@/components/global_config";
 
 export interface Session {
     user: string;

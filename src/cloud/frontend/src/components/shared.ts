@@ -1,7 +1,7 @@
 import router from "@/router";
 import {AxiosResponse} from "axios";
 import {doRequest} from "@/components/requests";
-import {globalConfig} from "@/components/GlobalConfig";
+import {globalConfig} from "@/components/global_config";
 
 export function goToHubPage(path: string) {
     router.push('/hub' + path)
