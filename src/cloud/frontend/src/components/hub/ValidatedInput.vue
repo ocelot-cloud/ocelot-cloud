@@ -22,7 +22,7 @@ import {
   generateInvalidInputMessage, getDefaultValidationRegex, maxLengthPassword,
   defaultMaxLength, minLengthPassword,
   defaultMinLength
-} from "@/components/hub/shared";
+} from "@/components/shared";
 
 type ValidationType = 'username' | 'password' | 'email' | 'app';
 

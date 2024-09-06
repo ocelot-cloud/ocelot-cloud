@@ -33,7 +33,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import router, {hubSession} from "@/router";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
-import {doRequest, goToHubPage} from "@/components/hub/shared";
+import {doRequest, goToHubPage} from "@/components/shared";
 
 export default defineComponent({
   name: 'HubComponent',
