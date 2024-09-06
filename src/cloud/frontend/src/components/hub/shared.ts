@@ -7,7 +7,7 @@ export function goToHubPage(path: string) {
     router.push('/hub' + path)
 }
 
-export const session = {
+export const hubSession = {
     user: "",
     isAuthenticated: false,
 };

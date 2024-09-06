@@ -31,7 +31,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import router from "@/router";
-import {doRequest, goToHubPage, session} from "@/components/hub/shared";
+import {doRequest, goToHubPage, hubSession} from "@/components/hub/shared";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
@@ -73,7 +73,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      user.value = session.user
+      user.value = hubSession.user
     });
 
     return {

@@ -12,6 +12,10 @@ describe('template spec', () => {
     VisitHomePage()
   })
 
+  it('assert column titles', () => {
+    assertColumnTitles();
+  });
+
   it('verify state lifecycle', () => {
     new StackOperator('nginx-default')
         .assertState('Uninitialized')
@@ -19,10 +23,6 @@ describe('template spec', () => {
         .assertState('Available')
         .operate('stop')
         .assertState('Uninitialized')
-  });
-
-  it('assert column titles', () => {
-    assertColumnTitles();
   });
 
   it('assert core services not listed', () => {
