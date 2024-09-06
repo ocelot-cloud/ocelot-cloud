@@ -3,6 +3,7 @@ package component_tests
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
 	"net/http"
 	"ocelot/backend/tools"
@@ -124,11 +125,10 @@ func postStackAndCheckResponse(t *testing.T, action string, expectedHttpStatus i
 	assert.Equal(t, expectedHttpStatus, resp.StatusCode)
 }
 
-/* TODO Fix test
 func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
+	onlyExecuteTestForProfile(t, "PROD")
 	AssertCorsHeaders(t, "", "", "")
 }
-*/
 
 func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, expectedAllowHeaders string) {
 	resp, err := http.Get("http://localhost:8080/api/stacks/read")
@@ -160,16 +160,14 @@ func TestUrlPaths(t *testing.T) {
 	assert.True(t, isDefaultNginxPathOk)
 }
 
-// TODO Fix the test
-/*func TestNetworkCreationOnStackDeployment(t *testing.T) {
-	dontExecuteTestForProfile(t, tools.BackendModeDependenciesMocked)
+func TestNetworkCreationOnStackDeployment(t *testing.T) {
+	onlyExecuteTestForProfile(t, "PROD")
 
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net || docker network rm nginx-default-net")
 	postJSON(t, endpoint+"deploy", tools.NginxDefault)
 	err := shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net")
 	assert.Nil(t, err)
 }
-*/
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 	onlyExecuteTestForProfile(t, "TEST") // TODO abstract
@@ -212,13 +210,6 @@ func isStackInState(stackName string, expectedState string, responsePayload []to
 func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
 	setEnvProfile, _ := os.LookupEnv("PROFILE")
 	if setEnvProfile != profileEnablingTheTest {
-		t.Skip()
-	}
-}
-
-func dontExecuteTestForProfile(t *testing.T, profileDisablingTheTest string) {
-	setEnvProfile, _ := os.LookupEnv("PROFILE")
-	if setEnvProfile == profileDisablingTheTest {
 		t.Skip()
 	}
 }
