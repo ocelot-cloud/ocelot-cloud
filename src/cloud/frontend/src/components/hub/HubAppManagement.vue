@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from "vue";
-import router from "@/router";
+import router, {hubSession} from "@/router";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 import ValidatedInput from "@/components/hub/ValidatedInput.vue";
 import {doHubRequest} from "@/components/shared";
