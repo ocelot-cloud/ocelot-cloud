@@ -112,7 +112,7 @@ export function VisitHomePage() {
     cy.get('#username-field').type('admin');
     cy.get('#password-field').type('password');
     cy.get('#login-button').click();
-    // TODO assert redirection to path "/"
+    cy.url().should('equal', ocelotUrl + "/");
 }
 
 export function stopAllRunningStacks() {
