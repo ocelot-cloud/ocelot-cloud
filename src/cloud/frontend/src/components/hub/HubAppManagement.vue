@@ -44,9 +44,9 @@
 <script lang="ts">
 import {defineComponent, onMounted, ref} from "vue";
 import router from "@/router";
-import {doRequest, hubSession} from "@/components/hub/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 import ValidatedInput from "@/components/hub/ValidatedInput.vue";
+import {doRequest} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubAppManagement',

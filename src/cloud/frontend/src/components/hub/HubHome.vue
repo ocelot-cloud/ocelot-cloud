@@ -30,10 +30,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import router from "@/router";
-import {doRequest, goToHubPage, hubSession} from "@/components/hub/shared";
+import router, {hubSession} from "@/router";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
+import {doRequest, goToHubPage} from "@/components/hub/shared";
 
 export default defineComponent({
   name: 'HubComponent',

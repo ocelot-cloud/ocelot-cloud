@@ -7,11 +7,6 @@ export function goToHubPage(path: string) {
     router.push('/hub' + path)
 }
 
-export const hubSession = {
-    user: "",
-    isAuthenticated: false,
-};
-
 export function alertError(error: any) {
     if (axios.isAxiosError(error) && error.response) {
         const errorMessage = error.response.data || 'An unknown error occurred';
