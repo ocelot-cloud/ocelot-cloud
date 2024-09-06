@@ -1,10 +1,15 @@
 import router from "@/router";
 import axios, {AxiosResponse} from "axios";
+import {cloudBaseUrl} from "@/components/cloud/Config";
 
 export const hubBaseUrl = 'http://localhost:8082';
 
 export function goToHubPage(path: string) {
     router.push('/hub' + path)
+}
+
+export function goToCloudPage(path: string) {
+    router.push(path)
 }
 
 export function alertError(error: any) {
@@ -16,9 +21,19 @@ export function alertError(error: any) {
     }
 }
 
-export async function doRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
+export async function doCloudRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
+    return doRequest(cloudBaseUrl + path, data)
+}
+
+export async function doHubRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
+    return doRequest(hubBaseUrl + path, data)
+}
+
+async function doRequest(url: string, data: any): Promise<(AxiosResponse | null)> {
     try {
-        const response = await axios.post(hubBaseUrl + path, data);
+        const response = await axios.post(url, data, {
+            withCredentials: true,
+        });
         if (response.status !== 200) {
             throw new Error(response.data);
         }
@@ -43,3 +58,5 @@ export function generateInvalidInputMessage(fieldName: string, allowedSymbols: s
 export function getDefaultValidationRegex(): RegExp {
     return new RegExp(`^${defaultAllowedSymbols}{${defaultMinLength},${defaultMaxLength}}$`)
 }
+
+// TODO Somehow the backend needs to tell the frontend the domain of the hub.

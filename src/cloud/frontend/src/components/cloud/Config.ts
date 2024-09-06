@@ -4,7 +4,7 @@ export const scheme = "http"
 export const baseDomain = "localhost"
 
 let PROFILE: string
-export let backendBaseUrl: string
+export let cloudBaseUrl: string
 export let stackUrl: string
 export let backendClient: BackendClient
 
@@ -16,15 +16,15 @@ enum PROFILE_VALUES {
 export function initializeGlobalConfig() {
     PROFILE = import.meta.env.VITE_APP_PROFILE || PROFILE_VALUES.PROD
     if (PROFILE === PROFILE_VALUES.TEST) {
-        backendBaseUrl = 'http://localhost:8080'
+        cloudBaseUrl = 'http://localhost:8080'
         backendClient = new BackendClient()
     } else if (PROFILE === PROFILE_VALUES.PROD) {
-        backendBaseUrl = scheme + '://ocelot-cloud.' + baseDomain
+        cloudBaseUrl = scheme + '://ocelot-cloud.' + baseDomain
         backendClient = new BackendClient()
     } else {
         throw new Error("error, provided VITE_APP_PROFILE is not known: " + PROFILE);
     }
-    stackUrl = backendBaseUrl + '/api/stacks/';
+    stackUrl = cloudBaseUrl + '/api/stacks/';
 }
 
 initializeGlobalConfig()

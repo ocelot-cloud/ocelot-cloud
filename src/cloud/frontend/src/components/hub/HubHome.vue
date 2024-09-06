@@ -33,7 +33,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import router, {hubSession} from "@/router";
 import HubAppManagement from "@/components/hub/HubAppManagement.vue";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
-import {doRequest, goToHubPage} from "@/components/shared";
+import {doHubRequest, goToHubPage} from "@/components/shared";
 
 export default defineComponent({
   name: 'HubComponent',
@@ -44,13 +44,13 @@ export default defineComponent({
     const showDeleteConfirmation = ref(false);
 
     const logout = async () => {
-      await doRequest("/logout", null)
+      await doHubRequest("/logout", null)
       user.value = "";
       redirectToLogin();
     };
 
     const deleteAccount = async () => {
-      await doRequest("/user/delete", null)
+      await doHubRequest("/user/delete", null)
       user.value = "";
       redirectToLogin();
     };

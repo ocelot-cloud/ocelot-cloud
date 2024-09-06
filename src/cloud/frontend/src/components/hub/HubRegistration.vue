@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import {doRequest, goToHubPage} from "@/components/shared";
+import {doHubRequest, goToHubPage} from "@/components/shared";
 import ValidatedInput from "@/components/hub/ValidatedInput.vue";
 
 export default defineComponent({
@@ -38,7 +38,7 @@ export default defineComponent({
     const register = async () => {
       submitted.value = true
       const registrationForm = { user: user.value, password: password.value, origin: window.location.origin, email: email.value };
-      const response = await doRequest("/registration", registrationForm)
+      const response = await doHubRequest("/registration", registrationForm)
       if (response) {
         goToHubPage("/login");
       }

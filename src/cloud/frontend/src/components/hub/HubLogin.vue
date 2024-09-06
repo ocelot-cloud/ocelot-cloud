@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { doRequest, goToHubPage } from "@/components/shared";
+import { doHubRequest, goToHubPage } from "@/components/shared";
 import ValidatedInput from "@/components/hub/ValidatedInput.vue";
 
 export default defineComponent({
@@ -55,7 +55,7 @@ export default defineComponent({
       submitted.value = true;
       if (user.value && password.value) {
         const loginForm = { user: user.value, password: password.value, origin: window.origin };
-        await doRequest("/login", loginForm);
+        await doHubRequest("/login", loginForm);
         goToHubPage("");
       }
     };

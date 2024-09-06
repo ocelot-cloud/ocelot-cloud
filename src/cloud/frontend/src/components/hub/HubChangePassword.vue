@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import {doRequest, goToHubPage} from "@/components/shared";
+import {doHubRequest, goToHubPage} from "@/components/shared";
 
 // TODO There is no input validation here, yet.
 export default defineComponent({
@@ -55,7 +55,7 @@ export default defineComponent({
 
     const changePassword = async () => {
       const changePasswordForm = { old_password: oldPassword.value, new_password: newPassword.value };
-      await doRequest("/user/password", changePasswordForm)
+      await doHubRequest("/user/password", changePasswordForm)
       goToHubPage("")
     };
 
