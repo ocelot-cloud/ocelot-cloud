@@ -42,8 +42,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import {baseDomain, globalConfig, scheme, Stack} from "@/components/global_config";
-import {doCloudRequest} from "@/components/requests";
+import {baseDomain, globalConfig, scheme, Stack} from "@/components/shared/global_config";
+import {doCloudRequest} from "@/components/shared/requests";
 
 function getUrlFromStack(stack: Stack) {
   return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;

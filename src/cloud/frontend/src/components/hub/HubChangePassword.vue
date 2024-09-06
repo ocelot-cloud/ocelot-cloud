@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import {doHubRequest, goToHubPage} from "@/components/shared";
+import {doHubRequest, goToHubPage} from "@/components/shared/shared";
 
 // TODO There is no input validation here, yet.
 export default defineComponent({

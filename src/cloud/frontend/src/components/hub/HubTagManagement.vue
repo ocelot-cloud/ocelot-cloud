@@ -69,7 +69,7 @@ import {
   goToHubPage,
   defaultMaxLength,
   defaultMinLength, tagAllowedSymbols
-} from "@/components/shared";
+} from "@/components/shared/shared";
 import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
 
 export default defineComponent({

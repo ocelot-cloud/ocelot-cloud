@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import {doHubRequest, goToHubPage} from "@/components/shared";
+import {doHubRequest, goToHubPage} from "@/components/shared/shared";
 import ValidatedInput from "@/components/hub/ValidatedInput.vue";
 
 export default defineComponent({

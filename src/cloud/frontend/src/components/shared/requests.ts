@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {globalConfig} from "@/components/global_config";
+import {globalConfig} from "@/components/shared/global_config";
 
 export function alertError(error: any) {
     if (axios.isAxiosError(error) && error.response) {
