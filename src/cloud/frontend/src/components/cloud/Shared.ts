@@ -9,9 +9,3 @@ export class Stack {
         this.urlPath = urlPath;
     }
 }
-
-export interface BackendClient {
-    getResponsePromise(stackUrl: string): Promise<Response>
-    postRequest(name: string, stackUrl: string, endpoint: string): Promise<void>
-    Logout(baseUrl: string): void
-}

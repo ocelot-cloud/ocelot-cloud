@@ -1,5 +1,4 @@
-import {BackendClient} from "@/components/cloud/Shared";
-import {BackendClientImpl} from "@/components/cloud/BackendClientImpl";
+import {BackendClient} from "@/components/cloud/BackendClient";
 
 export const scheme = "http"
 export const baseDomain = "localhost"
@@ -18,10 +17,10 @@ export function initializeGlobalConfig() {
     PROFILE = import.meta.env.VITE_APP_PROFILE || PROFILE_VALUES.PROD
     if (PROFILE === PROFILE_VALUES.TEST) {
         backendBaseUrl = 'http://localhost:8080'
-        backendClient = new BackendClientImpl()
+        backendClient = new BackendClient()
     } else if (PROFILE === PROFILE_VALUES.PROD) {
         backendBaseUrl = scheme + '://ocelot-cloud.' + baseDomain
-        backendClient = new BackendClientImpl()
+        backendClient = new BackendClient()
     } else {
         throw new Error("error, provided VITE_APP_PROFILE is not known: " + PROFILE);
     }
