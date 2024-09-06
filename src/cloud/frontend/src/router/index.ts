@@ -3,9 +3,9 @@ import Home from "@/components/cloud/Home.vue";
 import Login from "@/components/cloud/Login.vue";
 import axios from "axios";
 import HubComponent from "@/components/hub/HubHome.vue";
-import HubLogin from "@/components/hub/HubLogin.vue";
+import HubLogin from "@/components/shared/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
-import HubChangePassword from "@/components/hub/HubChangePassword.vue";
+import HubChangePassword from "@/components/shared/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
 import {globalConfig} from "@/components/shared/global_config";
 

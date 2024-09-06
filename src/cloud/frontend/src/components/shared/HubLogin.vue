@@ -41,7 +41,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { doHubRequest, goToHubPage } from "@/components/shared/shared";
-import ValidatedInput from "@/components/hub/ValidatedInput.vue";
+import ValidatedInput from "@/components/shared/ValidatedInput.vue";
 
 export default defineComponent({
   name: 'HubLogin',
