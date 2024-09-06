@@ -28,7 +28,7 @@ function getGlobalConfig(): GlobalConfig {
     };
 }
 
-export const config = getGlobalConfig()
+export const globalConfig = getGlobalConfig()
 
 enum PROFILE_VALUES {
     TEST = "TEST",

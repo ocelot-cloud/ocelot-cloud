@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {config} from "@/components/Config";
+import {globalConfig} from "@/components/GlobalConfig";
 
 export function alertError(error: any) {
     if (axios.isAxiosError(error) && error.response) {
@@ -26,5 +26,5 @@ export async function doRequest(url: string, data: any): Promise<(AxiosResponse 
 }
 
 export async function doCloudRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
-    return doRequest(config.cloudBaseUrl + path, data)
+    return doRequest(globalConfig.cloudBaseUrl + path, data)
 }

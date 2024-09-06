@@ -1,7 +1,7 @@
 import router from "@/router";
 import {AxiosResponse} from "axios";
 import {doRequest} from "@/components/requests";
-import {config} from "@/components/Config";
+import {globalConfig} from "@/components/GlobalConfig";
 
 export function goToHubPage(path: string) {
     router.push('/hub' + path)
@@ -18,7 +18,7 @@ export async function doCloudRequest(path: string, data: any): Promise<(AxiosRes
  */
 
 export async function doHubRequest(path: string, data: any): Promise<(AxiosResponse | null)> {
-    return doRequest(config.hubBaseUrl + path, data)
+    return doRequest(globalConfig.hubBaseUrl + path, data)
 }
 
 export const defaultAllowedSymbols = '[0-9a-zA-Z]';
