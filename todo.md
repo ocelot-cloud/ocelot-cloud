@@ -1,7 +1,6 @@
 # TODO
 
 * this should be a warning if profile is TEST: "tools/config.go:112 > Profile is: TEST"
-* Fix this log in prod mode: "Failed to read CLI output of stack specific container info for stack 'ocelot-cloud'"
 * security
   1. in handler: getAuth -> auth { user, isAdmin }, check if handler needs admin access or just user access
   2. cloud authorization - hasAccess(user, app), if app is access, check if user should have access to it

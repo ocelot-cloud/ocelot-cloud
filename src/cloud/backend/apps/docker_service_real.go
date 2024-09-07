@@ -143,6 +143,9 @@ func extractNamesOfRunningStacksFromLines(lines []string) map[string]appDetailsT
 		}
 		fields := strings.Fields(line)
 		stackName, stackDetail := transformToStackStackInfo(fields)
+		if stackName == "ocelot-cloud" {
+			continue
+		}
 		resultInfos[stackName] = stackDetail
 	}
 	return resultInfos
