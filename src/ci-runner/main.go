@@ -52,6 +52,10 @@ var hubTestTypes = map[string]func(){
 var cloudTestTypes = map[string]func(){
 	"acceptance": func() { src.TestCloudAcceptance() },
 	"frontend":   func() { src.TestCloudComponentsWithTestProfile() },
+	"backend": func() {
+		src.TestBackendCore()
+		src.TestBackendComponentMocked()
+	},
 }
 
 var testCmd = &cobra.Command{

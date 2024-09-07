@@ -9,7 +9,7 @@ const (
 	INITIAL_ADMIN_PASSWORD_ENV = "INITIAL_ADMIN_PASSWORD=password"
 )
 
-func testBackendCore() {
+func TestBackendCore() {
 	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
 	ExecuteInDir(backendAppsDir, "go test -v -count=1 ./...")
@@ -52,7 +52,7 @@ func TestCi() {
 	// Starting with the fastest tests, ending with slowest.
 
 	// TODO backend units + mocked
-	testBackendCore()
+	TestBackendCore()
 	TestBackendComponentMocked()
 
 	// TODO development setup: test backend mocked + GUI
