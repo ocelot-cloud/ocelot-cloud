@@ -25,9 +25,9 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	stackConfigService = provideAppConfigService(appFileDir)
 	stackService = getStackService(config, stackConfigService)
 
-	registerSecuredEndpoint("/stacks/read", createReadHandler(stackService))
-	registerSecuredEndpoint("/stacks/deploy", createDeployHandler(stackService))
-	registerSecuredEndpoint("/stacks/stop", createStopHandler(stackService))
+	registerSecuredEndpoint("/stacks/read", createReadHandler)
+	registerSecuredEndpoint("/stacks/deploy", createDeployHandler)
+	registerSecuredEndpoint("/stacks/stop", createStopHandler)
 }
 
 func getStackFileDir(config *tools.GlobalConfig) string {

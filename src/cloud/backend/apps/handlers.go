@@ -12,67 +12,61 @@ func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
 	router.Handle("/api"+path, security.ApplyAuthMiddleware(handlerFunc))
 }
 
-func createReadHandler(stackService appServiceType) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "GET" {
-			http.Error(w, "Only GET method is supported.", http.StatusMethodNotAllowed)
-			return
-		}
+func createReadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Only GET method is supported.", http.StatusMethodNotAllowed)
+		return
+	}
 
-		stackStateInfo := stackService.getAppStateInfo()
-		response := make([]tools.ResponsePayloadDto, 0)
-		for stackName, stackDetails := range stackStateInfo {
-			response = append(response, tools.ResponsePayloadDto{stackName, stackDetails.State.toString(), stackDetails.Path})
-		}
+	stackStateInfo := stackService.getAppStateInfo()
+	response := make([]tools.ResponsePayloadDto, 0)
+	for stackName, stackDetails := range stackStateInfo {
+		response = append(response, tools.ResponsePayloadDto{stackName, stackDetails.State.toString(), stackDetails.Path})
+	}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func createDeployHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	stackName, err := decodeStackInfo(r)
+	if err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
+
+	if err = stackService.deployApp(stackName); err != nil {
+		if err != nil { // TODO condition is always true
+			logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
+			http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
+		}
+		return
 	}
 }
 
-func createDeployHandler(stackService appServiceType) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
-			http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
-			return
-		}
-
-		stackName, err := decodeStackInfo(r)
-		if err != nil {
-			http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
-			return
-		}
-
-		if err = stackService.deployApp(stackName); err != nil {
-			if err != nil {
-				logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
-				http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
-			}
-			return
-		}
+func createStopHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
+		return
 	}
-}
 
-func createStopHandler(stackService appServiceType) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
-			http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
-			return
-		}
+	stackName, err := decodeStackInfo(r)
+	if err != nil {
+		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
+		return
+	}
 
-		stackName, err := decodeStackInfo(r)
+	if err = stackService.stopApp(stackName); err != nil {
 		if err != nil {
-			http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
-			return
+			logger.Warn("error when trying to stop stack, %s", err.Error())
+			http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
 		}
-
-		if err = stackService.stopApp(stackName); err != nil {
-			if err != nil {
-				logger.Warn("error when trying to stop stack, %s", err.Error())
-				http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
-			}
-			return
-		}
+		return
 	}
 }
 
