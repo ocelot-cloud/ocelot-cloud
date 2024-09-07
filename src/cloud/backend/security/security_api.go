@@ -45,6 +45,7 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next 
 	if r.URL.Path == "/api/login" { // TODO loginPath to be abstracted
 		Logger.Trace("login endpoint is not protected")
 		next.ServeHTTP(w, r)
+		return
 	}
 
 	// TODO store generated cookie in a repo and check if their value is correct.
