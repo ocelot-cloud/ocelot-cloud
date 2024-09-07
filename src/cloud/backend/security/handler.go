@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// TODO Can be shared
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
