@@ -14,9 +14,9 @@ func appReadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stackStateInfo := stackService.getAppStateInfo()
-	response := make([]tools.ResponsePayloadDto, 0)
+	response := make([]tools.AppInfo, 0)
 	for stackName, stackDetails := range stackStateInfo {
-		response = append(response, tools.ResponsePayloadDto{stackName, stackDetails.State.toString(), stackDetails.Path})
+		response = append(response, tools.AppInfo{stackName, stackDetails.State.toString(), stackDetails.Path})
 	}
 
 	w.Header().Set("Content-Type", "application/json")

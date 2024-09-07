@@ -48,7 +48,7 @@ func postJsonWithoutAssertions(endpoint string, data tools.StackInfo) {
 	http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
 }
 
-func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
+func getAndRead(t *testing.T, endpoint string) []tools.AppInfo {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", endpoint, nil)
 	assert.Nil(t, err)
@@ -62,14 +62,14 @@ func getAndRead(t *testing.T, endpoint string) []tools.ResponsePayloadDto {
 	assert.Nil(t, err)
 	defer resp.Body.Close()
 
-	var stackStates []tools.ResponsePayloadDto
+	var stackStates []tools.AppInfo
 	err = json.NewDecoder(resp.Body).Decode(&stackStates)
 	assert.Nil(t, err)
 
 	return stackStates
 }
 
-func assertState(t *testing.T, info []tools.ResponsePayloadDto, name string, state string) {
+func assertState(t *testing.T, info []tools.AppInfo, name string, state string) {
 	for _, singleInfo := range info {
 		if singleInfo.Name == name {
 			assert.Equal(t, state, singleInfo.State, "Stack '"+name+"' was present but had wrong state.")
@@ -216,7 +216,7 @@ func assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t *testing.T,
 	t.Fail()
 }
 
-func isStackInState(stackName string, expectedState string, responsePayload []tools.ResponsePayloadDto) bool {
+func isStackInState(stackName string, expectedState string, responsePayload []tools.AppInfo) bool {
 	for _, singleInfo := range responsePayload {
 		if singleInfo.Name == stackName && singleInfo.State == expectedState {
 			return true
