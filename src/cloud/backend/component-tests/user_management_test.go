@@ -35,7 +35,7 @@ func TestAppManagement(t *testing.T) {
 	assert.Nil(t, cloud.startApp())
 	_, err := cloud.readApps()
 	assert.Nil(t, err)
-	// TODO assert.NotNil(t, apps)
+	//assert.NotNil(t, apps)
 	/* TODO
 	assert.Nil(t, cloud.stopApp())
 	read again ans assert apps == nil
