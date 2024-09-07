@@ -27,9 +27,9 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	stackService = getStackService(config, stackConfigService)
 
 	routes := []security.Route{
-		{"/stacks/read", createReadHandler},
-		{"/stacks/deploy", createDeployHandler},
-		{"/stacks/stop", createStopHandler},
+		{"/stacks/read", appReadHandler},
+		{"/stacks/deploy", appDeployHandler},
+		{"/stacks/stop", appStopHandler},
 	}
 	security.RegisterProtectedRoutes(routes)
 }

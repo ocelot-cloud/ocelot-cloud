@@ -7,7 +7,7 @@ import (
 	"ocelot/backend/tools"
 )
 
-func createReadHandler(w http.ResponseWriter, r *http.Request) {
+func appReadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Only GET method is supported.", http.StatusMethodNotAllowed)
 		return
@@ -23,7 +23,7 @@ func createReadHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func createDeployHandler(w http.ResponseWriter, r *http.Request) {
+func appDeployHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
 		return
@@ -44,7 +44,7 @@ func createDeployHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createStopHandler(w http.ResponseWriter, r *http.Request) {
+func appStopHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
 		return
