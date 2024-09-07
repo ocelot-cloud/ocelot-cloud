@@ -1,25 +1,21 @@
 package apps
 
 import (
-	"github.com/gorilla/mux"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
 
 // TODO add router to global config
 var (
-	logger = tools.Logger // TODO should be private
+	logger = tools.Logger
 	config *tools.GlobalConfig
-	router *mux.Router
-	// TODO to small to be its own file
 	// TODO The definition of the stack file dir  depending on the global config should be here I guess.
 	appFileDir         string
 	stackService       appServiceType
 	stackConfigService configServiceType // TODO why is this needed? Should be rather a pointer?
 )
 
-func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
-	router = routerArg
+func InitializeAppService(configArg *tools.GlobalConfig) {
 	config = configArg
 
 	appFileDir = getStackFileDir(config)
