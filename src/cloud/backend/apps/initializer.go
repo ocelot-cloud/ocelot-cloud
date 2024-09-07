@@ -32,7 +32,7 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 		{"/stacks/stop", appStopHandler},
 	}
 	if config.OpenDataWipeEndpoint {
-		router.HandleFunc("/api/wipe-data", wipeDataHandler)
+		router.HandleFunc("/api/stacks/wipe-data", wipeDataHandler)
 	}
 	security.RegisterRoutes(routes)
 }

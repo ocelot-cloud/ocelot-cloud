@@ -31,13 +31,14 @@ func TestLogin(t *testing.T) {
 }
 
 func TestAppManagement(t *testing.T) {
-	t.Skip()
 	cloud := getClientAndLogin(t)
+	println(cloud.stack)
+	/* TODO
 	assert.Nil(t, cloud.startApp())
 	apps, err := cloud.readApps()
 	assert.Nil(t, err)
 	assert.NotNil(t, apps)
-	/* TODO
+
 	assert.Nil(t, cloud.stopApp())
 	read again ans assert apps == nil
 	*/
@@ -70,9 +71,18 @@ func (c *CloudClient) login() error {
 	return nil
 }
 
+func (c *CloudClient) wipeData() error {
+	_, err := c.parent.DoRequest("/api/stacks/wipe-data", nil, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getClientAndLogin(t *testing.T) *CloudClient {
 	cloud := getCloud()
 	assert.Nil(t, cloud.login())
+	assert.Nil(t, cloud.wipeData())
 	return &cloud
 }
 
