@@ -78,11 +78,11 @@ export default defineComponent({
     };
 
     const start = (name: string) => {
-      doCloudRequest("/api/stacks/deploy", {name: name})
+      doCloudRequest("/api/stacks/deploy", {value: name})
     };
 
     const stop = (name: string) => {
-      doCloudRequest("/api/stacks/stop", {name: name})
+      doCloudRequest("/api/stacks/stop", {value: name})
     };
 
     const openNewTab = (stack: Stack) => {

@@ -2,17 +2,13 @@ package apps
 
 import (
 	"encoding/json"
+	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
 	"ocelot/backend/tools"
 )
 
 func appReadHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Only GET method is supported.", http.StatusMethodNotAllowed)
-		return
-	}
-
 	stackStateInfo := stackService.getAppStateInfo()
 	response := make([]tools.AppInfo, 0)
 	for stackName, stackDetails := range stackStateInfo {
@@ -24,57 +20,43 @@ func appReadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appDeployHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
-		return
-	}
-
-	stackName, err := decodeStackInfo(r)
+	stackName, err := decodeSingleString(r)
 	if err != nil {
 		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
 		return
 	}
 
 	if err = stackService.deployApp(stackName); err != nil {
-		if err != nil { // TODO condition is always true
-			logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
-			http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
-		}
+		logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
+		http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
 		return
 	}
 }
 
 func appStopHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Only POST method is supported.", http.StatusMethodNotAllowed)
-		return
-	}
-
-	stackName, err := decodeStackInfo(r)
+	stackName, err := decodeSingleString(r)
 	if err != nil {
 		http.Error(w, "Failed to decode JSON", http.StatusBadRequest)
 		return
 	}
 
 	if err = stackService.stopApp(stackName); err != nil {
-		if err != nil {
-			logger.Warn("error when trying to stop stack, %s", err.Error())
-			http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
-		}
+		logger.Warn("error when trying to stop stack, %s", err.Error())
+		http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
 		return
 	}
 }
 
-func decodeStackInfo(r *http.Request) (string, error) {
+func decodeSingleString(r *http.Request) (string, error) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return "", err
 	}
 
-	var stackInfo tools.StackInfo
-	err = json.Unmarshal(body, &stackInfo)
+	var singleString utils.SingleString
+	err = json.Unmarshal(body, &singleString)
 	if err != nil {
 		return "", err
 	}
-	return stackInfo.Name, nil
+	return singleString.Value, nil
 }

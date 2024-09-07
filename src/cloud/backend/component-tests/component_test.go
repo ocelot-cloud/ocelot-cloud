@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"ocelot/backend/tools"
 	"os"
@@ -24,8 +25,8 @@ const (
 )
 
 func TestHappyPathDeployAndStop(t *testing.T) {
-	postJsonWithoutAssertions(endpoint+"stop", tools.StackInfo{stackOneName})
-	postJsonWithoutAssertions(endpoint+"stop", tools.StackInfo{stackTwoName})
+	postJsonWithoutAssertions(endpoint+"stop", utils.SingleString{stackOneName})
+	postJsonWithoutAssertions(endpoint+"stop", utils.SingleString{stackTwoName})
 
 	responsePayloadsBeforeDeploy := getAndRead(t, endpoint+"read")
 	assertState(t, responsePayloadsBeforeDeploy, stackOneName, "Uninitialized")
@@ -43,7 +44,7 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	assertState(t, responsePayloadsAfterStop, stackTwoName, "Uninitialized")
 }
 
-func postJsonWithoutAssertions(endpoint string, data tools.StackInfo) {
+func postJsonWithoutAssertions(endpoint string, data utils.SingleString) {
 	jsonData, _ := json.Marshal(data)
 	http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
 }
@@ -80,7 +81,7 @@ func assertState(t *testing.T, info []tools.AppInfo, name string, state string) 
 }
 
 func postJSON(t *testing.T, endpoint string, stackName string) *http.Response {
-	stackNameJson := tools.StackInfo{Name: stackName}
+	stackNameJson := utils.SingleString{stackName}
 	jsonData, marshalErr := json.Marshal(stackNameJson)
 	assert.Nil(t, marshalErr)
 
@@ -108,7 +109,7 @@ func TestStopStackNotExisting(t *testing.T) {
 }
 
 func postStackAndCheckResponse(t *testing.T, action string, expectedHttpStatus int) {
-	data := tools.StackInfo{"not-existing-stack"}
+	data := utils.SingleString{"not-existing-stack"}
 	jsonData, err := json.Marshal(data)
 	assert.Nil(t, err)
 
@@ -195,7 +196,7 @@ func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
 	onlyExecuteTestForProfile(t, ProdProfile)
 
-	postJsonWithoutAssertions(endpoint+"stop", tools.StackInfo{tools.NginxSlowStart})
+	postJsonWithoutAssertions(endpoint+"stop", utils.SingleString{tools.NginxSlowStart})
 	logger.Info("Deploying stack '%s'", tools.NginxSlowStart)
 	postJSON(t, endpoint+"deploy", tools.NginxSlowStart)
 
