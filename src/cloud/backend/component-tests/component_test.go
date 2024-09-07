@@ -34,18 +34,20 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	assertState(t, responsePayloadsBeforeDeploy, stackOneName, "Uninitialized")
 	assertState(t, responsePayloadsBeforeDeploy, stackTwoName, "Uninitialized")
 
-	postJSON(t, endpoint+"deploy", stackOneName)
-	time.Sleep(3 * time.Second)
-	responsePayloadsAfterDeploy, err := cloud.readApps()
+	cloud.appToOperateOn = stackOneName
+	assert.Nil(t, cloud.startApp())
+	time.Sleep(3 * time.Second) // TODO
+	apps, err := cloud.readApps()
 	assert.Nil(t, err)
-	assertState(t, responsePayloadsAfterDeploy, stackOneName, "Available")
-	assertState(t, responsePayloadsAfterDeploy, stackTwoName, "Uninitialized")
+	assertState(t, apps, stackOneName, "Available")
+	assertState(t, apps, stackTwoName, "Uninitialized")
 
-	postJSON(t, endpoint+"stop", stackOneName)
-	responsePayloadsAfterStop, err := cloud.readApps()
+	assert.Nil(t, cloud.stopApp())
+	apps, err = cloud.readApps()
 	assert.Nil(t, err)
-	assertState(t, responsePayloadsAfterStop, stackOneName, "Uninitialized")
-	assertState(t, responsePayloadsAfterStop, stackTwoName, "Uninitialized")
+	assert.Nil(t, cloud.assertState("Uninitialized"))
+	cloud.appToOperateOn = stackTwoName
+	assert.Nil(t, cloud.assertState("Uninitialized"))
 }
 
 func postJsonWithoutAssertions(endpoint string, data utils.SingleString) {
@@ -63,26 +65,6 @@ func assertState(t *testing.T, info *[]tools.AppInfo, name string, state string)
 	assert.Fail(t, "Stack was not present at all.")
 }
 
-func postJSON(t *testing.T, endpoint string, stackName string) *http.Response {
-	stackNameJson := utils.SingleString{stackName}
-	jsonData, marshalErr := json.Marshal(stackNameJson)
-	assert.Nil(t, marshalErr)
-
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonData))
-	assert.Nil(t, err)
-	req.Header.Set("Content-Type", "application/json")
-	req.AddCookie(&http.Cookie{
-		Name:  "auth",
-		Value: "valid",
-	})
-
-	resp, postErr := client.Do(req)
-	assert.Nil(t, postErr)
-	assert.Equal(t, 200, resp.StatusCode)
-	return resp
-}
-
 // TODO I think it should be a 400 error, since its the users fault
 func TestDeployStackNotExisting(t *testing.T) {
 	cloud := getClientAndLogin(t)
@@ -96,9 +78,8 @@ func TestStopStackNotExisting(t *testing.T) {
 	cloud := getClientAndLogin(t)
 	cloud.appToOperateOn = "not-existing-stack"
 	err := cloud.stopApp()
-	// TODO This should cause an error. Add a stack check in the handler.
-	assert.Nil(t, err)
-	// assert.Equal(t, utils.GetErrMsg(500, "Stopping stack failed: not-existing-stack"), err.Error())
+	assert.NotNil(t, err)
+	assert.Equal(t, utils.GetErrMsg(500, "Stopping stack failed: not-existing-stack"), err.Error())
 }
 
 func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
@@ -143,9 +124,10 @@ func TestUrlPaths(t *testing.T) {
 
 func TestNetworkCreationOnStackDeployment(t *testing.T) {
 	onlyExecuteTestForProfile(t, ProdProfile)
+	cloud := getClientAndLogin(t)
 
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net || docker network rm nginx-default-net")
-	postJSON(t, endpoint+"deploy", tools.NginxDefault)
+	assert.Nil(t, cloud.startApp())
 	err := shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net")
 	assert.Nil(t, err)
 }

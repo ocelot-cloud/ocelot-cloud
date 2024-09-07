@@ -72,6 +72,11 @@ func (c *CloudClient) readApps() (*[]tools.AppInfo, error) {
 }
 
 func (c *CloudClient) stopApp() error {
+	data := utils.SingleString{c.appToOperateOn}
+	_, err := c.parent.DoRequest("/api/stacks/stop", data, "")
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -106,7 +111,7 @@ func (c *CloudClient) assertState(expectedState string) error {
 			return nil
 		}
 
-		logger.Info("Attempt %v: Stack '%s' is not in expected state '%s'. Re-try in one second...", attempt, c.appToOperateOn, expectedState)
+		logger.Info("Attempt %v: App '%s' has state '%s' instead of expected state '%s'. Re-try in one second...", attempt, c.appToOperateOn, actualState, expectedState)
 		time.Sleep(1 * time.Second)
 	}
 	return fmt.Errorf("state not reached within time range")
