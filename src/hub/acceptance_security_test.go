@@ -85,8 +85,7 @@ func TestLoginSecurity(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Nil(t, hub.Parent.Cookie)
-	err = hub.login()
-	assert.Nil(t, err)
+	assert.Nil(t, hub.login())
 	assert.NotNil(t, hub.Parent.Cookie)
 	hub.Parent.Cookie = nil
 
