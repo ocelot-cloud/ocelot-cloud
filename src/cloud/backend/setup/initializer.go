@@ -26,11 +26,13 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	initializeDockerNetwork()
 	initializeFunctionalEndpoints()
 
-	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
+	proxy := http.HandlerFunc(proxyHandler)
+	handler := security.ApplyAuthMiddleware(proxy)
 	// TODO utils.GetCorsDisablingHandler should only be enabled in TEST profile
-	// TODO Not sure what the current order is: I think it should be CORS > Auth Middleware > Proxy
+	handler = utils.GetCorsDisablingHandler(handler)
 
-	err := http.ListenAndServe(":"+config.BackendExecutablePort, utils.GetCorsDisablingHandler(security.ApplyAuthMiddleware(http.HandlerFunc(proxyHandler))))
+	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
+	err := http.ListenAndServe(":"+config.BackendExecutablePort, handler)
 	if err != nil {
 		logger.Fatal("Failed to start server: " + err.Error())
 	}
