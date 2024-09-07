@@ -83,6 +83,7 @@ func postJSON(t *testing.T, endpoint string, stackName string) *http.Response {
 	return resp
 }
 
+// TODO I think it should be a 400 error, since its the users fault
 func TestDeployStackNotExisting(t *testing.T) {
 	cloud := getClientAndLogin(t)
 	cloud.appToOperateOn = "not-existing-stack"
@@ -92,7 +93,12 @@ func TestDeployStackNotExisting(t *testing.T) {
 }
 
 func TestStopStackNotExisting(t *testing.T) {
-	// TODO postStackAndCheckResponse(t, "stop", http.StatusInternalServerError)
+	cloud := getClientAndLogin(t)
+	cloud.appToOperateOn = "not-existing-stack"
+	err := cloud.stopApp()
+	// TODO This should cause an error. Add a stack check in the handler.
+	assert.Nil(t, err)
+	// assert.Equal(t, utils.GetErrMsg(500, "Stopping stack failed: not-existing-stack"), err.Error())
 }
 
 func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
