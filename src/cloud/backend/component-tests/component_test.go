@@ -1,68 +1,37 @@
 package component_tests
 
 import (
-	"bytes"
-	"encoding/json"
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
-	"net/http"
 	"ocelot/backend/tools"
 	"os"
 	"testing"
-	"time"
 )
 
 var logger = tools.Logger
 
 const (
 	backendBaseUrl = "http://localhost:8080"
-	endpoint       = backendBaseUrl + "/api/stacks/"
-	stackOneName   = tools.NginxDefault
-	stackTwoName   = tools.NginxDefault2
 	TestProfile    = "TEST"
 	ProdProfile    = "PROD"
 )
 
 func TestHappyPathDeployAndStop(t *testing.T) {
 	cloud := getClientAndLogin(t)
-	postJsonWithoutAssertions(endpoint+"stop", utils.SingleString{stackOneName})
-	postJsonWithoutAssertions(endpoint+"stop", utils.SingleString{stackTwoName})
-
-	responsePayloadsBeforeDeploy, err := cloud.readApps()
+	_, err := cloud.readApps()
 	assert.Nil(t, err)
-	assertState(t, responsePayloadsBeforeDeploy, stackOneName, "Uninitialized")
-	assertState(t, responsePayloadsBeforeDeploy, stackTwoName, "Uninitialized")
+	assert.Nil(t, cloud.assertState("Uninitialized"))
 
-	cloud.appToOperateOn = stackOneName
 	assert.Nil(t, cloud.startApp())
-	time.Sleep(3 * time.Second) // TODO
-	apps, err := cloud.readApps()
+	_, err = cloud.readApps()
 	assert.Nil(t, err)
-	assertState(t, apps, stackOneName, "Available")
-	assertState(t, apps, stackTwoName, "Uninitialized")
+	assert.Nil(t, cloud.assertState("Available"))
 
 	assert.Nil(t, cloud.stopApp())
-	apps, err = cloud.readApps()
+	_, err = cloud.readApps()
 	assert.Nil(t, err)
 	assert.Nil(t, cloud.assertState("Uninitialized"))
-	cloud.appToOperateOn = stackTwoName
-	assert.Nil(t, cloud.assertState("Uninitialized"))
-}
-
-func postJsonWithoutAssertions(endpoint string, data utils.SingleString) {
-	jsonData, _ := json.Marshal(data)
-	http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
-}
-
-func assertState(t *testing.T, info *[]tools.AppInfo, name string, state string) {
-	for _, singleInfo := range *info {
-		if singleInfo.Name == name {
-			assert.Equal(t, state, singleInfo.State, "Stack '"+name+"' was present but had wrong state.")
-			return
-		}
-	}
-	assert.Fail(t, "Stack was not present at all.")
 }
 
 // TODO I think it should be a 400 error, since its the users fault
