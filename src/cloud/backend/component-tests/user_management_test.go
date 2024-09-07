@@ -11,9 +11,9 @@ import (
 )
 
 type CloudClient struct {
-	parent utils.ComponentClient
-	stack  string
-	apps   []tools.AppInfo
+	parent         utils.ComponentClient
+	appToOperateOn string
+	apps           []tools.AppInfo
 }
 
 // TODO Add a "wipe" endpoint that stops all stacks and it also deletes all users except "admin"
@@ -47,8 +47,8 @@ func TestAppManagement(t *testing.T) {
 }
 
 func (c *CloudClient) startApp() error {
-	data := utils.SingleString{tools.NginxDefault}
-	_, err := c.parent.DoRequest("/api/stacks/read", data, "")
+	data := utils.SingleString{c.appToOperateOn}
+	_, err := c.parent.DoRequest("/api/stacks/deploy", data, "")
 	if err != nil {
 		return err
 	}

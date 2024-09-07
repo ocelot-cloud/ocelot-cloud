@@ -179,13 +179,11 @@ func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 }
 
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
-	t.Skip() // TODO Test is not working yet.
 	onlyExecuteTestForProfile(t, ProdProfile)
 	cloud := getClientAndLogin(t)
 
-	postJsonWithoutAssertions(endpoint+"stop", utils.SingleString{tools.NginxSlowStart})
-	logger.Info("Deploying stack '%s'", tools.NginxSlowStart)
-	postJSON(t, endpoint+"deploy", tools.NginxSlowStart)
+	cloud.appToOperateOn = tools.NginxSlowStart
+	assert.Nil(t, cloud.startApp())
 
 	assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t, tools.NginxSlowStart, "Starting", cloud)
 	assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t, tools.NginxSlowStart, "Available", cloud)
@@ -199,7 +197,7 @@ func assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t *testing.T,
 		if isStackInState(stackName, expectedState, *responsePayload) {
 			return
 		}
-		logger.Info("Attempt %v: Stack '%s' is not in state '%s' yet. Re-try in one second...", attempt, stackName, expectedState)
+		logger.Info("Attempt %v: Stack '%s' is not in expected state '%s'. Re-try in one second...", attempt, stackName, expectedState)
 		time.Sleep(1 * time.Second)
 	}
 	t.Fail()
@@ -207,8 +205,12 @@ func assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t *testing.T,
 
 func isStackInState(stackName string, expectedState string, responsePayload []tools.AppInfo) bool {
 	for _, singleInfo := range responsePayload {
-		if singleInfo.Name == stackName && singleInfo.State == expectedState {
-			return true
+		if singleInfo.Name == stackName {
+			if singleInfo.State == expectedState {
+				return true
+			} else {
+				logger.Info("Stack %s is in state '%s', but expected '%s'", stackName, singleInfo.State, expectedState)
+			}
 		}
 	}
 	return false
