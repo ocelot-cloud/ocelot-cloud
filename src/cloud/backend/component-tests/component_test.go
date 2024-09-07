@@ -40,7 +40,7 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	assert.Nil(t, cloud.assertState("Uninitialized"))
 
 	assert.Nil(t, cloud.startApp())
-	// TODO Add assertion for Starting?
+	// TODO Add assertion for Downloading and Starting?
 	assert.Nil(t, cloud.assertState("Available"))
 
 	assert.Nil(t, cloud.stopApp())
