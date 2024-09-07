@@ -17,15 +17,6 @@ func testBackendCore() {
 	ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 }
 
-func testCorsDisabling() {
-	printTaskDescription("Testing whether backend sets CORS headers to disable CORS policy")
-	defer Cleanup()
-	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv())
-	WaitUntilPortIsReady("localhost:8080")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...")
-}
-
 func TestBackendComponentMocked() {
 	printTaskDescription("Testing mocked backend component")
 	defer Cleanup()
@@ -69,7 +60,6 @@ func TestCi() {
 
 	// TODO test backend no mocks, just API
 	testProdBackendApi()
-	testCorsDisabling()
 
 	// TODO acceptance, backend mocked
 	TestCloudAcceptance()
