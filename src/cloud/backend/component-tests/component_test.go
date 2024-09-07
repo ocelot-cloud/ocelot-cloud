@@ -14,9 +14,13 @@ import (
 
 var logger = tools.Logger
 
-const endpoint = "http://localhost:8080/api/stacks/"
-const stackOneName = tools.NginxDefault
-const stackTwoName = tools.NginxDefault2
+const (
+	endpoint     = "http://localhost:8080/api/stacks/"
+	stackOneName = tools.NginxDefault
+	stackTwoName = tools.NginxDefault2
+	TestProfile  = "TEST"
+	ProdProfile  = "PROD"
+)
 
 func TestHappyPathDeployAndStop(t *testing.T) {
 	postJsonWithoutAssertions(endpoint+"stop", tools.StackInfo{stackOneName})
@@ -126,7 +130,7 @@ func postStackAndCheckResponse(t *testing.T, action string, expectedHttpStatus i
 }
 
 func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
-	onlyExecuteTestForProfile(t, "PROD")
+	onlyExecuteTestForProfile(t, ProdProfile)
 	AssertCorsHeaders(t, "", "", "", "")
 }
 
@@ -175,7 +179,7 @@ func TestUrlPaths(t *testing.T) {
 }
 
 func TestNetworkCreationOnStackDeployment(t *testing.T) {
-	onlyExecuteTestForProfile(t, "PROD")
+	onlyExecuteTestForProfile(t, ProdProfile)
 
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q nginx-default-net || docker network rm nginx-default-net")
 	postJSON(t, endpoint+"deploy", tools.NginxDefault)
@@ -184,12 +188,12 @@ func TestNetworkCreationOnStackDeployment(t *testing.T) {
 }
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
-	onlyExecuteTestForProfile(t, "TEST") // TODO abstract
+	onlyExecuteTestForProfile(t, TestProfile)
 	AssertCorsHeaders(t, "http://localhost:8080", "POST, GET, OPTIONS, PUT, DELETE", "Accept, Content-Type, Content-Length, Authorization", "true")
 }
 
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
-	onlyExecuteTestForProfile(t, "PROD") // TODO abstract
+	onlyExecuteTestForProfile(t, ProdProfile)
 
 	postJsonWithoutAssertions(endpoint+"stop", tools.StackInfo{tools.NginxSlowStart})
 	logger.Info("Deploying stack '%s'", tools.NginxSlowStart)
