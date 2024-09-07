@@ -15,11 +15,12 @@ import (
 var logger = tools.Logger
 
 const (
-	endpoint     = "http://localhost:8080/api/stacks/"
-	stackOneName = tools.NginxDefault
-	stackTwoName = tools.NginxDefault2
-	TestProfile  = "TEST"
-	ProdProfile  = "PROD"
+	backendBaseUrl = "http://localhost:8080"
+	endpoint       = backendBaseUrl + "/api/stacks/"
+	stackOneName   = tools.NginxDefault
+	stackTwoName   = tools.NginxDefault2
+	TestProfile    = "TEST"
+	ProdProfile    = "PROD"
 )
 
 func TestHappyPathDeployAndStop(t *testing.T) {
@@ -135,13 +136,12 @@ func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
 }
 
 func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, expectedAllowHeaders, expectedAllowCredentials string) {
-	origin := "http://localhost:8080"
-	req, err := http.NewRequest("GET", origin+"/api/stacks/read", nil)
+	req, err := http.NewRequest("GET", backendBaseUrl+"/api/stacks/read", nil)
 	if err != nil {
 		logger.Error("error: %v", err)
 		t.Fail()
 	}
-	req.Header.Set("Origin", origin)
+	req.Header.Set("Origin", backendBaseUrl)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -189,7 +189,7 @@ func TestNetworkCreationOnStackDeployment(t *testing.T) {
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 	onlyExecuteTestForProfile(t, TestProfile)
-	AssertCorsHeaders(t, "http://localhost:8080", "POST, GET, OPTIONS, PUT, DELETE", "Accept, Content-Type, Content-Length, Authorization", "true")
+	AssertCorsHeaders(t, backendBaseUrl, "POST, GET, OPTIONS, PUT, DELETE", "Accept, Content-Type, Content-Length, Authorization", "true")
 }
 
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
