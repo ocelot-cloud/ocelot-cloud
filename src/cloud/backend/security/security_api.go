@@ -21,11 +21,6 @@ func InitializeSecurity(routerArg *mux.Router) {
 func ApplyAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO Add "Origin" header check to prevent CSRF attacks.
-		// 1) Scheme must be the same
-		// 2) Domain must be the same (example.com) or a subdomain (gitea.example.com)
-		// 3) I think port can be ignored since I used the standard ports.
-		// TODO In Production mode, when security is enabled, there must be a environment variable called "HOST" (aka Origin) of the form http(s)://*(:[0-9]*), so a URL with http or https, with or without port(?) etc. This is for security to fulfill the origin policy to prevent CSRF attacks.
-		// TODO The logic seems weird here, doesn't it? Before the AuthMiddleware there should be a check for the "/api" prefix path, right?
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			applyBackendApiAuthMiddleware(w, r, next)
 		} else {

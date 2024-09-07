@@ -39,6 +39,7 @@ func initializeDockerNetwork() {
 	_ = shared.ExecuteShellCommand("docker network ls | grep -q ocelot-net || docker network create ocelot-net")
 }
 
+// TODO When implementing users and groups, here should be a check whether the user is authorized or not to access the app.
 func buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		ocelotDomain := "ocelot-cloud." + config.RootDomain
