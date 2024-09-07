@@ -58,8 +58,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func initializeFrontendResourceDelivery() {
-	// TODO utils.GetCorsDisablingHandler should be used only once.
-	router.PathPrefix("/").Handler(utils.GetCorsDisablingHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 
@@ -77,5 +76,5 @@ func initializeFrontendResourceDelivery() {
 		// This handles requests for JS, CSS, images, etc.
 		logger.Debug("Serving static content at '%s'", r.URL.Path)
 		http.FileServer(http.Dir("./dist")).ServeHTTP(w, r)
-	})))
+	}))
 }
