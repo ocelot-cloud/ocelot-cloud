@@ -42,6 +42,11 @@ func RegisterProtectedRoutes(routes []Route) {
 }
 
 func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next http.Handler) {
+	if r.URL.Path == "/api/login" { // TODO loginPath to be abstracted
+		Logger.Trace("login endpoint is not protected")
+		next.ServeHTTP(w, r)
+	}
+
 	// TODO store generated cookie in a repo and check if their value is correct.
 	_, err := r.Cookie("auth")
 	if err != nil {
