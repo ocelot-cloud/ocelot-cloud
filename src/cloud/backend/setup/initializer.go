@@ -25,9 +25,9 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	initializeDockerNetwork()
 	initializeFunctionalEndpoints()
 
-	proxyHandler := buildProxyHandler()
 	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
 	// TODO utils.GetCorsDisablingHandler should only be enabled in TEST profile
+	// TODO Not sure what the current order is: I think it should be CORS > Auth Middleware > Proxy
 	err := http.ListenAndServe(":"+config.BackendExecutablePort, utils.GetCorsDisablingHandler(http.HandlerFunc(proxyHandler)))
 	if err != nil {
 		logger.Fatal("Failed to start server: " + err.Error())
@@ -40,18 +40,15 @@ func initializeDockerNetwork() {
 }
 
 // TODO When implementing users and groups, here should be a check whether the user is authorized or not to access the app.
-func buildProxyHandler() func(w http.ResponseWriter, r *http.Request) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		ocelotDomain := "ocelot-cloud." + config.RootDomain
-		// TODO Surprising, why would I need a localDomain? Remove or add an explanation
-		localDomain := config.RootDomain + ":" + config.DockerContainerPort
-		if r.Host == ocelotDomain || r.Host == localDomain {
-			router.ServeHTTP(w, r)
-		} else {
-			apps.ProxyRequestToTheDockerContainer(w, r)
-		}
+func proxyHandler(w http.ResponseWriter, r *http.Request) {
+	ocelotDomain := "ocelot-cloud." + config.RootDomain
+	// TODO Surprising, why would I need a localDomain? Remove or add an explanation
+	localDomain := config.RootDomain + ":" + config.DockerContainerPort
+	if r.Host == ocelotDomain || r.Host == localDomain {
+		router.ServeHTTP(w, r)
+	} else {
+		apps.ProxyRequestToTheDockerContainer(w, r)
 	}
-	return handler
 }
 
 func initializeFunctionalEndpoints() {
