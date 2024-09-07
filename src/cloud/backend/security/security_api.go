@@ -27,7 +27,7 @@ func ApplyAuthMiddleware(next http.Handler) http.Handler {
 		// TODO In Production mode, when security is enabled, there must be a environment variable called "HOST" (aka Origin) of the form http(s)://*(:[0-9]*), so a URL with http or https, with or without port(?) etc. This is for security to fulfill the origin policy to prevent CSRF attacks.
 		// TODO The logic seems weird here, doesn't it? Before the AuthMiddleware there should be a check for the "/api" prefix path, right?
 		if strings.HasPrefix(r.URL.Path, "/api/") {
-			handleBackendApiRequest(w, r, next)
+			applyBackendApiAuthMiddleware(w, r, next)
 		} else {
 			Logger.Debug("a user requested the frontend resources")
 			next.ServeHTTP(w, r)
@@ -46,7 +46,7 @@ func RegisterProtectedRoutes(routes []Route) {
 	}
 }
 
-func handleBackendApiRequest(w http.ResponseWriter, r *http.Request, next http.Handler) {
+func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	// TODO store generated cookie in a repo and check if their value is correct.
 	_, err := r.Cookie("auth")
 	if err != nil {
