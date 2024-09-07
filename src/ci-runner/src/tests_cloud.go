@@ -29,6 +29,7 @@ func testCorsDisabling() {
 func TestBackendComponentMocked() {
 	printTaskDescription("Testing mocked backend component")
 	defer Cleanup()
+	ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	// TODO Aggregate the envs
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
@@ -84,6 +85,7 @@ func RunScheduledTests() {
 func testProdBackendApi() {
 	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
+	ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitUntilPortIsReady("localhost:8080")
@@ -101,6 +103,7 @@ func printTaskDescription(text string) {
 func TestCloudComponentsWithTestProfile() {
 	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
+	ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	WaitUntilPortIsReady("localhost:8080")
