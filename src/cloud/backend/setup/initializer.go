@@ -29,7 +29,7 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 
 	proxy := http.HandlerFunc(proxyHandler)
 	handler := security.ApplyAuthMiddleware(proxy)
-	// TODO utils.GetCorsDisablingHandler should only be enabled in TEST profile
+	// TODO utils.GetCorsDisablingHandler should only be enabled in TEST profile, to be tested
 	handler = utils.GetCorsDisablingHandler(handler)
 
 	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
