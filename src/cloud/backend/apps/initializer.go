@@ -31,7 +31,7 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 		{"/stacks/deploy", appDeployHandler},
 		{"/stacks/stop", appStopHandler},
 	}
-	security.RegisterProtectedRoutes(routes)
+	security.RegisterRoutes(routes)
 }
 
 func getStackFileDir(config *tools.GlobalConfig) string {
