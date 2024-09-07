@@ -9,7 +9,7 @@ import (
 )
 
 func appReadHandler(w http.ResponseWriter, r *http.Request) {
-	stackStateInfo := stackService.getAppStateInfo()
+	stackStateInfo := appService.getAppStateInfo()
 	response := make([]tools.AppInfo, 0)
 	for stackName, stackDetails := range stackStateInfo {
 		response = append(response, tools.AppInfo{stackName, stackDetails.State.toString(), stackDetails.Path})
@@ -26,7 +26,7 @@ func appDeployHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = stackService.deployApp(stackName); err != nil {
+	if err = appService.deployApp(stackName); err != nil {
 		logger.Error("Deploying stack failed: " + stackName + "\n" + err.Error() + "\n")
 		http.Error(w, "Deploying stack failed: "+stackName, http.StatusInternalServerError)
 		return
@@ -40,7 +40,7 @@ func appStopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = stackService.stopApp(stackName); err != nil {
+	if err = appService.stopApp(stackName); err != nil {
 		logger.Warn("error when trying to stop stack, %s", err.Error())
 		http.Error(w, "Stopping stack failed: "+stackName, http.StatusInternalServerError)
 		return

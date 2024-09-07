@@ -1,6 +1,8 @@
 package apps
 
 import (
+	"github.com/gorilla/mux"
+	"net/http"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
@@ -8,24 +10,29 @@ import (
 // TODO add router to global config
 var (
 	logger = tools.Logger
+	router *mux.Router
 	config *tools.GlobalConfig
 	// TODO The definition of the stack file dir  depending on the global config should be here I guess.
 	appFileDir         string
-	stackService       appServiceType
+	appService         appServiceType
 	stackConfigService configServiceType // TODO why is this needed? Should be rather a pointer?
 )
 
-func InitializeAppService(configArg *tools.GlobalConfig) {
+func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
+	router = routerArg
 
 	appFileDir = getStackFileDir(config)
 	stackConfigService = provideAppConfigService(appFileDir)
-	stackService = getStackService(config, stackConfigService)
+	appService = getStackService(config, stackConfigService)
 
 	routes := []security.Route{
 		{"/stacks/read", appReadHandler},
 		{"/stacks/deploy", appDeployHandler},
 		{"/stacks/stop", appStopHandler},
+	}
+	if config.OpenDataWipeEndpoint {
+		router.HandleFunc("/api/wipe-data", wipeDataHandler)
 	}
 	security.RegisterRoutes(routes)
 }
@@ -45,5 +52,17 @@ func getStackService(config *tools.GlobalConfig, stackConfigService configServic
 	} else {
 		logger.Debug("Using real DockerService")
 		return provideAppServiceReal(stackConfigService)
+	}
+}
+
+func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
+	apps := appService.getAppStateInfo()
+	for appName, appDetails := range apps {
+		if appDetails.State != Uninitialized {
+			err := appService.stopApp(appName)
+			if err != nil {
+				logger.Error("Couldn't stop app: %s, error: %v", appName, err)
+			}
+		}
 	}
 }

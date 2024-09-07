@@ -60,12 +60,14 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.AreMocksEnabled = false
 		config.AreCrossOriginRequestsAllowed = false
 		config.CreateDefaultAdminUser = false
+		config.OpenDataWipeEndpoint = false
 	} else {
 		config.IsGuiEnabled = false
 		config.UseRealDatabase = false
 		config.AreMocksEnabled = true
 		config.AreCrossOriginRequestsAllowed = true
 		config.CreateDefaultAdminUser = true
+		config.OpenDataWipeEndpoint = true
 		Logger = shared.ProvideLogger("DEBUG")
 	}
 	return config

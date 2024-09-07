@@ -21,7 +21,7 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	router = routerArg
 	config = configArg
 
-	apps.InitializeAppService(config)
+	apps.InitializeAppService(router, config)
 	initializeDockerNetwork()
 	if config.IsGuiEnabled {
 		initializeFrontendResourceDelivery()

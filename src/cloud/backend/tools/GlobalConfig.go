@@ -13,6 +13,7 @@ type GlobalConfig struct {
 	UseDummyStacks                bool
 	UseRealDatabase               bool
 	CreateDefaultAdminUser        bool
+	OpenDataWipeEndpoint          bool
 	HttpScheme                    string
 	RootDomain                    string
 	DockerContainerPort           string
