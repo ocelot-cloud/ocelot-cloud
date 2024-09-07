@@ -184,36 +184,8 @@ func TestHealthStateOfSlowStartingStack(t *testing.T) {
 
 	cloud.appToOperateOn = tools.NginxSlowStart
 	assert.Nil(t, cloud.startApp())
-
-	assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t, tools.NginxSlowStart, "Starting", cloud)
-	assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t, tools.NginxSlowStart, "Available", cloud)
-}
-
-func assertWithinLongerTimeRangeThatStackStateBecomesExpectedState(t *testing.T, stackName string, expectedState string, cloud *CloudClient) {
-	const maxAttempts = 30
-	for attempt := 1; attempt <= maxAttempts; attempt++ {
-		responsePayload, err := cloud.readApps()
-		assert.Nil(t, err)
-		if isStackInState(stackName, expectedState, *responsePayload) {
-			return
-		}
-		logger.Info("Attempt %v: Stack '%s' is not in expected state '%s'. Re-try in one second...", attempt, stackName, expectedState)
-		time.Sleep(1 * time.Second)
-	}
-	t.Fail()
-}
-
-func isStackInState(stackName string, expectedState string, responsePayload []tools.AppInfo) bool {
-	for _, singleInfo := range responsePayload {
-		if singleInfo.Name == stackName {
-			if singleInfo.State == expectedState {
-				return true
-			} else {
-				logger.Info("Stack %s is in state '%s', but expected '%s'", stackName, singleInfo.State, expectedState)
-			}
-		}
-	}
-	return false
+	assert.Nil(t, cloud.assertState("Starting"))
+	assert.Nil(t, cloud.assertState("Available"))
 }
 
 func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
