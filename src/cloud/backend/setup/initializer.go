@@ -62,12 +62,12 @@ func initializeFrontendResourceDelivery() {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 
-		// If the requested file does not exist (err is not nil) and the path does not seem to
-		// refer to a static file (no extension), then serve index.html. This caters to SPA routing needs,
+		// If the requested file does not exist (err is not nil) and the path does not seem to refer to
+		// a static file (i.e. no dot extension like ".css"), then serve index.html. This caters to SPA routing needs,
 		// allowing frontend routes to be handled by index.html.
 		// This means that users can directly access pages with paths such as "example.com/some/path".
 		if err != nil && !strings.Contains(r.URL.Path, ".") {
-			logger.Debug("Serving index.html for SPA route ''", r.URL.Path)
+			logger.Debug("Serving index.html for SPA route: %s", r.URL.Path)
 			http.ServeFile(w, r, "./dist/index.html")
 			return
 		}
