@@ -96,30 +96,29 @@ func (c *CloudClient) wipeData() error {
 func (c *CloudClient) assertState(expectedState string) error {
 	const maxAttempts = 30
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
-		responsePayload, err := c.readApps()
+		appInfo, err := c.readApps()
 		if err != nil {
 			return err
 		}
-		if isStackInState(c.appToOperateOn, expectedState, *responsePayload) {
+
+		actualState := getState(c.appToOperateOn, appInfo)
+		if actualState == expectedState {
 			return nil
 		}
+
 		logger.Info("Attempt %v: Stack '%s' is not in expected state '%s'. Re-try in one second...", attempt, c.appToOperateOn, expectedState)
 		time.Sleep(1 * time.Second)
 	}
 	return fmt.Errorf("state not reached within time range")
 }
 
-func isStackInState(stackName string, expectedState string, responsePayload []tools.AppInfo) bool {
-	for _, singleInfo := range responsePayload {
+func getState(stackName string, appInfo *[]tools.AppInfo) string {
+	for _, singleInfo := range *appInfo {
 		if singleInfo.Name == stackName {
-			if singleInfo.State == expectedState {
-				return true
-			} else {
-				logger.Info("Stack %s is in state '%s', but expected '%s'", stackName, singleInfo.State, expectedState)
-			}
+			return singleInfo.State
 		}
 	}
-	return false
+	return ""
 }
 
 func getClientAndLogin(t *testing.T) *CloudClient {

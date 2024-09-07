@@ -181,7 +181,6 @@ func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
 	onlyExecuteTestForProfile(t, ProdProfile)
 	cloud := getClientAndLogin(t)
-
 	cloud.appToOperateOn = tools.NginxSlowStart
 	assert.Nil(t, cloud.startApp())
 	assert.Nil(t, cloud.assertState("Starting"))
