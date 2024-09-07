@@ -120,19 +120,9 @@ func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
 }
 
 func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, expectedAllowHeaders, expectedAllowCredentials string) {
-	req, err := http.NewRequest("GET", backendBaseUrl+"/api/stacks/read", nil)
-	if err != nil {
-		logger.Error("error: %v", err)
-		t.Fail()
-	}
-	req.Header.Set("Origin", backendBaseUrl)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		logger.Error("error: %v", err)
-		t.Fail()
-	}
-	defer resp.Body.Close()
+	cloud := getClientAndLogin(t)
+	resp, err := cloud.parent.DoRequestWithFullResponse("/api/stacks/read", nil, "")
+	assert.Nil(t, err)
 
 	allowOrigin := resp.Header.Get("Access-Control-Allow-Origin")
 	assert.Equal(t, expectedAllowOrigin, allowOrigin)
