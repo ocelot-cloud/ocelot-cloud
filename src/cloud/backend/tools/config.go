@@ -60,7 +60,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.AreMocksEnabled = false
 		config.AreCrossOriginRequestsAllowed = false
 		config.CreateDefaultAdminUser = false
-		config.OpenDataWipeEndpoint = false
+		config.OpenDataWipeEndpoint = os.Getenv("ENABLE_DATA_WIPE_ENDPOINT") == "true"
 	} else {
 		config.IsGuiEnabled = false
 		config.UseRealDatabase = false
