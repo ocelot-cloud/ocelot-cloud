@@ -49,7 +49,6 @@ func DeployLocally() {
 
 func TestCi() {
 	printTaskDescription("Running CI tests")
-	// Starting with the fastest tests, ending with slowest.
 	TestBackend()
 	TestFrontend()
 	TestCloudAcceptance()
