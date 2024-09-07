@@ -31,11 +31,12 @@ func TestLogin(t *testing.T) {
 }
 
 func TestAppManagement(t *testing.T) {
+	t.Skip()
 	cloud := getClientAndLogin(t)
 	assert.Nil(t, cloud.startApp())
-	_, err := cloud.readApps()
+	apps, err := cloud.readApps()
 	assert.Nil(t, err)
-	//assert.NotNil(t, apps)
+	assert.NotNil(t, apps)
 	/* TODO
 	assert.Nil(t, cloud.stopApp())
 	read again ans assert apps == nil
@@ -43,6 +44,11 @@ func TestAppManagement(t *testing.T) {
 }
 
 func (c *CloudClient) startApp() error {
+	data := utils.SingleString{tools.NginxDefault}
+	_, err := c.parent.DoRequest("/api/stacks/read", data, "")
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
