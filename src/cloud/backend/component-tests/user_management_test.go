@@ -17,7 +17,6 @@ type CloudClient struct {
 // TODO user registration, authorization and authentication etc
 func TestLogin(t *testing.T) {
 	cloud := getDefaultCloudClient()
-	println(cloud.stack)
 	assert.Nil(t, cloud.parent.Cookie)
 	assert.Nil(t, cloud.login())
 	cookie := cloud.parent.Cookie
