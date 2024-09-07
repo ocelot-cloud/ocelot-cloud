@@ -13,6 +13,8 @@ type CloudClient struct {
 	stack  string
 }
 
+// TODO Add a "wipe" endpoint that stops all stacks and it also deletes all users except "admin"
+// TODO replace existing component-tests request logic with the CloudClient
 // TODO test /api/check-auth, get user name and isAdmin == true
 // TODO user registration, authorization and authentication etc
 func TestLogin(t *testing.T) {
