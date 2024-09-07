@@ -45,13 +45,13 @@ func createAdminUserIfNotExistent() error {
 	return nil
 }
 
-type route struct {
+type Route struct {
 	path    string
 	handler http.HandlerFunc
 }
 
 func initializeHandlers(mux *http.ServeMux) {
-	unprotectedRoutes := []route{
+	unprotectedRoutes := []Route{
 		{loginPath, loginHandler},
 		{registrationPath, registrationHandler},
 		{downloadPath, downloadHandler},
@@ -59,7 +59,7 @@ func initializeHandlers(mux *http.ServeMux) {
 		{searchAppsPath, searchAppsHandler},
 	}
 
-	protectedRoutes := []route{
+	protectedRoutes := []Route{
 		{authCheckPath, authCheckHandler},
 		{tagUploadPath, tagUploadHandler},
 		{tagDeletePath, tagDeleteHandler},
@@ -73,7 +73,7 @@ func initializeHandlers(mux *http.ServeMux) {
 
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
-		unprotectedRoutes = append(unprotectedRoutes, route{wipeDataPath, wipeDataHandler})
+		unprotectedRoutes = append(unprotectedRoutes, Route{wipeDataPath, wipeDataHandler})
 
 		sampleUser := "sample"
 		err := repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
@@ -92,13 +92,13 @@ func getUserFromContext(r *http.Request) string {
 	return r.Context().Value("user").(string)
 }
 
-func registerUnprotectedRoutes(mux *http.ServeMux, routes []route) {
+func registerUnprotectedRoutes(mux *http.ServeMux, routes []Route) {
 	for _, r := range routes {
 		mux.HandleFunc(r.path, r.handler)
 	}
 }
 
-func registerProtectedRoutes(mux *http.ServeMux, routes []route) {
+func registerProtectedRoutes(mux *http.ServeMux, routes []Route) {
 	for _, r := range routes {
 		mux.Handle(r.path, authMiddleware(r.handler))
 	}

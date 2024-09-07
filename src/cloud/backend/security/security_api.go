@@ -35,6 +35,17 @@ func ApplyAuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+type Route struct {
+	Path        string
+	HandlerFunc http.HandlerFunc
+}
+
+func RegisterProtectedRoutes(routes []Route) {
+	for _, r := range routes {
+		router.Handle("/api"+r.Path, ApplyAuthMiddleware(r.HandlerFunc))
+	}
+}
+
 func handleBackendApiRequest(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	// TODO store generated cookie in a repo and check if their value is correct.
 	_, err := r.Cookie("auth")

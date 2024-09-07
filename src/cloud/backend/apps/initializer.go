@@ -2,6 +2,7 @@ package apps
 
 import (
 	"github.com/gorilla/mux"
+	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
 
@@ -25,9 +26,12 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	stackConfigService = provideAppConfigService(appFileDir)
 	stackService = getStackService(config, stackConfigService)
 
-	registerSecuredEndpoint("/stacks/read", createReadHandler)
-	registerSecuredEndpoint("/stacks/deploy", createDeployHandler)
-	registerSecuredEndpoint("/stacks/stop", createStopHandler)
+	routes := []security.Route{
+		{"/stacks/read", createReadHandler},
+		{"/stacks/deploy", createDeployHandler},
+		{"/stacks/stop", createStopHandler},
+	}
+	security.RegisterProtectedRoutes(routes)
 }
 
 func getStackFileDir(config *tools.GlobalConfig) string {

@@ -4,13 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
-
-func registerSecuredEndpoint(path string, handlerFunc http.HandlerFunc) {
-	router.Handle("/api"+path, security.ApplyAuthMiddleware(handlerFunc))
-}
 
 func createReadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
