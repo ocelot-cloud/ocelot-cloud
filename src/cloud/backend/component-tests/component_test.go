@@ -149,14 +149,14 @@ func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, 
 
 func TestUrlPaths(t *testing.T) {
 	cloud := getClientAndLogin(t)
-	responsePayloads, err := cloud.readApps()
+	apps, err := cloud.readApps()
 	assert.Nil(t, err)
 	isCustomPathNginxPathOk := false
 	isDefaultNginxPathOk := false
-	for _, responsePayload := range *responsePayloads {
-		if responsePayload.Name == tools.NginxCustomPath && responsePayload.UrlPath == "/custom-path" {
+	for _, app := range *apps {
+		if app.Name == tools.NginxCustomPath && app.UrlPath == "/custom-path" {
 			isCustomPathNginxPathOk = true
-		} else if responsePayload.Name == tools.NginxDefault && responsePayload.UrlPath == "/" {
+		} else if app.Name == tools.NginxDefault && app.UrlPath == "/" {
 			isDefaultNginxPathOk = true
 		}
 	}
