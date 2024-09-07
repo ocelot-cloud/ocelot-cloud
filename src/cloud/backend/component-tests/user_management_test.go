@@ -19,6 +19,7 @@ func TestLogin(t *testing.T) {
 	assert.Nil(t, client.parent.Cookie)
 	assert.Nil(t, client.login())
 	assert.NotNil(t, client.parent.Cookie)
+	assert.Equal(t, 64, len(client.parent.Cookie.Value))
 	// TODO Further assertions
 	// TODO also make check-auth, get user name and isAdmin == true
 }
