@@ -1,7 +1,6 @@
 package setup
 
 import (
-	"fmt"
 	"github.com/gorilla/mux" // TODO To be wrapped?
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/utils"
@@ -24,7 +23,9 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 
 	apps.InitializeAppService(router, config)
 	initializeDockerNetwork()
-	initializeFunctionalEndpoints()
+	if config.IsGuiEnabled {
+		initializeFrontendResourceDelivery()
+	}
 
 	proxy := http.HandlerFunc(proxyHandler)
 	handler := security.ApplyAuthMiddleware(proxy)
@@ -56,15 +57,6 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func initializeFunctionalEndpoints() {
-	// TODO Is that still necessary?
-	router.HandleFunc("/api/hello", helloHandler)
-
-	if config.IsGuiEnabled {
-		initializeFrontendResourceDelivery()
-	}
-}
-
 func initializeFrontendResourceDelivery() {
 	// TODO utils.GetCorsDisablingHandler should be used only once.
 	router.PathPrefix("/").Handler(utils.GetCorsDisablingHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -86,9 +78,4 @@ func initializeFrontendResourceDelivery() {
 		logger.Debug("Serving static content at '%s'", r.URL.Path)
 		http.FileServer(http.Dir("./dist")).ServeHTTP(w, r)
 	})))
-}
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, "<html><body>Hello</body></html>")
 }
