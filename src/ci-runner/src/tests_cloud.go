@@ -50,21 +50,16 @@ func DeployLocally() {
 func TestCi() {
 	printTaskDescription("Running CI tests")
 	// Starting with the fastest tests, ending with slowest.
+	TestBackend()
+	TestFrontend()
+	TestCloudAcceptance()
+	TestHubAll()
+}
 
-	// TODO backend units + mocked
+func TestBackend() {
 	TestBackendCore()
 	TestBackendComponentMocked()
-
-	// TODO development setup: test backend mocked + GUI
-	TestCloudComponentsWithTestProfile()
-
-	// TODO test backend no mocks, just API
-	testProdBackendApi()
-
-	// TODO acceptance, backend mocked
-	TestCloudAcceptance()
-
-	TestHubAll()
+	TestProdBackendApi()
 }
 
 func RunScheduledTests() {
@@ -72,7 +67,7 @@ func RunScheduledTests() {
 	testBackendImageDownload()
 }
 
-func testProdBackendApi() {
+func TestProdBackendApi() {
 	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
 	ExecuteInDir(backendDir, "rm -rf data")
@@ -90,7 +85,7 @@ func printTaskDescription(text string) {
 	ColoredPrintln("\n=== %s ===\n", text)
 }
 
-func TestCloudComponentsWithTestProfile() {
+func TestFrontend() {
 	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
 	ExecuteInDir(backendDir, "rm -rf data")
