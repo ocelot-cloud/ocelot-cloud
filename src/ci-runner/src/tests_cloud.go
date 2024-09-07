@@ -33,7 +33,7 @@ func TestBackendComponentMocked() {
 	// TODO Aggregate the envs
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	WaitUntilPortIsReady("localhost:8080")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go")
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", getTestProfileEnv())
 }
 
 // TODO There are quite a lot of envs. Maybe I should refactor that into sth like "envs := getEnvs(...)".
@@ -87,7 +87,7 @@ func testProdBackendApi() {
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
 	WaitUntilPortIsReady("localhost:8080")
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...")
+	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...", getProdProfileEnv())
 }
 
 func testBackendImageDownload() {

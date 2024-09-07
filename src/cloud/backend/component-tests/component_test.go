@@ -131,8 +131,19 @@ func TestAbsenceOfCorsPolicyDisablingHeadersInResponse(t *testing.T) {
 }
 
 func AssertCorsHeaders(t *testing.T, expectedAllowOrigin, expectedAllowMethods, expectedAllowHeaders, expectedAllowCredentials string) {
-	resp, err := http.Get("http://localhost:8080/api/stacks/read")
-	assert.Nil(t, err)
+	origin := "http://localhost:8080"
+	req, err := http.NewRequest("GET", origin+"/api/stacks/read", nil)
+	if err != nil {
+		logger.Error("error: %v", err)
+		t.Fail()
+	}
+	req.Header.Set("Origin", origin)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		logger.Error("error: %v", err)
+		t.Fail()
+	}
 	defer resp.Body.Close()
 
 	allowOrigin := resp.Header.Get("Access-Control-Allow-Origin")
@@ -174,7 +185,7 @@ func TestNetworkCreationOnStackDeployment(t *testing.T) {
 
 func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 	onlyExecuteTestForProfile(t, "TEST") // TODO abstract
-	AssertCorsHeaders(t, "*", "POST, GET, OPTIONS, PUT, DELETE", "Accept, Content-Type, Content-Length, Authorization", "true")
+	AssertCorsHeaders(t, "http://localhost:8080", "POST, GET, OPTIONS, PUT, DELETE", "Accept, Content-Type, Content-Length, Authorization", "true")
 }
 
 func TestHealthStateOfSlowStartingStack(t *testing.T) {

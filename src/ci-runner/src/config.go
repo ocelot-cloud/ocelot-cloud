@@ -24,8 +24,8 @@ var backendToolsDir = backendDir + "/tools"
 
 var hubDir = srcDir + "/hub"
 
-// TestProfile There is also the "PROD" profile, but it should be used automatically if no profile is given.
 const TestProfile = "TEST"
+const ProdProfile = "PROD"
 
 func GetProjectDir() string {
 	devopsRunnerDir, _ := os.Getwd()
@@ -35,6 +35,10 @@ func GetProjectDir() string {
 
 func getTestProfileEnv() string {
 	return "PROFILE=" + TestProfile
+}
+
+func getProdProfileEnv() string {
+	return "PROFILE=" + ProdProfile
 }
 
 func getEnableDummyStacksEnv(enabled bool) string {
