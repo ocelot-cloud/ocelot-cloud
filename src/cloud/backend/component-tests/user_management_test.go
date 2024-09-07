@@ -1,6 +1,7 @@
 package component_tests
 
 import (
+	"encoding/json"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
 	"ocelot/backend/security"
@@ -32,16 +33,17 @@ func TestLogin(t *testing.T) {
 
 func TestAppManagement(t *testing.T) {
 	cloud := getClientAndLogin(t)
-	println(cloud.stack)
-	/* TODO
+
 	assert.Nil(t, cloud.startApp())
 	apps, err := cloud.readApps()
 	assert.Nil(t, err)
 	assert.NotNil(t, apps)
-
+	// TODO check app in more detail
 	assert.Nil(t, cloud.stopApp())
-	read again ans assert apps == nil
-	*/
+	apps, err = cloud.readApps()
+	assert.Nil(t, err)
+	assert.NotNil(t, apps)
+	// TODO check app in more detail
 }
 
 func (c *CloudClient) startApp() error {
@@ -54,7 +56,18 @@ func (c *CloudClient) startApp() error {
 }
 
 func (c *CloudClient) readApps() (*[]tools.AppInfo, error) {
-	return nil, nil
+	responseBody, err := c.parent.DoRequest("/api/stacks/read", nil, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var apps []tools.AppInfo
+	err = json.Unmarshal(responseBody.([]byte), &apps)
+	if err != nil {
+		return nil, err
+	}
+
+	return &apps, nil
 }
 
 func (c *CloudClient) stopApp() error {
