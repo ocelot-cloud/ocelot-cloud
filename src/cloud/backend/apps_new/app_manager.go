@@ -68,5 +68,6 @@ func (a *AppContext) Stop() {
 			a.state = Uninitialized
 		}()
 		// TODO conduct stopping
+		// TODO Abort download possible?
 	}
 }
