@@ -13,12 +13,10 @@ func TestStateTransitions(t *testing.T) {
 	app.Deploy()
 	assert.Equal(t, Downloading, app.state)
 	waitAndAssert(t, Starting, app)
-	/* TODO
-	waitAndAssert(t, app.state, Available)
+	waitAndAssert(t, Available, app)
 	app.Stop()
 	assert.Equal(t, Stopping, app.state)
-	waitAndAssert(t, app.state, Uninitialized)
-	*/
+	waitAndAssert(t, Uninitialized, app)
 }
 
 func waitAndAssert(t *testing.T, expected State, app *AppContext) {

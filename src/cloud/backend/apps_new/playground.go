@@ -59,8 +59,14 @@ func (a *AppContext) Deploy() {
 }
 
 func (a *AppContext) Stop() {
-	if a.state == Available {
+	if a.state == Uninitialized {
+		// TODO Do nothing?
+	} else {
 		a.state = Stopping
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			a.state = Uninitialized
+		}()
 		// TODO conduct stopping
 	}
 }
