@@ -1,4 +1,4 @@
-package apps
+package image_download
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
@@ -12,47 +12,47 @@ var testStack = "test-stack"
 var testStack2 = "test-stack2"
 
 var downloadProcessProviderMock *DownloadProcessProviderMock
-var stackDownloadManager downloadManager
+var stackDownloadManager DownloadManager
 
 func setup() {
 	downloadProcessProviderMock = &DownloadProcessProviderMock{}
-	stackDownloadManager = &downloaderReal{downloadProcessProvider: downloadProcessProviderMock}
+	stackDownloadManager = &DownloaderReal{downloadProcessProvider: downloadProcessProviderMock}
 }
 
 func TestDownloadStack_InitialState(t *testing.T) {
 	setup()
 
-	downloadStates := stackDownloadManager.getDownloadStates()
+	downloadStates := stackDownloadManager.GetDownloadStates()
 	assert.Equal(t, 0, len(downloadStates))
 }
 
 func TestDownloadStack_SingleDownload(t *testing.T) {
 	setup()
 
-	stackDownloadManager.download(testStack)
-	downloadStates := stackDownloadManager.getDownloadStates()
+	stackDownloadManager.Download(testStack)
+	downloadStates := stackDownloadManager.GetDownloadStates()
 
 	assert.Equal(t, 1, len(downloadStates))
-	assert.Equal(t, downloadStates[testStack], ongoing)
+	assert.Equal(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadStack_DuplicateDownloadDoesNotCreateNewDownloadState(t *testing.T) {
 	setup()
 
-	stackDownloadManager.download(testStack)
-	stackDownloadManager.download(testStack)
-	downloadStates := stackDownloadManager.getDownloadStates()
+	stackDownloadManager.Download(testStack)
+	stackDownloadManager.Download(testStack)
+	downloadStates := stackDownloadManager.GetDownloadStates()
 
 	assert.Equal(t, 1, len(downloadStates))
-	assert.Equal(t, downloadStates[testStack], ongoing)
+	assert.Equal(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadStack_FinishedDownloadState(t *testing.T) {
 	setup()
 
-	stackDownloadManager.download(testStack)
+	stackDownloadManager.Download(testStack)
 	downloadProcessProviderMock.stackDownloadState.State = finished
-	downloadStates := stackDownloadManager.getDownloadStates()
+	downloadStates := stackDownloadManager.GetDownloadStates()
 
 	assert.Equal(t, 1, len(downloadStates))
 	assert.Equal(t, downloadStates[testStack], finished)
@@ -61,21 +61,21 @@ func TestDownloadStack_FinishedDownloadState(t *testing.T) {
 func TestDownloadStack_AllowDownloadSecondTime(t *testing.T) {
 	setup()
 
-	stackDownloadManager.download(testStack)
+	stackDownloadManager.Download(testStack)
 	downloadProcessProviderMock.stackDownloadState.State = finished
-	stackDownloadManager.download(testStack)
-	downloadStates := stackDownloadManager.getDownloadStates()
+	stackDownloadManager.Download(testStack)
+	downloadStates := stackDownloadManager.GetDownloadStates()
 
 	assert.Equal(t, 1, len(downloadStates))
-	assert.Equal(t, downloadStates[testStack], ongoing)
+	assert.Equal(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadStack_ErrorState(t *testing.T) {
 	setup()
 
-	stackDownloadManager.download(testStack)
+	stackDownloadManager.Download(testStack)
 	downloadProcessProviderMock.stackDownloadState.State = failure
-	downloadStates := stackDownloadManager.getDownloadStates()
+	downloadStates := stackDownloadManager.GetDownloadStates()
 
 	assert.Equal(t, 1, len(downloadStates))
 	assert.Equal(t, downloadStates[testStack], failure)
@@ -84,12 +84,12 @@ func TestDownloadStack_ErrorState(t *testing.T) {
 func TestDownloadStack_MultipleDownloads(t *testing.T) {
 	setup()
 
-	stackDownloadManager.download(testStack)
-	stackDownloadManager.download(testStack2)
-	downloadStates := stackDownloadManager.getDownloadStates()
+	stackDownloadManager.Download(testStack)
+	stackDownloadManager.Download(testStack2)
+	downloadStates := stackDownloadManager.GetDownloadStates()
 
 	assert.Equal(t, 2, len(downloadStates))
-	assert.Equal(t, downloadStates[testStack], ongoing)
+	assert.Equal(t, downloadStates[testStack], Ongoing)
 }
 
 func TestDownloadProcessProviderReal(t *testing.T) {
@@ -105,7 +105,7 @@ func TestDownloadProcessProviderReal(t *testing.T) {
 	}
 
 	downloader := DownloadProcessProviderReal{}
-	downloadState := &stackDownloadState{"nginx-download", ongoing}
+	downloadState := &stackDownloadState{"nginx-download", Ongoing}
 
 	downloader.StartDownloadProcessAndSetStateWhenFinished(downloadState)
 

@@ -3,6 +3,7 @@ package apps
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"ocelot/backend/apps/image_download"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
@@ -12,7 +13,7 @@ var (
 	logger = tools.Logger
 	router *mux.Router
 	config *tools.GlobalConfig
-	// TODO The definition of the stack file dir  depending on the global config should be here I guess.
+	// TODO The definition of the stack file dir depending on the global config should be here I guess.
 	appFileDir         string
 	appService         appServiceType
 	stackConfigService configServiceType // TODO why is this needed? Should be rather a pointer?
@@ -23,6 +24,7 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	router = routerArg
 
 	appFileDir = getStackFileDir(config)
+	image_download.AppFileDir = appFileDir
 	stackConfigService = provideAppConfigService(appFileDir)
 	appService = getStackService(config, stackConfigService)
 

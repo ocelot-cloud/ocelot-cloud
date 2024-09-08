@@ -3,22 +3,23 @@ package apps
 import (
 	"errors"
 	"fmt"
+	"ocelot/backend/apps/image_download"
 	"os"
 )
 
 type appServiceImpl struct {
 	dockerService    dockerService
 	appConfigService configServiceType
-	downloadManager  downloadManager
+	downloadManager  image_download.DownloadManager
 	lastActionOnApp  map[string]appAction
 }
 
 func provideAppServiceMocked(appConfigService configServiceType) appServiceType {
-	return &appServiceImpl{provideServiceMock(), appConfigService, provideDownloaderMock(), make(map[string]appAction)}
+	return &appServiceImpl{provideServiceMock(), appConfigService, image_download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
 func provideAppServiceReal(appConfigService configServiceType) appServiceType {
-	return &appServiceImpl{&dockerServiceReal{}, appConfigService, provideDownloaderReal(), make(map[string]appAction)}
+	return &appServiceImpl{&dockerServiceReal{}, appConfigService, image_download.ProvideDownloaderReal(), make(map[string]appAction)}
 }
 
 type appAction int
@@ -49,14 +50,9 @@ type configServiceType interface {
 	getAppConfig(appName string) appConfig
 }
 
-type downloadManager interface {
-	getDownloadStates() map[string]downloadState
-	download(appName string)
-}
-
 func (sm *appServiceImpl) deployApp(appName string) error {
 	sm.lastActionOnApp[appName] = Deploy
-	sm.downloadManager.download(appName)
+	sm.downloadManager.Download(appName)
 	return sm.dockerService.deployApp(appName)
 }
 
@@ -78,10 +74,10 @@ func (sm *appServiceImpl) getAppStateInfo() map[string]appDetailsType {
 		resultInfos[appName] = appDetailsType{appDetail.State, newPath}
 	}
 
-	downloadStates := sm.downloadManager.getDownloadStates()
+	downloadStates := sm.downloadManager.GetDownloadStates()
 	for appName, appDetails := range resultInfos {
 		if _, ok := downloadStates[appName]; ok {
-			if downloadStates[appName] == ongoing {
+			if downloadStates[appName] == image_download.Ongoing {
 				resultInfos[appName] = appDetailsType{Downloading, appDetails.Path}
 			} else if appDetails.State == Uninitialized && sm.lastActionOnApp[appName] == Deploy {
 				resultInfos[appName] = appDetailsType{Starting, appDetails.Path}

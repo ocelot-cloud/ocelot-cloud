@@ -1,60 +1,69 @@
-package apps
+package image_download
 
 import (
+	"ocelot/backend/tools"
 	"os/exec"
 	"sync"
 )
 
-type downloadState int
+type DownloadManager interface {
+	GetDownloadStates() map[string]DownloadState
+	Download(appName string)
+}
+
+var logger = tools.Logger
+var AppFileDir string
+
+type DownloadState int
 
 const (
-	ongoing downloadState = iota
+	Ongoing DownloadState = iota
 	finished
 	failure
 )
 
-func (s *downloadState) toString() string {
+func (s *DownloadState) toString() string {
 	return [...]string{"Ongoing", "Finished", "Error"}[*s]
 }
 
 type stackDownloadState struct {
 	stackName string
-	State     downloadState
+	State     DownloadState
 }
 
-type downloaderReal struct {
+type DownloaderReal struct {
 	mu                      sync.Mutex
 	downloadStates          []*stackDownloadState
 	downloadProcessProvider DownloadProcessProvider
 }
 
-func provideDownloaderReal() *downloaderReal {
-	return &downloaderReal{downloadProcessProvider: &DownloadProcessProviderReal{}}
+func ProvideDownloaderReal() *DownloaderReal {
+	return &DownloaderReal{downloadProcessProvider: &DownloadProcessProviderReal{}}
 }
 
-func (s *downloaderReal) getDownloadStates() map[string]downloadState {
+func (s *DownloaderReal) GetDownloadStates() map[string]DownloadState {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	downloadStateClone := make(map[string]downloadState)
+	downloadStateClone := make(map[string]DownloadState)
 	for _, v := range s.downloadStates {
 		downloadStateClone[v.stackName] = v.State
 	}
 	return downloadStateClone
 }
 
-func (s *downloaderReal) download(stackName string) {
+func (s *DownloaderReal) Download(stackName string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	for _, state := range s.downloadStates {
 		if state.stackName == stackName {
-			state.State = ongoing
+			state.State = Ongoing
 			s.downloadProcessProvider.StartDownloadProcessAndSetStateWhenFinished(state)
 			return
 		}
 	}
 
-	newDownloadState := &stackDownloadState{stackName: stackName, State: ongoing}
+	newDownloadState := &stackDownloadState{stackName: stackName, State: Ongoing}
 	s.downloadStates = append(s.downloadStates, newDownloadState)
 	s.downloadProcessProvider.StartDownloadProcessAndSetStateWhenFinished(newDownloadState)
 }
@@ -75,7 +84,7 @@ type DownloadProcessProviderReal struct{}
 
 func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *stackDownloadState) {
 	go func() {
-		stackDockerComposePath := appFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
+		stackDockerComposePath := AppFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
 		pullCmd := exec.Command("docker", "compose", "-f", stackDockerComposePath, "pull")
 		err := pullCmd.Run()
 		if err != nil {
