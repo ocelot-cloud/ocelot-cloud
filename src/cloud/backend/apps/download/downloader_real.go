@@ -1,7 +1,7 @@
-package image_download
+package download
 
 import (
-	"ocelot/backend/apps/global_config"
+	"ocelot/backend/apps/vars"
 	"ocelot/backend/tools"
 	"os/exec"
 	"sync"
@@ -84,7 +84,7 @@ type DownloadProcessProviderReal struct{}
 
 func (d *DownloadProcessProviderReal) StartDownloadProcessAndSetStateWhenFinished(stackDownloadState *stackDownloadState) {
 	go func() {
-		stackDockerComposePath := global_config.AppFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
+		stackDockerComposePath := vars.AppFileDir + "/" + stackDownloadState.stackName + "/docker-compose.yml"
 		pullCmd := exec.Command("docker", "compose", "-f", stackDockerComposePath, "pull")
 		err := pullCmd.Run()
 		if err != nil {

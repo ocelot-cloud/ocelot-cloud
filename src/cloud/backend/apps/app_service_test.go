@@ -3,9 +3,9 @@ package apps
 import (
 	"github.com/ocelot-cloud/shared/assert"
 	"ocelot/backend/apps/docker"
-	"ocelot/backend/apps/global_config"
-	"ocelot/backend/apps/image_download"
-	"ocelot/backend/apps/yaml_config"
+	"ocelot/backend/apps/download"
+	"ocelot/backend/apps/vars"
+	"ocelot/backend/apps/yaml"
 	"ocelot/backend/tools"
 	"testing"
 )
@@ -14,8 +14,8 @@ var appToDeploy = tools.NginxDefault
 var app2ToDeploy = tools.NginxDefault2
 
 func createAppService() *appServiceImpl {
-	global_config.AppFileDir = global_config.DummyAppAssetsDirForTests
-	return &appServiceImpl{docker.ProvideServiceMock(), yaml_config.ProvideAppConfigService(), image_download.ProvideDownloaderMock(), make(map[string]appAction)}
+	vars.AppFileDir = vars.DummyAppAssetsDirForTests
+	return &appServiceImpl{docker.ProvideServiceMock(), yaml.ProvideAppConfigService(), download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
 func TestHappyPathDeployAndStop(t *testing.T) {

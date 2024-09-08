@@ -1,4 +1,4 @@
-package image_download
+package download
 
 import "ocelot/backend/tools"
 

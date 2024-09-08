@@ -4,25 +4,25 @@ import (
 	"errors"
 	"fmt"
 	"ocelot/backend/apps/docker"
-	"ocelot/backend/apps/global_config"
-	"ocelot/backend/apps/image_download"
-	"ocelot/backend/apps/yaml_config"
+	"ocelot/backend/apps/download"
+	"ocelot/backend/apps/vars"
+	"ocelot/backend/apps/yaml"
 	"os"
 )
 
 type appServiceImpl struct {
 	dockerService    dockerService
-	appConfigService yaml_config.ConfigServiceType
-	downloadManager  image_download.DownloadManager
+	appConfigService yaml.ConfigServiceType
+	downloadManager  download.DownloadManager
 	lastActionOnApp  map[string]appAction
 }
 
-func provideAppServiceMocked(appConfigService yaml_config.ConfigServiceType) appServiceType {
-	return &appServiceImpl{docker.ProvideServiceMock(), appConfigService, image_download.ProvideDownloaderMock(), make(map[string]appAction)}
+func provideAppServiceMocked(appConfigService yaml.ConfigServiceType) appServiceType {
+	return &appServiceImpl{docker.ProvideServiceMock(), appConfigService, download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
-func provideAppServiceReal(appConfigService yaml_config.ConfigServiceType) appServiceType {
-	return &appServiceImpl{&docker.DockerServiceReal{}, appConfigService, image_download.ProvideDownloaderReal(), make(map[string]appAction)}
+func provideAppServiceReal(appConfigService yaml.ConfigServiceType) appServiceType {
+	return &appServiceImpl{&docker.DockerServiceReal{}, appConfigService, download.ProvideDownloaderReal(), make(map[string]appAction)}
 }
 
 type appAction int
@@ -71,7 +71,7 @@ func (sm *appServiceImpl) getAppStateInfo() map[string]docker.AppDetailsType {
 	downloadStates := sm.downloadManager.GetDownloadStates()
 	for appName, appDetails := range resultInfos {
 		if _, ok := downloadStates[appName]; ok {
-			if downloadStates[appName] == image_download.Ongoing {
+			if downloadStates[appName] == download.Ongoing {
 				resultInfos[appName] = docker.AppDetailsType{docker.Downloading, appDetails.Path}
 			} else if appDetails.State == docker.Uninitialized && sm.lastActionOnApp[appName] == Deploy {
 				resultInfos[appName] = docker.AppDetailsType{docker.Starting, appDetails.Path}
@@ -100,9 +100,9 @@ func logAppStateInfo(info map[string]docker.AppDetailsType) {
 }
 
 func (sm *appServiceImpl) appNamesInDirectory() ([]string, error) {
-	files, err := os.ReadDir(global_config.AppFileDir)
+	files, err := os.ReadDir(vars.AppFileDir)
 	if err != nil {
-		logger.Warn("Could not read app from directory '" + global_config.AppFileDir + "': " + err.Error())
+		logger.Warn("Could not read app from directory '" + vars.AppFileDir + "': " + err.Error())
 		return nil, err
 	}
 

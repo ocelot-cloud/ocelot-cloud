@@ -1,4 +1,4 @@
-package global_config
+package vars
 
 var RealAppAssetsDir = "assets/local"
 var DummyAppAssetsDir = "assets/dummy"

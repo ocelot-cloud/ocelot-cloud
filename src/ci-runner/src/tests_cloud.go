@@ -13,8 +13,8 @@ func TestBackendCore() {
 	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
 	ExecuteInDir(backendAppsDir, "go test -v -count=1 .")
-	ExecuteInDir(backendAppsDir+"/image_download", "go test -v -count=1 ./...")
-	ExecuteInDir(backendAppsDir+"/yaml_config", "go test -v -count=1 ./...")
+	ExecuteInDir(backendAppsDir+"/download", "go test -v -count=1 ./...")
+	ExecuteInDir(backendAppsDir+"/yaml", "go test -v -count=1 ./...")
 	ExecuteInDir(backendSecurityDir, "go test -v -count=1 ./...")
 	ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 }

@@ -4,9 +4,9 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"ocelot/backend/apps/docker"
-	"ocelot/backend/apps/global_config"
-	_ "ocelot/backend/apps/global_config"
-	"ocelot/backend/apps/yaml_config"
+	"ocelot/backend/apps/vars"
+	_ "ocelot/backend/apps/vars"
+	"ocelot/backend/apps/yaml"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
@@ -17,15 +17,15 @@ var (
 	router             *mux.Router
 	config             *tools.GlobalConfig
 	appService         appServiceType
-	stackConfigService yaml_config.ConfigServiceType // TODO why is this needed? Should be rather a pointer?
+	stackConfigService yaml.ConfigServiceType // TODO why is this needed? Should be rather a pointer?
 )
 
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
 	router = routerArg
 
-	global_config.AppFileDir = getStackFileDir(config)
-	stackConfigService = yaml_config.ProvideAppConfigService()
+	vars.AppFileDir = getStackFileDir(config)
+	stackConfigService = yaml.ProvideAppConfigService()
 	appService = getStackService(config, stackConfigService)
 
 	routes := []security.Route{
@@ -41,13 +41,13 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 
 func getStackFileDir(config *tools.GlobalConfig) string {
 	if config.UseDummyStacks {
-		return global_config.DummyAppAssetsDir
+		return vars.DummyAppAssetsDir
 	} else {
-		return global_config.RealAppAssetsDir
+		return vars.RealAppAssetsDir
 	}
 }
 
-func getStackService(config *tools.GlobalConfig, stackConfigService yaml_config.ConfigServiceType) appServiceType {
+func getStackService(config *tools.GlobalConfig, stackConfigService yaml.ConfigServiceType) appServiceType {
 	if config.AreMocksEnabled {
 		logger.Debug("Using mock DockerService")
 		return provideAppServiceMocked(stackConfigService)

@@ -1,14 +1,14 @@
-package yaml_config
+package yaml
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
-	"ocelot/backend/apps/global_config"
+	"ocelot/backend/apps/vars"
 	"ocelot/backend/tools"
 	"testing"
 )
 
 func init() {
-	global_config.AppFileDir = "../" + global_config.DummyAppAssetsDirForTests
+	vars.AppFileDir = "../" + vars.DummyAppAssetsDirForTests
 }
 
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
