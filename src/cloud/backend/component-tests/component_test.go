@@ -39,13 +39,9 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	_, err := cloud.readApps()
 	assert.Nil(t, err)
 	assert.Nil(t, cloud.assertState("Uninitialized"))
-
 	assert.Nil(t, cloud.startApp())
-	// TODO Add assertion for Downloading and Starting?
 	assert.Nil(t, cloud.assertState("Available"))
-
 	assert.Nil(t, cloud.stopApp())
-	// TODO Add assertion for Stopping?
 	assert.Nil(t, cloud.assertState("Uninitialized"))
 }
 
@@ -126,6 +122,7 @@ func TestHealthStateOfSlowStartingStack(t *testing.T) {
 	cloud := getClientAndLogin(t)
 	cloud.appToOperateOn = tools.NginxSlowStart
 	assert.Nil(t, cloud.startApp())
+	// TODO Add assertion for Downloading and Stopping
 	assert.Nil(t, cloud.assertState("Starting"))
 	assert.Nil(t, cloud.assertState("Available"))
 }
