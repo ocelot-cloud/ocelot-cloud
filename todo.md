@@ -44,7 +44,12 @@ func authMiddleware(next http.Handler) http.Handler {
 
 * Extract the docker service into its own package
 
-* add admin-creation at startup logic
+* Currently, there is a horizontally layered architecture in both components. Convert it to a service oriented architecture.
+* refactor the apps logic:
+  * I think I need more architecture, e.g. more packages, for clearer structuring
+  * there should be high level unit tests, e.g. startApp(...) -> Downloading, Starting, Available -> StopApp() -> Stopping, Uninitialized
+  * app assets should be stored in an sqlite db
+  * integrate hub for downloading
 
 * make proper login endpoint with real cookie etc.
 
@@ -130,5 +135,3 @@ server {
     }
 }
 ```
-
-* Currently, there is a horizontally layered architecture in both components. Convert it to a service oriented architecture.
