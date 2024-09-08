@@ -2,6 +2,7 @@ package yaml_config
 
 import (
 	"gopkg.in/yaml.v3"
+	"ocelot/backend/apps/global_config"
 	"ocelot/backend/tools"
 	"os"
 	"path/filepath"
@@ -30,21 +31,21 @@ func (s *configServiceImpl) GetAppConfig(stackName string) appConfig {
 	return appConfig{"/", "80"}
 }
 
-func ProvideAppConfigService(stackDir string) ConfigServiceType {
+func ProvideAppConfigService() ConfigServiceType {
 	stackConfigs := make(map[string]appConfig)
 
-	files, err := os.ReadDir(stackDir)
+	files, err := os.ReadDir(global_config.AppFileDir)
 	if err != nil {
 		a, _ := os.Getwd()
 		logger.Debug("current dir is: %s", a)
-		logger.Fatal("error when reading directory %s: %v", stackDir, err)
+		logger.Fatal("error when reading directory %s: %v", global_config.AppFileDir, err)
 	}
 
 	for _, file := range files {
 		if !file.IsDir() {
 			continue
 		}
-		stackConfigFilePath := filepath.Join(stackDir, file.Name(), "app.yml")
+		stackConfigFilePath := filepath.Join(global_config.AppFileDir, file.Name(), "app.yml")
 		stackConfigs[file.Name()] = loadConfig(stackConfigFilePath)
 	}
 	return &configServiceImpl{stackConfigs: stackConfigs}

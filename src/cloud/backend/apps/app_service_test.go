@@ -14,7 +14,7 @@ var app2ToDeploy = tools.NginxDefault2
 
 func createAppService() *appServiceImpl {
 	global_config.AppFileDir = global_config.DummyAppAssetsDirForTests
-	return &appServiceImpl{provideServiceMock(), yaml_config.ProvideAppConfigService(global_config.AppFileDir), image_download.ProvideDownloaderMock(), make(map[string]appAction)}
+	return &appServiceImpl{provideServiceMock(), yaml_config.ProvideAppConfigService(), image_download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
 func TestHappyPathDeployAndStop(t *testing.T) {

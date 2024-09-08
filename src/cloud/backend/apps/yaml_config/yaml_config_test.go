@@ -12,7 +12,7 @@ func init() {
 }
 
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
-	yamlConfig := ProvideAppConfigService(global_config.AppFileDir)
+	yamlConfig := ProvideAppConfigService()
 	path := yamlConfig.GetAppConfig(tools.NginxCustomPath).UrlPath
 	assert.Equal(t, "/custom-path", path)
 }
@@ -22,7 +22,7 @@ func TestMissingYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
 }
 
 func assertEmptyUrlPathForStack(t *testing.T, stackName string) {
-	yamlConfig := ProvideAppConfigService(global_config.AppFileDir)
+	yamlConfig := ProvideAppConfigService()
 	missingYamlFileUrlPathDefaultValue := yamlConfig.GetAppConfig(stackName).UrlPath
 	assert.Equal(t, "/", missingYamlFileUrlPathDefaultValue)
 }
@@ -32,7 +32,7 @@ func TestMissingUrlPathVariableInYamlFileLeadsToReturnOfIndexPath(t *testing.T) 
 }
 
 func TestNonExistentStackShouldReturnDefaultConfig(t *testing.T) {
-	yamlConfig := ProvideAppConfigService(global_config.AppFileDir)
+	yamlConfig := ProvideAppConfigService()
 	resultConfig := yamlConfig.GetAppConfig("non-existent-stack")
 	assert.Equal(t, "/", resultConfig.UrlPath)
 	assert.Equal(t, "80", resultConfig.Port)
@@ -52,7 +52,7 @@ func TestStackConfig(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			stackConfigService := ProvideAppConfigService(global_config.AppFileDir)
+			stackConfigService := ProvideAppConfigService()
 			config := stackConfigService.GetAppConfig(tc.StackName)
 			assert.Equal(t, tc.ExpectedPort, config.Port)
 			assert.Equal(t, tc.ExpectedPath, config.UrlPath)

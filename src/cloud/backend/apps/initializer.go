@@ -24,7 +24,7 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	router = routerArg
 
 	global_config.AppFileDir = getStackFileDir(config)
-	stackConfigService = yaml_config.ProvideAppConfigService(global_config.AppFileDir)
+	stackConfigService = yaml_config.ProvideAppConfigService()
 	appService = getStackService(config, stackConfigService)
 
 	routes := []security.Route{
