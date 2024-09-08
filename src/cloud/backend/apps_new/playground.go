@@ -2,6 +2,7 @@ package apps_new
 
 import (
 	"ocelot/backend/tools"
+	"time"
 )
 
 var logger = tools.Logger
@@ -41,6 +42,13 @@ type AppContext struct {
 func (a *AppContext) Deploy() {
 	if a.state == Uninitialized {
 		a.state = Downloading
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			a.state = Starting
+			time.Sleep(100 * time.Millisecond)
+			a.state = Available
+		}()
+
 		// TODO Start download
 		// TODO when finished, trigger next event: startApp + state = Starting
 		// TODO when finished, trigger next event: state = Available
