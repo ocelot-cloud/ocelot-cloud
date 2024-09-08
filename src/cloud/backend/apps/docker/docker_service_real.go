@@ -1,24 +1,32 @@
-package apps
+package docker
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
 	"ocelot/backend/apps/global_config"
+	"ocelot/backend/tools"
 	"os"
 	"os/exec"
 	"strings"
 )
 
+var logger = tools.Logger
+
+type AppDetailsType struct {
+	State AppState
+	Path  string
+}
+
 // TODO Run initial test, either "docker compose" or "docker-compose" must be installed. If not, exit. If one is installed, set it globally as dockerComposeCommand or so
 
-type dockerServiceReal struct{}
+type DockerServiceReal struct{}
 
-func (d *dockerServiceReal) deployApp(stackName string) error {
+func (d *DockerServiceReal) DeployApp(stackName string) error {
 	cmdPath := getStackPath(stackName)
 
 	if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
-		return logAndCreateAppNotFoundError(stackName)
+		return LogAndCreateAppNotFoundError(stackName)
 	}
 
 	networkCreationBashCmd := fmt.Sprintf("docker network ls | grep -q %s-net || docker network create %s-net", stackName, stackName)
@@ -35,7 +43,7 @@ func (d *dockerServiceReal) deployApp(stackName string) error {
 	}
 }
 
-func logAndCreateAppNotFoundError(stackName string) error {
+func LogAndCreateAppNotFoundError(stackName string) error {
 	errorMessage := "Could not find stack: " + stackName
 	logger.Error(errorMessage)
 	return fmt.Errorf(errorMessage)
@@ -45,7 +53,7 @@ func getStackPath(stackName string) string {
 	return fmt.Sprintf("%s/%s/docker-compose.yml", global_config.AppFileDir, stackName)
 }
 
-func (d *dockerServiceReal) stopApp(stackName string) error {
+func (d *DockerServiceReal) StopApp(stackName string) error {
 	configPath := getStackPath(stackName)
 	cmd := exec.Command("docker", "compose", "-p", stackName, "-f", configPath, "down")
 	output, err := cmd.CombinedOutput()
@@ -58,7 +66,7 @@ func (d *dockerServiceReal) stopApp(stackName string) error {
 	}
 }
 
-func (d *dockerServiceReal) getRunningAppStateInfo() (map[string]appDetailsType, error) {
+func (d *DockerServiceReal) GetRunningAppStateInfo() (map[string]AppDetailsType, error) {
 	lines, err := getDockerComposeListLines()
 	if err != nil {
 		logger.Error("error, 'docker compose' command seemed not to have worked properly: %s", err.Error())
@@ -70,8 +78,8 @@ func (d *dockerServiceReal) getRunningAppStateInfo() (map[string]appDetailsType,
 	return fullStacksInfoWithMoreSpecificHealthState, nil
 }
 
-func setHealthStates(stackStateInfo map[string]appDetailsType) map[string]appDetailsType {
-	resultInfo := make(map[string]appDetailsType)
+func setHealthStates(stackStateInfo map[string]AppDetailsType) map[string]AppDetailsType {
+	resultInfo := make(map[string]AppDetailsType)
 	for stackName, stackDetail := range stackStateInfo {
 		if stackDetail.State == Running {
 			stackDetail.State = getHealthStateOf(stackName)
@@ -81,7 +89,7 @@ func setHealthStates(stackStateInfo map[string]appDetailsType) map[string]appDet
 	return resultInfo
 }
 
-func getHealthStateOf(stackName string) appState {
+func getHealthStateOf(stackName string) AppState {
 	if areAllStackContainersWithHealthChecksHealthy(stackName) {
 		return Available
 	} else {
@@ -136,8 +144,8 @@ func getDockerComposeListLines() ([]string, error) {
 	return lines, nil
 }
 
-func extractNamesOfRunningStacksFromLines(lines []string) map[string]appDetailsType {
-	var resultInfos = make(map[string]appDetailsType)
+func extractNamesOfRunningStacksFromLines(lines []string) map[string]AppDetailsType {
+	var resultInfos = make(map[string]AppDetailsType)
 	for _, line := range lines {
 		if isHeaderOrEmpty(line) {
 			continue
@@ -156,14 +164,14 @@ func isHeaderOrEmpty(line string) bool {
 	return strings.HasPrefix(line, "NAME") || len(strings.TrimSpace(line)) == 0
 }
 
-func transformToStackStackInfo(fields []string) (string, appDetailsType) {
+func transformToStackStackInfo(fields []string) (string, AppDetailsType) {
 	name := fields[0]
 	rawStatus := fields[1]
-	var status appState
+	var status AppState
 	if strings.Contains(rawStatus, "running") {
 		status = Running
 	} else {
 		status = Uninitialized
 	}
-	return name, appDetailsType{status, "/"}
+	return name, AppDetailsType{status, "/"}
 }

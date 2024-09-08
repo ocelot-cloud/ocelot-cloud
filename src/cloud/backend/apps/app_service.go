@@ -3,6 +3,7 @@ package apps
 import (
 	"errors"
 	"fmt"
+	"ocelot/backend/apps/docker"
 	"ocelot/backend/apps/global_config"
 	"ocelot/backend/apps/image_download"
 	"ocelot/backend/apps/yaml_config"
@@ -17,11 +18,11 @@ type appServiceImpl struct {
 }
 
 func provideAppServiceMocked(appConfigService yaml_config.ConfigServiceType) appServiceType {
-	return &appServiceImpl{provideServiceMock(), appConfigService, image_download.ProvideDownloaderMock(), make(map[string]appAction)}
+	return &appServiceImpl{docker.ProvideServiceMock(), appConfigService, image_download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
 func provideAppServiceReal(appConfigService yaml_config.ConfigServiceType) appServiceType {
-	return &appServiceImpl{&dockerServiceReal{}, appConfigService, image_download.ProvideDownloaderReal(), make(map[string]appAction)}
+	return &appServiceImpl{&docker.DockerServiceReal{}, appConfigService, image_download.ProvideDownloaderReal(), make(map[string]appAction)}
 }
 
 type appAction int
@@ -34,29 +35,24 @@ const (
 type appServiceType interface {
 	deployApp(appName string) error
 	stopApp(appName string) error
-	getAppStateInfo() map[string]appDetailsType
-}
-
-type appDetailsType struct {
-	State appState
-	Path  string
+	getAppStateInfo() map[string]docker.AppDetailsType
 }
 
 type dockerService interface {
-	deployApp(appName string) error
-	stopApp(appName string) error
-	getRunningAppStateInfo() (map[string]appDetailsType, error)
+	DeployApp(appName string) error
+	StopApp(appName string) error
+	GetRunningAppStateInfo() (map[string]docker.AppDetailsType, error)
 }
 
 func (sm *appServiceImpl) deployApp(appName string) error {
 	sm.lastActionOnApp[appName] = Deploy
 	sm.downloadManager.Download(appName)
-	return sm.dockerService.deployApp(appName)
+	return sm.dockerService.DeployApp(appName)
 }
 
-func (sm *appServiceImpl) getAppStateInfo() map[string]appDetailsType {
+func (sm *appServiceImpl) getAppStateInfo() map[string]docker.AppDetailsType {
 	logger.Trace("App state info was requested.")
-	resultInfos, err := sm.dockerService.getRunningAppStateInfo()
+	resultInfos, err := sm.dockerService.GetRunningAppStateInfo()
 
 	appsInDir, err := sm.appNamesInDirectory()
 	if err != nil {
@@ -69,18 +65,18 @@ func (sm *appServiceImpl) getAppStateInfo() map[string]appDetailsType {
 
 	for appName, appDetail := range resultInfos {
 		newPath := sm.appConfigService.GetAppConfig(appName).UrlPath
-		resultInfos[appName] = appDetailsType{appDetail.State, newPath}
+		resultInfos[appName] = docker.AppDetailsType{appDetail.State, newPath}
 	}
 
 	downloadStates := sm.downloadManager.GetDownloadStates()
 	for appName, appDetails := range resultInfos {
 		if _, ok := downloadStates[appName]; ok {
 			if downloadStates[appName] == image_download.Ongoing {
-				resultInfos[appName] = appDetailsType{Downloading, appDetails.Path}
-			} else if appDetails.State == Uninitialized && sm.lastActionOnApp[appName] == Deploy {
-				resultInfos[appName] = appDetailsType{Starting, appDetails.Path}
-			} else if appDetails.State != Uninitialized && sm.lastActionOnApp[appName] == Stop {
-				resultInfos[appName] = appDetailsType{Stopping, appDetails.Path}
+				resultInfos[appName] = docker.AppDetailsType{docker.Downloading, appDetails.Path}
+			} else if appDetails.State == docker.Uninitialized && sm.lastActionOnApp[appName] == Deploy {
+				resultInfos[appName] = docker.AppDetailsType{docker.Starting, appDetails.Path}
+			} else if appDetails.State != docker.Uninitialized && sm.lastActionOnApp[appName] == Stop {
+				resultInfos[appName] = docker.AppDetailsType{docker.Stopping, appDetails.Path}
 			}
 		}
 	}
@@ -89,14 +85,14 @@ func (sm *appServiceImpl) getAppStateInfo() map[string]appDetailsType {
 	return resultInfos
 }
 
-func logAppStateInfo(info map[string]appDetailsType) {
+func logAppStateInfo(info map[string]docker.AppDetailsType) {
 	var logString = ""
 	currentIndex := 0
 	for appName, appDetails := range info {
 		if currentIndex == 0 {
-			logString += fmt.Sprintf("\n  {%s: %s}", appName, appDetails.State.toString())
+			logString += fmt.Sprintf("\n  {%s: %s}", appName, appDetails.State.ToString())
 		} else {
-			logString += fmt.Sprintf("\n,  {%s: %s}", appName, appDetails.State.toString())
+			logString += fmt.Sprintf("\n,  {%s: %s}", appName, appDetails.State.ToString())
 		}
 		currentIndex++
 	}
@@ -119,10 +115,10 @@ func (sm *appServiceImpl) appNamesInDirectory() ([]string, error) {
 	return appNames, nil
 }
 
-func (sm *appServiceImpl) addUninitializedApps(resultInfos map[string]appDetailsType, appsInDir []string) map[string]appDetailsType {
+func (sm *appServiceImpl) addUninitializedApps(resultInfos map[string]docker.AppDetailsType, appsInDir []string) map[string]docker.AppDetailsType {
 	for _, appName := range appsInDir {
 		if _, ok := resultInfos[appName]; !ok {
-			resultInfos[appName] = appDetailsType{Uninitialized, "/"}
+			resultInfos[appName] = docker.AppDetailsType{docker.Uninitialized, "/"}
 		}
 	}
 	return resultInfos
@@ -133,7 +129,7 @@ func (sm *appServiceImpl) stopApp(appToStop string) error {
 	logger.Info("Stopping app: %s", appToStop)
 	appStateInfo := sm.getAppStateInfo()
 	var doesAppExist = false
-	var existingApp appDetailsType
+	var existingApp docker.AppDetailsType
 	for appName, appDetails := range appStateInfo {
 		if appName == appToStop {
 			doesAppExist = true
@@ -142,13 +138,13 @@ func (sm *appServiceImpl) stopApp(appToStop string) error {
 		}
 	}
 	if doesAppExist == false {
-		return logAndCreateAppNotFoundError(appToStop)
-	} else if !(existingApp.State == Starting || existingApp.State == Available || existingApp.State == Stopping) {
-		logger.Warn("only 'Starting' and 'Available' apps can be stopped. State is: %s", existingApp.State.toString())
+		return docker.LogAndCreateAppNotFoundError(appToStop)
+	} else if !(existingApp.State == docker.Starting || existingApp.State == docker.Available || existingApp.State == docker.Stopping) {
+		logger.Warn("only 'Starting' and 'Available' apps can be stopped. State is: %s", existingApp.State.ToString())
 		return errors.New("error - stopping app failed")
 	} else {
 		logger.Debug("App does exist and is now stopped: %s", appToStop)
-		return sm.dockerService.stopApp(appToStop)
+		return sm.dockerService.StopApp(appToStop)
 	}
 }
 
@@ -156,7 +152,7 @@ func (sm *appServiceImpl) stopAllApps() error {
 	appStateInfo := sm.getAppStateInfo()
 
 	for appName, appDetails := range appStateInfo {
-		if appDetails.State == Starting || appDetails.State == Available {
+		if appDetails.State == docker.Starting || appDetails.State == docker.Available {
 			err := sm.stopApp(appName)
 			if err != nil {
 				return err

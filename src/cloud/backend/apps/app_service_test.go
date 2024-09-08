@@ -2,6 +2,7 @@ package apps
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"ocelot/backend/apps/docker"
 	"ocelot/backend/apps/global_config"
 	"ocelot/backend/apps/image_download"
 	"ocelot/backend/apps/yaml_config"
@@ -14,7 +15,7 @@ var app2ToDeploy = tools.NginxDefault2
 
 func createAppService() *appServiceImpl {
 	global_config.AppFileDir = global_config.DummyAppAssetsDirForTests
-	return &appServiceImpl{provideServiceMock(), yaml_config.ProvideAppConfigService(), image_download.ProvideDownloaderMock(), make(map[string]appAction)}
+	return &appServiceImpl{docker.ProvideServiceMock(), yaml_config.ProvideAppConfigService(), image_download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
 func TestHappyPathDeployAndStop(t *testing.T) {
@@ -24,18 +25,18 @@ func TestHappyPathDeployAndStop(t *testing.T) {
 	assert.Nil(t, err)
 
 	currentStackInfo := appService.getAppStateInfo()
-	assertState(t, currentStackInfo, appToDeploy, Available)
-	assertState(t, currentStackInfo, app2ToDeploy, Uninitialized)
+	assertState(t, currentStackInfo, appToDeploy, docker.Available)
+	assertState(t, currentStackInfo, app2ToDeploy, docker.Uninitialized)
 
 	err = appService.stopApp(appToDeploy)
 	assert.Nil(t, err)
 
 	infoAfterStop := appService.getAppStateInfo()
-	assertState(t, infoAfterStop, appToDeploy, Uninitialized)
-	assertState(t, infoAfterStop, app2ToDeploy, Uninitialized)
+	assertState(t, infoAfterStop, appToDeploy, docker.Uninitialized)
+	assertState(t, infoAfterStop, app2ToDeploy, docker.Uninitialized)
 }
 
-func assertState(t *testing.T, stackInfo map[string]appDetailsType, name string, state appState) {
+func assertState(t *testing.T, stackInfo map[string]docker.AppDetailsType, name string, state docker.AppState) {
 	if _, ok := stackInfo[name]; ok {
 		assert.Equal(t, state, stackInfo[name].State, "Stack was present but had wrong state.")
 	} else {
@@ -49,14 +50,14 @@ func TestAllStacksStop(t *testing.T) {
 	assert.Nil(t, appService.deployApp(app2ToDeploy))
 
 	infoAfterDeploy := appService.getAppStateInfo()
-	assertState(t, infoAfterDeploy, appToDeploy, Available)
-	assertState(t, infoAfterDeploy, app2ToDeploy, Available)
+	assertState(t, infoAfterDeploy, appToDeploy, docker.Available)
+	assertState(t, infoAfterDeploy, app2ToDeploy, docker.Available)
 
 	assert.Nil(t, appService.stopAllApps())
 
 	infoAfterStopAll := appService.getAppStateInfo()
-	assertState(t, infoAfterStopAll, appToDeploy, Uninitialized)
-	assertState(t, infoAfterStopAll, app2ToDeploy, Uninitialized)
+	assertState(t, infoAfterStopAll, appToDeploy, docker.Uninitialized)
+	assertState(t, infoAfterStopAll, app2ToDeploy, docker.Uninitialized)
 }
 
 func TestToDeploySameStackTwice(t *testing.T) {
@@ -124,7 +125,7 @@ func (s *appServiceTestApi) stop() *appServiceTestApi {
 	return s
 }
 
-func (s *appServiceTestApi) assertState(expectedState appState) *appServiceTestApi {
+func (s *appServiceTestApi) assertState(expectedState docker.AppState) *appServiceTestApi {
 	stackStateInfo := s.appService.getAppStateInfo()
 	if _, ok := stackStateInfo[s.stackName]; ok {
 		assert.Equal(s.t, expectedState, stackStateInfo[s.stackName].State)
@@ -136,13 +137,13 @@ func (s *appServiceTestApi) assertState(expectedState appState) *appServiceTestA
 
 func TestHealthStateHandling(t *testing.T) {
 	api := appServiceTestApi{t, createAppService(), tools.NginxSlowStart}
-	api.deploy().assertState(Starting).assertState(Available)
-	api.stop().assertState(Uninitialized)
-	api.deploy().assertState(Starting).stop().assertState(Uninitialized)
+	api.deploy().assertState(docker.Starting).assertState(docker.Available)
+	api.stop().assertState(docker.Uninitialized)
+	api.deploy().assertState(docker.Starting).stop().assertState(docker.Uninitialized)
 }
 
 func TestDownloadStateHandling(t *testing.T) {
 	api := appServiceTestApi{t, createAppService(), tools.NginxDownloading}
-	api.deploy().assertState(Downloading).assertState(Starting).assertState(Available)
-	api.stop().assertState(Uninitialized)
+	api.deploy().assertState(docker.Downloading).assertState(docker.Starting).assertState(docker.Available)
+	api.stop().assertState(docker.Uninitialized)
 }

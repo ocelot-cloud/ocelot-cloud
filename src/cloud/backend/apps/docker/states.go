@@ -1,9 +1,9 @@
-package apps
+package docker
 
-type appState int
+type AppState int
 
 const (
-	Uninitialized appState = iota
+	Uninitialized AppState = iota
 	Running
 	Starting
 	Available
@@ -11,6 +11,6 @@ const (
 	Stopping
 )
 
-func (s *appState) toString() string {
+func (s *AppState) ToString() string {
 	return [...]string{"Uninitialized", "Running", "Starting", "Available", "Downloading", "Stopping"}[*s]
 }

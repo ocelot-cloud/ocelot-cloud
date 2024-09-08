@@ -3,6 +3,7 @@ package apps
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"ocelot/backend/apps/docker"
 	"ocelot/backend/apps/global_config"
 	_ "ocelot/backend/apps/global_config"
 	"ocelot/backend/apps/yaml_config"
@@ -59,7 +60,7 @@ func getStackService(config *tools.GlobalConfig, stackConfigService yaml_config.
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	apps := appService.getAppStateInfo()
 	for appName, appDetails := range apps {
-		if appDetails.State != Uninitialized {
+		if appDetails.State != docker.Uninitialized {
 			err := appService.stopApp(appName)
 			if err != nil {
 				logger.Error("Couldn't stop app: %s, error: %v", appName, err)

@@ -1,4 +1,4 @@
-package apps
+package docker
 
 import (
 	"fmt"
@@ -6,28 +6,28 @@ import (
 )
 
 type dockerServiceMock struct {
-	stackStates                  map[string]appState
+	stackStates                  map[string]AppState
 	hasWaitedToPassDownloadState bool
 }
 
-func provideServiceMock() *dockerServiceMock {
-	return &dockerServiceMock{stackStates: make(map[string]appState), hasWaitedToPassDownloadState: false}
+func ProvideServiceMock() *dockerServiceMock {
+	return &dockerServiceMock{stackStates: make(map[string]AppState), hasWaitedToPassDownloadState: false}
 }
 
-func (d *dockerServiceMock) deployApp(stackName string) error {
+func (d *dockerServiceMock) DeployApp(stackName string) error {
 	if stackName == "not-existing-stack" {
-		return logAndCreateAppNotFoundError(stackName)
+		return LogAndCreateAppNotFoundError(stackName)
 	} else if stackName == tools.NginxSlowStart || stackName == tools.NginxDownloading {
 		d.stackStates[stackName] = Starting
 	} else {
 		d.stackStates[stackName] = Available
 	}
 	state := d.stackStates[stackName]
-	logger.Debug("Mock pretends to have deployed stack '%s' with state %s.", stackName, state.toString())
+	logger.Debug("Mock pretends to have deployed stack '%s' with state %s.", stackName, state.ToString())
 	return nil
 }
 
-func (d *dockerServiceMock) stopApp(stackName string) error {
+func (d *dockerServiceMock) StopApp(stackName string) error {
 	if _, ok := d.stackStates[stackName]; ok {
 		d.stackStates[stackName] = Uninitialized
 	} else {
@@ -37,12 +37,12 @@ func (d *dockerServiceMock) stopApp(stackName string) error {
 	return nil
 }
 
-func (d *dockerServiceMock) getRunningAppStateInfo() (map[string]appDetailsType, error) {
+func (d *dockerServiceMock) GetRunningAppStateInfo() (map[string]AppDetailsType, error) {
 	logger.Trace("Mock return stack state info of virtually managed stacks")
 
-	clonedStates := make(map[string]appDetailsType)
+	clonedStates := make(map[string]AppDetailsType)
 	for stackName, stackState := range d.stackStates {
-		clonedStates[stackName] = appDetailsType{stackState, "/"}
+		clonedStates[stackName] = AppDetailsType{stackState, "/"}
 	}
 
 	for key, value := range d.stackStates {
