@@ -46,10 +46,10 @@ func (s *downloaderReal) download(stackName string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	for _, downloadState := range s.downloadStates {
-		if downloadState.stackName == stackName {
-			downloadState.State = ongoing
-			s.downloadProcessProvider.StartDownloadProcessAndSetStateWhenFinished(downloadState)
+	for _, state := range s.downloadStates {
+		if state.stackName == stackName {
+			state.State = ongoing
+			s.downloadProcessProvider.StartDownloadProcessAndSetStateWhenFinished(state)
 			return
 		}
 	}

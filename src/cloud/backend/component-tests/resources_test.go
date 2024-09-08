@@ -69,7 +69,7 @@ func (c *CloudClient) wipeData() error {
 }
 
 func (c *CloudClient) assertState(expectedState string) error {
-	const maxAttempts = 30
+	const maxAttempts = 300
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		appInfo, err := c.readApps()
 		if err != nil {
@@ -81,8 +81,11 @@ func (c *CloudClient) assertState(expectedState string) error {
 			return nil
 		}
 
-		logger.Info("Attempt %v: App '%s' has state '%s' instead of expected state '%s'. Re-try in one second...", attempt, c.appToOperateOn, actualState, expectedState)
-		time.Sleep(1 * time.Second)
+		if attempt%10 == 0 {
+			logger.Info("%v: App '%s' has state '%s' instead of expected state '%s'. Re-try in one second...", attempt/10, c.appToOperateOn, actualState, expectedState)
+		}
+
+		time.Sleep(100 * time.Millisecond)
 	}
 	return fmt.Errorf("state not reached within time range")
 }

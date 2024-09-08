@@ -118,13 +118,15 @@ func TestWhetherCorsPolicyDisablingHeadersAreInResponse(t *testing.T) {
 }
 
 func TestHealthStateOfSlowStartingStack(t *testing.T) {
-	onlyExecuteTestForProfile(t, ProdProfile)
-	cloud := getClientAndLogin(t)
+	// TODO Adapt mock to make this test also usable for TEST profile
+	cloud := getClientAndLogin(t) // TODO Maybe add a wait until all services are uninitialized? But only for prod
 	cloud.appToOperateOn = tools.NginxSlowStart
 	assert.Nil(t, cloud.startApp())
 	// TODO Add assertion for Downloading and Stopping
+	// assert.Nil(t, cloud.assertState("Downloading"))
 	assert.Nil(t, cloud.assertState("Starting"))
 	assert.Nil(t, cloud.assertState("Available"))
+	// assert.Nil(t, cloud.assertState("Stopping"))
 }
 
 func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
