@@ -1,5 +1,6 @@
 # TODO
 
+* GlobalConfig and db objects should be globally available via tools.xxx
 * this should be a warning if profile is TEST: "tools/config.go:112 > Profile is: TEST"
 * security
   1. in handler: getAuth -> auth { user, isAdmin }, check if handler needs admin access or just user access
