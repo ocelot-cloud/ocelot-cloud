@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"ocelot/backend/apps/global_config"
 	"os"
 	"os/exec"
 	"strings"
@@ -41,7 +42,7 @@ func logAndCreateAppNotFoundError(stackName string) error {
 }
 
 func getStackPath(stackName string) string {
-	return fmt.Sprintf("%s/%s/docker-compose.yml", appFileDir, stackName)
+	return fmt.Sprintf("%s/%s/docker-compose.yml", global_config.AppFileDir, stackName)
 }
 
 func (d *dockerServiceReal) stopApp(stackName string) error {

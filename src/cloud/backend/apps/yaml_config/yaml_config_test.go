@@ -1,19 +1,20 @@
-package apps
+package yaml_config
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"ocelot/backend/apps/global_config"
 	"ocelot/backend/tools"
 	"testing"
 )
 
 func init() {
-	appFileDir = dummyAppAssetsDirForTests
+	global_config.AppFileDir = "../" + global_config.DummyAppAssetsDirForTests
 }
 
 func TestWhetherExistingUrlPathIsCorrectlyRead(t *testing.T) {
-	yamlConfig := provideAppConfigService(appFileDir)
-	limesurveyUrlPath := yamlConfig.getAppConfig(tools.NginxCustomPath).UrlPath
-	assert.Equal(t, "/custom-path", limesurveyUrlPath)
+	yamlConfig := ProvideAppConfigService(global_config.AppFileDir)
+	path := yamlConfig.GetAppConfig(tools.NginxCustomPath).UrlPath
+	assert.Equal(t, "/custom-path", path)
 }
 
 func TestMissingYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
@@ -21,8 +22,8 @@ func TestMissingYamlFileLeadsToReturnOfIndexPath(t *testing.T) {
 }
 
 func assertEmptyUrlPathForStack(t *testing.T, stackName string) {
-	yamlConfig := provideAppConfigService(appFileDir)
-	missingYamlFileUrlPathDefaultValue := yamlConfig.getAppConfig(stackName).UrlPath
+	yamlConfig := ProvideAppConfigService(global_config.AppFileDir)
+	missingYamlFileUrlPathDefaultValue := yamlConfig.GetAppConfig(stackName).UrlPath
 	assert.Equal(t, "/", missingYamlFileUrlPathDefaultValue)
 }
 
@@ -31,8 +32,8 @@ func TestMissingUrlPathVariableInYamlFileLeadsToReturnOfIndexPath(t *testing.T) 
 }
 
 func TestNonExistentStackShouldReturnDefaultConfig(t *testing.T) {
-	yamlConfig := provideAppConfigService(appFileDir)
-	resultConfig := yamlConfig.getAppConfig("non-existent-stack")
+	yamlConfig := ProvideAppConfigService(global_config.AppFileDir)
+	resultConfig := yamlConfig.GetAppConfig("non-existent-stack")
 	assert.Equal(t, "/", resultConfig.UrlPath)
 	assert.Equal(t, "80", resultConfig.Port)
 }
@@ -51,8 +52,8 @@ func TestStackConfig(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			stackConfigService := provideAppConfigService(dummyAppAssetsDirForTests)
-			config := stackConfigService.getAppConfig(tc.StackName)
+			stackConfigService := ProvideAppConfigService(global_config.AppFileDir)
+			config := stackConfigService.GetAppConfig(tc.StackName)
 			assert.Equal(t, tc.ExpectedPort, config.Port)
 			assert.Equal(t, tc.ExpectedPath, config.UrlPath)
 		})

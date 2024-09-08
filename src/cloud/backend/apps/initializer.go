@@ -3,29 +3,28 @@ package apps
 import (
 	"github.com/gorilla/mux"
 	"net/http"
-	"ocelot/backend/apps/image_download"
+	"ocelot/backend/apps/global_config"
+	_ "ocelot/backend/apps/global_config"
+	"ocelot/backend/apps/yaml_config"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
 
 // TODO add router to global config
 var (
-	logger = tools.Logger
-	router *mux.Router
-	config *tools.GlobalConfig
-	// TODO The definition of the stack file dir depending on the global config should be here I guess.
-	appFileDir         string
+	logger             = tools.Logger
+	router             *mux.Router
+	config             *tools.GlobalConfig
 	appService         appServiceType
-	stackConfigService configServiceType // TODO why is this needed? Should be rather a pointer?
+	stackConfigService yaml_config.ConfigServiceType // TODO why is this needed? Should be rather a pointer?
 )
 
 func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	config = configArg
 	router = routerArg
 
-	appFileDir = getStackFileDir(config)
-	image_download.AppFileDir = appFileDir
-	stackConfigService = provideAppConfigService(appFileDir)
+	global_config.AppFileDir = getStackFileDir(config)
+	stackConfigService = yaml_config.ProvideAppConfigService(global_config.AppFileDir)
 	appService = getStackService(config, stackConfigService)
 
 	routes := []security.Route{
@@ -41,13 +40,13 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 
 func getStackFileDir(config *tools.GlobalConfig) string {
 	if config.UseDummyStacks {
-		return dummyAppAssetsDir
+		return global_config.DummyAppAssetsDir
 	} else {
-		return realAppAssetsDir
+		return global_config.RealAppAssetsDir
 	}
 }
 
-func getStackService(config *tools.GlobalConfig, stackConfigService configServiceType) appServiceType {
+func getStackService(config *tools.GlobalConfig, stackConfigService yaml_config.ConfigServiceType) appServiceType {
 	if config.AreMocksEnabled {
 		logger.Debug("Using mock DockerService")
 		return provideAppServiceMocked(stackConfigService)

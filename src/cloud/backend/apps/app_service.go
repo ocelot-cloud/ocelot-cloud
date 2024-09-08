@@ -3,22 +3,24 @@ package apps
 import (
 	"errors"
 	"fmt"
+	"ocelot/backend/apps/global_config"
 	"ocelot/backend/apps/image_download"
+	"ocelot/backend/apps/yaml_config"
 	"os"
 )
 
 type appServiceImpl struct {
 	dockerService    dockerService
-	appConfigService configServiceType
+	appConfigService yaml_config.ConfigServiceType
 	downloadManager  image_download.DownloadManager
 	lastActionOnApp  map[string]appAction
 }
 
-func provideAppServiceMocked(appConfigService configServiceType) appServiceType {
+func provideAppServiceMocked(appConfigService yaml_config.ConfigServiceType) appServiceType {
 	return &appServiceImpl{provideServiceMock(), appConfigService, image_download.ProvideDownloaderMock(), make(map[string]appAction)}
 }
 
-func provideAppServiceReal(appConfigService configServiceType) appServiceType {
+func provideAppServiceReal(appConfigService yaml_config.ConfigServiceType) appServiceType {
 	return &appServiceImpl{&dockerServiceReal{}, appConfigService, image_download.ProvideDownloaderReal(), make(map[string]appAction)}
 }
 
@@ -46,10 +48,6 @@ type dockerService interface {
 	getRunningAppStateInfo() (map[string]appDetailsType, error)
 }
 
-type configServiceType interface {
-	getAppConfig(appName string) appConfig
-}
-
 func (sm *appServiceImpl) deployApp(appName string) error {
 	sm.lastActionOnApp[appName] = Deploy
 	sm.downloadManager.Download(appName)
@@ -70,7 +68,7 @@ func (sm *appServiceImpl) getAppStateInfo() map[string]appDetailsType {
 	delete(resultInfos, "ocelot-cloud")
 
 	for appName, appDetail := range resultInfos {
-		newPath := sm.appConfigService.getAppConfig(appName).UrlPath
+		newPath := sm.appConfigService.GetAppConfig(appName).UrlPath
 		resultInfos[appName] = appDetailsType{appDetail.State, newPath}
 	}
 
@@ -106,9 +104,9 @@ func logAppStateInfo(info map[string]appDetailsType) {
 }
 
 func (sm *appServiceImpl) appNamesInDirectory() ([]string, error) {
-	files, err := os.ReadDir(appFileDir)
+	files, err := os.ReadDir(global_config.AppFileDir)
 	if err != nil {
-		logger.Warn("Could not read app from directory '" + appFileDir + "': " + err.Error())
+		logger.Warn("Could not read app from directory '" + global_config.AppFileDir + "': " + err.Error())
 		return nil, err
 	}
 

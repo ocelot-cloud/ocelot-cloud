@@ -1,10 +1,17 @@
-package apps
+package yaml_config
 
 import (
 	"gopkg.in/yaml.v3"
+	"ocelot/backend/tools"
 	"os"
 	"path/filepath"
 )
+
+type ConfigServiceType interface {
+	GetAppConfig(appName string) appConfig
+}
+
+var logger = tools.Logger
 
 type appConfig struct {
 	UrlPath string `yaml:"urlPath"`
@@ -15,7 +22,7 @@ type configServiceImpl struct {
 	stackConfigs map[string]appConfig
 }
 
-func (s *configServiceImpl) getAppConfig(stackName string) appConfig {
+func (s *configServiceImpl) GetAppConfig(stackName string) appConfig {
 	if stackConfig, found := s.stackConfigs[stackName]; found {
 		return stackConfig
 	}
@@ -23,11 +30,13 @@ func (s *configServiceImpl) getAppConfig(stackName string) appConfig {
 	return appConfig{"/", "80"}
 }
 
-func provideAppConfigService(stackDir string) configServiceType {
+func ProvideAppConfigService(stackDir string) ConfigServiceType {
 	stackConfigs := make(map[string]appConfig)
 
 	files, err := os.ReadDir(stackDir)
 	if err != nil {
+		a, _ := os.Getwd()
+		logger.Debug("current dir is: %s", a)
 		logger.Fatal("error when reading directory %s: %v", stackDir, err)
 	}
 
