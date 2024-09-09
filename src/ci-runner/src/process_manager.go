@@ -1,9 +1,10 @@
-package cli
+package src
 
 import (
 	"bytes"
 	"fmt"
 	"log"
+	"ocelot/ci-runner/cli"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,9 +15,9 @@ var idsOfDaemonProcessesCreatedDuringThisRun []int
 
 func StartDaemon(dir string, commandStr string, envs ...string) {
 	var cmd *exec.Cmd
-	cmd = buildCommand(dir, commandStr)
+	cmd = cli.BuildCommand(dir, commandStr)
 
-	setEnvsAndDebugLogLevelEnv(cmd, envs)
+	SetEnvsAndDebugLogLevelEnv(cmd, envs)
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 
@@ -35,7 +36,7 @@ func StartDaemon(dir string, commandStr string, envs ...string) {
 		fmt.Printf("Command: '%s' -> failed with error: %v\n", commandStr, err)
 		CleanupAndExitWithError()
 	} else {
-		ColoredPrintln("Started daemon with ID '%v' using command '%s'\n", cmd.Process.Pid, commandStr)
+		cli.ColoredPrintln("Started daemon with ID '%v' using command '%s'\n", cmd.Process.Pid, commandStr)
 		go func() {
 			err := cmd.Wait()
 			if err != nil {
@@ -47,13 +48,8 @@ func StartDaemon(dir string, commandStr string, envs ...string) {
 	}
 }
 
-func setEnvsAndDebugLogLevelEnv(cmd *exec.Cmd, envs []string) {
-	envsWithLogLevel := append(envs, "LOG_LEVEL=DEBUG")
-	cmd.Env = append(os.Environ(), envsWithLogLevel...)
-}
-
 func Cleanup() {
-	ColoredPrintln("Cleanup method called.\n")
+	cli.ColoredPrintln("Cleanup method called.\n")
 	killDaemonProcessesCreateDuringThisRun()
 	killPotentiallyDisturbingPreExistingComponentProcesses()
 	pruneDockerToEmptySetup()
@@ -92,10 +88,10 @@ func assertThatNoProcessesSurvived() {
 	}
 	for _, line := range strings.Split(out.String(), "\n") {
 		if strings.Contains(line, "./backend") {
-			ColoredPrintln("The backend daemon process was not killed after tests were completed.\n")
+			cli.ColoredPrintln("The backend daemon process was not killed after tests were completed.\n")
 			CleanupAndExitWithError()
 		} else if strings.Contains(line, "vue-service") || strings.Contains(line, "vue-cli-service") {
-			ColoredPrintln("The frontend daemon process was not killed after tests were completed.\n")
+			cli.ColoredPrintln("The frontend daemon process was not killed after tests were completed.\n")
 			CleanupAndExitWithError()
 		}
 	}
@@ -136,4 +132,9 @@ func pruneDockerToEmptySetup() {
 func CleanupAndExitWithError() {
 	Cleanup()
 	os.Exit(1)
+}
+
+func SetEnvsAndDebugLogLevelEnv(cmd *exec.Cmd, envs []string) {
+	envsWithLogLevel := append(envs, "LOG_LEVEL=DEBUG")
+	cmd.Env = append(os.Environ(), envsWithLogLevel...)
 }

@@ -10,26 +10,31 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
-var CurrentDir = GetCurrentDir()
+var parentDir = getParentDir()
+var CleanupAndExit = func() {
+	ColoredPrintln("exiting ...")
+	os.Exit(1)
+}
 
-func GetCurrentDir() string {
+func getParentDir() string {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		log.Fatal("failed to get current dir: %v", err)
 	}
-	return currentDir
+	return filepath.Dir(currentDir)
 }
 
 func ExecuteInDir(dir string, commandStr string, envs ...string) {
-	shortDir := strings.Replace(dir, CurrentDir, "", -1)
+	shortDir := strings.Replace(dir, parentDir, "", -1)
 	ColoredPrintln("\nIn directory '.%s', executing '%s'\n", shortDir, commandStr)
 
-	cmd := buildCommand(dir, commandStr)
-	setEnvsAndDebugLogLevelEnv(cmd, envs)
+	cmd := BuildCommand(dir, commandStr)
+	SetEnvsAndDebugLogLevelEnv(cmd, envs)
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 	stdoutMulti := io.MultiWriter(os.Stdout, &stdoutBuf)
@@ -46,17 +51,17 @@ func ExecuteInDir(dir string, commandStr string, envs ...string) {
 	elapsedTimeSummary := fmt.Sprintf("Time taken: %s seconds.", elapsedStr)
 	if err != nil {
 		ColoredPrintln(" => Command failed with error: %v; %s\n", err, elapsedTimeSummary)
-		CleanupAndExitWithError()
+		CleanupAndExit()
 	} else {
 		if strings.Contains(output, "no test files") {
 			ColoredPrintln(" => Testing failed because no tests were found. %s\n", elapsedTimeSummary)
-			CleanupAndExitWithError()
+			CleanupAndExit()
 		} else if strings.Contains(commandStr, "go test") && !strings.Contains(output, "PASS:") && !containsOkLine(output) {
 			ColoredPrintln(" => Testing failed because no tests were actually executed; all tests were either skipped or not included. %s\n", elapsedTimeSummary)
-			CleanupAndExitWithError()
+			CleanupAndExit()
 		} else if strings.Contains(commandStr, "go test") && strings.Contains(output, "testing: warning: no tests to run") {
 			ColoredPrintln(" => Testing failed because no tests were actually executed. %s\n", elapsedTimeSummary)
-			CleanupAndExitWithError()
+			CleanupAndExit()
 		} else {
 			ColoredPrintln(" => Command successful. %s\n", elapsedTimeSummary)
 		}
@@ -79,15 +84,15 @@ func ColoredPrintln(format string, a ...interface{}) {
 	fmt.Printf(colorCode+format+"\n"+colorReset, a...)
 }
 
-func buildCommand(dir string, commandStr string) *exec.Cmd {
+func BuildCommand(dir string, commandStr string) *exec.Cmd {
 	parts, err := parseCommand(commandStr)
 	if err != nil {
 		ColoredPrintln("error parsing command: %v", err)
-		CleanupAndExitWithError()
+		CleanupAndExit()
 	}
 	if len(parts) == 0 {
 		ColoredPrintln("error, no command found in commandStr: %v", err)
-		CleanupAndExitWithError()
+		CleanupAndExit()
 	}
 	command := parts[0]
 	args := parts[1:]
@@ -130,7 +135,7 @@ func retryOperation(operation func() (bool, error), description, target string, 
 		}
 	}
 	fmt.Printf("Error: %s could not be reached in time at %s. Cleanup and exit...\n", description, target)
-	CleanupAndExitWithError()
+	CleanupAndExit()
 }
 
 func WaitForIndexPageToBeReady(url string) {
@@ -141,4 +146,9 @@ func WaitForIndexPageToBeReady(url string) {
 		}
 		return false, err
 	}, "Index page", url, 30)
+}
+
+func SetEnvsAndDebugLogLevelEnv(cmd *exec.Cmd, envs []string) {
+	envsWithLogLevel := append(envs, "LOG_LEVEL=DEBUG")
+	cmd.Env = append(os.Environ(), envsWithLogLevel...)
 }

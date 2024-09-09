@@ -37,7 +37,7 @@ var cleanCmd = &cobra.Command{
 	Short: "Removes processes and docker artifacts",
 	Long:  "Removes processes and docker artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Cleanup()
+		src.Cleanup()
 		cli.ColoredPrintln("\nSuccess! Cleanup worked.\n")
 	},
 }
@@ -144,6 +144,8 @@ var deployCmd = &cobra.Command{
 }
 
 func main() {
+	cli.CleanupAndExit = src.CleanupAndExitWithError
+
 	go handleSignals()
 	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 	pf := rootCmd.PersistentFlags()
@@ -168,14 +170,14 @@ func main() {
 	rootCmd.AddCommand(downloadDependenciesCmd)
 
 	if shouldDoPreChecks() {
-		cli.Cleanup()
+		src.Cleanup()
 		failIfRequiredPortsAreAlreadyInUse()
 		failIfThereAreExistingDockerContainers()
 	}
 
 	if err := rootCmd.Execute(); err != nil {
 		cli.ColoredPrintln("\nError during execution: %s\n", err.Error())
-		cli.CleanupAndExitWithError()
+		src.CleanupAndExitWithError()
 	}
 }
 
@@ -228,6 +230,6 @@ func handleSignals() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	fmt.Printf("\nReceived signal: %v. Initiating graceful shutdown...\n", sig)
-	cli.Cleanup()
+	src.Cleanup()
 	os.Exit(0)
 }
