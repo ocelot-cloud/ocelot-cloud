@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"github.com/mattn/go-shellwords"
 	"io"
 	"log"
 	"net"
@@ -79,7 +80,7 @@ func ColoredPrintln(format string, a ...interface{}) {
 }
 
 func buildCommand(dir string, commandStr string) *exec.Cmd {
-	parts, err := ParseCommand(commandStr)
+	parts, err := parseCommand(commandStr)
 	if err != nil {
 		ColoredPrintln("error parsing command: %v", err)
 		CleanupAndExitWithError()
@@ -95,6 +96,11 @@ func buildCommand(dir string, commandStr string) *exec.Cmd {
 	cmd.Dir = dir
 
 	return cmd
+}
+
+func parseCommand(command string) ([]string, error) {
+	parser := shellwords.NewParser()
+	return parser.Parse(command)
 }
 
 func WaitUntilPortIsReady(port string) {
