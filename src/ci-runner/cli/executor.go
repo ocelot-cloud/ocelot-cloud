@@ -97,15 +97,15 @@ func buildCommand(dir string, commandStr string) *exec.Cmd {
 	return cmd
 }
 
-func WaitUntilPortIsReady(address string) {
+func WaitUntilPortIsReady(port string) {
 	retryOperation(func() (bool, error) {
-		conn, err := net.DialTimeout("tcp", address, 1*time.Second)
+		conn, err := net.DialTimeout("tcp", "localhost:"+port, 1*time.Second)
 		if err == nil {
 			conn.Close()
 			return true, nil
 		}
 		return false, err
-	}, "Port", address, 30)
+	}, "port", "localhost:"+port, 30)
 }
 
 func retryOperation(operation func() (bool, error), description, target string, maxAttempts int) {

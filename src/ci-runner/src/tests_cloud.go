@@ -27,7 +27,7 @@ func TestBackendComponentMocked() {
 	Build(Backend)
 	// TODO Aggregate the envs
 	cli.StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
-	cli.WaitUntilPortIsReady("localhost:8080")
+	cli.WaitUntilPortIsReady("8080")
 	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...", getTestProfileEnv())
 }
 
@@ -75,7 +75,7 @@ func TestProdBackendApi() {
 	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	cli.StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV, "ENABLE_DATA_WIPE_ENDPOINT=true")
-	cli.WaitUntilPortIsReady("localhost:8080")
+	cli.WaitUntilPortIsReady("8080")
 	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...", getProdProfileEnv())
 }
 
@@ -93,7 +93,7 @@ func TestFrontend() {
 	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	cli.StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
-	cli.WaitUntilPortIsReady("localhost:8080")
+	cli.WaitUntilPortIsReady("8080")
 
 	Build(Frontend)
 	cli.StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
