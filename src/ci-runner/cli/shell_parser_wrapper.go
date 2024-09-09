@@ -1,4 +1,4 @@
-package src
+package cli
 
 import "github.com/mattn/go-shellwords"
 

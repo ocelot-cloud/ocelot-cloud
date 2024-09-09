@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"net"
+	"ocelot/ci-runner/cli"
 	"ocelot/ci-runner/src"
 	"os"
 	"os/exec"
@@ -27,7 +28,7 @@ var buildCmd = &cobra.Command{
 	Long:  "Builds the whole project from scratch and produces a production docker image",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.Build(src.DockerImage)
-		src.ColoredPrintln("\nSuccess! Build worked.\n")
+		cli.ColoredPrintln("\nSuccess! Build worked.\n")
 	},
 }
 
@@ -36,8 +37,8 @@ var cleanCmd = &cobra.Command{
 	Short: "Removes processes and docker artifacts",
 	Long:  "Removes processes and docker artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
-		src.Cleanup()
-		src.ColoredPrintln("\nSuccess! Cleanup worked.\n")
+		cli.Cleanup()
+		cli.ColoredPrintln("\nSuccess! Cleanup worked.\n")
 	},
 }
 
@@ -77,13 +78,13 @@ var cloudCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := cloudTestTypes[inputTestType]; !exists {
-			src.ColoredPrintln("\nerror: unknown cloud test type: %s\n", inputTestType)
-			src.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
+			cli.ColoredPrintln("\nerror: unknown cloud test type: %s\n", inputTestType)
+			cli.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			cloudTestTypes[inputTestType]()
 		}
-		src.ColoredPrintln("\nSuccess! Cloud tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! Cloud tests passed.\n")
 	},
 }
 
@@ -100,7 +101,7 @@ var ciCmd = &cobra.Command{
 	Short: "Run CI-related tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.TestCi()
-		src.ColoredPrintln("\nSuccess! CI tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! CI tests passed.\n")
 	},
 }
 
@@ -113,13 +114,13 @@ var hubCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := hubTestTypes[inputTestType]; !exists {
-			src.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
-			src.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
+			cli.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
+			cli.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			hubTestTypes[inputTestType]()
 		}
-		src.ColoredPrintln("\nSuccess! Hub tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! Hub tests passed.\n")
 	},
 }
 
@@ -128,7 +129,7 @@ var scheduleCmd = &cobra.Command{
 	Short: "Run scheduled tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.RunScheduledTests()
-		src.ColoredPrintln("\nSuccess! Scheduled tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! Scheduled tests passed.\n")
 	},
 }
 
@@ -138,7 +139,7 @@ var deployCmd = &cobra.Command{
 	Long:  `Starts the server in production mode.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		src.DeployLocally()
-		src.ColoredPrintln("\nSuccess! Deploy worked.\n")
+		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
 	},
 }
 
@@ -167,14 +168,14 @@ func main() {
 	rootCmd.AddCommand(downloadDependenciesCmd)
 
 	if shouldDoPreChecks() {
-		src.Cleanup()
+		cli.Cleanup()
 		failIfRequiredPortsAreAlreadyInUse()
 		failIfThereAreExistingDockerContainers()
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		src.ColoredPrintln("\nError during execution: %s\n", err.Error())
-		src.CleanupAndExitWithError()
+		cli.ColoredPrintln("\nError during execution: %s\n", err.Error())
+		cli.CleanupAndExitWithError()
 	}
 }
 
@@ -227,6 +228,6 @@ func handleSignals() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	fmt.Printf("\nReceived signal: %v. Initiating graceful shutdown...\n", sig)
-	src.Cleanup()
+	cli.Cleanup()
 	os.Exit(0)
 }

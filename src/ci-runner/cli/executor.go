@@ -1,9 +1,10 @@
-package src
+package cli
 
 import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -12,14 +13,18 @@ import (
 	"time"
 )
 
-const Scheme = "http"
-const RootDomain = "localhost"
+var CurrentDir = GetCurrentDir()
 
-const ocelotUrl = Scheme + "://ocelot-cloud." + RootDomain
-const frontendServerUrl = Scheme + "://localhost:8081"
+func GetCurrentDir() string {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal("failed to get current dir: %v", err)
+	}
+	return currentDir
+}
 
 func ExecuteInDir(dir string, commandStr string, envs ...string) {
-	shortDir := strings.Replace(dir, srcDir, "", -1)
+	shortDir := strings.Replace(dir, CurrentDir, "", -1)
 	ColoredPrintln("\nIn directory '.%s', executing '%s'\n", shortDir, commandStr)
 
 	cmd := buildCommand(dir, commandStr)
