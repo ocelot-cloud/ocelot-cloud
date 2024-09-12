@@ -12,20 +12,20 @@ import (
 
 var Repo Repository = &MyRepository{}
 
-var db *sql.DB
+var DB *sql.DB
 var DatabaseFile = shared.DataDir + "/sqlite.db"
 
 func InitializeDatabaseWithSource(dataSourceName string) {
 	var err error
-	db, err = sql.Open("sqlite3", dataSourceName)
+	DB, err = sql.Open("sqlite3", dataSourceName)
 	if err != nil {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}
 
 	// Prevents concurrency problems. My guess is that the sqlite client does not handle concurrency correctly.
 	// Approach works, but may be too slow. Another client or DB may be needed in the future.
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
+	DB.SetMaxOpenConns(1)
+	DB.SetMaxIdleConns(1)
 
 	// TODO EnsureSchemaVersionTable()
 
@@ -35,7 +35,7 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 
 // TODO Initial design for the data model, during implementation/testing you should check if correct.
 func initializeTables() {
-	_, err := db.Exec(`
+	_, err := DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			user_id SERIAL PRIMARY KEY,
 			user_name VARCHAR(255) NOT NULL UNIQUE,
@@ -49,7 +49,7 @@ func initializeTables() {
 		Logger.Fatal("Failed to create users table: %v", err)
 	}
 
-	_, err = db.Exec(`
+	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS apps (
 			app_id SERIAL PRIMARY KEY,
 			maintainer_name VARCHAR(255) NOT NULL,
@@ -61,7 +61,7 @@ func initializeTables() {
 		Logger.Fatal("Failed to create apps table: %v", err)
 	}
 
-	_, err = db.Exec(`
+	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS tags (
 			app_id INT REFERENCES apps(app_id) ON DELETE CASCADE,
 			tag_id SERIAL PRIMARY KEY,
@@ -74,7 +74,7 @@ func initializeTables() {
 		Logger.Fatal("Failed to create tags table: %v", err)
 	}
 
-	_, err = db.Exec(`
+	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS groups (
 			group_id SERIAL PRIMARY KEY,
 			group_name VARCHAR(255) NOT NULL UNIQUE 
@@ -84,7 +84,7 @@ func initializeTables() {
 		Logger.Fatal("Failed to create groups table: %v", err)
 	}
 
-	_, err = db.Exec(`
+	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS user_to_group (
 			user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
 			group_id INT REFERENCES groups(group_id) ON DELETE CASCADE,
@@ -95,7 +95,7 @@ func initializeTables() {
 		Logger.Fatal("Failed to create user_to_group table: %v", err)
 	}
 
-	_, err = db.Exec(`
+	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS app_access (
 			group_id INT REFERENCES groups(group_id) ON DELETE CASCADE,
 			app_id INT REFERENCES apps(app_id) ON DELETE CASCADE,
@@ -159,7 +159,7 @@ type MyRepository struct{}
 
 func (r *MyRepository) DoesAnyAdminUserExist() bool {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE is_admin = ?)", true).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE is_admin = ?)", true).Scan(&exists)
 	if err != nil {
 		Logger.Error("Failed to check if there is any admin user: %v", err)
 		return false
@@ -172,7 +172,7 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("INSERT INTO users (user_name, hashed_password, is_admin) VALUES (?, ?, ?)", user, hashedPassword, isAdmin)
+	_, err = DB.Exec("INSERT INTO users (user_name, hashed_password, is_admin) VALUES (?, ?, ?)", user, hashedPassword, isAdmin)
 	if err != nil {
 		Logger.Warn("Failed to create user: %v", err)
 		return fmt.Errorf("failed to create user")
@@ -183,7 +183,7 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 // TODO shift to shared module
 
 func (r *MyRepository) WipeDatabase() {
-	_, err := db.Exec("DELETE FROM users")
+	_, err := DB.Exec("DELETE FROM users")
 	if err != nil {
 		Logger.Fatal("Database wipe failed: %v", err)
 	}
@@ -191,7 +191,7 @@ func (r *MyRepository) WipeDatabase() {
 
 func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
 	var hashedPassword string
-	err := db.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
+	err := DB.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
 	if err != nil {
 		Logger.Error("Failed to fetch hashed password: %v", err)
 		return false
@@ -206,7 +206,7 @@ func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
 }
 
 func (r *MyRepository) DeleteUser(user string) error {
-	_, err := db.Exec("DELETE FROM users WHERE user_name = ?", user)
+	_, err := DB.Exec("DELETE FROM users WHERE user_name = ?", user)
 	if err != nil {
 		Logger.Warn("Failed to delete user: %v", err)
 		return fmt.Errorf("failed to delete user")
@@ -220,7 +220,7 @@ func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookie
 		return err
 	}
 
-	_, err = db.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
+	_, err = DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
 	if err != nil {
 		Logger.Warn("Failed to update cookie of user '%s': %v", user, err)
 		return fmt.Errorf("failed to update cookie")
@@ -229,7 +229,7 @@ func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookie
 }
 
 func (r *MyRepository) DeleteCookie(user string) error {
-	_, err := db.Exec("DELETE FROM users WHERE user_name = ?", user)
+	_, err := DB.Exec("DELETE FROM users WHERE user_name = ?", user)
 	if err != nil {
 		Logger.Error("Failed to delete hashed cookie value: %v", err)
 		return fmt.Errorf("failed to delete cookie")
@@ -239,7 +239,7 @@ func (r *MyRepository) DeleteCookie(user string) error {
 
 func (r *MyRepository) DoesUserExist(user string) bool {
 	var exists bool
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
 	if err != nil {
 		Logger.Error("Failed to check if user exists: %v", err)
 		return false
@@ -256,7 +256,7 @@ func (r *MyRepository) GetUserWithCookie(cookieValue string) (*Authorization, er
 
 	var user string
 	var isAdmin bool
-	err = db.QueryRow("SELECT user_name, is_admin FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user, &isAdmin)
+	err = DB.QueryRow("SELECT user_name, is_admin FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user, &isAdmin)
 	if err != nil {
 		Logger.Error("Failed to fetch user data: %v", err)
 		return nil, fmt.Errorf("failed to fetch user data")
