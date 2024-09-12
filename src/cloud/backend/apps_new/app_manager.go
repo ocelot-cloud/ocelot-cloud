@@ -32,6 +32,7 @@ type AppDetails struct {
 	version    string
 }
 
+// TODO For the database/docker service I need more details for each app: download domain (e.g. "hub.ocelot-cloud.com"), maintainer, and tag version in addition to the app name.
 // TODO Find better names, AppDetails and AppInfo is too similar and not clear enough
 type AppContext struct {
 	app   *AppDetails // TODO Needed to know on which app to operate on.
