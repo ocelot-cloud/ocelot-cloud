@@ -110,7 +110,7 @@ func TestChangePassword(t *testing.T) {
 func TestAppLifecycle(t *testing.T) {
 	defer repo.WipeDatabase()
 
-	maintainersAndApps, err := repo.ListAppInfo()
+	maintainersAndApps, err := repo.ListApps()
 	assert.Nil(t, err)
 	assert.Nil(t, maintainersAndApps)
 
@@ -123,7 +123,7 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Nil(t, blob)
 
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	maintainersAndApps, err = repo.ListAppInfo()
+	maintainersAndApps, err = repo.ListApps()
 	assert.Nil(t, err)
 	assert.NotNil(t, maintainersAndApps)
 	assert.Equal(t, 1, len(maintainersAndApps))
@@ -150,7 +150,7 @@ func TestDeleteApp(t *testing.T) {
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.DeleteApp(sampleMaintainer, sampleApp))
 
-	apps, err := repo.ListAppInfo()
+	apps, err := repo.ListApps()
 	assert.Nil(t, err)
 	assert.Nil(t, apps)
 
@@ -165,7 +165,7 @@ func TestCreatingTwoTagsInApp(t *testing.T) {
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
 
-	app, err := repo.ListAppInfo()
+	app, err := repo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(app))
 	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
@@ -193,7 +193,7 @@ func TestDeleteTag(t *testing.T) {
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.DeleteTag(sampleMaintainer, sampleApp, sampleTag))
 
-	maintainersAndApps, err := repo.ListAppInfo()
+	maintainersAndApps, err := repo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(maintainersAndApps))
 

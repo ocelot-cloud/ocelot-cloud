@@ -2,11 +2,8 @@ package security
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
-	"github.com/ocelot-cloud/shared/utils"
-	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -138,307 +135,29 @@ type Repository interface {
 
 	// App and tag interface
 	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
-	ListAppInfo() ([]MaintainerAndApp, error)
+	ListApps() ([]MaintainerAndApp, error)
 	ListTagsOfApp(maintainer, app string) ([]string, error)
 	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
 	DeleteApp(maintainer, app string) error
 	DeleteTag(maintainer, app, tag string) error
 
 	// Group interface
-	/*
-		// TODO Material from hub which might be an inspiration. If not used, please delete.
+	CreateGroup(group string) error
+	ListGroups() ([]string, error)
+	DeleteGroup(group string) error
 
-		CreateGroup(group string) error
-		DeleteGroup(group) error
-		ListUsers() ([]string, error)
-		AddUserToGroup(user, group) error
-		RemoveUserFromGroup(user, group) error
-		GiveGroupAccessToApp(group, app), error
-		RemoveGroupsAccessToApp(group, app), error
-		DoesUserHaveAccessToApp(user, appForm) bool
+	ListAllUsers() ([]string, error)
+	AddUserToGroup(user, group string) error
+	ListMembersOfGroup(group string) ([]string, error)
+	RemoveUserFromGroup(user, group string) error
 
-		DoesAppExist(user string, app string) bool
-		CreateApp(user string, app string) error
-		DeleteApp(user string, app string) error
-		FindApps(query string) ([]string, error)
-		SetCookie(user string, cookie string, expirationDate time.Time) error
-		IsCookieExpired(cookie string) bool
-
-		CreateTag(user string, app string, tag string, data []byte) error
-		DeleteTag(user string, app string, tag string) error
-		GetTagList(user string, app string) ([]string, error)
-
-		SetOrigin(user string, newOrigin string) error
-		IsOriginCorrect(user string, origin string) bool
-		DoesTagExist(user string, app string, tag string) bool
-		GetTagContent(user string, app string, tag string) ([]byte, error)
-		GetUsedSpaceInBytes(user string) (int, error)
-
-		GetAppList(user string) ([]string, error)
-	*/
+	GiveGroupAccessToApp(group, app string) error
+	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
+	DoesUserHaveAccessToApp(user, maintainer, app string) bool
+	RemoveGroupsAccessToApp(group, app string) error
 }
 
 type MyRepository struct{}
-
-func (r *MyRepository) DoesAnyAdminUserExist() bool {
-	var exists bool
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE is_admin = ?)", true).Scan(&exists)
-	if err != nil {
-		Logger.Error("Failed to check if there is any admin user: %v", err)
-		return false
-	}
-	return exists
-}
-
-func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
-	hashedPassword, err := utils.SaltAndHash(password)
-	if err != nil {
-		return err
-	}
-	_, err = DB.Exec("INSERT INTO users (user_name, hashed_password, is_admin) VALUES (?, ?, ?)", user, hashedPassword, isAdmin)
-	if err != nil {
-		Logger.Warn("Failed to create user: %v", err)
-		return fmt.Errorf("failed to create user")
-	}
-	return nil
-}
-
-// TODO shift to shared module
-
-func (r *MyRepository) WipeDatabase() {
-	_, err := DB.Exec("DELETE FROM users")
-	if err != nil {
-		Logger.Fatal("Database wipe failed: %v", err)
-	}
-
-	_, err = DB.Exec("DELETE FROM apps")
-	if err != nil {
-		Logger.Fatal("Database wipe failed: %v", err)
-	}
-}
-
-func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
-	var hashedPassword string
-	err := DB.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
-	if err != nil {
-		Logger.Error("Failed to fetch hashed password: %v", err)
-		return false
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-	if err != nil {
-		return false
-	}
-
-	return true
-}
-
-func (r *MyRepository) DeleteUser(user string) error {
-	_, err := DB.Exec("DELETE FROM users WHERE user_name = ?", user)
-	if err != nil {
-		Logger.Warn("Failed to delete user: %v", err)
-		return fmt.Errorf("failed to delete user")
-	}
-	return nil
-}
-
-func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
-	hashedCookieValue, err := utils.Hash(cookieValue)
-	if err != nil {
-		return err
-	}
-
-	_, err = DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
-	if err != nil {
-		Logger.Warn("Failed to update cookie of user '%s': %v", user, err)
-		return fmt.Errorf("failed to update cookie")
-	}
-	return nil
-}
-
-func (r *MyRepository) Logout(user string) error {
-	_, err := DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", "", "", user)
-	if err != nil {
-		Logger.Error("Failed to delete cookie of user '%s': %v", user, err)
-		return fmt.Errorf("failed to delete cookie")
-	}
-	return nil
-}
-
-func (r *MyRepository) DoesUserExist(user string) bool {
-	var exists bool
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
-	if err != nil {
-		Logger.Error("Failed to check if user exists: %v", err)
-		return false
-	}
-	return exists
-}
-
-// TODO Test if isAdmin is correct in authorization.
-func (r *MyRepository) GetUserViaCookie(cookieValue string) (*Authorization, error) {
-	hashedCookieValue, err := utils.Hash(cookieValue)
-	if err != nil {
-		return nil, err
-	}
-
-	var user string
-	var isAdmin bool
-	err = DB.QueryRow("SELECT user_name, is_admin FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user, &isAdmin)
-	if err != nil {
-		Logger.Error("Failed to fetch user data: %v", err)
-		return nil, fmt.Errorf("failed to fetch user data")
-	}
-	return &Authorization{user, isAdmin}, nil
-}
-
-func (r *MyRepository) ChangePassword(user string, newPassword string) error {
-	hashedNewPassword, err := utils.SaltAndHash(newPassword)
-	if err != nil {
-		return err
-	}
-
-	_, err = DB.Exec("UPDATE users SET hashed_password = ? WHERE user_name = ?", hashedNewPassword, user)
-	if err != nil {
-		Logger.Error("Failed to update password of user '%s': %v", user, err)
-		return fmt.Errorf("failed to update password")
-	}
-	return nil
-}
-
-// TODO test: is app already existing
-func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
-	var doesAppExist bool
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE maintainer = ? AND app = ?)", maintainer, app).Scan(&doesAppExist)
-	if err != nil {
-		Logger.Error("Failed to check if app exists: %v", err)
-		return fmt.Errorf("failed to check if app exists")
-	}
-
-	if !doesAppExist {
-		_, err = DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
-		if err != nil {
-			Logger.Error("Failed to create app: %v", err)
-			return fmt.Errorf("failed to create app")
-		}
-	}
-
-	appId, err := r.getAppId(maintainer, app)
-	if err != nil {
-		return fmt.Errorf("TODO4")
-	}
-
-	_, err = DB.Exec("INSERT INTO tags (app_id, tag, blob) VALUES (?, ?, ?)", appId, tag, blob)
-	if err != nil {
-		return fmt.Errorf("TODO5")
-	}
-
-	return nil
-}
-
-func (r *MyRepository) getAppId(maintainer string, app string) (int, error) {
-	var appId int
-	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
-	if err != nil {
-		// TODO
-		Logger.Error("TODO error: %v", err)
-		return -1, err
-	}
-	return appId, nil
-}
-
-func (r *MyRepository) ListAppInfo() ([]MaintainerAndApp, error) {
-	rows, err := DB.Query("SELECT maintainer, app FROM apps")
-	if err != nil {
-		Logger.Error("Failed to fetch app list: %v", err)
-		return nil, fmt.Errorf("failed to fetch app list")
-	}
-	defer rows.Close()
-
-	var result []MaintainerAndApp
-	for rows.Next() {
-		var maintainer, app string
-		if err = rows.Scan(&maintainer, &app); err != nil {
-			Logger.Error("Failed to scan row: %v", err)
-			return nil, fmt.Errorf("failed to scan row")
-		}
-		result = append(result, MaintainerAndApp{Maintainer: maintainer, App: app})
-	}
-
-	if err = rows.Err(); err != nil {
-		Logger.Error("Rows error: %v", err)
-		return nil, fmt.Errorf("rows error")
-	}
-
-	return result, nil
-}
-
-func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, error) {
-	appId, err := r.getAppId(maintainer, app)
-	if err != nil {
-		return nil, fmt.Errorf("TODO1")
-	}
-
-	rows, err := DB.Query("SELECT tag FROM tags WHERE app_id = ?", appId)
-	if err != nil {
-		Logger.Error("Failed to fetch tag list of app: %s/%s, %v", maintainer, app, err)
-		return nil, fmt.Errorf("failed to fetch tag list")
-	}
-	defer rows.Close()
-
-	var result []string
-	for rows.Next() {
-		var singleTag string
-		if err = rows.Scan(&singleTag); err != nil {
-			Logger.Error("Failed to scan row: %v", err)
-			return nil, fmt.Errorf("failed to scan row")
-		}
-		result = append(result, singleTag)
-	}
-
-	if err = rows.Err(); err != nil {
-		Logger.Error("Rows error: %v", err)
-		return nil, fmt.Errorf("rows error")
-	}
-
-	return result, nil
-}
-
-func (r *MyRepository) LoadTagBlob(maintainer, app, tag string) ([]byte, error) {
-	appId, err := r.getAppId(maintainer, app)
-	if err != nil {
-		return nil, fmt.Errorf("TODO2")
-	}
-
-	var blob []byte
-	err = DB.QueryRow("SELECT blob FROM tags WHERE app_id = ? AND tag = ?", appId, tag).Scan(&blob)
-	if err != nil {
-		return nil, fmt.Errorf("TODO3")
-	}
-
-	return blob, nil
-}
-
-func (r *MyRepository) DeleteApp(maintainer, app string) error {
-	_, err := DB.Exec("DELETE FROM apps WHERE maintainer = ? AND app = ?", maintainer, app)
-	if err != nil {
-		return fmt.Errorf("TODO6")
-	}
-	return nil
-}
-
-func (r *MyRepository) DeleteTag(maintainer, app, tag string) error {
-	appId, err := r.getAppId(maintainer, app)
-	if err != nil {
-		return fmt.Errorf("TODO7")
-	}
-
-	_, err = DB.Exec("DELETE FROM tags WHERE app_id = ? AND tag = ?", appId, tag)
-	if err != nil {
-		return fmt.Errorf("TODO8")
-	}
-	return nil
-}
 
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
 // TODO idea: by default create a group "anonymous" which cant be deleted. Access to an app for members of anonymous means, that any user, even without account can access an app.
