@@ -46,12 +46,12 @@ func TestDoesUserExist(t *testing.T) {
 
 func TestGetUserWithCookie(t *testing.T) {
 	defer repo.WipeDatabase()
-	_, err := repo.GetUserWithCookie(sampleCookie)
+	_, err := repo.GetUserViaCookie(sampleCookie)
 	assert.NotNil(t, err)
 
 	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
 	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-	auth, err := repo.GetUserWithCookie(sampleCookie)
+	auth, err := repo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
 	assert.False(t, auth.IsAdmin)
@@ -59,7 +59,7 @@ func TestGetUserWithCookie(t *testing.T) {
 
 	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, true))
 	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-	auth, err = repo.GetUserWithCookie(sampleCookie)
+	auth, err = repo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
 	assert.True(t, auth.IsAdmin)
@@ -74,8 +74,27 @@ func TestDoesAnyAdminUserExist(t *testing.T) {
 	assert.True(t, repo.DoesAnyAdminUserExist())
 }
 
+func TestLogout(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	auth, err := repo.GetUserViaCookie(sampleCookie)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleUser, auth.User)
+
+	assert.Nil(t, repo.Logout(sampleUser))
+	assert.True(t, repo.DoesUserExist(sampleUser))
+	/*TODO
+	auth, err = repo.GetUserViaCookie(sampleCookie)
+	assert.NotNil(t, err)
+	assert.Nil(t, auth)
+	*/
+}
+
 // TODO check if expiration is working
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
 // TODO error: user already exists
 // TODO SetCookie, DeleteCookie, IsCookieValid
+// TODO the DB interface appears to grow quite large when all all use cases are implemented. Check if could be split up.
+// TODO Test deletion cascading, e.g. deleting user should also delete his group memberships etc.

@@ -120,12 +120,12 @@ type Repository interface {
 	IsPasswordCorrect(user string, password string) bool
 	DeleteUser(user string) error
 	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
-	DeleteCookie(user string) error
+	Logout(user string) error
 	DoesUserExist(user string) bool
-	GetUserWithCookie(cookieValue string) (*Authorization, error)
+	GetUserViaCookie(cookieValue string) (*Authorization, error)
 	DoesAnyAdminUserExist() bool
 	/*
-		Logout(user string) error
+
 		ChangePassword(user string, newPassword string) error
 
 		// Auth
@@ -228,10 +228,12 @@ func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookie
 	return nil
 }
 
-func (r *MyRepository) DeleteCookie(user string) error {
-	_, err := DB.Exec("DELETE FROM users WHERE user_name = ?", user)
+// TODO test case: Delete cookie, but user should still exist.
+// TODO Maybe it makes sense to distinguish between essential production interface and extended test interface
+func (r *MyRepository) Logout(user string) error {
+	_, err := DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", "", "", user)
 	if err != nil {
-		Logger.Error("Failed to delete hashed cookie value: %v", err)
+		Logger.Error("Failed to delete cookie of user '%s': %v", user, err)
 		return fmt.Errorf("failed to delete cookie")
 	}
 	return nil
@@ -248,7 +250,7 @@ func (r *MyRepository) DoesUserExist(user string) bool {
 }
 
 // TODO Test if isAdmin is correct in authorization.
-func (r *MyRepository) GetUserWithCookie(cookieValue string) (*Authorization, error) {
+func (r *MyRepository) GetUserViaCookie(cookieValue string) (*Authorization, error) {
 	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
 		return nil, err
