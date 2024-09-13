@@ -113,7 +113,14 @@ func TestAppLifecycle(t *testing.T) {
 	maintainersAndApps, err := repo.ListAppInfo()
 	assert.Nil(t, err)
 	assert.Nil(t, maintainersAndApps)
-	assertEmptyTags(t)
+
+	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	assert.NotNil(t, err)
+	assert.Nil(t, tags)
+
+	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	assert.NotNil(t, err)
+	assert.Nil(t, blob)
 
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	maintainersAndApps, err = repo.ListAppInfo()
@@ -123,29 +130,19 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, sampleMaintainer, maintainersAndApps[0].Maintainer)
 	assert.Equal(t, sampleApp, maintainersAndApps[0].App)
 
-	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err = repo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
 	assert.NotNil(t, tags)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
 
-	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	blob, err = repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.Nil(t, err)
 	assert.NotNil(t, blob)
 	assert.Equal(t, sampleBlob, blob)
 
 	// TODO Deleting the only tag left should also delete the app.
 	// TODO Test creating a second app with different tag, as this should not cause collisions if handled correctly.
-}
-
-func assertEmptyTags(t *testing.T) {
-	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
-	assert.NotNil(t, err)
-	assert.Nil(t, tags)
-
-	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
-	assert.NotNil(t, err)
-	assert.Nil(t, blob)
 }
 
 func TestDeleteApp(t *testing.T) {
@@ -199,7 +196,14 @@ func TestDeleteTag(t *testing.T) {
 	maintainersAndApps, err := repo.ListAppInfo()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(maintainersAndApps))
-	assertEmptyTags(t)
+
+	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, tags)
+
+	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	assert.NotNil(t, err)
+	assert.Nil(t, blob)
 }
 
 // TODO check if expiration is working
@@ -209,4 +213,3 @@ func TestDeleteTag(t *testing.T) {
 // TODO SetCookie, DeleteCookie, IsCookieValid
 // TODO the DB interface appears to grow quite large when all all use cases are implemented. Check if could be split up.
 // TODO Test deletion cascading, e.g. deleting user should also delete his group memberships etc.
-// TODO Replace "SERIAL" in the schemes by "INT"

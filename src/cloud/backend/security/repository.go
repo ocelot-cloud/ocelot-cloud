@@ -124,6 +124,7 @@ type TagAndBlob struct {
 
 // TODO To be implemented
 type Repository interface {
+	// User interface
 	CreateUser(user, password string, isAdmin bool) error
 	WipeDatabase()
 	IsPasswordCorrect(user, password string) bool
@@ -133,22 +134,19 @@ type Repository interface {
 	DoesUserExist(user string) bool
 	GetUserViaCookie(cookieValue string) (*Authorization, error)
 	DoesAnyAdminUserExist() bool
-
 	ChangePassword(user, newPassword string) error
 
+	// App and tag interface
 	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
 	ListAppInfo() ([]MaintainerAndApp, error)
 	ListTagsOfApp(maintainer, app string) ([]string, error)
 	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
 	DeleteApp(maintainer, app string) error
 	DeleteTag(maintainer, app, tag string) error
+
+	// Group interface
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
-		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
-		type appForm struct: {maintainer, app, tag}
-		delete app: func(appForm) err
-		load app: func(appForm) (blob, error)
-		type AppInfo struct : {maintainer, app}
 
 		CreateGroup(group string) error
 		DeleteGroup(group) error
