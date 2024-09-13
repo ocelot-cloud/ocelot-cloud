@@ -16,10 +16,15 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-const (
+var (
 	sampleUser     = "user"
 	samplePassword = "password"
 	sampleCookie   = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+	sampleMaintainer = "maintainer"
+	sampleApp        = "app"
+	sampleTag        = "1.0"
+	sampleBlob       = []byte("hello")
 )
 
 // TODO Finish SQLite Client Implementation And Tests
@@ -99,6 +104,22 @@ func TestChangePassword(t *testing.T) {
 	assert.Nil(t, repo.ChangePassword(sampleUser, newPassword))
 	assert.False(t, repo.IsPasswordCorrect(sampleUser, oldPassword))
 	assert.True(t, repo.IsPasswordCorrect(sampleUser, newPassword))
+}
+
+// TODO Trigger already existing and not existing errors.
+func TestAppLifecycle(t *testing.T) {
+	defer repo.WipeDatabase()
+	app, err := repo.ListAppInfo()
+	assert.Nil(t, err)
+	assert.Nil(t, app)
+
+	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	app, err = repo.ListAppInfo()
+	assert.Nil(t, err)
+	assert.NotNil(t, app)
+	assert.Equal(t, 1, len(app))
+	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
+	assert.Equal(t, sampleApp, app[0].App)
 }
 
 // TODO check if expiration is working

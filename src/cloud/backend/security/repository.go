@@ -52,9 +52,9 @@ func initializeTables() {
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS apps (
 			app_id SERIAL PRIMARY KEY,
-			maintainer_name VARCHAR(255) NOT NULL,
-			app_name VARCHAR(255) NOT NULL,
-			UNIQUE (maintainer_name, app_name)
+			maintainer VARCHAR(255) NOT NULL,
+			app VARCHAR(255) NOT NULL,
+			UNIQUE (maintainer, app)
 		);
 	`)
 	if err != nil {
@@ -65,9 +65,9 @@ func initializeTables() {
 		CREATE TABLE IF NOT EXISTS tags (
 			app_id INT REFERENCES apps(app_id) ON DELETE CASCADE,
 			tag_id SERIAL PRIMARY KEY,
-			tag_name VARCHAR(255) NOT NULL,
-			content_blob BYTEA NOT NULL,
-			UNIQUE (app_id, tag_name)
+			tag VARCHAR(255) NOT NULL,
+			blob BYTEA NOT NULL,
+			UNIQUE (app_id, tag)
 		);
 	`)
 	if err != nil {
@@ -112,6 +112,11 @@ type Authorization struct {
 	IsAdmin bool
 }
 
+type MaintainerAndApp struct {
+	Maintainer string
+	App        string
+}
+
 // TODO To be implemented
 type Repository interface {
 	CreateUser(user string, password string, isAdmin bool) error
@@ -126,16 +131,15 @@ type Repository interface {
 
 	ChangePassword(user string, newPassword string) error
 
+	CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error
+	ListAppInfo() ([]MaintainerAndApp, error)
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
 		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
-		type appCreationForm struct: {maintainer, app, tag, blob}
-		add app: func(appEntry) err
 		type appForm struct: {maintainer, app, tag}
 		delete app: func(appForm) err
 		load app: func(appForm) (blob, error)
 		type AppInfo struct : {maintainer, app}
-		ListAppInfo() ([]AppInfo, error)
 
 		CreateGroup(group string) error
 		DeleteGroup(group) error
@@ -290,4 +294,42 @@ func (r *MyRepository) ChangePassword(user string, newPassword string) error {
 	return nil
 }
 
+// TODO is app already exists,
+func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
+	_, err := DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
+	if err != nil {
+		Logger.Error("Failed to create app: %v", err)
+		return fmt.Errorf("failed to create app")
+	}
+	return nil
+}
+
+func (r *MyRepository) ListAppInfo() ([]MaintainerAndApp, error) {
+	rows, err := DB.Query("SELECT maintainer, app FROM apps")
+	if err != nil {
+		Logger.Error("Failed to fetch app list: %v", err)
+		return nil, fmt.Errorf("failed to fetch app list")
+	}
+	defer rows.Close()
+
+	var result []MaintainerAndApp
+	for rows.Next() {
+		var maintainer, app string
+		if err = rows.Scan(&maintainer, &app); err != nil {
+			Logger.Error("Failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row")
+		}
+		result = append(result, MaintainerAndApp{Maintainer: maintainer, App: app})
+	}
+
+	if err = rows.Err(); err != nil {
+		Logger.Error("Rows error: %v", err)
+		return nil, fmt.Errorf("rows error")
+	}
+
+	return result, nil
+}
+
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
+// TODO idea: by default create a group "anonymous" which cant be deleted. Acces to an app for members of anonymous means, that any user, even without account can access an app.
+// TODO if an app is deleted, all its tags must be deleted. If all tags of an app are deleted, the app must be deleted as well.
