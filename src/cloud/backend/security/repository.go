@@ -408,3 +408,4 @@ func (r *MyRepository) LoadTagBlob(maintainer string, app string, tag string) ([
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
 // TODO idea: by default create a group "anonymous" which cant be deleted. Access to an app for members of anonymous means, that any user, even without account can access an app.
 // TODO if an app is deleted, all its tags must be deleted. If all tags of an app are deleted, the app must be deleted as well.
+// TODO in hub, check if I consistently use: "INTEGER PRIMARY KEY AUTOINCREMENT" for the ID's. If not, apply it.
