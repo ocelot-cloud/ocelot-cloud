@@ -51,7 +51,7 @@ func initializeTables() {
 
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS apps (
-			app_id SERIAL PRIMARY KEY,
+			app_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			maintainer VARCHAR(255) NOT NULL,
 			app VARCHAR(255) NOT NULL,
 			UNIQUE (maintainer, app)
@@ -301,7 +301,7 @@ func (r *MyRepository) ChangePassword(user string, newPassword string) error {
 	return nil
 }
 
-// TODO is app already exists,
+// TODO test: is app already existing
 func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
 	_, err := DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
 	if err != nil {
@@ -311,12 +311,12 @@ func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag strin
 
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
-		// TODO
+		return fmt.Errorf("TODO4")
 	}
 
 	_, err = DB.Exec("INSERT INTO tags (app_id, tag, blob) VALUES (?, ?, ?)", appId, tag, blob)
 	if err != nil {
-		// TODO
+		return fmt.Errorf("TODO5")
 	}
 
 	return nil
@@ -327,7 +327,8 @@ func (r *MyRepository) getAppId(maintainer string, app string) (int, error) {
 	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
 	if err != nil {
 		// TODO
-		return 0, err
+		Logger.Error("TODO error: %v", err)
+		return -1, err
 	}
 	return appId, nil
 }
@@ -359,10 +360,9 @@ func (r *MyRepository) ListAppInfo() ([]MaintainerAndApp, error) {
 }
 
 func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, error) {
-	// TODO duplication with ListAppInfo
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
-		// TODO
+		return nil, fmt.Errorf("TODO1")
 	}
 
 	rows, err := DB.Query("SELECT tag FROM tags WHERE app_id = ?", appId)
@@ -393,13 +393,13 @@ func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, e
 func (r *MyRepository) LoadTagBlob(maintainer string, app string, tag string) ([]byte, error) {
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
-		// TODO
+		return nil, fmt.Errorf("TODO2")
 	}
 
 	var blob []byte
 	err = DB.QueryRow("SELECT blob FROM tags WHERE app_id = ? AND tag = ?", appId, tag).Scan(&blob)
 	if err != nil {
-		// TODO
+		return nil, fmt.Errorf("TODO3")
 	}
 
 	return blob, nil

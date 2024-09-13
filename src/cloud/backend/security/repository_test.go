@@ -112,13 +112,14 @@ func TestAppLifecycle(t *testing.T) {
 	maintainersAndApps, err := repo.ListAppInfo()
 	assert.Nil(t, err)
 	assert.Nil(t, maintainersAndApps)
-	/* TODO not sure whether to return empty slice or an error, probably error
+
 	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 	assert.Nil(t, maintainersAndApps)
 
-	assert.NotNil(t, repo.LoadAppsBlob(...))
-	*/
+	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	assert.NotNil(t, err)
+	assert.Nil(t, blob)
 
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	maintainersAndApps, err = repo.ListAppInfo()
@@ -128,13 +129,13 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, sampleMaintainer, maintainersAndApps[0].Maintainer)
 	assert.Equal(t, sampleApp, maintainersAndApps[0].App)
 
-	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err = repo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
 	assert.NotNil(t, tags)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
 
-	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	blob, err = repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.Nil(t, err)
 	assert.NotNil(t, blob)
 	assert.Equal(t, sampleBlob, blob)
@@ -151,3 +152,4 @@ func TestAppLifecycle(t *testing.T) {
 // TODO SetCookie, DeleteCookie, IsCookieValid
 // TODO the DB interface appears to grow quite large when all all use cases are implemented. Check if could be split up.
 // TODO Test deletion cascading, e.g. deleting user should also delete his group memberships etc.
+// TODO Replace "SERIAL" in the schemes by "INT"
