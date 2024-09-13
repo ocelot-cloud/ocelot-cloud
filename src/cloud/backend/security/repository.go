@@ -114,7 +114,6 @@ type Authorization struct {
 
 // TODO To be implemented
 type Repository interface {
-	// User Handling
 	CreateUser(user string, password string, isAdmin bool) error
 	WipeDatabase()
 	IsPasswordCorrect(user string, password string) bool
@@ -126,8 +125,27 @@ type Repository interface {
 	DoesAnyAdminUserExist() bool
 
 	ChangePassword(user string, newPassword string) error
+
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
+		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
+		type appCreationForm struct: {maintainer, app, tag, blob}
+		add app: func(appEntry) err
+		type appForm struct: {maintainer, app, tag}
+		delete app: func(appForm) err
+		load app: func(appForm) (blob, error)
+		type AppInfo struct : {maintainer, app}
+		ListAppInfo() ([]AppInfo, error)
+
+		CreateGroup(group string) error
+		DeleteGroup(group) error
+		ListUsers() ([]string, error)
+		AddUserToGroup(user, group) error
+		RemoveUserFromGroup(user, group) error
+		GiveGroupAccessToApp(group, app), error
+		RemoveGroupsAccessToApp(group, app), error
+		DoesUserHaveAccessToApp(user, appForm) bool
+
 		DoesAppExist(user string, app string) bool
 		CreateApp(user string, app string) error
 		DeleteApp(user string, app string) error
@@ -272,11 +290,4 @@ func (r *MyRepository) ChangePassword(user string, newPassword string) error {
 	return nil
 }
 
-// TODO
-/*
-type appCreationForm struct: {src_domain, maintainer, app, tag, blob}
-add app: func(appEntry) err
-type appForm struct: {src_domain, maintainer, app, tag}
-delete app: func(appForm) err
-load app: func(appForm) (blob, error)
-*/
+// TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
