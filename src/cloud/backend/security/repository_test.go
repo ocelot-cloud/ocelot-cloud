@@ -163,7 +163,28 @@ func TestCreatingTwoTagsInApp(t *testing.T) {
 	sampleTag2 := "2.0"
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
-	// TODO list apps and tags
+
+	app, err := repo.ListAppInfo()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(app))
+	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
+	assert.Equal(t, sampleApp, app[0].App)
+
+	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(tags))
+
+	assert.True(t, contain(tags, sampleTag))
+	assert.True(t, contain(tags, sampleTag2))
+}
+
+func contain(tags []string, expectedTag string) bool {
+	for _, actualTag := range tags {
+		if actualTag == expectedTag {
+			return true
+		}
+	}
+	return false
 }
 
 func TestDeleteTag(t *testing.T) {
