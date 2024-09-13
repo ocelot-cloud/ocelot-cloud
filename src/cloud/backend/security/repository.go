@@ -124,16 +124,10 @@ type Repository interface {
 	DoesUserExist(user string) bool
 	GetUserViaCookie(cookieValue string) (*Authorization, error)
 	DoesAnyAdminUserExist() bool
+
+	ChangePassword(user string, newPassword string) error
 	/*
-
-		ChangePassword(user string, newPassword string) error
-
-		// Auth
-		DoesUserExist(user string) bool
-		GetUserWithCookie(cookie string) (Authorization, error)
-
-
-		// TODO Matrial from hub which might be an inspiration. If not used, please delete.
+		// TODO Material from hub which might be an inspiration. If not used, please delete.
 		DoesAppExist(user string, app string) bool
 		CreateApp(user string, app string) error
 		DeleteApp(user string, app string) error
@@ -228,8 +222,6 @@ func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookie
 	return nil
 }
 
-// TODO test case: Delete cookie, but user should still exist.
-// TODO Maybe it makes sense to distinguish between essential production interface and extended test interface
 func (r *MyRepository) Logout(user string) error {
 	_, err := DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", "", "", user)
 	if err != nil {
@@ -264,6 +256,20 @@ func (r *MyRepository) GetUserViaCookie(cookieValue string) (*Authorization, err
 		return nil, fmt.Errorf("failed to fetch user data")
 	}
 	return &Authorization{user, isAdmin}, nil
+}
+
+func (r *MyRepository) ChangePassword(user string, newPassword string) error {
+	hashedNewPassword, err := utils.SaltAndHash(newPassword)
+	if err != nil {
+		return err
+	}
+
+	_, err = DB.Exec("UPDATE users SET hashed_password = ? WHERE user_name = ?", hashedNewPassword, user)
+	if err != nil {
+		Logger.Error("Failed to update password of user '%s': %v", user, err)
+		return fmt.Errorf("failed to update password")
+	}
+	return nil
 }
 
 // TODO

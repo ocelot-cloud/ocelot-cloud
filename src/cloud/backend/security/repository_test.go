@@ -89,6 +89,18 @@ func TestLogout(t *testing.T) {
 	assert.Nil(t, auth)
 }
 
+func TestChangePassword(t *testing.T) {
+	defer repo.WipeDatabase()
+	oldPassword := samplePassword
+	newPassword := samplePassword + "x"
+	assert.Nil(t, repo.CreateUser(sampleUser, oldPassword, false))
+	assert.True(t, repo.IsPasswordCorrect(sampleUser, oldPassword))
+
+	assert.Nil(t, repo.ChangePassword(sampleUser, newPassword))
+	assert.False(t, repo.IsPasswordCorrect(sampleUser, oldPassword))
+	assert.True(t, repo.IsPasswordCorrect(sampleUser, newPassword))
+}
+
 // TODO check if expiration is working
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
