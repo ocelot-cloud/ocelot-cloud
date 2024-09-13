@@ -263,3 +263,12 @@ func (r *MyRepository) GetUserWithCookie(cookieValue string) (*Authorization, er
 	}
 	return &Authorization{user, isAdmin}, nil
 }
+
+// TODO
+/*
+type appCreationForm struct: {src_domain, maintainer, app, tag, blob}
+add app: func(appEntry) err
+type appForm struct: {src_domain, maintainer, app, tag}
+delete app: func(appForm) err
+load app: func(appForm) (blob, error)
+*/
