@@ -84,11 +84,9 @@ func TestLogout(t *testing.T) {
 
 	assert.Nil(t, repo.Logout(sampleUser))
 	assert.True(t, repo.DoesUserExist(sampleUser))
-	/*TODO
 	auth, err = repo.GetUserViaCookie(sampleCookie)
 	assert.NotNil(t, err)
 	assert.Nil(t, auth)
-	*/
 }
 
 // TODO check if expiration is working
