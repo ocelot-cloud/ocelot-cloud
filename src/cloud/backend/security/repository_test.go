@@ -158,6 +158,18 @@ func TestDeleteApp(t *testing.T) {
 	assert.Nil(t, tags)
 }
 
+func TestCreatingTwoTagsInApp(t *testing.T) {
+	defer repo.WipeDatabase()
+	sampleTag2 := "2.0"
+	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
+	// TODO list apps and tags
+}
+
+func TestDeleteTag(t *testing.T) {
+	// TODO
+}
+
 // TODO check if expiration is working
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.

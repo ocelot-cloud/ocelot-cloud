@@ -309,10 +309,19 @@ func (r *MyRepository) ChangePassword(user string, newPassword string) error {
 
 // TODO test: is app already existing
 func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
-	_, err := DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
+	var doesAppExist bool
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE maintainer = ? AND app = ?)", maintainer, app).Scan(&doesAppExist)
 	if err != nil {
-		Logger.Error("Failed to create app: %v", err)
-		return fmt.Errorf("failed to create app")
+		Logger.Error("Failed to check if app exists: %v", err)
+		return fmt.Errorf("failed to check if app exists")
+	}
+
+	if !doesAppExist {
+		_, err = DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
+		if err != nil {
+			Logger.Error("Failed to create app: %v", err)
+			return fmt.Errorf("failed to create app")
+		}
 	}
 
 	appId, err := r.getAppId(maintainer, app)
