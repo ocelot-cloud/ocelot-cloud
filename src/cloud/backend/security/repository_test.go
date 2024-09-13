@@ -109,10 +109,14 @@ func TestChangePassword(t *testing.T) {
 // TODO Trigger already existing and not existing errors.
 func TestAppLifecycle(t *testing.T) {
 	defer repo.WipeDatabase()
-	assertEmptyAppAndTags(t)
+
+	maintainersAndApps, err := repo.ListAppInfo()
+	assert.Nil(t, err)
+	assert.Nil(t, maintainersAndApps)
+	assertEmptyTags(t)
 
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	maintainersAndApps, err := repo.ListAppInfo()
+	maintainersAndApps, err = repo.ListAppInfo()
 	assert.Nil(t, err)
 	assert.NotNil(t, maintainersAndApps)
 	assert.Equal(t, 1, len(maintainersAndApps))
@@ -134,11 +138,7 @@ func TestAppLifecycle(t *testing.T) {
 	// TODO Test creating a second app with different tag, as this should not cause collisions if handled correctly.
 }
 
-func assertEmptyAppAndTags(t *testing.T) {
-	maintainersAndApps, err := repo.ListAppInfo()
-	assert.Nil(t, err)
-	assert.Nil(t, maintainersAndApps)
-
+func assertEmptyTags(t *testing.T) {
 	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.NotNil(t, err)
 	assert.Nil(t, tags)
@@ -195,7 +195,11 @@ func TestDeleteTag(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.DeleteTag(sampleMaintainer, sampleApp, sampleTag))
-	// TODO assertEmptyAppAndTags(t)
+
+	maintainersAndApps, err := repo.ListAppInfo()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(maintainersAndApps))
+	assertEmptyTags(t)
 }
 
 // TODO check if expiration is working
