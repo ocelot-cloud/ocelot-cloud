@@ -124,23 +124,24 @@ type TagAndBlob struct {
 
 // TODO To be implemented
 type Repository interface {
-	CreateUser(user string, password string, isAdmin bool) error
+	CreateUser(user, password string, isAdmin bool) error
 	WipeDatabase()
-	IsPasswordCorrect(user string, password string) bool
+	IsPasswordCorrect(user, password string) bool
 	DeleteUser(user string) error
-	HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error
+	HashAndSaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
 	Logout(user string) error
 	DoesUserExist(user string) bool
 	GetUserViaCookie(cookieValue string) (*Authorization, error)
 	DoesAnyAdminUserExist() bool
 
-	ChangePassword(user string, newPassword string) error
+	ChangePassword(user, newPassword string) error
 
-	CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error
+	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
 	ListAppInfo() ([]MaintainerAndApp, error)
-	ListTagsOfApp(maintainer string, app string) ([]string, error)
-	LoadTagBlob(maintainer string, app string, tag string) ([]byte, error)
-	DeleteApp(maintainer string, app string) error
+	ListTagsOfApp(maintainer, app string) ([]string, error)
+	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
+	DeleteApp(maintainer, app string) error
+	DeleteTag(maintainer, app, tag string) error
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
 		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
@@ -424,6 +425,19 @@ func (r *MyRepository) DeleteApp(maintainer, app string) error {
 	_, err := DB.Exec("DELETE FROM apps WHERE maintainer = ? AND app = ?", maintainer, app)
 	if err != nil {
 		return fmt.Errorf("TODO6")
+	}
+	return nil
+}
+
+func (r *MyRepository) DeleteTag(maintainer, app, tag string) error {
+	appId, err := r.getAppId(maintainer, app)
+	if err != nil {
+		return fmt.Errorf("TODO7")
+	}
+
+	_, err = DB.Exec("DELETE FROM tags WHERE app_id = ? AND tag = ?", appId, tag)
+	if err != nil {
+		return fmt.Errorf("TODO8")
 	}
 	return nil
 }
