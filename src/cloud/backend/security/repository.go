@@ -37,7 +37,7 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 func initializeTables() {
 	_, err := DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
-			user_id SERIAL PRIMARY KEY,
+			user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name VARCHAR(255) NOT NULL UNIQUE,
 			hashed_password VARCHAR(255) NOT NULL UNIQUE,
 			hashed_cookie_value VARCHAR(255) UNIQUE,
@@ -64,7 +64,7 @@ func initializeTables() {
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS tags (
 			app_id INT REFERENCES apps(app_id) ON DELETE CASCADE,
-			tag_id SERIAL PRIMARY KEY,
+			tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			tag VARCHAR(255) NOT NULL,
 			blob BYTEA NOT NULL,
 			UNIQUE (app_id, tag)
@@ -76,7 +76,7 @@ func initializeTables() {
 
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS groups (
-			group_id SERIAL PRIMARY KEY,
+			group_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			group_name VARCHAR(255) NOT NULL UNIQUE 
 		);
 	`)
