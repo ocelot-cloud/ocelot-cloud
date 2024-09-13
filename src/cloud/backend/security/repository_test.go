@@ -140,9 +140,17 @@ func TestAppLifecycle(t *testing.T) {
 	assert.NotNil(t, blob)
 	assert.Equal(t, sampleBlob, blob)
 
-	// TODO load blob and assert
 	// TODO Deleting the only tag left should also delete the app.
 	// TODO Test creating a second app with different tag, as this should not cause collisions if handled correctly.
+}
+
+func TestDeleteTag(t *testing.T) {
+	defer repo.WipeDatabase()
+	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, repo.DeleteApp(sampleMaintainer, sampleApp))
+	info, err := repo.ListAppInfo()
+	assert.Nil(t, err)
+	assert.Nil(t, info)
 }
 
 // TODO check if expiration is working

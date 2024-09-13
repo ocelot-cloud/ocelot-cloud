@@ -140,6 +140,7 @@ type Repository interface {
 	ListAppInfo() ([]MaintainerAndApp, error)
 	ListTagsOfApp(maintainer string, app string) ([]string, error)
 	LoadTagBlob(maintainer string, app string, tag string) ([]byte, error)
+	DeleteApp(maintainer string, app string) error
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
 		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
@@ -207,6 +208,11 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 
 func (r *MyRepository) WipeDatabase() {
 	_, err := DB.Exec("DELETE FROM users")
+	if err != nil {
+		Logger.Fatal("Database wipe failed: %v", err)
+	}
+
+	_, err = DB.Exec("DELETE FROM apps")
 	if err != nil {
 		Logger.Fatal("Database wipe failed: %v", err)
 	}
@@ -390,7 +396,7 @@ func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, e
 	return result, nil
 }
 
-func (r *MyRepository) LoadTagBlob(maintainer string, app string, tag string) ([]byte, error) {
+func (r *MyRepository) LoadTagBlob(maintainer, app, tag string) ([]byte, error) {
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
 		return nil, fmt.Errorf("TODO2")
@@ -405,7 +411,16 @@ func (r *MyRepository) LoadTagBlob(maintainer string, app string, tag string) ([
 	return blob, nil
 }
 
+func (r *MyRepository) DeleteApp(maintainer, app string) error {
+	_, err := DB.Exec("DELETE FROM apps WHERE maintainer = ? AND app = ?", maintainer, app)
+	if err != nil {
+		return fmt.Errorf("TODO6")
+	}
+	return nil
+}
+
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
 // TODO idea: by default create a group "anonymous" which cant be deleted. Access to an app for members of anonymous means, that any user, even without account can access an app.
 // TODO if an app is deleted, all its tags must be deleted. If all tags of an app are deleted, the app must be deleted as well.
 // TODO in hub, check if I consistently use: "INTEGER PRIMARY KEY AUTOINCREMENT" for the ID's. If not, apply it.
+// TODO Delete duplicated argument types in functions
