@@ -126,4 +126,7 @@ func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
 	}
 	Logger.Debug("Are mocks enabled? -> %v", config.AreMocksEnabled)
 	Logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
+	if !config.UseRealDatabase {
+		Logger.Warn("An in-memory database is used. No data is stored persistently.")
+	}
 }
