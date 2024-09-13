@@ -109,17 +109,32 @@ func TestChangePassword(t *testing.T) {
 // TODO Trigger already existing and not existing errors.
 func TestAppLifecycle(t *testing.T) {
 	defer repo.WipeDatabase()
-	app, err := repo.ListAppInfo()
+	maintainersAndApps, err := repo.ListAppInfo()
 	assert.Nil(t, err)
-	assert.Nil(t, app)
+	assert.Nil(t, maintainersAndApps)
+	/* TODO not sure whether to return empty slice or an error, probably error
+	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, maintainersAndApps)
+	*/
 
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	app, err = repo.ListAppInfo()
+	maintainersAndApps, err = repo.ListAppInfo()
 	assert.Nil(t, err)
-	assert.NotNil(t, app)
-	assert.Equal(t, 1, len(app))
-	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
-	assert.Equal(t, sampleApp, app[0].App)
+	assert.NotNil(t, maintainersAndApps)
+	assert.Equal(t, 1, len(maintainersAndApps))
+	assert.Equal(t, sampleMaintainer, maintainersAndApps[0].Maintainer)
+	assert.Equal(t, sampleApp, maintainersAndApps[0].App)
+
+	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.NotNil(t, tags)
+	assert.Equal(t, 1, len(tags))
+	assert.Equal(t, sampleTag, tags[0])
+
+	// TODO load blob and assert
+	// TODO Deleting the only tag left should also delete the app.
+	// TODO Test creating a second app with different tag, as this should not cause collisions if handled correctly.
 }
 
 // TODO check if expiration is working

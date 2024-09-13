@@ -117,6 +117,11 @@ type MaintainerAndApp struct {
 	App        string
 }
 
+type TagAndBlob struct {
+	Tag  string
+	Blob []byte
+}
+
 // TODO To be implemented
 type Repository interface {
 	CreateUser(user string, password string, isAdmin bool) error
@@ -133,6 +138,7 @@ type Repository interface {
 
 	CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error
 	ListAppInfo() ([]MaintainerAndApp, error)
+	ListTagsOfApp(maintainer string, app string) ([]string, error)
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
 		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
@@ -301,7 +307,28 @@ func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag strin
 		Logger.Error("Failed to create app: %v", err)
 		return fmt.Errorf("failed to create app")
 	}
+
+	appId, err := r.getAppId(maintainer, app)
+	if err != nil {
+		// TODO
+	}
+
+	_, err = DB.Exec("INSERT INTO tags (app_id, tag, blob) VALUES (?, ?, ?)", appId, tag, blob)
+	if err != nil {
+		// TODO
+	}
+
 	return nil
+}
+
+func (r *MyRepository) getAppId(maintainer string, app string) (int, error) {
+	var appId int
+	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
+	if err != nil {
+		// TODO
+		return 0, err
+	}
+	return appId, nil
 }
 
 func (r *MyRepository) ListAppInfo() ([]MaintainerAndApp, error) {
@@ -330,6 +357,38 @@ func (r *MyRepository) ListAppInfo() ([]MaintainerAndApp, error) {
 	return result, nil
 }
 
+func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, error) {
+	// TODO duplication with ListAppInfo
+	appId, err := r.getAppId(maintainer, app)
+	if err != nil {
+		// TODO
+	}
+
+	rows, err := DB.Query("SELECT tag FROM tags WHERE app_id = ?", appId)
+	if err != nil {
+		Logger.Error("Failed to fetch tag list of app: %s/%s, %v", maintainer, app, err)
+		return nil, fmt.Errorf("failed to fetch tag list")
+	}
+	defer rows.Close()
+
+	var result []string
+	for rows.Next() {
+		var singleTag string
+		if err = rows.Scan(&singleTag); err != nil {
+			Logger.Error("Failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row")
+		}
+		result = append(result, singleTag)
+	}
+
+	if err = rows.Err(); err != nil {
+		Logger.Error("Rows error: %v", err)
+		return nil, fmt.Errorf("rows error")
+	}
+
+	return result, nil
+}
+
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
-// TODO idea: by default create a group "anonymous" which cant be deleted. Acces to an app for members of anonymous means, that any user, even without account can access an app.
+// TODO idea: by default create a group "anonymous" which cant be deleted. Access to an app for members of anonymous means, that any user, even without account can access an app.
 // TODO if an app is deleted, all its tags must be deleted. If all tags of an app are deleted, the app must be deleted as well.
