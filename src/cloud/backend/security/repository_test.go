@@ -116,6 +116,8 @@ func TestAppLifecycle(t *testing.T) {
 	tags, err := repo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
 	assert.Nil(t, maintainersAndApps)
+
+	assert.NotNil(t, repo.LoadAppsBlob(...))
 	*/
 
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
@@ -131,6 +133,11 @@ func TestAppLifecycle(t *testing.T) {
 	assert.NotNil(t, tags)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
+
+	blob, err := repo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	assert.Nil(t, err)
+	assert.NotNil(t, blob)
+	assert.Equal(t, sampleBlob, blob)
 
 	// TODO load blob and assert
 	// TODO Deleting the only tag left should also delete the app.

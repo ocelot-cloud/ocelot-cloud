@@ -139,6 +139,7 @@ type Repository interface {
 	CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error
 	ListAppInfo() ([]MaintainerAndApp, error)
 	ListTagsOfApp(maintainer string, app string) ([]string, error)
+	LoadTagBlob(maintainer string, app string, tag string) ([]byte, error)
 	/*
 		// TODO Material from hub which might be an inspiration. If not used, please delete.
 		// TODO Instead of appForm/appEntry, just use app_id, much easier. Add: GetAppId(appForm).
@@ -387,6 +388,21 @@ func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, e
 	}
 
 	return result, nil
+}
+
+func (r *MyRepository) LoadTagBlob(maintainer string, app string, tag string) ([]byte, error) {
+	appId, err := r.getAppId(maintainer, app)
+	if err != nil {
+		// TODO
+	}
+
+	var blob []byte
+	err = DB.QueryRow("SELECT blob FROM tags WHERE app_id = ? AND tag = ?", appId, tag).Scan(&blob)
+	if err != nil {
+		// TODO
+	}
+
+	return blob, nil
 }
 
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
