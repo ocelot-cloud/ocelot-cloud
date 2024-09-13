@@ -115,7 +115,7 @@ func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
 	if profile == PROD {
 		Logger.Info("Profile is: %s", profile.String())
 	} else {
-		Logger.Warn("Profile is: %s. This is for development, so don't use this profile in production!", profile.String())
+		Logger.Warn("Profile is: %s. It is intended for development, so do not use this profile in production!", profile.String())
 	}
 	Logger.Info("Log level is: %s", shared.GetLogLevel())
 	Logger.Debug("Is web GUI enabled? -> %v", config.IsGuiEnabled)
