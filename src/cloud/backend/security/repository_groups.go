@@ -38,8 +38,21 @@ func (r *MyRepository) DeleteGroup(group string) error {
 }
 
 func (r *MyRepository) ListAllUsers() ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+	rows, err := DB.Query("SELECT user_name FROM users")
+	if err != nil {
+		// TODO
+		return nil, err
+	}
+	defer rows.Close()
+	var users []string
+	for rows.Next() {
+		var user string
+		if err = rows.Scan(&user); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }
 
 func (r *MyRepository) AddUserToGroup(user, group string) error {

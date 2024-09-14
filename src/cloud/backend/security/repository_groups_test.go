@@ -25,3 +25,15 @@ func TestGroupLifecycle(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
 }
+
+func TestListAllUsers(t *testing.T) {
+	users, err := repo.ListAllUsers()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(users))
+
+	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	users, err = repo.ListAllUsers()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(users))
+	assert.Equal(t, sampleUser, users[0])
+}
