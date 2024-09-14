@@ -1,13 +1,31 @@
 package security
 
 func (r *MyRepository) CreateGroup(group string) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := DB.Exec("INSERT INTO groups(group_name) VALUES (?)", group)
+	if err != nil {
+		// TODO
+		return err
+	}
+	return nil
 }
 
 func (r *MyRepository) ListGroups() ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+	rows, err := DB.Query("SELECT group_name FROM groups")
+	if err != nil {
+		// TODO
+		return nil, err
+	}
+	defer rows.Close()
+	var groups []string
+	for rows.Next() {
+		var group string
+		if err = rows.Scan(&group); err != nil {
+			// TODO
+			return nil, err
+		}
+		groups = append(groups, group)
+	}
+	return groups, nil
 }
 
 func (r *MyRepository) DeleteGroup(group string) error {
