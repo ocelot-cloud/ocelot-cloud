@@ -29,8 +29,12 @@ func (r *MyRepository) ListGroups() ([]string, error) {
 }
 
 func (r *MyRepository) DeleteGroup(group string) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := DB.Exec("DELETE FROM groups WHERE group_name = ?", group)
+	if err != nil {
+		// TODO
+		return err
+	}
+	return nil
 }
 
 func (r *MyRepository) ListAllUsers() ([]string, error) {

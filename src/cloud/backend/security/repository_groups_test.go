@@ -9,7 +9,7 @@ var (
 	sampleGroup = "mygroup"
 )
 
-func TestStuff(t *testing.T) {
+func TestGroupLifecycle(t *testing.T) {
 	groups, err := repo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
@@ -19,4 +19,9 @@ func TestStuff(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(groups))
 	assert.Equal(t, sampleGroup, groups[0])
+
+	assert.Nil(t, repo.DeleteGroup(sampleGroup))
+	groups, err = repo.ListGroups()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(groups))
 }
