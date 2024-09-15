@@ -267,8 +267,23 @@ func (r *MyRepository) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
 }
 
 func (r *MyRepository) RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error {
-	//TODO implement me
-	panic("implement me")
+	groupId, err := r.getGroupId(group)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	appId, err := r.getAppId(app.Maintainer, app.App)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	_, err = DB.Exec("DELETE FROM app_access WHERE group_id = ? AND app_id = ?", groupId, appId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *MyRepository) DoesUserHaveAccessToApp(user, maintainer, app string) bool {

@@ -81,10 +81,12 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.Equal(t, 1, len(accessList))
 	assert.Equal(t, sampleMaintainer, accessList[0].Maintainer)
 	assert.Equal(t, sampleApp, accessList[0].App)
-}
 
-func TestRemoveGroupsAccessToApp(t *testing.T) {
+	assert.Nil(t, repo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
 
+	accessList, err = repo.ListAppAccessesOfGroup(sampleGroup)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(accessList))
 }
 
 // TODO After finishing the persistence layer, I should add services with business logic, which handle all unhappy path cases.
