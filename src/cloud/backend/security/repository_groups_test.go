@@ -45,10 +45,20 @@ func TestAddUserToGroup(t *testing.T) {
 	members, err := repo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
+
 	assert.Nil(t, repo.AddUserToGroup(sampleUser, sampleGroup))
 
 	members, err = repo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(members))
 	assert.Equal(t, sampleUser, members[0])
+
+	assert.Nil(t, repo.RemoveUserFromGroup(sampleUser, sampleGroup))
+
+	members, err = repo.ListMembersOfGroup(sampleGroup)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(members))
+	assert.Nil(t, repo.AddUserToGroup(sampleUser, sampleGroup))
 }
+
+// TODO Add assertion function that all tables are empty? Can be used to test deletion cascading.

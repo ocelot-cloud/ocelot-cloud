@@ -161,8 +161,24 @@ func (r *MyRepository) getUsernamesByIDs(ids []int) ([]string, error) {
 }
 
 func (r *MyRepository) RemoveUserFromGroup(user, group string) error {
-	//TODO implement me
-	panic("implement me")
+	// TODO Maybe abstract to getUserAndGroupId(user, group), and reuse it in other function where the same block is used.
+	userId, err := r.getUserId(user)
+	if err != nil {
+		// TODO
+		return err
+	}
+	groupId, err := r.getGroupId(group)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	_, err = DB.Exec("DELETE FROM user_to_group WHERE user_id = ? AND group_id = ?", userId, groupId)
+	if err != nil {
+		// TODO
+		return err
+	}
+	return nil
 }
 
 func (r *MyRepository) GiveGroupAccessToApp(group, app string) error {
