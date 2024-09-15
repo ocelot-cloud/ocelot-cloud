@@ -266,12 +266,12 @@ func (r *MyRepository) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
 	return apps, nil
 }
 
-func (r *MyRepository) DoesUserHaveAccessToApp(user, maintainer, app string) bool {
+func (r *MyRepository) RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (r *MyRepository) RemoveGroupsAccessToApp(group, app string) error {
+func (r *MyRepository) DoesUserHaveAccessToApp(user, maintainer, app string) bool {
 	//TODO implement me
 	panic("implement me")
 }

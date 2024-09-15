@@ -153,8 +153,9 @@ type Repository interface {
 
 	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
 	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
+	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error
+
 	DoesUserHaveAccessToApp(user, maintainer, app string) bool
-	RemoveGroupsAccessToApp(group, app string) error
 }
 
 type MyRepository struct{}

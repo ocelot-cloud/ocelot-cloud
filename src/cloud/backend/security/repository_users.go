@@ -42,6 +42,26 @@ func (r *MyRepository) WipeDatabase() {
 	if err != nil {
 		Logger.Fatal("Database wipe failed: %v", err)
 	}
+
+	_, err = DB.Exec("DELETE FROM tags")
+	if err != nil {
+		Logger.Fatal("Database wipe failed: %v", err)
+	}
+
+	_, err = DB.Exec("DELETE FROM groups")
+	if err != nil {
+		Logger.Fatal("Database wipe failed: %v", err)
+	}
+
+	_, err = DB.Exec("DELETE FROM app_access")
+	if err != nil {
+		Logger.Fatal("Database wipe failed: %v", err)
+	}
+
+	_, err = DB.Exec("DELETE FROM user_to_group")
+	if err != nil {
+		Logger.Fatal("Database wipe failed: %v", err)
+	}
 }
 
 func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {

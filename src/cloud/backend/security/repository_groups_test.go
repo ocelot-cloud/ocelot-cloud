@@ -83,5 +83,9 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.Equal(t, sampleApp, accessList[0].App)
 }
 
+func TestRemoveGroupsAccessToApp(t *testing.T) {
+
+}
+
 // TODO After finishing the persistence layer, I should add services with business logic, which handle all unhappy path cases.
 // TODO Add assertion function that all tables are empty? Can be used to test deletion cascading.
