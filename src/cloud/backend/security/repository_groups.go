@@ -181,14 +181,89 @@ func (r *MyRepository) RemoveUserFromGroup(user, group string) error {
 	return nil
 }
 
-func (r *MyRepository) GiveGroupAccessToApp(group, app string) error {
-	//TODO implement me
-	panic("implement me")
+// TODO Replace maintainer + app (separate strings) with MaintainerAndApp in all repos. Probably wil be extended later.
+
+func (r *MyRepository) GiveGroupAccessToApp(group string, app MaintainerAndApp) error {
+	groupId, err := r.getGroupId(group)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	// TODO Should have MaintainerAndApp as argument. Maybe rename to AppInfo?
+	appId, err := r.getAppId(app.Maintainer, app.App)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	_, err = DB.Exec("INSERT INTO app_access(group_id, app_id) VALUES (?, ?)", groupId, appId)
+	if err != nil {
+		// TODO
+		return err
+	}
+	return nil
 }
 
 func (r *MyRepository) ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error) {
-	//TODO implement me
-	panic("implement me")
+	groupId, err := r.getGroupId(group)
+	if err != nil {
+		// TODO
+		return nil, err
+	}
+
+	rows, err := DB.Query("SELECT app_id FROM app_access WHERE group_id = ?", groupId)
+	if err != nil {
+		// TODO
+		return nil, err
+	}
+	defer rows.Close()
+	var appsIds []int
+	for rows.Next() {
+		var appId int
+		if err = rows.Scan(&appId); err != nil {
+			// TODO
+			return nil, err
+		}
+		appsIds = append(appsIds, appId)
+	}
+
+	apps, err := r.getAppsByIDs(appsIds)
+	if err != nil {
+		// TODO
+		return nil, err
+	}
+
+	return apps, nil
+}
+
+func (r *MyRepository) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
+	query := fmt.Sprintf("SELECT maintainer, app FROM apps WHERE app_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
+
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	rows, err := DB.Query(query, args...)
+	if err != nil {
+		// TODO
+		return nil, err
+	}
+	defer rows.Close()
+
+	var apps []MaintainerAndApp
+	for rows.Next() {
+		var maintainer string
+		var app string
+		if err = rows.Scan(&maintainer, &app); err != nil {
+			// TODO
+			return nil, err
+		}
+		apps = append(apps, MaintainerAndApp{maintainer, app})
+	}
+
+	return apps, nil
 }
 
 func (r *MyRepository) DoesUserHaveAccessToApp(user, maintainer, app string) bool {
@@ -200,3 +275,5 @@ func (r *MyRepository) RemoveGroupsAccessToApp(group, app string) error {
 	//TODO implement me
 	panic("implement me")
 }
+
+// TODO Feature for later: clicking on an app should display, which group have access to it. But low-prio.

@@ -151,7 +151,7 @@ type Repository interface {
 	ListMembersOfGroup(group string) ([]string, error)
 	RemoveUserFromGroup(user, group string) error
 
-	GiveGroupAccessToApp(group, app string) error
+	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
 	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
 	DoesUserHaveAccessToApp(user, maintainer, app string) bool
 	RemoveGroupsAccessToApp(group, app string) error
