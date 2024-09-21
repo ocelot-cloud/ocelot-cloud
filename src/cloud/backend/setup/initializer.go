@@ -42,56 +42,66 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	}
 }
 
+// TODO Write test for all that validation logic
 func applyProductionCorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-
 		// TODO The JWT token can have the exact same value as the cookie for simplification.
-		// TODO JWT token must be get rid of, before proxying to another app.
-		/* TODO requirements
-		check if origin is present and allowed ("." + HOST), or maybe a list of allowed urls (ocelot + available apps)
-		check if target URL is allowed ("." + HOST)
+		// TODO When proxying to an app, the JWT token must be removed.
 
-		if target URL = ocelot-cloud.localhost
-			set CORS headers
-			if method is OPTIONS
-				set CORS headers and return
-		isCrossRequest = ...(e.g. nocodb.localhost is accessing ocelot-cloud.localhost)
-		if isCrossRequest:
-			check if target URL is "ocelot-cloud.localhost", if not, return with error
-			if r.path == "/api/auth-check"
-				handle request # handler should respond with JWT token
-			else
-				return with error, "path is not allowed for cross origin requests"
-		else:
-			check cookie (or JWT token), if valid handle request
-		*/
+		/* TODO Implement
+		origin := r.Header.Get("Origin")
+		host := r.Host
 
-		isOriginAllowed := strings.HasSuffix(origin, "."+config.RootDomain)
-		if origin != "" && isOriginAllowed && isAllowedPath(r.URL.Path) {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		} else {
-			// TODO return and respond with "not allowed"?
-		}
-
-		// TODO Should the browser first start with a request using the "OPTIONS" method, or can I directly use POST requests? Not sure if that is allowed, when CORS headers were not set previously.
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
+		if !strings.HasSuffix(origin, ".localhost") { // TODO use "." + config.RootDomain or so
+			w.Write([]byte("invalid origin suffix")) // TODO more detail
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
+		if !strings.HasSuffix(host, ".localhost") { // TODO abstract the suffix
+			w.Write([]byte("invalid host suffix")) // TODO more detail
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		*/
+
+		// The "Host" is the destination domain of the request. The "Origin" is the URL displayed in the browser.
+		// For common requests, both are equal. For cross requests, the two are different.
+		// For example, if a browser visits "nocodb.localhost", that is the origin. If the same page makes
+		// a cross-request to "ocelot-cloud.localhost", then that is the host.
+
+		/* TODO Implement
+		if host == "ocelot-cloud.localhost" { // TODO abstract
+			w.Header().Set("Access-Control-Allow-Origin", "*") // TODO check that subsequent logic handles not allowed requests
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+		}
+
+		isCrossRequest := host != origin
+		if isCrossRequest {
+			if host != "ocelot-cloud.localhost" { // TODO abstract
+				w.Write([]byte("cross requests are only allowed to target domain 'ocelot-cloud.localhost', but you tried to access: " + r.URL.Host)) // TODO more detail
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			} else if r.URL.Path == "/api/auth-check" { // TODO abstract
+				next.ServeHTTP(w, r) // TODO handler should respond with JWT token
+			} else {
+				w.Write([]byte("path is not allowed for cross origin requests")) // TODO more detail
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+		} else {
+			// TODO check cookie (or JWT token), if valid handle request
+			next.ServeHTTP(w, r)
+		}
+
+		*/
 		next.ServeHTTP(w, r)
 	})
-}
-
-func isAllowedPath(path string) bool {
-	// Allow CORS only for the /abc path
-	if path == "/abc" {
-		return true
-	}
-	return false
 }
 
 func initializeDockerNetwork() {
