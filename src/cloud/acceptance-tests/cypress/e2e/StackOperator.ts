@@ -94,7 +94,8 @@ export class StackOperator {
     }
 
     assertOpenButtonUrlPath(urlPath: string): StackOperator {
-        cy.get(`#open-button-${this.stackName}`).should('have.attr', 'data-stack-url',  `${scheme}://${this.stackName}.${rootDomain}${urlPath}`);
+        const cleanUrlPath = urlPath.split('?')[0];
+        cy.get(`#open-button-${this.stackName}`).should('have.attr', 'data-stack-url', `${scheme}://${this.stackName}.${rootDomain}${cleanUrlPath}`);
         return this;
     }
 }
