@@ -12,10 +12,12 @@ const cookieName = "auth"
 var (
 	Logger = tools.Logger
 	router *mux.Router
+	config *tools.GlobalConfig
 )
 
-func InitializeSecurity(routerArg *mux.Router) {
+func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router = routerArg
+	config = configArg
 	router.HandleFunc("/api/login", loginHandler)
 	router.HandleFunc("/api/check-auth", checkAuthHandler)
 }
@@ -46,8 +48,9 @@ func RegisterRoutes(routes []Route) {
 func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	// TODO Add a test that fails if one of the paths is removed?
 	// TODO abstract paths
+	// TODO This should be an outer check for the if-block below: if r.Host == "ocelot-cloud."+config.RootDomain
 	if r.URL.Path == "/api/login" || r.URL.Path == "/api/check-auth" {
-		Logger.Trace("login endpoint is not protected")
+		Logger.Debug("unprotected ocelot-cloud endpoint is addressed: %s", r.URL.Path)
 		next.ServeHTTP(w, r)
 		return
 	}
@@ -55,7 +58,7 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next 
 	// TODO store generated cookie in a repo and check if their value is correct.
 	_, err := r.Cookie(cookieName)
 	if err != nil {
-		Logger.Debug("requests cookie is invalid")
+		Logger.Debug("requests cookie is invalid for request: %s%s", r.Host, r.URL.Path)
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {
 		Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")

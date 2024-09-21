@@ -54,6 +54,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Host == ocelotDomain || r.Host == localDomain {
 		router.ServeHTTP(w, r)
 	} else {
+		logger.Info("Proxying request to container: %s%s", r.Host, r.URL)
 		apps.ProxyRequestToTheDockerContainer(w, r)
 	}
 }

@@ -33,6 +33,6 @@ func main() {
 	setup.InitializeDatabase(config)
 	router := mux.NewRouter()
 
-	security.InitializeSecurity(router)
+	security.InitializeSecurity(router, config)
 	setup.InitializeApplication(router, config)
 }

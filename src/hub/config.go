@@ -28,7 +28,7 @@ var (
 	tagUploadPath = tagPath + "/upload"
 	tagDeletePath = tagPath + "/delete"
 	getTagsPath   = tagPath + "/get-tags"
-	downloadPath  = tagPath + "/"
+	downloadPath  = tagPath + "/" // TODO maybe add "download" to make it clearer?
 
 	appPath         = "/apps"
 	appCreationPath = appPath + "/create"
