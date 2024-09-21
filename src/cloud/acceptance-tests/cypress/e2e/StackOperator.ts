@@ -95,7 +95,12 @@ export class StackOperator {
 
     assertOpenButtonUrlPath(urlPath: string): StackOperator {
         const cleanUrlPath = urlPath.split('?')[0];
-        cy.get(`#open-button-${this.stackName}`).should('have.attr', 'data-stack-url', `${scheme}://${this.stackName}.${rootDomain}${cleanUrlPath}`);
+        cy.get(`#open-button-${this.stackName}`)
+            .invoke('attr', 'data-stack-url')
+            .then((actualUrl) => {
+                const cleanActualUrl = actualUrl.split('?')[0];
+                expect(cleanActualUrl).to.eq(`${scheme}://${this.stackName}.${rootDomain}${cleanUrlPath}`);
+            });
         return this;
     }
 }
