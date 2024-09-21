@@ -38,14 +38,22 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 
 	if urlSecret != "" {
 		cookie, err := utils.GenerateCookie()
-		if err != nil { // TODO
+		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+		cookie.Name = "ocelot-auth"
 		cookie.Value = urlSecret
-		http.SetCookie(w, cookie) // TODO Should be "ocelot-auth" to avoid conflicts. Also abstract.
-		// TODO Tell the browser to re-do the request but without "secret" query param? Maybe via redirecting to the same URL? I dont want the secret to be exposed so long in the URL.
+		http.SetCookie(w, cookie)
+
+		redirectURL := *r.URL
+		redirectURL.RawQuery = ""
+		http.Redirect(w, r, redirectURL.String(), http.StatusFound) // TODO write a test for that redirect.
+		return
 	}
+
+	// TODO Should be "ocelot-auth" to avoid conflicts. Also abstract.
+	// TODO Tell the browser to re-do the request but without "secret" query param? Maybe via redirecting to the same URL? I dont want the secret to be exposed so long in the URL.
 
 	// the path of original request is preserved
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
