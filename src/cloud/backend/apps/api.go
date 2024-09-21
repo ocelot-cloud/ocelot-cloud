@@ -33,8 +33,9 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 		respond: not authenticated
 		return
 	}
-
 	*/
+
+	// TODO somewhere here I need to  1) add the cookie authentication and 2) add the group based authorization logic.
 
 	if urlSecret != "" {
 		cookie, err := utils.GenerateCookie()
