@@ -31,6 +31,8 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	handler := security.ApplyAuthMiddleware(proxy)
 	if config.AreCrossOriginRequestsAllowed {
 		handler = utils.GetCorsDisablingHandler(handler)
+	} else {
+		handler = applyProductionCorsMiddleware(handler)
 	}
 
 	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
@@ -38,6 +40,58 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	if err != nil {
 		logger.Fatal("Failed to start server: " + err.Error())
 	}
+}
+
+func applyProductionCorsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+
+		// TODO The JWT token can have the exact same value as the cookie for simplification.
+		// TODO JWT token must be get rid of, before proxying to another app.
+		/* TODO requirements
+		check if origin is present and allowed ("." + HOST), or maybe a list of allowed urls (ocelot + available apps)
+		check if target URL is allowed ("." + HOST)
+
+		if target URL = ocelot-cloud.localhost
+			set CORS headers
+			if method is OPTIONS
+				set CORS headers and return
+		isCrossRequest = ...(e.g. nocodb.localhost is accessing ocelot-cloud.localhost)
+		if isCrossRequest:
+			check if target URL is "ocelot-cloud.localhost", if not, return with error
+			if r.path == "/api/auth-check"
+				handle request # handler should respond with JWT token
+			else
+				return with error, "path is not allowed for cross origin requests"
+		else:
+			check cookie (or JWT token), if valid handle request
+		*/
+
+		isOriginAllowed := strings.HasSuffix(origin, "."+config.RootDomain)
+		if origin != "" && isOriginAllowed && isAllowedPath(r.URL.Path) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		} else {
+			// TODO return and respond with "not allowed"?
+		}
+
+		// TODO Should the browser first start with a request using the "OPTIONS" method, or can I directly use POST requests? Not sure if that is allowed, when CORS headers were not set previously.
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func isAllowedPath(path string) bool {
+	// Allow CORS only for the /abc path
+	if path == "/abc" {
+		return true
+	}
+	return false
 }
 
 func initializeDockerNetwork() {
