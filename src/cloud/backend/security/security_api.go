@@ -2,6 +2,7 @@ package security
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"ocelot/backend/tools"
 	"strings"
@@ -27,10 +28,10 @@ func ApplyAuthMiddleware(next http.Handler) http.Handler {
 		// TODO Add "Origin" header check to prevent CSRF attacks.
 
 		/*
-			* I login to "ocelot-cloud.localhost" and get a session cookie for that domain. There
+			I login to "ocelot-cloud.localhost" and get a session cookie for that domain. There
 			I click on a GUI button which open a new tab with the "nocodb.localhost" URL, but it adds a "secret"
 			query parameter to the URL.
-			* Now the browser tries to access "nocodb.localhost". The ocelot proxy notices, that there is no
+			Now the browser tries to access "nocodb.localhost". The ocelot proxy notices, that there is no
 			session cookie, but a query secret. It remove the query param from the URL, conduct the proxy request,
 			but when it is about to return from nocodb, the proxy sets an auth cookie for subsequent requests.
 
@@ -45,11 +46,12 @@ func ApplyAuthMiddleware(next http.Handler) http.Handler {
 			Also remove the session cookie from the request when proxying it.
 		*/
 
-		// TODO Shouldn't I also check, whether the origin == "ocelot-cloud.localhost"?
-		if strings.HasPrefix(r.URL.Path, "/api/") {
+		// TODO Write a test for the domain check. All tests still pass if it is missing.
+		if r.Header.Get(utils.OriginHeader) == "ocelot-cloud."+config.RootDomain && strings.HasPrefix(r.URL.Path, "/api/") {
 			Logger.Trace("accessing ocelot backend")
 			applyBackendApiAuthMiddleware(w, r, next)
 		} else {
+			// TODO check if header fits: "*." + config.RootDomain; else return error.
 			next.ServeHTTP(w, r)
 		}
 	})

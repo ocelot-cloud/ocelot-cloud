@@ -48,11 +48,11 @@ func initializeDockerNetwork() {
 // TODO When implementing users and groups, here should be a check whether the user is authorized or not to access the app.
 
 func proxyHandler(w http.ResponseWriter, r *http.Request) {
-	ocelotDomain := "ocelot-cloud." + config.RootDomain
+	ocelotDomain := "ocelot-cloud." + config.RootDomain // TODO Should be abstracted.
 	// TODO Surprising, why would I need a localDomain? Remove or add an explanation
 	localDomain := config.RootDomain + ":" + config.DockerContainerPort
 	if r.Host == ocelotDomain || r.Host == localDomain {
-		// TODO Logic is unclear to me, when is this case triggered, an where does it go?
+		// TODO Logic is unclear to me, when is this case triggered, and where does it go?
 		router.ServeHTTP(w, r)
 	} else {
 		logger.Info("proxying request to container: %s%s", r.Host, r.URL)
