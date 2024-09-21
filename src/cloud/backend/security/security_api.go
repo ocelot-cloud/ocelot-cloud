@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const cookieName = "auth"
+const CookieName = "ocelot-auth"
 
 var (
 	Logger = tools.Logger
@@ -69,7 +69,7 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next 
 	}
 
 	// TODO store generated cookie in a repo and check if their value is correct.
-	_, err := r.Cookie(cookieName)
+	_, err := r.Cookie(CookieName)
 	if err != nil {
 		Logger.Debug("requests cookie is invalid for request: %s%s", r.Host, r.URL.Path)
 		w.WriteHeader(http.StatusUnauthorized)

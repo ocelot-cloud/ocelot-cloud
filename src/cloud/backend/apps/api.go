@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"ocelot/backend/security"
 	"strings"
 )
 
@@ -43,7 +44,7 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-		cookie.Name = "ocelot-auth"
+		cookie.Name = security.CookieName // TODO Duplication with other cookie generation call.
 		cookie.Value = urlSecret
 		http.SetCookie(w, cookie)
 

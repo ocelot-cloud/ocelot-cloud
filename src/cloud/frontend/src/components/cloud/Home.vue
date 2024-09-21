@@ -65,7 +65,7 @@ interface Stack2 {
 }
 
 function getUrlFromStack(stack: Stack2): string {
-  const authCookie: string | null = getCookieValue('auth');
+  const authCookie: string | null = getCookieValue('ocelot-auth');
   const secretParam = authCookie ? `?secret=${authCookie}` : '';
   return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}${secretParam}`;
 }
