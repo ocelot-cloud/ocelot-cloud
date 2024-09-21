@@ -36,6 +36,7 @@ export default defineComponent({
       const loginForm = {username: username.value, password: password.value}
       const response = await doCloudRequest('/api/login', loginForm)
       if (response) {
+        console.log("visting home page")
         goToCloudPage("/")
       }
     };

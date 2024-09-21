@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// TODO Can be shared
+// TODO Can be abstracted in shared module?
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -43,12 +43,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // TODO Duplication with handleBackendApiRequest
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO store generated cookie in a repo and check if their value is correct.
-	_, err := r.Cookie("auth")
+	_, err := r.Cookie(cookieName)
 	if err != nil {
-		Logger.Trace("Cookie error.")
+		Logger.Debug("Cookie error: %v", err)
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {
-		Logger.Trace("Cookie was okay.")
+		Logger.Debug("Cookie was okay.")
 		w.WriteHeader(http.StatusOK)
 	}
 }

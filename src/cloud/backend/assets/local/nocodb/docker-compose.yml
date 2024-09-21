@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   nocodb:
-    image: "nocodb/nocodb:0.111.1"
+    image: "nocodb/nocodb:0.255.2"
     container_name: nocodb
     healthcheck:
       test: nc -z localhost 8080

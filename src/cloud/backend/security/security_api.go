@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const cookieName = "auth"
+
 var (
 	Logger = tools.Logger
 	router *mux.Router
@@ -42,18 +44,19 @@ func RegisterRoutes(routes []Route) {
 }
 
 func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request, next http.Handler) {
-	if r.URL.Path == "/api/login" { // TODO loginPath to be abstracted
+	// TODO Add a test that fails if one of the paths is removed?
+	// TODO abstract paths
+	if r.URL.Path == "/api/login" || r.URL.Path == "/api/check-auth" {
 		Logger.Trace("login endpoint is not protected")
 		next.ServeHTTP(w, r)
 		return
 	}
 
 	// TODO store generated cookie in a repo and check if their value is correct.
-	_, err := r.Cookie("auth")
+	_, err := r.Cookie(cookieName)
 	if err != nil {
 		Logger.Debug("requests cookie is invalid")
 		w.WriteHeader(http.StatusUnauthorized)
-		return
 	} else {
 		Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")
 		next.ServeHTTP(w, r)
