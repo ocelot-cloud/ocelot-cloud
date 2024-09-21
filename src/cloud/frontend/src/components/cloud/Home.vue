@@ -45,9 +45,31 @@ import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
 import {baseDomain, globalConfig, scheme, Stack} from "@/components/shared/global_config";
 import {doCloudRequest} from "@/components/shared/requests";
 
-function getUrlFromStack(stack: Stack) {
-  return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;
+function getCookieValue(cookieName: string): string | null {
+  const name = cookieName + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const cookieArray = decodedCookie.split(';');
+
+  for (let i = 0; i < cookieArray.length; i++) {
+    let cookie = cookieArray[i].trim();
+    if (cookie.indexOf(name) === 0) {
+      return cookie.substring(name.length, cookie.length);
+    }
+  }
+  return null;
 }
+
+interface Stack2 {
+  name: string;
+  urlPath: string;
+}
+
+function getUrlFromStack(stack: Stack2): string {
+  const authCookie: string | null = getCookieValue('auth');
+  const secretParam = authCookie ? `?secret=${authCookie}` : '';
+  return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}${secretParam}`;
+}
+
 
 export default defineComponent({
   name: 'home-component',

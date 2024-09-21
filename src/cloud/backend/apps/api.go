@@ -1,6 +1,7 @@
 package apps
 
 import (
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -19,10 +20,40 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO add tests
+	urlSecret := r.URL.Query().Get("secret")
+	/* TODO
+	var secret string
+	headerSecret := r.Header.Get("ocelot-auth")
+	if urlSecret != "" {
+		secret = urlSecret
+	} else if {
+		secret = headerSecret
+	} else {
+		respond: not authenticated
+		return
+	}
+
+	*/
+
+	if urlSecret != "" {
+		cookie, err := utils.GenerateCookie()
+		if err != nil { // TODO
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		cookie.Value = urlSecret
+		http.SetCookie(w, cookie) // TODO Should be "ocelot-auth" to avoid conflicts. Also abstract.
+		// TODO Tell the browser to re-do the request but without "secret" query param? Maybe via redirecting to the same URL? I dont want the secret to be exposed so long in the URL.
+	}
+
 	// the path of original request is preserved
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 	r.URL.Host = targetContainer
 	r.URL.Scheme = "http"
 	r.Header.Set("X-Forwarded-Host", r.Host)
+	r.URL.Query().Del("secret") // TODO to be tested
 	proxy.ServeHTTP(w, r)
+
+	// TODO Cookie updates should be done
 }

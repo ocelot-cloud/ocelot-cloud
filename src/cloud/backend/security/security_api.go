@@ -23,27 +23,17 @@ func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router.HandleFunc("/api/check-auth", checkAuthHandler)
 }
 
+// TODO Assert that you can't access any available when you dont have a valid cookie in the request.
 func ApplyAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO Add "Origin" header check to prevent CSRF attacks.
 
-		/*
-			I login to "ocelot-cloud.localhost" and get a session cookie for that domain. There
-			I click on a GUI button which open a new tab with the "nocodb.localhost" URL, but it adds a "secret"
-			query parameter to the URL.
-			Now the browser tries to access "nocodb.localhost". The ocelot proxy notices, that there is no
-			session cookie, but a query secret. It remove the query param from the URL, conduct the proxy request,
-			but when it is about to return from nocodb, the proxy sets an auth cookie for subsequent requests.
-
-			The cookie is the same as for ocelot-cloud.localhost.
-			The secret is created and stored in the database and send to the ocelot frontend. When a requests provides
-			a valid secret, it needs to be deleted from the database afterwards.
-
-			For easy (but not secure) prototype, I can use the cookie as secret.
-
-			The secret should expire after 10 seconds or so.
-
-			Also remove the session cookie from the request when proxying it.
+		/* TODO
+		The secret is created and stored in the database and send to the ocelot frontend. When a requests provides
+		a valid secret, it needs to be deleted from the database afterwards.
+		For easy (but not secure) prototype, I can use the cookie as secret.
+		The secret should expire after 10 seconds or so.
+		Also remove the session cookie from the request when proxying it.
 		*/
 
 		// TODO Write a test for the domain check. All tests still pass if it is missing.
