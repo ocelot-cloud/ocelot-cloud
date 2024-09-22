@@ -16,6 +16,6 @@ type GlobalConfig struct {
 	OpenDataWipeEndpoint          bool
 	HttpScheme                    string
 	RootDomain                    string
-	DockerContainerPort           string
+	BackendPort                   string
 	BackendExecutablePort         string
 }

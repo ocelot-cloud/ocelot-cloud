@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
+	"ocelot/backend/tools"
 )
 
 // TODO Can be abstracted in shared module?
@@ -33,7 +34,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	cookie.Name = CookieName
+	cookie.Name = tools.CookieName
 	cookie.SameSite = http.SameSiteLaxMode // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
 	http.SetCookie(w, cookie)
 
@@ -44,7 +45,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // TODO Duplication with handleBackendApiRequest
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO store generated cookie in a repo and check if their value is correct.
-	_, err := r.Cookie(CookieName)
+	_, err := r.Cookie(tools.CookieName)
 	if err != nil {
 		Logger.Debug("Cookie error: %v", err)
 		w.WriteHeader(http.StatusUnauthorized)

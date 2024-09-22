@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"ocelot/backend/security"
+	"ocelot/backend/tools"
 	"strings"
 )
 
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get(security.CookieName) == "" {
+	if r.Header.Get(tools.CookieName) == "" {
 		http.Error(w, "cookie not found", http.StatusUnauthorized)
 		return
 	}
@@ -55,7 +55,7 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-		cookie.Name = security.CookieName // TODO Duplication with other cookie generation call.
+		cookie.Name = tools.CookieName // TODO Duplication with other cookie generation call.
 		cookie.Value = urlSecret
 		http.SetCookie(w, cookie)
 

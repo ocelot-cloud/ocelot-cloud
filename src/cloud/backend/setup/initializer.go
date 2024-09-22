@@ -27,8 +27,7 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 		initializeFrontendResourceDelivery()
 	}
 
-	proxy := http.HandlerFunc(proxyHandler)
-	handler := security.ApplyAuthMiddleware(proxy)
+	var handler http.Handler = http.HandlerFunc(security.ApplyAuthMiddleware)
 	if config.AreCrossOriginRequestsAllowed {
 		handler = utils.GetCorsDisablingHandler(handler)
 	}
@@ -46,20 +45,6 @@ func initializeDockerNetwork() {
 }
 
 // TODO When implementing users and groups, here should be a check whether the user is authorized or not to access the app.
-
-func proxyHandler(w http.ResponseWriter, r *http.Request) {
-
-	ocelotDomain := "ocelot-cloud." + config.RootDomain // TODO Should be abstracted.
-	// TODO Surprising, why would I need a localDomain? Remove or add an explanation
-	localDomain := config.RootDomain + ":" + config.DockerContainerPort
-	if r.Host == ocelotDomain || r.Host == localDomain {
-		// TODO Logic is unclear to me, when is this case triggered, and where does it go?
-		router.ServeHTTP(w, r)
-	} else {
-		logger.Info("the incoming request to be proxied is: %s%s", r.Host, r.URL)
-		apps.ProxyRequestToTheDockerContainer(w, r)
-	}
-}
 
 func initializeFrontendResourceDelivery() {
 	router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

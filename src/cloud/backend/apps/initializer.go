@@ -7,7 +7,6 @@ import (
 	"ocelot/backend/apps/vars"
 	_ "ocelot/backend/apps/vars"
 	"ocelot/backend/apps/yaml"
-	"ocelot/backend/security"
 	"ocelot/backend/tools"
 )
 
@@ -28,7 +27,7 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	stackConfigService = yaml.ProvideAppConfigService()
 	appService = getStackService(config, stackConfigService)
 
-	routes := []security.Route{
+	routes := []Route{
 		{"/stacks/read", appReadHandler},
 		{"/stacks/deploy", appDeployHandler},
 		{"/stacks/stop", appStopHandler},
@@ -36,7 +35,19 @@ func InitializeAppService(routerArg *mux.Router, configArg *tools.GlobalConfig) 
 	if config.OpenDataWipeEndpoint {
 		router.HandleFunc("/api/stacks/wipe-data", wipeDataHandler)
 	}
-	security.RegisterRoutes(routes)
+	RegisterRoutes(routes)
+}
+
+// TODO Not sure, but this should maybe be put to "tools" for later reuse? Maybe also put the router and global config there for simplification.
+type Route struct {
+	Path        string
+	HandlerFunc http.HandlerFunc
+}
+
+func RegisterRoutes(routes []Route) {
+	for _, r := range routes {
+		router.Handle("/api"+r.Path, r.HandlerFunc)
+	}
 }
 
 func getStackFileDir(config *tools.GlobalConfig) string {

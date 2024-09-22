@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const CookieName = "ocelot-auth"
+
 var Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
 
 type BackendProfile int
@@ -48,7 +50,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	}
 	config.HttpScheme = hostParams.Scheme
 	config.RootDomain = hostParams.Domain
-	config.DockerContainerPort = hostParams.Port
+	config.BackendPort = hostParams.Port
 	config.BackendExecutablePort = "8080"
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
