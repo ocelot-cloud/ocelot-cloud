@@ -20,20 +20,21 @@ func TestAppAccess(t *testing.T) {
 	assert.Nil(t, cloud.startApp())
 	waitForContainer(t, cloud)
 
-	/*
-		// TODO replace with DoRequest function or so? "RequestApp()"
-		resp, err := http.Get("http://nginx-default.localhost")
-		if err != nil {
-			logger.Error("app request failed %v: ", err)
-			t.Fail()
-		}
-		assert.Equal(t, 401, resp.StatusCode)
-		defer resp.Body.Close()
-	*/
+	cloud.parent.Cookie = nil
+	assertUnauthorizedAppAccess(t)
 
 	checkIfRedirectViaSecretWorks(t, cookieValue)
 
 	// TODO wrong cookie -> denied
+}
+
+func assertUnauthorizedAppAccess(t *testing.T) {
+	resp, err := http.Get("http://nginx-default.localhost")
+	if err != nil {
+		logger.Error("app request failed %v: ", err)
+		t.Fail()
+	}
+	assert.Equal(t, 401, resp.StatusCode)
 }
 
 func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
