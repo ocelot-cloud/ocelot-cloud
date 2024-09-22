@@ -14,30 +14,50 @@ import (
 func TestAppAccess(t *testing.T) {
 	cloud2 := getCloud() // TODO This should directly return a reference
 	cloud := &cloud2
-	cloud.parent.RootUrl = "http://ocelot-cloud.localhost"
 	assert.Nil(t, cloud.login())
-	assert.Nil(t, cloud.startApp())
+	cookieValue := cloud.parent.Cookie.Value
 
+	assert.Nil(t, cloud.startApp())
 	waitForContainer(t, cloud)
 
-	resp, err := http.Get("http://nginx-default.localhost")
+	/*
+		// TODO replace with DoRequest function or so? "RequestApp()"
+		resp, err := http.Get("http://nginx-default.localhost")
+		if err != nil {
+			logger.Error("app request failed %v: ", err)
+			t.Fail()
+		}
+		assert.Equal(t, 401, resp.StatusCode)
+		defer resp.Body.Close()
+	*/
+
+	checkIfRedirectViaSecretWorks(t, cookieValue)
+
+	// TODO wrong cookie -> denied
+}
+
+func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	req, err := http.NewRequest("GET", "http://nginx-default.localhost?secret="+cookieValue, nil)
 	if err != nil {
 		logger.Error("app request failed %v: ", err)
 		t.Fail()
 	}
-	assert.Equal(t, 401, resp.StatusCode)
+	req.AddCookie(&http.Cookie{Name: "ocelot-auth", Value: cookieValue})
+	resp, err := client.Do(req)
+	if err != nil {
+		logger.Error("app request failed %v: ", err)
+		t.Fail()
+	}
+	assert.Equal(t, 302, resp.StatusCode)
+	assert.Equal(t, cookieValue, resp.Cookies()[0].Value)
+	assert.Equal(t, "/", resp.Header.Get("Location"))
 	defer resp.Body.Close()
-
-	/* TODO
-	cloud.parent.Cookie = nil
-	_, err = cloud.parent.DoRequest("", nil, "TODO")
-	assert.NotNil(t, err)
-	assert.Equal(t, utils.GetErrMsg(302, "asdf"), err.Error())
-	*/
-
-	// TODO set cookie to nil, try to access app -> denied
-	// TODO secret as query param -> redirect
-	// TODO wrong cookie -> denied
 }
 
 func waitForContainer(t *testing.T, cloud *CloudClient) {
