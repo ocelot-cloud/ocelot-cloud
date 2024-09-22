@@ -2,6 +2,7 @@ package apps
 
 import (
 	"github.com/ocelot-cloud/shared/utils"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -12,9 +13,14 @@ import (
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 	logger.Trace("Proxying request with target host %s", r.Host)
-	targetContainer := strings.TrimSuffix(r.Host, "."+config.RootDomain)
+	host, _, _ := net.SplitHostPort(r.Host)
+	if host == "" {
+		host = r.Host
+	}
+	targetContainer := strings.TrimSuffix(host, "."+config.RootDomain)
 	targetPort := stackConfigService.GetAppConfig(targetContainer).Port
 	targetURL, err := url.Parse("http://" + targetContainer + ":" + targetPort)
+	logger.Debug("proxying to target URL: %s", targetURL)
 	if err != nil {
 		logger.Error("error when parsing URL, %s", err.Error())
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

@@ -42,11 +42,26 @@ func TestCloudAcceptance() {
 	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
 
-func DeployLocally() {
+func DeployContainer() {
 	printTaskDescription("Running a production server")
+	deployContainer()
+}
+
+func DeployContainerWithDummies() {
+	printTaskDescription("Running a server using dummy stacks")
+	deployContainer(getEnableDummyStacksEnv(true))
+}
+
+func deployContainer(additionalEnvs ...string) {
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached, "HOST=http://localhost", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
+	envs := []string{
+		"HOST=http://localhost",
+		INITIAL_ADMIN_NAME_ENV,
+		INITIAL_ADMIN_PASSWORD_ENV,
+	}
+	envs = append(envs, additionalEnvs...)
+	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached, envs...)
 	cli.WaitForIndexPageToBeReady(ocelotUrl)
 }
 

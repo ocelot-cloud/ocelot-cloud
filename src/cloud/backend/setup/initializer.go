@@ -55,7 +55,7 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 		// TODO Logic is unclear to me, when is this case triggered, and where does it go?
 		router.ServeHTTP(w, r)
 	} else {
-		logger.Info("proxying request to container: %s%s", r.Host, r.URL)
+		logger.Info("the incoming request to be proxied is: %s%s", r.Host, r.URL)
 		apps.ProxyRequestToTheDockerContainer(w, r)
 	}
 }

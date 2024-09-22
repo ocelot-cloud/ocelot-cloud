@@ -135,10 +135,26 @@ var scheduleCmd = &cobra.Command{
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "Deploy the server",
-	Long:  `Starts the server in production mode.`,
+	Short: "Deploy the ocelot-cloud docker container",
 	Run: func(cmd *cobra.Command, args []string) {
-		src.DeployLocally()
+		cmd.Help()
+	},
+}
+
+var deployContainerProdCmd = &cobra.Command{
+	Use:   "prod",
+	Short: "Deploy the ocelot-cloud production container",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.DeployContainer()
+		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
+	},
+}
+
+var deployContainerProdWithDummiesCmd = &cobra.Command{
+	Use:   "with-dummies",
+	Short: "Deploy the ocelot-cloud container with dummy stacks",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.DeployContainerWithDummies()
 		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
 	},
 }
@@ -158,16 +174,9 @@ func main() {
 	src.ComponentBuilds[src.Frontend].SkipBuild = src.SkipFrontendBuild
 	src.ComponentBuilds[src.DockerImage].SkipBuild = src.SkipDockerImageBuild
 
-	testCmd.AddCommand(cloudCmd)
-	testCmd.AddCommand(ciCmd)
-	testCmd.AddCommand(hubCmd)
-	testCmd.AddCommand(scheduleCmd)
-
-	rootCmd.AddCommand(buildCmd)
-	rootCmd.AddCommand(testCmd)
-	rootCmd.AddCommand(deployCmd)
-	rootCmd.AddCommand(cleanCmd)
-	rootCmd.AddCommand(downloadDependenciesCmd)
+	testCmd.AddCommand(cloudCmd, ciCmd, hubCmd, scheduleCmd)
+	deployCmd.AddCommand(deployContainerProdCmd, deployContainerProdWithDummiesCmd)
+	rootCmd.AddCommand(buildCmd, testCmd, deployCmd, cleanCmd, downloadDependenciesCmd)
 
 	if shouldDoPreChecks() {
 		src.Cleanup()
