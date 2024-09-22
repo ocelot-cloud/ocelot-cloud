@@ -7,6 +7,7 @@ import (
 	"github.com/ocelot-cloud/shared/utils"
 	"ocelot/backend/security"
 	"ocelot/backend/tools"
+	"os"
 	"testing"
 	"time"
 )
@@ -115,18 +116,25 @@ func getClientAndLogin(t *testing.T) *CloudClient {
 }
 
 func getCloud() CloudClient {
-	return CloudClient{
+	cloud := CloudClient{
 		utils.ComponentClient{
 			"admin",
 			"password",
 			"password" + "x",
-			"http://localhost:8080",
+			"http://ocelot-cloud.localhost",
 			nil,
 			true,
 			true,
-			"http://localhost:8080",
+			"http://ocelot-cloud.localhost",
 		},
 		"nginx-default",
 		nil,
 	}
+
+	if os.Getenv("PROFILE") == "TEST" {
+		cloud.parent.Origin = "http://localhost:8080"
+		cloud.parent.RootUrl = "http://localhost:8080"
+	}
+
+	return cloud
 }

@@ -16,6 +16,7 @@ type GlobalConfig struct {
 	OpenDataWipeEndpoint          bool
 	HttpScheme                    string
 	RootDomain                    string
-	BackendPort                   string
+	PubliclyAvailablePort         string
 	BackendExecutablePort         string
+	Profile                       BackendProfile
 }

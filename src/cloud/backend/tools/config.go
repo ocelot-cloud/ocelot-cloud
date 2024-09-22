@@ -43,6 +43,7 @@ func getProfile() BackendProfile {
 
 func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	config := GlobalConfig{}
+	config.Profile = profile
 	hostParams, err := getHostParams(profile, os.Getenv("HOST"))
 	if err != nil {
 		Logger.Fatal("Failed to get host params: %v", err)
@@ -50,7 +51,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 	}
 	config.HttpScheme = hostParams.Scheme
 	config.RootDomain = hostParams.Domain
-	config.BackendPort = hostParams.Port
+	config.PubliclyAvailablePort = hostParams.Port
 	config.BackendExecutablePort = "8080"
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"

@@ -35,11 +35,7 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 
 	// TODO Write a test for the domain check. All tests still pass if it is missing.
 
-	ocelotDomain := "ocelot-cloud." + config.RootDomain // TODO Should be abstracted.
-	// TODO Surprising, why would I need a localDomain? Remove or add an explanation
-	localDomain := config.RootDomain + ":" + config.BackendPort // TODO Not sure when and why this is needed.
-
-	if r.Host == ocelotDomain || r.Host == localDomain {
+	if isAddressedToOcelotHost(r) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			Logger.Trace("accessing ocelot backend")
 			applyBackendApiAuthMiddleware(w, r)
@@ -52,6 +48,14 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 		Logger.Debug("app redirect is called")
 		// TODO check if header matches regex: "*." + config.RootDomain; if yes continue, else return error.
 		apps.ProxyRequestToTheDockerContainer(w, r)
+	}
+}
+
+func isAddressedToOcelotHost(r *http.Request) bool {
+	if config.Profile == tools.PROD {
+		return r.Host == "ocelot-cloud."+config.RootDomain // TODO Should maybe be abstracted?
+	} else {
+		return r.Host == config.RootDomain+":"+config.PubliclyAvailablePort
 	}
 }
 

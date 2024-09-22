@@ -27,6 +27,7 @@ func TestBackendComponentMocked() {
 	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	// TODO Aggregate the envs
+	// TODO Dummy stacks should not be necessary when there are mocks used.
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	cli.WaitUntilPortIsReady("8080")
 	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getTestProfileEnv())
@@ -92,13 +93,11 @@ func RunScheduledTests() {
 	testBackendImageDownload()
 }
 
+// TODO Maybe dont seaprate between build tags "functional" and "security"? I want them to run together.
 func TestProdBackendApi() {
 	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
-	cli.ExecuteInDir(backendDir, "rm -rf data")
-	Build(Backend)
-	StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV, "ENABLE_DATA_WIPE_ENDPOINT=true")
-	cli.WaitUntilPortIsReady("8080")
+	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_DATA_WIPE_ENDPOINT=true")
 	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getProdProfileEnv())
 }
 
