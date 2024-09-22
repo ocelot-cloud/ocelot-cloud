@@ -1,27 +1,16 @@
 package main
 
-// TODO Simplify cloud ci logic:
-/*
-	There are two modes:
-		1) TEST profile, native backend deploy (allow CORS, no origin checks, mocks) and frontend run in parallel
-		2) PROD profile, backend/frontend deployed via docker, no mocks by default (maybe can be enabled manually?)
-	frontend: PROD and TEST profile, no mocked frontend any longer
-	testing:
-		1) fast backend testing: unit tests + mocked TEST backend with API tests
-		2) frontend + TEST backend + cypress
-		3) not sure: run API tests against PROD container?
-		4) PROD with cypress
-*/
-// TODO Copying artifacts is not necessary. I did this initially since "Dockerfile" can only address folder below its path. But when I go to the cloud directory I can simply use docker build -f "path to docker file" and the "Dockerfile" takes its resources from there or so.
-
 import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"net"
+	"ocelot/ci-runner/cli"
 	"ocelot/ci-runner/src"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 var rootCmd = &cobra.Command{
@@ -35,11 +24,11 @@ var rootCmd = &cobra.Command{
 
 var buildCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Build frontend and backend",
-	Long:  "Builds frontend and backend and can detect possible compilation errors.",
+	Short: "Build docker image",
+	Long:  "Builds the whole project from scratch and produces a production docker image",
 	Run: func(cmd *cobra.Command, args []string) {
-		src.BuildBackendAndFrontend()
-		src.ColoredPrint("\nSuccess! Build worked.\n")
+		src.Build(src.DockerImage)
+		cli.ColoredPrintln("\nSuccess! Build worked.\n")
 	},
 }
 
@@ -49,7 +38,7 @@ var cleanCmd = &cobra.Command{
 	Long:  "Removes processes and docker artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.Cleanup()
-		src.ColoredPrint("\nSuccess! Cleanup worked.\n")
+		cli.ColoredPrintln("\nSuccess! Cleanup worked.\n")
 	},
 }
 
@@ -62,10 +51,9 @@ var hubTestTypes = map[string]func(){
 }
 
 var cloudTestTypes = map[string]func(){
-	"backend":    func() { src.TestBackendComponent(src.Quick) },
-	"frontend":   func() { src.TestCloudFrontendFast() },
 	"acceptance": func() { src.TestCloudAcceptance() },
-	"all":        func() { src.TestCloudAll() },
+	"frontend":   func() { src.TestFrontend() },
+	"backend":    func() { src.TestBackend() },
 }
 
 var testCmd = &cobra.Command{
@@ -74,20 +62,29 @@ var testCmd = &cobra.Command{
 	Long:  "Run different types of tests for cloud, hub, ci, or schedule.",
 }
 
+var downloadDependenciesCmd = &cobra.Command{
+	Use:   "download",
+	Short: "Downloads application dependencies",
+	Long:  "Downloads all necessary dependencies for the application. This step must be performed once at the beginning of development to set up the environment. This process is separated from other commands so that they do not check dependencies on each run, making them faster.",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.DownloadDependencies()
+	},
+}
+
 var cloudCmd = &cobra.Command{
-	Use:   "cloud [backend/frontend/acceptance]",
+	Use:   "cloud [" + strings.Join(getKeys(cloudTestTypes), ", ") + "]",
 	Short: "Run cloud-related tests",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := cloudTestTypes[inputTestType]; !exists {
-			src.ColoredPrint("\nerror: unknown cloud test type: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
+			cli.ColoredPrintln("\nerror: unknown cloud test type: %s\n", inputTestType)
+			cli.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			cloudTestTypes[inputTestType]()
 		}
-		src.ColoredPrint("\nSuccess! Cloud tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! Cloud tests passed.\n")
 	},
 }
 
@@ -104,7 +101,7 @@ var ciCmd = &cobra.Command{
 	Short: "Run CI-related tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.TestCi()
-		src.ColoredPrint("\nSuccess! CI tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! CI tests passed.\n")
 	},
 }
 
@@ -117,13 +114,13 @@ var hubCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := hubTestTypes[inputTestType]; !exists {
-			src.ColoredPrint("\nerror: unknown hub test type: %s\n", inputTestType)
-			src.ColoredPrint("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
+			cli.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
+			cli.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			hubTestTypes[inputTestType]()
 		}
-		src.ColoredPrint("\nSuccess! Hub tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! Hub tests passed.\n")
 	},
 }
 
@@ -132,21 +129,40 @@ var scheduleCmd = &cobra.Command{
 	Short: "Run scheduled tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.RunScheduledTests()
-		src.ColoredPrint("\nSuccess! Scheduled tests passed.\n")
+		cli.ColoredPrintln("\nSuccess! Scheduled tests passed.\n")
 	},
 }
 
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "Deploy the server",
-	Long:  `Starts the server in production mode.`,
+	Short: "Deploy the ocelot-cloud docker container",
 	Run: func(cmd *cobra.Command, args []string) {
-		src.DeployLocally()
-		src.ColoredPrint("\nSuccess! Deploy worked.\n")
+		cmd.Help()
+	},
+}
+
+var deployContainerProdCmd = &cobra.Command{
+	Use:   "prod",
+	Short: "Deploy the ocelot-cloud production container",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.DeployContainer()
+		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
+	},
+}
+
+var deployContainerProdWithDummiesCmd = &cobra.Command{
+	Use:   "with-dummies",
+	Short: "Deploy the ocelot-cloud container with dummy stacks",
+	Run: func(cmd *cobra.Command, args []string) {
+		src.DeployContainerWithDummies()
+		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
 	},
 }
 
 func main() {
+	cli.CleanupAndExit = src.CleanupAndExitWithError
+
+	go handleSignals()
 	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 	pf := rootCmd.PersistentFlags()
 	pf.BoolVarP(&src.SkipBackendBuild, "skip-backend-build", "b", false, "Skip building the backend")
@@ -158,15 +174,9 @@ func main() {
 	src.ComponentBuilds[src.Frontend].SkipBuild = src.SkipFrontendBuild
 	src.ComponentBuilds[src.DockerImage].SkipBuild = src.SkipDockerImageBuild
 
-	testCmd.AddCommand(cloudCmd)
-	testCmd.AddCommand(ciCmd)
-	testCmd.AddCommand(hubCmd)
-	testCmd.AddCommand(scheduleCmd)
-
-	rootCmd.AddCommand(buildCmd)
-	rootCmd.AddCommand(testCmd)
-	rootCmd.AddCommand(deployCmd)
-	rootCmd.AddCommand(cleanCmd)
+	testCmd.AddCommand(cloudCmd, ciCmd, hubCmd, scheduleCmd)
+	deployCmd.AddCommand(deployContainerProdCmd, deployContainerProdWithDummiesCmd)
+	rootCmd.AddCommand(buildCmd, testCmd, deployCmd, cleanCmd, downloadDependenciesCmd)
 
 	if shouldDoPreChecks() {
 		src.Cleanup()
@@ -175,7 +185,7 @@ func main() {
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		src.ColoredPrint("\nError during execution: %s\n", err.Error())
+		cli.ColoredPrintln("\nError during execution: %s\n", err.Error())
 		src.CleanupAndExitWithError()
 	}
 }
@@ -222,4 +232,13 @@ func failIfThereAreExistingDockerContainers() {
 	} else {
 		fmt.Println("As required for DevOps jobs, no Docker containers are deployed.")
 	}
+}
+
+func handleSignals() {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-sigChan
+	fmt.Printf("\nReceived signal: %v. Initiating graceful shutdown...\n", sig)
+	src.Cleanup()
+	os.Exit(0)
 }

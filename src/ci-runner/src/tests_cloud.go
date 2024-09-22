@@ -1,177 +1,125 @@
 package src
 
 import (
-	"os"
+	"fmt"
+	"ocelot/ci-runner/cli"
 	"os/exec"
-	"path/filepath"
 )
 
-const ocelotContainerRunCommand = "docker compose -p ocelot-cloud up"
-const ocelotContainerRunCommandDetached = "docker compose -p ocelot-cloud up -d"
-const cypressCommand = "npx cypress run --spec cypress/e2e/cloud.cy.ts --headless"
+const (
+	INITIAL_ADMIN_NAME_ENV     = "INITIAL_ADMIN_NAME=admin"
+	INITIAL_ADMIN_PASSWORD_ENV = "INITIAL_ADMIN_PASSWORD=password"
+)
 
-var projectDir = GetProjectDir()
-var scriptsDir = projectDir + "/scripts"
-var srcDir = projectDir + "/src"
-var cloudDir = srcDir + "/cloud"
-var backendDir = cloudDir + "/backend"
-var backendComponentTestsDir = backendDir + "/component-tests"
-var frontendDir = cloudDir + "/frontend"
-var acceptanceTestsDir = cloudDir + "/acceptance-tests"
-var ocelotStackDir = backendDir + "/stacks/core/ocelot-cloud"
-var backendBusinessInternalDir = backendDir + "/business/internal"
-var backendToolsDir = backendDir + "/config"
-var backendSecurityInternalDir = backendDir + "/security/internal"
-var hubDir = srcDir + "/hub"
-
-const BackendModeProduction = "production"
-const BackendModeDependenciesMocked = "dependencies-mocked"
-const BackendModeDevelopmentSetup = "development-setup"
-
-const FrontendModeDevelopmentSetup = "development-setup"
-const FrontendModeBackendMock = "backend-mock"
-
-func GetProjectDir() string {
-	devopsRunnerDir, _ := os.Getwd()
-	src := filepath.Dir(devopsRunnerDir)
-	projectDir := filepath.Dir(src)
-	return projectDir
-}
-
-func BuildBackendAndFrontend() {
-	printTestDescription("Building backend and frontend")
-	Build(Backend)
-	Build(Frontend)
-}
-
-func testBackendCore() {
-	printTestDescription("Testing backend testing API")
+func TestBackendCore() {
+	printTaskDescription("Executing backend unit tests")
 	defer Cleanup()
-	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 ./...")
-	ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
-	ExecuteInDir(backendSecurityInternalDir, "go test -v -count=1 ./...")
-}
-
-func TestBackendComponent(fast bool) {
-	printTestDescription("Testing backend component")
-	if fast {
-		testBackendCore()
-		TestBackendComponentMocked()
-	} else {
-		testWithDefaultConfig()
-		testCorsDisabling()
-	}
-}
-
-func testWithDefaultConfig() {
-	printTestDescription("Testing backend component")
-	defer Cleanup()
-	Build(Backend)
-	StartBackendDaemon(BackendModeProduction)
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeProduction))
-}
-
-func addBackendProfileEnvPrefix(profile string) string {
-	return "BACKEND_COMPONENT_TEST_PROFILE=" + profile
-}
-
-func testCorsDisabling() {
-	printTestDescription("Testing whether backend sets CORS headers to disable CORS policy")
-	defer Cleanup()
-	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup)
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -run=TestWhetherCorsPolicyDisablingHeadersAreInResponse ./...", addBackendProfileEnvPrefix(BackendModeDevelopmentSetup))
+	cli.ExecuteInDir(backendAppsDir, "go test -v -count=1 .")
+	cli.ExecuteInDir(backendAppsDir+"/download", "go test -v -count=1 ./...")
+	cli.ExecuteInDir(backendAppsDir+"/yaml", "go test -v -count=1 ./...")
+	cli.ExecuteInDir(backendSecurityDir, "go test -v -count=1 ./...")
+	cli.ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 }
 
 func TestBackendComponentMocked() {
-	printTestDescription("Testing mocked backend component")
+	printTaskDescription("Testing mocked backend component")
 	defer Cleanup()
+	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
-	StartBackendDaemon(BackendModeDependenciesMocked)
-	ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 component_test.go", addBackendProfileEnvPrefix(BackendModeDependenciesMocked))
+	// TODO Aggregate the envs
+	// TODO Dummy stacks should not be necessary when there are mocks used.
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
+	cli.WaitUntilPortIsReady("8080")
+	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getTestProfileEnv())
 }
 
+// TODO There are quite a lot of envs. Maybe I should refactor that into sth like "envs := getEnvs(...)".
 func TestCloudAcceptance() {
-	printTestDescription("Testing acceptance")
+	printTaskDescription("Testing acceptance")
 	defer Cleanup()
-	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
-	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true")
-	WaitForIndexPageToBeReady(ocelotUrl)
-	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand)
+	deployContainer(getEnableDummyStacksEnv(true))
+	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
 
-func DeployLocally() {
-	printTestDescription("Running a production server")
+func DeployContainer() {
+	printTaskDescription("Running a production server")
+	deployContainer()
+}
+
+func DeployContainerWithDummies() {
+	printTaskDescription("Running a server using dummy stacks")
+	deployContainer(getEnableDummyStacksEnv(true))
+}
+
+func deployContainer(additionalEnvs ...string) {
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
 	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached)
-	WaitForIndexPageToBeReady(ocelotUrl)
+	envs := []string{
+		"HOST=http://localhost",
+		INITIAL_ADMIN_NAME_ENV,
+		INITIAL_ADMIN_PASSWORD_ENV,
+		"LOG_LEVEL=DEBUG",
+	}
+	envs = append(envs, additionalEnvs...)
+	dockerCmd := fmt.Sprintf("bash -c '%s && docker logs -f ocelot-cloud'", ocelotContainerRunCommandDetached)
+	StartDaemon(ocelotStackDir, dockerCmd, envs...)
+	cli.WaitForIndexPageToBeReady(ocelotUrl)
 }
 
 func TestCi() {
-	printTestDescription("Running CI tests")
-	// Starting with fastest tests, ending with slowest.
-	testBackendCore()
-	TestBackendComponent(true)
-	TestBackendComponent(false)
-	TestHubAll()
-	TestCloudFrontendFast()
+	printTaskDescription("Running CI tests")
+	TestBackend()
+	TestFrontend()
 	TestCloudAcceptance()
+	TestHubAll()
 }
 
-func TestCloudAll() {
-	printTestDescription("Running all cloud tests")
-	testBackendCore()
-	TestBackendComponent(true)
-	TestBackendComponent(false)
-	TestCloudFrontendFast()
-	TestCloudAcceptance()
+func TestBackend() {
+	TestBackendCore()
+	TestBackendComponentMocked()
+	TestProdBackendApi()
 }
 
 func RunScheduledTests() {
-	testComponentsInDevelopmentSetupMode()
 	testRunScript()
 	testBackendImageDownload()
 }
 
+// TODO Maybe dont seaprate between build tags "functional" and "security"? I want them to run together.
+func TestProdBackendApi() {
+	printTaskDescription("Testing PROD backend API with real docker service")
+	defer Cleanup()
+	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_DATA_WIPE_ENDPOINT=true")
+	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags security ./...", getProdProfileEnv())
+}
+
 func testBackendImageDownload() {
-	ExecuteInDir(backendBusinessInternalDir, "go test -v -count=1 -run TestDownloadProcessProviderReal", "IS_IMAGE_DOWNLOAD_TEST=true")
+	cli.ExecuteInDir(backendAppsDir, "go test -v -count=1 -run TestDownloadProcessProviderReal", "IS_IMAGE_DOWNLOAD_TEST=true")
 }
 
-func printTestDescription(text string) {
-	ColoredPrint("\n=== %s ===\n", text)
+func printTaskDescription(text string) {
+	cli.ColoredPrintln("\n=== %s ===\n", text)
 }
 
-func TestCloudFrontendFast() {
-	printTestDescription("Testing Frontend Fast")
+func TestFrontend() {
+	printTaskDescription("Testing Components In DevelopmentMode")
 	defer Cleanup()
-	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeBackendMock)
-	WaitForIndexPageToBeReady(frontendServerUrl)
-	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeBackendMock)
-}
-
-func testComponentsInDevelopmentSetupMode() {
-	printTestDescription("Testing Components In DevelopmentMode")
-	defer Cleanup()
+	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
-	StartBackendDaemon(BackendModeDevelopmentSetup)
+	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
+	cli.WaitUntilPortIsReady("8080")
+
 	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VUE_APP_PROFILE="+FrontendModeDevelopmentSetup)
-	WaitForIndexPageToBeReady(frontendServerUrl)
-	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+FrontendModeDevelopmentSetup)
+	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
+	cli.WaitForIndexPageToBeReady(frontendServerUrl)
+	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+TestProfile)
 }
 
 func testRunScript() {
-	printTestDescription("Testing Components In DevelopmentMode")
+	printTaskDescription("Testing run script")
 	defer Cleanup()
 	Build(DockerImage)
-	ExecuteInDir(scriptsDir, "bash run-dummy.sh")
-	WaitForIndexPageToBeReady(ocelotUrl)
-	Build(Acceptance)
-	ExecuteInDir(acceptanceTestsDir, cypressCommand)
+	cli.ExecuteInDir(scriptsDir, "bash run-dummy.sh")
+	cli.WaitForIndexPageToBeReady(ocelotUrl)
+	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }

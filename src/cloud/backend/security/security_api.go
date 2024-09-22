@@ -2,71 +2,80 @@ package security
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/ocelot-cloud/shared"
 	"net/http"
-	"ocelot/backend/config"
-	"ocelot/backend/security/internal"
+	"ocelot/backend/apps"
+	"ocelot/backend/tools"
 	"strings"
 )
 
-var Logger = shared.ProvideLogger()
-
-type SecurityModule struct {
+var (
+	Logger = tools.Logger
 	router *mux.Router
 	config *tools.GlobalConfig
+)
+
+func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
+	router = routerArg
+	config = configArg
+	router.HandleFunc("/api/login", loginHandler)
+	router.HandleFunc("/api/check-auth", checkAuthHandler)
 }
 
-func ProvideSecurityModule(router *mux.Router, config *tools.GlobalConfig) *SecurityModule {
-	router.HandleFunc("/api/login", internal.LoginHandler).Methods("POST")
-	return &SecurityModule{router, config}
-}
+// TODO Assert that you can't access any available when you dont have a valid cookie in the request.
+func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
+	// TODO Add "Origin" header check to prevent CSRF attacks.
 
-func (s *SecurityModule) ApplyAuthMiddlewares(h http.Handler) http.Handler {
-	if s.config.IsSecurityEnabled {
-		return s.applyAuthMiddleware(h)
+	/* TODO
+	The secret is created and stored in the database and send to the ocelot frontend. When a requests provides
+	a valid secret, it needs to be deleted from the database afterwards.
+	For easy (but not secure) prototype, I can use the cookie as secret.
+	The secret should expire after 10 seconds or so.
+	Also remove the session cookie from the request when proxying it.
+	*/
+
+	// TODO Write a test for the domain check. All tests still pass if it is missing.
+
+	if isAddressedToOcelotHost(r) {
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			Logger.Trace("accessing ocelot backend")
+			applyBackendApiAuthMiddleware(w, r)
+		} else {
+			Logger.Debug("backend serves frontend resources")
+			// TODO serve frontend without auth
+			router.ServeHTTP(w, r)
+		}
 	} else {
-		return s.applyCorsPolicy(h)
+		Logger.Debug("app redirect is called")
+		// TODO check if header matches regex: "*." + config.RootDomain; if yes continue, else return error.
+		apps.ProxyRequestToTheDockerContainer(w, r)
 	}
 }
 
-func (s *SecurityModule) applyAuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO Add "Origin" header check to prevent CSRF attacks.
-		// 1) Scheme must be the same
-		// 2) Domain must be the same (example.com) or a subdomain (gitea.example.com)
-		// 3) I think port can be ignored since I used the standard ports.
-		// TODO In Production mode, when security is enabled, there must be a environment variable called "HOST" (aka Origin) of the form http(s)://*(:[0-9]*), so a URL with http or https, with or without port(?) etc. This is for security to fulfill the origin policy to prevent CSRF attacks.
-		if strings.HasPrefix(r.URL.Path, "/api/") {
-			cookie, err := r.Cookie("auth")
-			// TODO Not secure.
-			if err != nil || cookie.Value != "valid" {
-				Logger.Debug("requests cookie is invalid")
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			} else {
-				Logger.Debug("user has a valid cookie and is allowed to access protected backend functions")
-				next.ServeHTTP(w, r)
-			}
-		} else {
-			Logger.Debug("a user requested the frontend resources")
-			next.ServeHTTP(w, r)
-		}
-	})
+func isAddressedToOcelotHost(r *http.Request) bool {
+	if config.Profile == tools.PROD {
+		return r.Host == "ocelot-cloud."+config.RootDomain // TODO Should maybe be abstracted?
+	} else {
+		return r.Host == config.RootDomain+":"+config.PubliclyAvailablePort
+	}
 }
 
-func (s *SecurityModule) applyCorsPolicy(next http.Handler) http.Handler {
-	if s.config.AreCrossOriginRequestsAllowed {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
-			if r.Method == "OPTIONS" {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
+func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request) {
+	// TODO Add a test that fails if one of the paths is removed?
+	// TODO abstract paths
+	// TODO This should be an outer check for the if-block below: if r.Host == "ocelot-cloud."+config.RootDomain
+	if r.URL.Path == "/api/login" || r.URL.Path == "/api/check-auth" {
+		Logger.Debug("unprotected ocelot-cloud endpoint is addressed: %s", r.URL.Path)
+		router.ServeHTTP(w, r)
+		return
+	}
+
+	// TODO store generated cookie in a repo and check if their value is correct.
+	_, err := r.Cookie(tools.CookieName)
+	if err != nil {
+		Logger.Debug("requests cookie is invalid for request: %s%s", r.Host, r.URL.Path)
+		w.WriteHeader(http.StatusUnauthorized)
 	} else {
-		return next
+		Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")
+		router.ServeHTTP(w, r)
 	}
 }

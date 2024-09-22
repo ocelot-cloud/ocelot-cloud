@@ -1,13 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
-	"io"
-	"net/http"
-	"strings"
+	"github.com/ocelot-cloud/shared/utils"
 	"testing"
 )
 
@@ -27,17 +24,11 @@ var (
 )
 
 type HubClient struct {
-	User            string
-	Password        string
-	NewPassword     string
-	Origin          string
-	Email           string
-	App             string
-	Cookie          *http.Cookie
-	Tag             string
-	SetOriginHeader bool
-	SetCookieHeader bool
-	UploadContent   []byte
+	Parent        utils.ComponentClient
+	Email         string
+	App           string
+	Tag           string
+	UploadContent []byte
 }
 
 type Operation int
@@ -58,23 +49,27 @@ const (
 
 func getRegistrationForm(hub *HubClient) *RegistrationForm {
 	return &RegistrationForm{
-		User:     hub.User,
-		Password: hub.Password,
+		User:     hub.Parent.User,
+		Password: hub.Parent.Password,
 		Email:    hub.Email,
 	}
 }
 
 func getHub() *HubClient {
 	hub := &HubClient{
-		User:            sampleUser,
-		Password:        samplePassword,
-		Origin:          rootUrl,
-		Email:           sampleEmail,
-		App:             sampleApp,
-		Tag:             sampleTag,
-		SetOriginHeader: true,
-		SetCookieHeader: true,
-		UploadContent:   []byte(sampleTagFileContent),
+		Parent: utils.ComponentClient{
+			User:            sampleUser,
+			Password:        samplePassword,
+			Origin:          rootUrl,
+			SetOriginHeader: true,
+			SetCookieHeader: true,
+			RootUrl:         rootUrl,
+		},
+
+		Email:         sampleEmail,
+		App:           sampleApp,
+		Tag:           sampleTag,
+		UploadContent: []byte(sampleTagFileContent),
 	}
 	hub.wipeData()
 	return hub
@@ -82,18 +77,18 @@ func getHub() *HubClient {
 
 func (h *HubClient) registerUser() error {
 	form := getRegistrationForm(h)
-	_, err := h.doRequest(registrationPath, form, "", "POST")
+	_, err := h.Parent.DoRequest(registrationPath, form, "")
 	return err
 }
 
 func (h *HubClient) login() error {
 	creds := LoginCredentials{
-		User:     h.User,
-		Password: h.Password,
-		Origin:   h.Origin,
+		User:     h.Parent.User,
+		Password: h.Parent.Password,
+		Origin:   h.Parent.Origin,
 	}
 
-	resp, err := h.doRequestWithFullResponse(loginPath, creds, "", "GET")
+	resp, err := h.Parent.DoRequestWithFullResponse(loginPath, creds, "")
 	if err != nil {
 		return err
 	}
@@ -102,123 +97,22 @@ func (h *HubClient) login() error {
 	if len(cookies) != 1 {
 		return fmt.Errorf("Expected 1 cookie, got %d", len(cookies))
 	}
-	h.Cookie = cookies[0]
+	h.Parent.Cookie = cookies[0]
 	return nil
 }
 
 func (h *HubClient) deleteUser() error {
-	_, err := h.doRequest(deleteUserPath, nil, "", "POST")
+	_, err := h.Parent.DoRequest(deleteUserPath, nil, "")
 	return err
 }
 
-func (h *HubClient) doRequest(path string, payload interface{}, expectedMessage string, method string) (interface{}, error) {
-	resp, err := h.doRequestWithFullResponse(path, payload, expectedMessage, method)
-	if err != nil {
-		return nil, err
-	}
-
-	respBody, err := assertOkStatusAndExtractBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return respBody, nil
-}
-
-func (h *HubClient) doRequestWithFullResponse(path string, payload interface{}, expectedMessage string, method string) (*http.Response, error) {
-	url := rootUrl + path
-
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal payload: %v", err)
-	}
-	payloadReader := bytes.NewReader(payloadBytes)
-	req, err := http.NewRequest(method, url, payloadReader)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create request: %v", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	setCookieAndOriginHeaders(req, h)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to send request: %v", err)
-	}
-
-	respBody, err := assertOkStatusAndExtractBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	responseMessage, _ := strings.CutSuffix(string(respBody), "\n")
-	if expectedMessage != "" && expectedMessage != responseMessage {
-		return nil, fmt.Errorf("Expected response message '%s', got '%s'", expectedMessage, responseMessage)
-	}
-
-	if len(resp.Cookies()) == 1 {
-		h.Cookie = resp.Cookies()[0]
-	}
-
-	// Response body can only be read once. When reading it after this function, an error occurs. So a copy is created.
-	newResp := &http.Response{
-		StatusCode: resp.StatusCode,
-		Header:     resp.Header,
-		Body:       io.NopCloser(bytes.NewBuffer(respBody)),
-	}
-	return newResp, nil
-}
-
-func setCookieAndOriginHeaders(req *http.Request, h *HubClient) {
-	if h.SetOriginHeader {
-		req.Header.Set(OriginHeader, h.Origin)
-	}
-	if h.SetCookieHeader && h.Cookie != nil {
-		req.AddCookie(h.Cookie)
-	}
-}
-
-func assertOkStatusAndExtractBody(resp *http.Response) ([]byte, error) {
-	defer resp.Body.Close()
-
-	var bodyBuffer bytes.Buffer
-	teeReader := io.TeeReader(resp.Body, &bodyBuffer)
-
-	if resp.StatusCode != http.StatusOK {
-		respBody, err := io.ReadAll(teeReader)
-		if err != nil {
-			return nil, fmt.Errorf("Expected status code 200, but got %d. Also failed to read response body: %v", resp.StatusCode, err)
-		}
-		errorMessage := getErrMsg(resp.StatusCode, string(respBody))
-		trimmedStr := strings.TrimSuffix(errorMessage, "\n")
-		return nil, fmt.Errorf(trimmedStr)
-	}
-
-	respBody, err := io.ReadAll(teeReader)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read response body: %v", err)
-	}
-
-	return respBody, nil
-}
-
-func getErrMsg(actualStatusCode int, respBodyMsg string) string {
-	var msg string
-	if respBodyMsg == "" {
-		msg = ""
-	} else {
-		msg = fmt.Sprintf(" Response body: %s", respBodyMsg)
-	}
-	return fmt.Sprintf("Expected status code 200, but got %d.%s", actualStatusCode, msg)
-}
-
 func (h *HubClient) createApp() error {
-	_, err := h.doRequest(appCreationPath, SingleString{h.App}, "", "POST")
+	_, err := h.Parent.DoRequest(appCreationPath, utils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
-	result, err := h.doRequest(searchAppsPath, SingleString{searchTerm}, "", "GET")
+	result, err := h.Parent.DoRequest(searchAppsPath, utils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +126,7 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 }
 
 func (h *HubClient) GetApps() ([]string, error) {
-	result, err := h.doRequest(appGetListPath, nil, "", "POST")
+	result, err := h.Parent.DoRequest(appGetListPath, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -251,18 +145,18 @@ func (h *HubClient) uploadTag() error {
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
-	_, err := h.doRequest(tagUploadPath, tapUpload, "", "POST")
+	_, err := h.Parent.DoRequest(tagUploadPath, tapUpload, "")
 	return err
 }
 
 func (h *HubClient) downloadTag() (string, error) {
 	tagInfo := &TagInfo{
-		User: h.User,
+		User: h.Parent.User,
 		App:  h.App,
 		Tag:  h.Tag,
 	}
 
-	result, err := h.doRequest(downloadPath, tagInfo, "", "GET")
+	result, err := h.Parent.DoRequest(downloadPath, tagInfo, "")
 	if err != nil {
 		return "", err
 	}
@@ -277,11 +171,11 @@ func (h *HubClient) downloadTag() (string, error) {
 
 func (h *HubClient) getTags() ([]string, error) {
 	usernameAndApp := &UserAndApp{
-		User: h.User,
+		User: h.Parent.User,
 		App:  h.App,
 	}
 
-	result, err := h.doRequest(getTagsPath, usernameAndApp, "", "POST")
+	result, err := h.Parent.DoRequest(getTagsPath, usernameAndApp, "")
 	if err != nil {
 		return nil, err
 	}
@@ -313,22 +207,22 @@ func (h *HubClient) deleteTag() error {
 		App: h.App,
 		Tag: h.Tag,
 	}
-	_, err := h.doRequest(tagDeletePath, tagInfo, "", "POST")
+	_, err := h.Parent.DoRequest(tagDeletePath, tagInfo, "")
 	return err
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.doRequest(appDeletePath, SingleString{h.App}, "", "POST")
+	_, err := h.Parent.DoRequest(appDeletePath, utils.SingleString{h.App}, "")
 	return err
 }
 
 func (h *HubClient) changePassword() error {
-	form := ChangePasswordForm{
-		OldPassword: h.Password,
-		NewPassword: h.NewPassword,
+	form := utils.ChangePasswordForm{
+		OldPassword: h.Parent.Password,
+		NewPassword: h.Parent.NewPassword,
 	}
 
-	_, err := h.doRequest(changePasswordPath, form, "", "POST")
+	_, err := h.Parent.DoRequest(changePasswordPath, form, "")
 	return err
 }
 
@@ -341,16 +235,16 @@ func getHubAndLogin(t *testing.T) *HubClient {
 }
 
 func (h *HubClient) wipeData() error {
-	_, err := h.doRequest(wipeDataPath, nil, "", "GET")
+	_, err := h.Parent.DoRequest(wipeDataPath, nil, "")
 	return err
 }
 
 func (h *HubClient) logout() error {
-	_, err := h.doRequest(logoutPath, nil, "", "GET")
+	_, err := h.Parent.DoRequest(logoutPath, nil, "")
 	return err
 }
 
 func (h *HubClient) checkAuth() error {
-	_, err := h.doRequest(authCheckPath, nil, "", "GET")
+	_, err := h.Parent.DoRequest(authCheckPath, nil, "")
 	return err
 }

@@ -7,7 +7,7 @@ import (
 
 var (
 	currentSchemaVersion = "0.1.0"
-	databaseFile         = shared.DataDir + "/sqlite.db"
+	databaseFile         = shared.DataDir + "/sqlite.db" // TODO it is greyed out, but shouldn't that be used somewhere?
 	Logger               shared.Logger
 	port                 = "8082"
 	rootUrl              = "http://localhost:" + port
@@ -28,7 +28,7 @@ var (
 	tagUploadPath = tagPath + "/upload"
 	tagDeletePath = tagPath + "/delete"
 	getTagsPath   = tagPath + "/get-tags"
-	downloadPath  = tagPath + "/"
+	downloadPath  = tagPath + "/" // TODO maybe add "download" to make it clearer?
 
 	appPath         = "/apps"
 	appCreationPath = appPath + "/create"

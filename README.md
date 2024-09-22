@@ -30,16 +30,6 @@ bash run-demo.sh
 
 Visit the application at `http://ocelot-cloud.localhost`. The login credentials for the login page are `admin` and `password`. On the home page, click the `Start` button in the `gitea` or `nocodb` row, for example, as these apps start up quite quickly. Other apps may take a few minutes to download and set up.
 
-### Build From Scratch
-
-Alternatively, you can build the image directly from source using these scripts instead:
-
-```bash
-cd ocelot-cloud/scripts
-bash build.sh
-bash run-demo.sh
-```
-
 ## Documentation
 
 For more information, such as the Contribution Guide and Code of Conduct, see the [docs](docs) folder.

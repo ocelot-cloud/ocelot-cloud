@@ -1,0 +1,28 @@
+version: "3.3"
+
+services:
+  ocelot-cloud:
+    image: ocelotcloud/ocelotcloud:local
+    container_name: ocelot-cloud
+    restart: unless-stopped
+    ports:
+      - 80:8080
+    networks:
+      - ocelot-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Necessary
+      HOST: $HOST
+      INITIAL_ADMIN_NAME: $INITIAL_ADMIN_NAME
+      INITIAL_ADMIN_PASSWORD: $INITIAL_ADMIN_PASSWORD
+
+      # Optional
+      USE_DUMMY_STACKS: $USE_DUMMY_STACKS
+      PROFILE: $PROFILE
+      LOG_LEVEL: $LOG_LEVEL
+      ENABLE_MOCKS: $ENABLE_MOCKS
+
+networks:
+  ocelot-net:
+    external: true

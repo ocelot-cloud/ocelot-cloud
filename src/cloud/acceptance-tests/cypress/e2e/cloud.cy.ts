@@ -4,15 +4,17 @@ import {
   StackOperator,
   VisitHomePage
 } from "./StackOperator";
-import {
-  isFrontendMocked,
-} from "./Config";
+import {PROFILE, PROFILE_VALUES} from "./Config";
 
 describe('template spec', () => {
 
   beforeEach(() => {
     VisitHomePage()
   })
+
+  it('assert column titles', () => {
+    assertColumnTitles();
+  });
 
   it('verify state lifecycle', () => {
     new StackOperator('nginx-default')
@@ -23,25 +25,19 @@ describe('template spec', () => {
         .assertState('Uninitialized')
   });
 
-  it('assert column titles', () => {
-    assertColumnTitles();
-  });
-
   it('assert core services not listed', () => {
     new StackOperator('ocelot-cloud')
         .shouldStackBeListed(false)
   });
 
   it('verify operations on stacks', () => {
-    if (!isFrontendMocked) {
-      new StackOperator('nginx-default')
-          .assertState('Uninitialized')
-          .operate('start')
-          .assertState('Available')
-          .assertWebsiteContent('nginx index page')
-          .operate('stop')
-          .assertState('Uninitialized')
-    }
+    new StackOperator('nginx-default')
+        .assertState('Uninitialized')
+        .operate('start')
+        .assertState('Available')
+        .assertWebsiteContent('nginx index page')
+        .operate('stop')
+        .assertState('Uninitialized')
   });
 
   it('check open-button urls', () => {
@@ -60,7 +56,7 @@ describe('template spec', () => {
   });
 
   it('check whether custom ports and proxying to stacks work', () => {
-    if (!isFrontendMocked) {
+    if (PROFILE == PROFILE_VALUES.PROD) {
       new StackOperator('nginx-custom-port')
           .operate("start")
           .assertWebsiteContent("nginx custom port")

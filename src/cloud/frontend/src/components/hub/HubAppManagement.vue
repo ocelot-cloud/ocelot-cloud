@@ -43,10 +43,10 @@
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from "vue";
-import router from "@/router";
-import {doRequest, session} from "@/components/hub/shared";
-import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
-import ValidatedInput from "@/components/hub/ValidatedInput.vue";
+import router, {hubSession} from "@/router";
+import HubDeletionConfirmationDialog from "@/components/shared/HubDeletionConfirmationDialog.vue";
+import ValidatedInput from "@/components/shared/ValidatedInput.vue";
+import {doHubRequest} from "@/components/shared/shared";
 
 export default defineComponent({
   name: 'HubAppManagement',
@@ -75,15 +75,16 @@ export default defineComponent({
 
     const createApp = async () => {
       submitted.value = true
-      const response = await doRequest("/apps/create", { value: newAppToCreate.value })
+      const response = await doHubRequest("/apps/create", { value: newAppToCreate.value })
       if (response) {
         await getApps()
         newAppToCreate.value = ""
+        submitted.value = false
       }
     };
 
     const getApps = async () => {
-      const response = await doRequest("/apps/get-list", null)
+      const response = await doHubRequest("/apps/get-list", null)
       if (response != null) {
         appList.value = response.data as string[];
         if (appList.value != null) {
@@ -93,7 +94,7 @@ export default defineComponent({
     };
 
     const deleteApp = async () => {
-      await doRequest("/apps/delete", { value: selectedApp.value })
+      await doHubRequest("/apps/delete", { value: selectedApp.value })
       await getApps()
       selectedApp.value = ""
       showDeleteConfirmation.value = false
@@ -105,7 +106,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      user.value = session.user
+      user.value = hubSession.user
       getApps();
     });
 

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/ocelot-cloud/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -28,9 +29,9 @@ func initializeDatabaseWithSource(dataSourceName string) {
 		CREATE TABLE IF NOT EXISTS users (
     		user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name TEXT UNIQUE NOT NULL,
-			hashed_password TEXT NOT NULL,
+			hashed_password TEXT NOT NULL UNIQUE,
 			origin TEXT,
-			cookie TEXT,
+			hashed_cookie_value TEXT UNIQUE,
 			expiration_date TEXT,
 		    used_space BIGINT NOT NULL
 		);
@@ -78,7 +79,7 @@ type Repository interface {
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]UserAndApp, error)
-	SetCookie(user string, cookie string, expirationDate time.Time) error
+	HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieExpired(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
 	CreateTag(user string, app string, tag string, data []byte) error
@@ -138,7 +139,7 @@ func (u *SqliteRepository) DoesUserExist(user string) bool {
 }
 
 func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
-	hashedPassword, err := hashAndSaltPassword(form.Password)
+	hashedPassword, err := utils.SaltAndHash(form.Password)
 	if err != nil {
 		return logAndReturnError("Failed to hash password: %v\n", err)
 	}
@@ -148,14 +149,6 @@ func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 		return logAndReturnError("Failed to create user: %v", err)
 	}
 	return nil
-}
-
-func hashAndSaltPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
 }
 
 func (u *SqliteRepository) DeleteUser(user string) error {
@@ -282,17 +275,30 @@ func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
 	return apps, nil
 }
 
-func (u *SqliteRepository) SetCookie(user string, cookie string, expirationDate time.Time) error {
-	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", cookie, expirationDate.Format(time.RFC3339), user)
+// TODO check for all repo methods: The error should be logged here. Return a more generic error message without error details.
+func (u *SqliteRepository) HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error {
+	hashedCookieValue, err := utils.Hash(cookie)
+	if err != nil {
+		return fmt.Errorf("hashing failed")
+	}
+
+	_, err = db.Exec("UPDATE users SET hashed_cookie_value = ?, expiration_date = ? WHERE user_name = ?", hashedCookieValue, expirationDate.Format(time.RFC3339), user)
 	if err != nil {
 		return logAndReturnError("Failed to set cookie: %v", err)
 	}
 	return nil
 }
 
+// TODO Can be put in shared module?
 func (u *SqliteRepository) IsCookieExpired(cookie string) bool {
+	hashedCookieValue, err := utils.Hash(cookie)
+	if err != nil {
+		Logger.Error("Error hashing cookie: %v", err)
+		return false
+	}
+
 	var expirationDateStr string
-	err := db.QueryRow("SELECT expiration_date FROM users WHERE cookie = ?", cookie).Scan(&expirationDateStr)
+	err = db.QueryRow("SELECT expiration_date FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&expirationDateStr)
 	if err != nil {
 		Logger.Error("Failed to fetch expiration date: %v", err)
 		return true
@@ -314,8 +320,13 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 		return "", logAndReturnError("Can't search for empty string cookies")
 	}
 
+	hashedCookieValue, err := utils.Hash(cookie)
+	if err != nil {
+		return "", fmt.Errorf("hashing failed")
+	}
+
 	var user string
-	err := db.QueryRow("SELECT user_name FROM users WHERE cookie = ?", cookie).Scan(&user)
+	err = db.QueryRow("SELECT user_name FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return "", logAndReturnInfo("cookie not found")
@@ -555,13 +566,14 @@ func (u *SqliteRepository) GetUsedSpaceInBytes(user string) (int, error) {
 }
 
 func (u *SqliteRepository) Logout(user string) error {
-	_, err := db.Exec("UPDATE users SET cookie = ?, expiration_date = ? WHERE user_name = ?", nil, nil, user)
+	_, err := db.Exec("UPDATE users SET hashed_cookie_value = ?, expiration_date = ? WHERE user_name = ?", nil, nil, user)
 	if err != nil {
 		return logAndReturnError("Failed to logout: %v", err)
 	}
 	return nil
 }
 
+// TODO I think I should get rid of these two functions. I dont want low level errors to be transported to the top, or even displayed to users.
 func logAndReturnError(message string, args ...interface{}) error {
 	Logger.Error(message, args...)
 	return fmt.Errorf(message, args...)

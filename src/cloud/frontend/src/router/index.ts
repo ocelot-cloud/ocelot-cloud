@@ -2,20 +2,33 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from "@/components/cloud/Home.vue";
 import Login from "@/components/cloud/Login.vue";
 import axios from "axios";
-import {isSecurityEnabled} from "@/components/cloud/Config";
 import HubComponent from "@/components/hub/HubHome.vue";
-import HubLogin from "@/components/hub/HubLogin.vue";
+import HubLogin from "@/components/shared/HubLogin.vue";
 import HubRegistration from "@/components/hub/HubRegistration.vue";
-import HubChangePassword from "@/components/hub/HubChangePassword.vue";
+import HubChangePassword from "@/components/shared/HubChangePassword.vue";
 import HubTagManagement from "@/components/hub/HubTagManagement.vue";
-import {session} from "@/components/hub/shared";
+import {globalConfig} from "@/components/shared/global_config";
+
+export interface Session {
+    user: string;
+    isAuthenticated: boolean;
+}
+
+export const cloudSession: Session = {
+    user: "",
+    isAuthenticated: false,
+};
+
+export const hubSession: Session = {
+    user: "",
+    isAuthenticated: false,
+};
 
 const routes = [
     {
         path: '/',
         name: 'Home',
         component: Home,
-        meta: { requiresAuth: true },
     },
     {
         path: '/login',
@@ -50,17 +63,30 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+    history: createWebHistory(import.meta.env.VITE_BASE_URL),
     routes,
 });
 
+async function isThereValidSession(session: Session, apiUrl: string): Promise<boolean> {
+    try {
+        const response = await axios.get(apiUrl);
+        if (response.status === 200) {
+            session.user = response.data.value;
+            session.isAuthenticated = true;
+            return true;
+        }
+        return false;
+    } catch (error) {
+        return false;
+    }
+}
+
 router.beforeEach(async (to, from, next) => {
     if (to.path.startsWith('/hub')) {
-        if (to.path == '/hub/login' || to.path == '/hub/registration' || session.isAuthenticated) {
+        if (to.path === '/hub/login' || to.path === '/hub/registration' || hubSession.isAuthenticated) {
             next();
         } else {
-            const isHubSessionValid = await isThereValidHubSessionCookie();
-            if (isHubSessionValid) {
+            if (await isThereValidSession(hubSession, 'http://localhost:8082/auth-check')) {
                 next();
             } else {
                 next({ name: 'HubLogin' });
@@ -69,37 +95,15 @@ router.beforeEach(async (to, from, next) => {
         return;
     }
 
-    // TODO Apply the upper approach to this router.
-    // TODO Get rid of "isSecurityEnabled"
-    if (isSecurityEnabled && to.matched.some(record => record.meta.requiresAuth) && !(await isThereValidCloudSessionCookie())) {
-        next({ name: 'Login' });
-    } else {
+    if (to.path === '/login' || cloudSession.isAuthenticated) {
         next();
+    } else {
+        if (await isThereValidSession(cloudSession, globalConfig.cloudBaseUrl + '/api/check-auth')) {
+            next();
+        } else {
+            next({ name: 'Login' });
+        }
     }
 });
-
-async function isThereValidHubSessionCookie(): Promise<boolean> {
-    try {
-        const response = await axios.get('http://localhost:8082/auth-check');
-        if (response.status === 200) {
-            session.user = response.data.value;
-            session.isAuthenticated = true
-            return true;
-        }
-        return false
-    } catch (error) {
-        return false;
-    }
-}
-
-async function isThereValidCloudSessionCookie(): Promise<boolean> {
-    try {
-        // TODO I think the first part of the URL is missing, right?
-        await axios.get('/api/check-session', { withCredentials: true });
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
 
 export default router;

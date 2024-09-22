@@ -1,29 +1,12 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
-	"time"
 )
-
-const OriginHeader = "Origin"
-
-func sendJsonResponse(w http.ResponseWriter, data interface{}) {
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		Logger.Error("unmarshalling failed: %v", err)
-		http.Error(w, "failed to prepare response data", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
-}
 
 var repo Repository = &SqliteRepository{}
 
@@ -58,7 +41,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.Password, Password},
 			{v.Email, Email},
 		}
-	case ChangePasswordForm:
+	case utils.ChangePasswordForm:
 		jobs = []ValidationJob{
 			{v.OldPassword, Password},
 			{v.NewPassword, Password},
@@ -98,7 +81,7 @@ func validateJobs(jobs []ValidationJob) error {
 }
 
 func readBodyAsSingleString(r *http.Request, validationType ValidationType) (string, error) {
-	singleString, err := readBody[SingleString](r)
+	singleString, err := readBody[utils.SingleString](r)
 	if err != nil {
 		return "", err
 	}
@@ -109,24 +92,6 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	}
 
 	return result, nil
-}
-
-func getTimeIn30Days() time.Time {
-	return time.Now().UTC().AddDate(0, 0, 30)
-}
-
-func generateCookie() (*http.Cookie, error) {
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		Logger.Error("Failed to generate cookie: %v", err)
-		return nil, err
-	}
-	return &http.Cookie{
-		Name:     cookieName,
-		Value:    hex.EncodeToString(bytes),
-		Expires:  getTimeIn30Days(),
-		SameSite: http.SameSiteLaxMode,
-	}, nil
 }
 
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
@@ -148,7 +113,7 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if err = validate(r.Header.Get(OriginHeader), Origin); err != nil {
+	if err = validate(r.Header.Get(utils.OriginHeader), Origin); err != nil {
 		http.Error(w, "invalid origin", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -160,8 +125,8 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	if !repo.IsOriginCorrect(user, r.Header.Get(OriginHeader)) {
-		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(OriginHeader))
+	if !repo.IsOriginCorrect(user, r.Header.Get(utils.OriginHeader)) {
+		Logger.Warn("user '%s' used a not matching origin: '%s'", user, r.Header.Get(utils.OriginHeader))
 		http.Error(w, "origin not matching", http.StatusBadRequest)
 		return "", fmt.Errorf("")
 	}
@@ -172,8 +137,8 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 		return "", fmt.Errorf("")
 	}
 
-	newExpirationTime := getTimeIn30Days()
-	err = repo.SetCookie(user, cookie.Value, newExpirationTime)
+	newExpirationTime := utils.GetTimeIn30Days()
+	err = repo.HashAndSaveCookie(user, cookie.Value, newExpirationTime)
 	if err != nil {
 		Logger.Error("setting new cookie failed: %v", err)
 		http.Error(w, "setting new cookie failed", http.StatusInternalServerError)
@@ -189,9 +154,4 @@ func checkAuthentication(w http.ResponseWriter, r *http.Request) (string, error)
 	http.SetCookie(w, cookie)
 
 	return user, nil
-}
-
-func handleInvalidRequestMethod(w http.ResponseWriter, r *http.Request, endpoint string) {
-	Logger.Warn("invalid request method '%s' on endpoint '%s'", r.Method, endpoint)
-	http.Error(w, "invalid request method", http.StatusMethodNotAllowed)
 }

@@ -23,35 +23,21 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { goToCloudPage} from "@/components/shared/shared";
+import {doCloudRequest} from "@/components/shared/requests";
 
 export default defineComponent({
   name: 'login-component',
   setup() {
     const username = ref('');
     const password = ref('');
-    const router = useRouter();
 
     const login = async () => {
-      try {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: username.value,
-            password: password.value,
-          }),
-        });
-
-        if (response.ok) {
-          router.push('/');
-        } else {
-          alert('Login failed!');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
+      const loginForm = {username: username.value, password: password.value}
+      const response = await doCloudRequest('/api/login', loginForm)
+      if (response) {
+        console.log("visting home page")
+        goToCloudPage("/")
       }
     };
 

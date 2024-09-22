@@ -22,15 +22,6 @@ type UserAndApp struct {
 	App  string `json:"app"`
 }
 
-type SingleString struct {
-	Value string `json:"value"`
-}
-
-type ChangePasswordForm struct {
-	OldPassword string `json:"old_password"`
-	NewPassword string `json:"new_password"`
-}
-
 type RegistrationForm struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
@@ -40,5 +31,6 @@ type RegistrationForm struct {
 type LoginCredentials struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
-	Origin   string `json:"origin"`
+	// TODO Couldn't I take the origin directly from the request? Seems unnecessary.
+	Origin string `json:"origin"`
 }

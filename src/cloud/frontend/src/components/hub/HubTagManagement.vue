@@ -65,14 +65,13 @@
 import {defineComponent, onMounted, ref} from 'vue';
 import { useRoute } from 'vue-router';
 import {
-  alertError,
-  defaultAllowedSymbols,
-  doRequest, generateInvalidInputMessage, getDefaultValidationRegex,
+  doHubRequest, generateInvalidInputMessage,
   goToHubPage,
   defaultMaxLength,
   defaultMinLength, tagAllowedSymbols
-} from "@/components/hub/shared";
-import HubDeletionConfirmationDialog from "@/components/hub/HubDeletionConfirmationDialog.vue";
+} from "@/components/shared/shared";
+import HubDeletionConfirmationDialog from "@/components/shared/HubDeletionConfirmationDialog.vue";
+import {alertError} from "@/components/shared/requests";
 
 export default defineComponent({
   name: "HubTagManagement",
@@ -118,7 +117,7 @@ export default defineComponent({
         );
         const tagUpload = {app, tag, content};
 
-        const response = await doRequest("/tags/upload", tagUpload)
+        const response = await doHubRequest("/tags/upload", tagUpload)
         if (response) {
           submitted.value = false
           getTags()
@@ -133,7 +132,7 @@ export default defineComponent({
     };
 
     const getTags = async () => {
-      const response = await doRequest("/tags/get-tags", { user, app })
+      const response = await doHubRequest("/tags/get-tags", { user, app })
       if (response != null) {
         tagList.value = response.data as string[];
         if (tagList.value != null) {
@@ -143,14 +142,14 @@ export default defineComponent({
     };
 
     const deleteTag = async () => {
-      await doRequest("/tags/delete", {app, tag: selectedTag.value})
+      await doHubRequest("/tags/delete", {app, tag: selectedTag.value})
       await getTags()
       showDeleteConfirmation.value = false
     }
 
     const downloadTag = async () => {
       try {
-        const response = await doRequest("/tags/", { user, app, tag: selectedTag.value })
+        const response = await doHubRequest("/tags/", { user, app, tag: selectedTag.value })
         if (response != null) {
           const blob = new Blob([response.data], { type: 'application/gzip' });
           const downloadUrl = window.URL.createObjectURL(blob);

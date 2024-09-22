@@ -2,5 +2,6 @@
 
 set -e
 
+rm -rf data
 go build
-./backend -profile="development-setup" -disable-security
+PROFILE=TEST USE_DUMMY_STACKS=true ./backend

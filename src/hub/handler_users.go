@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"time"
 )
@@ -37,12 +38,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := generateCookie()
+	cookie, err := utils.GenerateCookie()
 	if err != nil {
 		Logger.Error("cookie generation failed: %v", err)
 		http.Error(w, "cookie generation failed", http.StatusInternalServerError)
 		return
 	}
+	cookie.SameSite = http.SameSiteLaxMode
 
 	if profile == TEST {
 		if creds.User == testUserWithExpiredCookie {
@@ -52,7 +54,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = repo.SetCookie(creds.User, cookie.Value, cookie.Expires)
+	err = repo.HashAndSaveCookie(creds.User, cookie.Value, cookie.Expires)
 	if err != nil {
 		Logger.Error("setting cookie failed: %v", err)
 		http.Error(w, "setting cookie failed", http.StatusInternalServerError)
@@ -65,23 +67,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func authCheckHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		user, err := checkAuthentication(w, r)
-		if err != nil {
-			return
-		}
-		sendJsonResponse(w, SingleString{user})
-	} else {
-		handleInvalidRequestMethod(w, r, userPath)
-		return
-	}
+	user := getUserFromContext(r)
+	utils.SendJsonResponse(w, utils.SingleString{user})
 }
 
 func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+	user := getUserFromContext(r)
 
 	if !repo.DoesUserExist(user) {
 		Logger.Error("user '%s' wanted to delete his account but seems not to exist although authenticated", user)
@@ -89,7 +80,7 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.DeleteUser(user)
+	err := repo.DeleteUser(user)
 	if err != nil {
 		Logger.Error("user '%s' deletion failed", err)
 		http.Error(w, "user deletion failed", http.StatusInternalServerError)
@@ -126,17 +117,9 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		handleInvalidRequestMethod(w, r, userPath)
-		return
-	}
+	user := getUserFromContext(r)
 
-	user, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
-
-	form, err := readBody[ChangePasswordForm](r)
+	form, err := readBody[utils.ChangePasswordForm](r)
 	if err != nil {
 		Logger.Warn("could not read request body: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -167,12 +150,9 @@ func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := checkAuthentication(w, r)
-	if err != nil {
-		return
-	}
+	user := getUserFromContext(r)
 
-	err = repo.Logout(user)
+	err := repo.Logout(user)
 	if err != nil {
 		Logger.Error("logout of user '%s' failed: %v", user, err)
 		http.Error(w, "logout failed", http.StatusInternalServerError)
