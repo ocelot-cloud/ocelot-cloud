@@ -1,6 +1,7 @@
 package src
 
 import (
+	"fmt"
 	"ocelot/ci-runner/cli"
 	"os/exec"
 )
@@ -56,9 +57,11 @@ func deployContainer(additionalEnvs ...string) {
 		"HOST=http://localhost",
 		INITIAL_ADMIN_NAME_ENV,
 		INITIAL_ADMIN_PASSWORD_ENV,
+		"LOG_LEVEL=DEBUG",
 	}
 	envs = append(envs, additionalEnvs...)
-	cli.ExecuteInDir(ocelotStackDir, ocelotContainerRunCommandDetached, envs...)
+	dockerCmd := fmt.Sprintf("bash -c '%s && docker logs -f ocelot-cloud'", ocelotContainerRunCommandDetached)
+	StartDaemon(ocelotStackDir, dockerCmd, envs...)
 	cli.WaitForIndexPageToBeReady(ocelotUrl)
 }
 

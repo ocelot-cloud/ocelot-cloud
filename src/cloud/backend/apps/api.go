@@ -12,6 +12,11 @@ import (
 
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get(security.CookieName) == "" {
+		http.Error(w, "cookie not found", http.StatusUnauthorized)
+		return
+	}
+
 	logger.Trace("Proxying request with target host %s", r.Host)
 	host, _, _ := net.SplitHostPort(r.Host)
 	if host == "" {

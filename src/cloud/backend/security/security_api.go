@@ -41,7 +41,7 @@ func ApplyAuthMiddleware(next http.Handler) http.Handler {
 			Logger.Trace("accessing ocelot backend")
 			applyBackendApiAuthMiddleware(w, r, next)
 		} else {
-			// TODO check if header fits: "*." + config.RootDomain; else return error.
+			// TODO check if header matches regex: "*." + config.RootDomain; if yes continue, else return error.
 			next.ServeHTTP(w, r)
 		}
 	})

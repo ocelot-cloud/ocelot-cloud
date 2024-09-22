@@ -4,6 +4,7 @@ package component_tests
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"net/http"
 	"ocelot/backend/tools"
 	"testing"
 	"time"
@@ -19,10 +20,13 @@ func TestAppAccess(t *testing.T) {
 
 	waitForContainer(t, cloud)
 
-	cloud.parent.RootUrl = "http://nginx-default.localhost"
-	responseBody, err := cloud.parent.DoRequest("", nil, "<html><body>nginx index page</body></html>")
-	assert.Nil(t, err)
-	assert.NotNil(t, responseBody)
+	resp, err := http.Get("http://nginx-default.localhost")
+	if err != nil {
+		logger.Error("app request failed %v: ", err)
+		t.Fail()
+	}
+	assert.Equal(t, 401, resp.StatusCode)
+	defer resp.Body.Close()
 
 	/* TODO
 	cloud.parent.Cookie = nil
