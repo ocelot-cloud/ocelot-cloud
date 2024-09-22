@@ -10,9 +10,8 @@ import (
 	"time"
 )
 
-// These tests can only be run against a Docker container because only Docker containers can proxy to application containers.
 func TestAppAccess(t *testing.T) {
-	cloud := getCloud() // TODO This should directly return a reference
+	cloud := getCloud()
 	assert.Nil(t, cloud.login())
 	cookieValue := cloud.parent.Cookie.Value
 
@@ -55,9 +54,10 @@ func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
 		t.Fail()
 	}
 	assert.Equal(t, 302, resp.StatusCode)
-	assert.Equal(t, cookieValue, resp.Cookies()[0].Value)
+	responseCookie := resp.Cookies()[0]
+	assert.Equal(t, tools.CookieName, responseCookie.Name)
+	assert.Equal(t, cookieValue, responseCookie.Value)
 	assert.Equal(t, "/", resp.Header.Get("Location"))
-	defer resp.Body.Close()
 }
 
 func waitForContainer(t *testing.T, cloud *CloudClient) {
