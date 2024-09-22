@@ -28,17 +28,14 @@ func TestBackendComponentMocked() {
 	// TODO Aggregate the envs
 	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	cli.WaitUntilPortIsReady("8080")
-	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...", getTestProfileEnv())
+	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getTestProfileEnv())
 }
 
 // TODO There are quite a lot of envs. Maybe I should refactor that into sth like "envs := getEnvs(...)".
 func TestCloudAcceptance() {
 	printTaskDescription("Testing acceptance")
 	defer Cleanup()
-	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
-	Build(DockerImage)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommand, "USE_DUMMY_STACKS=true", "HOST=http://localhost", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV)
-	cli.WaitForIndexPageToBeReady(ocelotUrl)
+	deployContainer(getEnableDummyStacksEnv(true))
 	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
 
@@ -61,7 +58,7 @@ func deployContainer(additionalEnvs ...string) {
 		INITIAL_ADMIN_PASSWORD_ENV,
 	}
 	envs = append(envs, additionalEnvs...)
-	StartDaemon(ocelotStackDir, ocelotContainerRunCommandDetached, envs...)
+	cli.ExecuteInDir(ocelotStackDir, ocelotContainerRunCommandDetached, envs...)
 	cli.WaitForIndexPageToBeReady(ocelotUrl)
 }
 
@@ -69,8 +66,16 @@ func TestCi() {
 	printTaskDescription("Running CI tests")
 	TestBackend()
 	TestFrontend()
+	TestSecurity()
 	TestCloudAcceptance()
 	TestHubAll()
+}
+
+func TestSecurity() {
+	printTaskDescription("Running security tests")
+	defer Cleanup()
+	deployContainer(getEnableDummyStacksEnv(true))
+	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags security ./...")
 }
 
 func TestBackend() {
@@ -91,7 +96,7 @@ func TestProdBackendApi() {
 	Build(Backend)
 	StartDaemon(backendDir, "./backend", "USE_DUMMY_STACKS=true", "HOST=http://localhost:8080", INITIAL_ADMIN_NAME_ENV, INITIAL_ADMIN_PASSWORD_ENV, "ENABLE_DATA_WIPE_ENDPOINT=true")
 	cli.WaitUntilPortIsReady("8080")
-	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 ./...", getProdProfileEnv())
+	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getProdProfileEnv())
 }
 
 func testBackendImageDownload() {

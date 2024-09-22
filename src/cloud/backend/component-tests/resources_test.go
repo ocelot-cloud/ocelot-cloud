@@ -11,6 +11,14 @@ import (
 	"time"
 )
 
+var logger = tools.Logger
+
+const (
+	backendBaseUrl = "http://localhost:8080"
+	TestProfile    = "TEST"
+	ProdProfile    = "PROD"
+)
+
 type CloudClient struct {
 	parent         utils.ComponentClient
 	appToOperateOn string

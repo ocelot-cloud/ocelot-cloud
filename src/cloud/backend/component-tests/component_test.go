@@ -1,3 +1,5 @@
+//go:build functional
+
 package component_tests
 
 import (
@@ -8,14 +10,6 @@ import (
 	"os"
 	"testing"
 	"time"
-)
-
-var logger = tools.Logger
-
-const (
-	backendBaseUrl = "http://localhost:8080"
-	TestProfile    = "TEST"
-	ProdProfile    = "PROD"
 )
 
 // TODO Add a "before each" function to initialize a global "var cloud" for these tests?
