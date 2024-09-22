@@ -112,11 +112,11 @@ func getClientAndLogin(t *testing.T) *CloudClient {
 	cloud := getCloud()
 	assert.Nil(t, cloud.login())
 	assert.Nil(t, cloud.wipeData())
-	return &cloud
+	return cloud
 }
 
-func getCloud() CloudClient {
-	cloud := CloudClient{
+func getCloud() *CloudClient {
+	cloud := &CloudClient{
 		utils.ComponentClient{
 			"admin",
 			"password",

@@ -12,8 +12,7 @@ import (
 
 // These tests can only be run against a Docker container because only Docker containers can proxy to application containers.
 func TestAppAccess(t *testing.T) {
-	cloud2 := getCloud() // TODO This should directly return a reference
-	cloud := &cloud2
+	cloud := getCloud() // TODO This should directly return a reference
 	assert.Nil(t, cloud.login())
 	cookieValue := cloud.parent.Cookie.Value
 
