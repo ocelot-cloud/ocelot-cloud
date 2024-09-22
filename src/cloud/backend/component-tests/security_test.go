@@ -24,7 +24,13 @@ func TestAppAccess(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, responseBody)
 
-	// TODO cookie is set -> passed request
+	/* TODO
+	cloud.parent.Cookie = nil
+	_, err = cloud.parent.DoRequest("", nil, "TODO")
+	assert.NotNil(t, err)
+	assert.Equal(t, utils.GetErrMsg(302, "asdf"), err.Error())
+	*/
+
 	// TODO set cookie to nil, try to access app -> denied
 	// TODO secret as query param -> redirect
 	// TODO wrong cookie -> denied
