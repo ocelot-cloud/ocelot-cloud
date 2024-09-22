@@ -1,5 +1,3 @@
-//go:build functional
-
 package component_tests
 
 import (

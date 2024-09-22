@@ -70,16 +70,8 @@ func TestCi() {
 	printTaskDescription("Running CI tests")
 	TestBackend()
 	TestFrontend()
-	TestSecurity()
 	TestCloudAcceptance()
 	TestHubAll()
-}
-
-func TestSecurity() {
-	printTaskDescription("Running security tests")
-	defer Cleanup()
-	deployContainer(getEnableDummyStacksEnv(true))
-	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags security ./...")
 }
 
 func TestBackend() {
@@ -98,7 +90,7 @@ func TestProdBackendApi() {
 	printTaskDescription("Testing PROD backend API with real docker service")
 	defer Cleanup()
 	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_DATA_WIPE_ENDPOINT=true")
-	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getProdProfileEnv())
+	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags security ./...", getProdProfileEnv())
 }
 
 func testBackendImageDownload() {
