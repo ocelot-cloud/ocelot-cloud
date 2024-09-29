@@ -40,13 +40,9 @@ bash build.sh
 bash run-demo.sh
 ```
 
-## Documentation
+## Further Information
 
-For more information, such as the Contribution Guide and Code of Conduct, see the [docs](docs) folder.
-
-## Contact
-
-To contact us, ask questions, or share ideas for improvements, please join our [Discord channel](https://discord.gg/RS85gNNZ).
+The Contribution Guide and Code of Conduct can be found in the [docs](docs) folder. To find out more about the project, please visit our [website](https://ocelot-cloud.org). To get in touch or join our community, please visit the contact page.
 
 ## License
 
