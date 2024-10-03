@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ocelot-Cloud is an open source digital infrastructure management platform that aims to make self-hosting as easy as possible. Information about the project can be found on our [website](https://ocelot-cloud.org). To contact us or join our community, please visit the contact page. You might also want to take a look at the [announcement video](https://youtu.be/WQwBYjMbe8I), which includes a technical demo of the prototype. See also the [docs](docs) folder for more information about this repository.
+Ocelot-Cloud is an open source digital infrastructure management platform that aims to make self-hosting as easy as possible. Information about the project can be found on our [website](https://ocelot-cloud.org). Visit the 'Contact' page if you want to get in touch, find out more about our other communication channels or join our community. You might also want to take a look at the [announcement video](https://youtu.be/WQwBYjMbe8I), which includes a technical demo of the prototype. See also the [docs](docs) folder for more information about this repository.
 
 ## Attention!
 
