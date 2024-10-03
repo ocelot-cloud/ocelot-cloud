@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ocelot-Cloud is an open-source digital infrastructure provisioning tool that aims to make self-hosting as easy as possible. In our [announcement video](https://youtu.be/WQwBYjMbe8I) you can get an idea of why this project was started, see a technical demo and see features that will be implemented in the future.
+Ocelot-Cloud is an open source digital infrastructure management platform that aims to make self-hosting as easy as possible. Information about the project can be found on our [website](https://ocelot-cloud.org). To contact us or join our community, please visit the contact page. You might also want to take a look at the [announcement video](https://youtu.be/WQwBYjMbe8I), which includes a technical demo of the prototype. See also the [docs](docs) folder for more information about this repository.
 
 ## Attention!
 
@@ -39,10 +39,6 @@ cd ocelot-cloud/scripts
 bash build.sh
 bash run-demo.sh
 ```
-
-## Further Information
-
-The Contribution Guide and Code of Conduct can be found in the [docs](docs) folder. To find out more about the project, please visit our [website](https://ocelot-cloud.org). To get in touch or join our community, please visit the contact page.
 
 ## License
 
