@@ -165,3 +165,5 @@ type MyRepository struct{}
 // TODO if an app is deleted, all its tags must be deleted. If all tags of an app are deleted, the app must be deleted as well.
 // TODO in hub, check if I consistently use: "INTEGER PRIMARY KEY AUTOINCREMENT" for the ID's. If not, apply it.
 // TODO Delete duplicated argument types in functions
+// TODO Also add deletion tests. For example, when deleting OR app, in both cases tha group to app relation must be deleted as well. maybe: assert.True(t, isTableEmpty("app-to-group")) or so.
+// TODO Also check stuff like: user has access to app via group "x". Delete group so that user loses access and re-create with same name. Assert that user has no longer access.
