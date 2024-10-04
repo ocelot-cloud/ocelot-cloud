@@ -286,3 +286,7 @@ Es wäre cool, wenn die ReadBody oder validate Funktionen eineige Grundtypen hä
 reuse "doRequest" in frontend cloud logic, also ensure for hub and cloud gui that only POST requests are used.
 
 replace "stacks" by "apps"
+
+Get rid of the bash scripts, always use go, adapt the readme
+Extract the CLI runner stuff to separate module to share with other projects. Use 0BSD license.
+Hub Production System must run with CockroachDB.
