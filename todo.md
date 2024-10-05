@@ -290,3 +290,4 @@ replace "stacks" by "apps"
 Get rid of the bash scripts, always use go, adapt the readme
 Extract the CLI runner stuff to separate module to share with other projects. Use 0BSD license.
 Hub Production System must run with CockroachDB.
+EnsureSchemaVersionTable() -> version the database scheme? research about database migration tools

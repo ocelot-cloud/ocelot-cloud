@@ -27,8 +27,6 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 	DB.SetMaxOpenConns(1)
 	DB.SetMaxIdleConns(1)
 
-	// TODO EnsureSchemaVersionTable()
-
 	initializeTables()
 	Logger.Info("Database initialized")
 }
@@ -160,7 +158,6 @@ type GroupRepository interface {
 	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
 	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
 	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error
-
 	DoesUserHaveAccessToApp(user, maintainer, app string) bool
 }
 
