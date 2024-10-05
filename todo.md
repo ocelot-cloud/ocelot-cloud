@@ -178,10 +178,9 @@ security implementation:
 * shared packages: sectest (for test code), secprod (for production code)
 * secure the exiting endpoints, then implement new ones
 
-// TODO stack does not exist, stack already exists,
-// TODO you should be able to stop stacks the are being started
+stack does not exist, stack already exists, etc
+you should be able to stop stacks the are being started
 
-TODO
 rename stacks to apps
 make a unit test for TEST and PROD config
 check that the wipe data endpoint is not opened in PROD docker container

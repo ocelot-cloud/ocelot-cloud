@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// TODO Dont use cookie anymore as secret. Create a separate one.
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 	logger.Trace("Proxying request with target URL %s%s", r.URL, r.URL.Path) // TODO temp? Might contain secret/cookie info

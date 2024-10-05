@@ -21,7 +21,7 @@ func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router.HandleFunc("/api/check-auth", checkAuthHandler)
 }
 
-// TODO Assert that you can't access any available when you dont have a valid cookie in the request.
+// TODO Assert that you can't access any available app when you dont have a valid cookie in the request.
 func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	// TODO Add "Origin" header check to prevent CSRF attacks.
 
@@ -41,7 +41,6 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 			applyBackendApiAuthMiddleware(w, r)
 		} else {
 			Logger.Debug("backend serves frontend resources")
-			// TODO serve frontend without auth
 			router.ServeHTTP(w, r)
 		}
 	} else {
