@@ -68,7 +68,7 @@ func TestAddUserToGroup(t *testing.T) {
 func TestGiveGroupAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, repo.CreateGroup(sampleGroup))
-	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 
 	accessList, err := repo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
@@ -91,7 +91,7 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 
 func TestAppAccessDeletionCascading(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.CreateGroup(sampleGroup))
 
 	// TODO repo.IsGroupAccessToAppTableEmpty()

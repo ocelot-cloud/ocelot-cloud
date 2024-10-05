@@ -3,7 +3,7 @@ package security
 import "fmt"
 
 // TODO test: is app already existing
-func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
+func (r *AppRepositoryImpl) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
 	var doesAppExist bool
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE maintainer = ? AND app = ?)", maintainer, app).Scan(&doesAppExist)
 	if err != nil {
@@ -32,7 +32,7 @@ func (r *MyRepository) CreateAppWithTag(maintainer string, app string, tag strin
 	return nil
 }
 
-func (r *MyRepository) getAppId(maintainer string, app string) (int, error) {
+func (r *AppRepositoryImpl) getAppId(maintainer string, app string) (int, error) {
 	var appId int
 	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *MyRepository) getAppId(maintainer string, app string) (int, error) {
 	return appId, nil
 }
 
-func (r *MyRepository) ListApps() ([]MaintainerAndApp, error) {
+func (r *AppRepositoryImpl) ListApps() ([]MaintainerAndApp, error) {
 	rows, err := DB.Query("SELECT maintainer, app FROM apps")
 	if err != nil {
 		Logger.Error("Failed to fetch app list: %v", err)
@@ -69,7 +69,7 @@ func (r *MyRepository) ListApps() ([]MaintainerAndApp, error) {
 	return result, nil
 }
 
-func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, error) {
+func (r *AppRepositoryImpl) ListTagsOfApp(maintainer string, app string) ([]string, error) {
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
 		return nil, fmt.Errorf("TODO1")
@@ -100,7 +100,7 @@ func (r *MyRepository) ListTagsOfApp(maintainer string, app string) ([]string, e
 	return result, nil
 }
 
-func (r *MyRepository) LoadTagBlob(maintainer, app, tag string) ([]byte, error) {
+func (r *AppRepositoryImpl) LoadTagBlob(maintainer, app, tag string) ([]byte, error) {
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
 		return nil, fmt.Errorf("TODO2")
@@ -115,7 +115,7 @@ func (r *MyRepository) LoadTagBlob(maintainer, app, tag string) ([]byte, error) 
 	return blob, nil
 }
 
-func (r *MyRepository) DeleteApp(maintainer, app string) error {
+func (r *AppRepositoryImpl) DeleteApp(maintainer, app string) error {
 	_, err := DB.Exec("DELETE FROM apps WHERE maintainer = ? AND app = ?", maintainer, app)
 	if err != nil {
 		return fmt.Errorf("TODO6")
@@ -123,7 +123,7 @@ func (r *MyRepository) DeleteApp(maintainer, app string) error {
 	return nil
 }
 
-func (r *MyRepository) DeleteTag(maintainer, app, tag string) error {
+func (r *AppRepositoryImpl) DeleteTag(maintainer, app, tag string) error {
 	appId, err := r.getAppId(maintainer, app)
 	if err != nil {
 		return fmt.Errorf("TODO7")

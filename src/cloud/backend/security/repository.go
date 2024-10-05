@@ -125,14 +125,6 @@ type TagAndBlob struct {
 
 // TODO To be implemented
 type Repository interface {
-	// App and tag interface
-	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
-	ListApps() ([]MaintainerAndApp, error)
-	ListTagsOfApp(maintainer, app string) ([]string, error)
-	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
-	DeleteApp(maintainer, app string) error
-	DeleteTag(maintainer, app, tag string) error
-
 	// Group interface
 	CreateGroup(group string) error
 	ListGroups() ([]string, error)
