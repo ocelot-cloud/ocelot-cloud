@@ -48,8 +48,15 @@ func TestAppAccessDeletionCascading(t *testing.T) {
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
+	assert.Nil(t, AccessRepo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
 
-	// TODO repo.IsGroupAccessToAppTableEmpty()
+	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
+	assert.Nil(t, GroupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
+	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
 }
 
 // TODO Admins should always have access to all apps, not matter which groups they are in or not in
