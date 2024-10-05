@@ -5,6 +5,7 @@ import (
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"ocelot/backend/tools"
+	"time"
 )
 
 // TODO Can be abstracted in shared module?
@@ -38,24 +39,38 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie.SameSite = http.SameSiteLaxMode // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
 	http.SetCookie(w, cookie)
 
+	err = UserRepo.HashAndSaveCookie(creds.Username, cookie.Value, time.Now())
+	if err != nil {
+		http.Error(w, "saving cookie failed", http.StatusInternalServerError)
+		return
+	}
+
 	Logger.Debug("login successful")
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO Duplication with handleBackendApiRequest
+// TODO Duplication with handleBackendApiRequest?
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO store generated cookie in a repo and check if their value is correct.
-	_, err := r.Cookie(tools.CookieName)
+	cookie, err := r.Cookie(tools.CookieName)
 	if err != nil {
 		Logger.Debug("Cookie error: %v", err)
 		w.WriteHeader(http.StatusUnauthorized)
-	} else {
-		Logger.Debug("Cookie was okay.")
-		w.WriteHeader(http.StatusOK)
+		return
 	}
+
+	_, err = UserRepo.GetUserViaCookie(cookie.Value)
+	if err != nil {
+		http.Error(w, "cookie not found", http.StatusUnauthorized)
+		return
+	}
+
+	Logger.Debug("Cookie was okay.")
+	w.WriteHeader(http.StatusOK)
 }
 
 // TODO must be authenticated
 func getSecretHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO read user from context, generate secret and return it
 }
+
+// TODO Add cookie expiration checks
