@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-var userRepo = &UserRepositoryImpl{}
-var appRepo = &AppRepositoryImpl{}
-var groupRepo = &GroupRepositoryImpl{}
+var UserRepo = &UserRepositoryImpl{}
+var AppRepo = &AppRepositoryImpl{}
+var GroupRepo = &GroupRepositoryImpl{}
 var dbRepo = &DatabaseRepositoryImpl{}
 
 var DB *sql.DB

@@ -12,30 +12,30 @@ var (
 
 func TestGroupLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	groups, err := groupRepo.ListGroups()
+	groups, err := GroupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
 
-	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
-	groups, err = groupRepo.ListGroups()
+	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
+	groups, err = GroupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(groups))
 	assert.Equal(t, sampleGroup, groups[0])
 
-	assert.Nil(t, groupRepo.DeleteGroup(sampleGroup))
-	groups, err = groupRepo.ListGroups()
+	assert.Nil(t, GroupRepo.DeleteGroup(sampleGroup))
+	groups, err = GroupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
 }
 
 func TestListAllUsers(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	users, err := groupRepo.ListAllUsers()
+	users, err := GroupRepo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(users))
 
-	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
-	users, err = groupRepo.ListAllUsers()
+	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
+	users, err = GroupRepo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(users))
 	assert.Equal(t, sampleUser, users[0])
@@ -43,56 +43,56 @@ func TestListAllUsers(t *testing.T) {
 
 func TestAddUserToGroup(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, true))
-	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
+	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, true))
+	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
 
-	members, err := groupRepo.ListMembersOfGroup(sampleGroup)
+	members, err := GroupRepo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
 
-	assert.Nil(t, groupRepo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
 
-	members, err = groupRepo.ListMembersOfGroup(sampleGroup)
+	members, err = GroupRepo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(members))
 	assert.Equal(t, sampleUser, members[0])
 
-	assert.Nil(t, groupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
+	assert.Nil(t, GroupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
 
-	members, err = groupRepo.ListMembersOfGroup(sampleGroup)
+	members, err = GroupRepo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
-	assert.Nil(t, groupRepo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
 }
 
 func TestGiveGroupAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 
-	accessList, err := groupRepo.ListAppAccessesOfGroup(sampleGroup)
+	accessList, err := GroupRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(accessList))
 
-	assert.Nil(t, groupRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.Nil(t, GroupRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
 
-	accessList, err = groupRepo.ListAppAccessesOfGroup(sampleGroup)
+	accessList, err = GroupRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(accessList))
 	assert.Equal(t, sampleMaintainer, accessList[0].Maintainer)
 	assert.Equal(t, sampleApp, accessList[0].App)
 
-	assert.Nil(t, groupRepo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.Nil(t, GroupRepo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
 
-	accessList, err = groupRepo.ListAppAccessesOfGroup(sampleGroup)
+	accessList, err = GroupRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(accessList))
 }
 
 func TestAppAccessDeletionCascading(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
 
 	// TODO repo.IsGroupAccessToAppTableEmpty()
 }

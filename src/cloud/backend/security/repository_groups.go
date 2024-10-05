@@ -191,7 +191,7 @@ func (r *GroupRepositoryImpl) GiveGroupAccessToApp(group string, app MaintainerA
 	}
 
 	// TODO Should have MaintainerAndApp as argument. Maybe rename to AppInfo?
-	appId, err := appRepo.getAppId(app.Maintainer, app.App)
+	appId, err := AppRepo.getAppId(app.Maintainer, app.App)
 	if err != nil {
 		// TODO
 		return err
@@ -273,7 +273,7 @@ func (r *GroupRepositoryImpl) RemoveGroupsAccessToApp(group string, app Maintain
 		return err
 	}
 
-	appId, err := appRepo.getAppId(app.Maintainer, app.App)
+	appId, err := AppRepo.getAppId(app.Maintainer, app.App)
 	if err != nil {
 		// TODO
 		return err

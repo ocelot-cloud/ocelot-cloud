@@ -16,33 +16,33 @@ var (
 func TestAppLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 
-	maintainersAndApps, err := appRepo.ListApps()
+	maintainersAndApps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Nil(t, maintainersAndApps)
 
-	tags, err := appRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.NotNil(t, err)
 	assert.Nil(t, tags)
 
-	blob, err := appRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	blob, err := AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.NotNil(t, err)
 	assert.Nil(t, blob)
 
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	maintainersAndApps, err = appRepo.ListApps()
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	maintainersAndApps, err = AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.NotNil(t, maintainersAndApps)
 	assert.Equal(t, 1, len(maintainersAndApps))
 	assert.Equal(t, sampleMaintainer, maintainersAndApps[0].Maintainer)
 	assert.Equal(t, sampleApp, maintainersAndApps[0].App)
 
-	tags, err = appRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err = AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
 	assert.NotNil(t, tags)
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0])
 
-	blob, err = appRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	blob, err = AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.Nil(t, err)
 	assert.NotNil(t, blob)
 	assert.Equal(t, sampleBlob, blob)
@@ -53,14 +53,14 @@ func TestAppLifecycle(t *testing.T) {
 
 func TestDeleteApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, appRepo.DeleteApp(sampleMaintainer, sampleApp))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, AppRepo.DeleteApp(sampleMaintainer, sampleApp))
 
-	apps, err := appRepo.ListApps()
+	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Nil(t, apps)
 
-	tags, err := appRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.NotNil(t, err)
 	assert.Nil(t, tags)
 }
@@ -68,16 +68,16 @@ func TestDeleteApp(t *testing.T) {
 func TestCreatingTwoTagsInApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	sampleTag2 := "2.0"
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
 
-	app, err := appRepo.ListApps()
+	app, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(app))
 	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
 	assert.Equal(t, sampleApp, app[0].App)
 
-	tags, err := appRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(tags))
 
@@ -96,18 +96,18 @@ func contain(tags []string, expectedTag string) bool {
 
 func TestDeleteTag(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, appRepo.DeleteTag(sampleMaintainer, sampleApp, sampleTag))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, AppRepo.DeleteTag(sampleMaintainer, sampleApp, sampleTag))
 
-	maintainersAndApps, err := appRepo.ListApps()
+	maintainersAndApps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(maintainersAndApps))
 
-	tags, err := appRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
 	assert.Nil(t, tags)
 
-	blob, err := appRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	blob, err := AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.NotNil(t, err)
 	assert.Nil(t, blob)
 }

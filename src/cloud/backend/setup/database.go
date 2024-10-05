@@ -12,8 +12,6 @@ const (
 	initialAdminPasswordEnv = "INITIAL_ADMIN_PASSWORD"
 )
 
-var repo = security.Repo
-
 // TODO Maybe put that stuff in the security module? Also this isn't just security, but also other stuff. Maybe create a "repository" package?
 func InitializeDatabase(config *tools.GlobalConfig) {
 	if config.UseRealDatabase {
@@ -32,10 +30,10 @@ func InitializeDatabase(config *tools.GlobalConfig) {
 func createAdminUserIfNotExistent(adminNameEnv string, adminPasswordEnv string, createDefaultAdminUser bool) error {
 	// TODO That means I can remove the ENV variable from the TEST profile backend start in ci-runner
 	if createDefaultAdminUser {
-		return repo.CreateUser("admin", "password", true)
+		return security.UserRepo.CreateUser("admin", "password", true)
 	}
 
-	if repo.DoesAnyAdminUserExist() {
+	if security.UserRepo.DoesAnyAdminUserExist() {
 		logger.Info("There is at least one admin user in the database, so admin initialization via env variables will not be conducted.")
 		return nil
 	} else {
@@ -50,7 +48,7 @@ func createAdminsUserFromEnvs(adminNameEnv string, adminPasswordEnv string) erro
 	} else if adminPasswordEnv == "" {
 		return fmt.Errorf("necessary env variable '%s' is not set", initialAdminPasswordEnv)
 	} else {
-		err := repo.CreateUser(adminNameEnv, adminPasswordEnv, true)
+		err := security.UserRepo.CreateUser(adminNameEnv, adminPasswordEnv, true)
 		if err != nil {
 			return fmt.Errorf("initial admin user creation from env variables failed: %v", err)
 		}
