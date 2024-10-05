@@ -111,11 +111,19 @@ func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, app Maintai
 	return nil
 }
 
+// TODO should be in userRepo: GroupRepo.getUserId(user)
 func (r *AccessRepositoryImpl) DoesUserHaveAccessToApp(user string, app MaintainerAndApp) bool {
-	userId, err := GroupRepo.getUserId(user) // TODO should be in userRepo
+	var userId int
+	var isAdmin bool
+	err := DB.QueryRow("Select user_id, is_admin from users where user_name = ?", user).Scan(&userId, &isAdmin)
 	if err != nil {
-		Logger.Info("Error getting user id: %v", err)
+		// TODO log
 		return false
+	}
+
+	if isAdmin {
+		// TODO log?
+		return true
 	}
 
 	rows, err := DB.Query("SELECT group_id FROM user_to_group WHERE user_id = ?", userId)
