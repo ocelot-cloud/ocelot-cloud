@@ -54,3 +54,8 @@ func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}
 }
+
+// TODO must be authenticated
+func getSecretHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO read user from context, generate secret and return it
+}
