@@ -22,7 +22,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !Repo.IsPasswordCorrect(creds.Username, creds.Password) {
+	if !userRepo.IsPasswordCorrect(creds.Username, creds.Password) {
 		Logger.Info("password of user '%s' not matching", creds.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return

@@ -7,7 +7,11 @@ import (
 	"time"
 )
 
-var Repo Repository = &MyRepository{}
+var Repo Repository = &MyRepository{} // TODO To be removed
+var userRepo = &UserRepositoryImpl{}
+var appRepo = &AppRepositoryImpl{}
+var groupRepo = &GroupRepositoryImpl{}
+var dbRepo = &DatabaseRepositoryImpl{}
 
 var DB *sql.DB
 var DatabaseFile = shared.DataDir + "/sqlite.db"
@@ -121,18 +125,6 @@ type TagAndBlob struct {
 
 // TODO To be implemented
 type Repository interface {
-	// User interface
-	CreateUser(user, password string, isAdmin bool) error
-	WipeDatabase()
-	IsPasswordCorrect(user, password string) bool
-	DeleteUser(user string) error
-	HashAndSaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
-	Logout(user string) error
-	DoesUserExist(user string) bool
-	GetUserViaCookie(cookieValue string) (*Authorization, error)
-	DoesAnyAdminUserExist() bool
-	ChangePassword(user, newPassword string) error
-
 	// App and tag interface
 	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
 	ListApps() ([]MaintainerAndApp, error)
@@ -158,7 +150,56 @@ type Repository interface {
 	DoesUserHaveAccessToApp(user, maintainer, app string) bool
 }
 
+type DatabaseRepository interface {
+	WipeDatabase()
+	// TODO Add functions like IsTableXEmpty() or so.
+}
+
+type UserRepository interface {
+	CreateUser(user, password string, isAdmin bool) error
+	IsPasswordCorrect(user, password string) bool
+	DeleteUser(user string) error
+	HashAndSaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
+	Logout(user string) error
+	DoesUserExist(user string) bool
+	GetUserViaCookie(cookieValue string) (*Authorization, error)
+	DoesAnyAdminUserExist() bool
+	ChangePassword(user, newPassword string) error
+}
+
+type AppRepository interface {
+	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
+	ListApps() ([]MaintainerAndApp, error)
+	ListTagsOfApp(maintainer, app string) ([]string, error)
+	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
+	DeleteApp(maintainer, app string) error
+	DeleteTag(maintainer, app, tag string) error
+}
+
+type GroupRepository interface {
+	CreateGroup(group string) error
+	ListGroups() ([]string, error)
+	DeleteGroup(group string) error
+
+	ListAllUsers() ([]string, error)
+	AddUserToGroup(user, group string) error
+	ListMembersOfGroup(group string) ([]string, error)
+	RemoveUserFromGroup(user, group string) error
+
+	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
+	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
+	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error
+
+	DoesUserHaveAccessToApp(user, maintainer, app string) bool
+}
+
+// TODO To be removed
 type MyRepository struct{}
+
+type DatabaseRepositoryImpl struct{}
+type UserRepositoryImpl struct{}
+type AppRepositoryImpl struct{}
+type GroupRepositoryImpl struct{}
 
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
 // TODO idea: by default create a group "anonymous" which cant be deleted. Access to an app for members of anonymous means, that any user, even without account can access an app.

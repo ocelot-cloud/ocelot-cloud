@@ -11,7 +11,7 @@ var (
 )
 
 func TestGroupLifecycle(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	groups, err := repo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
@@ -29,12 +29,12 @@ func TestGroupLifecycle(t *testing.T) {
 }
 
 func TestListAllUsers(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	users, err := repo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(users))
 
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
 	users, err = repo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(users))
@@ -42,8 +42,8 @@ func TestListAllUsers(t *testing.T) {
 }
 
 func TestAddUserToGroup(t *testing.T) {
-	defer repo.WipeDatabase()
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, true))
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, true))
 	assert.Nil(t, repo.CreateGroup(sampleGroup))
 
 	members, err := repo.ListMembersOfGroup(sampleGroup)
@@ -66,7 +66,7 @@ func TestAddUserToGroup(t *testing.T) {
 }
 
 func TestGiveGroupAccessToApp(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	assert.Nil(t, repo.CreateGroup(sampleGroup))
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 
@@ -87,6 +87,14 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	accessList, err = repo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(accessList))
+}
+
+func TestAppAccessDeletionCascading(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	assert.Nil(t, repo.CreateGroup(sampleGroup))
+
+	// TODO repo.IsGroupAccessToAppTableEmpty()
 }
 
 // TODO After finishing the persistence layer, I should add services with business logic, which handle all unhappy path cases.

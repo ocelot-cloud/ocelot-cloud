@@ -11,7 +11,7 @@ var repo Repository = &MyRepository{}
 
 func TestMain(m *testing.M) {
 	InitializeDatabaseWithSource(":memory:")
-	repo.WipeDatabase()
+	dbRepo.WipeDatabase()
 	code := m.Run()
 	os.Exit(code)
 }
@@ -24,79 +24,79 @@ var (
 
 // TODO Finish SQLite Client Implementation And Tests
 func TestSqliteClient(t *testing.T) {
-	defer repo.WipeDatabase()
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.True(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
-	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword+"x"))
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.True(t, userRepo.IsPasswordCorrect(sampleUser, samplePassword))
+	assert.False(t, userRepo.IsPasswordCorrect(sampleUser, samplePassword+"x"))
 
-	assert.NotNil(t, repo.CreateUser(sampleUser, samplePassword+"x", false))
+	assert.NotNil(t, userRepo.CreateUser(sampleUser, samplePassword+"x", false))
 
-	assert.Nil(t, repo.DeleteUser(sampleUser))
-	assert.False(t, repo.IsPasswordCorrect(sampleUser, samplePassword))
+	assert.Nil(t, userRepo.DeleteUser(sampleUser))
+	assert.False(t, userRepo.IsPasswordCorrect(sampleUser, samplePassword))
 }
 
 func TestDoesUserExist(t *testing.T) {
-	defer repo.WipeDatabase()
-	assert.False(t, repo.DoesUserExist(sampleUser))
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.True(t, repo.DoesUserExist(sampleUser))
-	assert.Nil(t, repo.DeleteUser(sampleUser))
-	assert.False(t, repo.DoesUserExist(sampleUser))
+	defer dbRepo.WipeDatabase()
+	assert.False(t, userRepo.DoesUserExist(sampleUser))
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.True(t, userRepo.DoesUserExist(sampleUser))
+	assert.Nil(t, userRepo.DeleteUser(sampleUser))
+	assert.False(t, userRepo.DoesUserExist(sampleUser))
 }
 
 func TestGetUserWithCookie(t *testing.T) {
-	defer repo.WipeDatabase()
-	_, err := repo.GetUserViaCookie(sampleCookie)
+	defer dbRepo.WipeDatabase()
+	_, err := userRepo.GetUserViaCookie(sampleCookie)
 	assert.NotNil(t, err)
 
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-	auth, err := repo.GetUserViaCookie(sampleCookie)
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, userRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	auth, err := userRepo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
 	assert.False(t, auth.IsAdmin)
-	repo.WipeDatabase()
+	dbRepo.WipeDatabase()
 
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, true))
-	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-	auth, err = repo.GetUserViaCookie(sampleCookie)
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, true))
+	assert.Nil(t, userRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	auth, err = userRepo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
 	assert.True(t, auth.IsAdmin)
 }
 
 func TestDoesAnyAdminUserExist(t *testing.T) {
-	defer repo.WipeDatabase()
-	assert.False(t, repo.DoesAnyAdminUserExist())
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.False(t, repo.DoesAnyAdminUserExist())
-	assert.Nil(t, repo.CreateUser(sampleUser+"x", samplePassword, true))
-	assert.True(t, repo.DoesAnyAdminUserExist())
+	defer dbRepo.WipeDatabase()
+	assert.False(t, userRepo.DoesAnyAdminUserExist())
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.False(t, userRepo.DoesAnyAdminUserExist())
+	assert.Nil(t, userRepo.CreateUser(sampleUser+"x", samplePassword, true))
+	assert.True(t, userRepo.DoesAnyAdminUserExist())
 }
 
 func TestLogout(t *testing.T) {
-	defer repo.WipeDatabase()
-	assert.Nil(t, repo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, repo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
-	auth, err := repo.GetUserViaCookie(sampleCookie)
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, userRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	auth, err := userRepo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
 
-	assert.Nil(t, repo.Logout(sampleUser))
-	assert.True(t, repo.DoesUserExist(sampleUser))
-	auth, err = repo.GetUserViaCookie(sampleCookie)
+	assert.Nil(t, userRepo.Logout(sampleUser))
+	assert.True(t, userRepo.DoesUserExist(sampleUser))
+	auth, err = userRepo.GetUserViaCookie(sampleCookie)
 	assert.NotNil(t, err)
 	assert.Nil(t, auth)
 }
 
 func TestChangePassword(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	oldPassword := samplePassword
 	newPassword := samplePassword + "x"
-	assert.Nil(t, repo.CreateUser(sampleUser, oldPassword, false))
-	assert.True(t, repo.IsPasswordCorrect(sampleUser, oldPassword))
+	assert.Nil(t, userRepo.CreateUser(sampleUser, oldPassword, false))
+	assert.True(t, userRepo.IsPasswordCorrect(sampleUser, oldPassword))
 
-	assert.Nil(t, repo.ChangePassword(sampleUser, newPassword))
-	assert.False(t, repo.IsPasswordCorrect(sampleUser, oldPassword))
-	assert.True(t, repo.IsPasswordCorrect(sampleUser, newPassword))
+	assert.Nil(t, userRepo.ChangePassword(sampleUser, newPassword))
+	assert.False(t, userRepo.IsPasswordCorrect(sampleUser, oldPassword))
+	assert.True(t, userRepo.IsPasswordCorrect(sampleUser, newPassword))
 }

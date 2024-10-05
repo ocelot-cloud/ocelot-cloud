@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (r *MyRepository) DoesAnyAdminUserExist() bool {
+func (r *UserRepositoryImpl) DoesAnyAdminUserExist() bool {
 	var exists bool
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE is_admin = ?)", true).Scan(&exists)
 	if err != nil {
@@ -17,7 +17,7 @@ func (r *MyRepository) DoesAnyAdminUserExist() bool {
 	return exists
 }
 
-func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) error {
+func (r *UserRepositoryImpl) CreateUser(user string, password string, isAdmin bool) error {
 	hashedPassword, err := utils.SaltAndHash(password)
 	if err != nil {
 		return err
@@ -32,7 +32,7 @@ func (r *MyRepository) CreateUser(user string, password string, isAdmin bool) er
 
 // TODO shift to shared module
 
-func (r *MyRepository) WipeDatabase() {
+func (r *DatabaseRepositoryImpl) WipeDatabase() {
 	_, err := DB.Exec("DELETE FROM users")
 	if err != nil {
 		Logger.Fatal("Database wipe failed: %v", err)
@@ -64,7 +64,7 @@ func (r *MyRepository) WipeDatabase() {
 	}
 }
 
-func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
+func (r *UserRepositoryImpl) IsPasswordCorrect(user string, password string) bool {
 	var hashedPassword string
 	err := DB.QueryRow("SELECT hashed_password FROM users WHERE user_name = ?", user).Scan(&hashedPassword)
 	if err != nil {
@@ -80,7 +80,7 @@ func (r *MyRepository) IsPasswordCorrect(user string, password string) bool {
 	return true
 }
 
-func (r *MyRepository) DeleteUser(user string) error {
+func (r *UserRepositoryImpl) DeleteUser(user string) error {
 	_, err := DB.Exec("DELETE FROM users WHERE user_name = ?", user)
 	if err != nil {
 		Logger.Warn("Failed to delete user: %v", err)
@@ -89,7 +89,7 @@ func (r *MyRepository) DeleteUser(user string) error {
 	return nil
 }
 
-func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
+func (r *UserRepositoryImpl) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
 	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (r *MyRepository) HashAndSaveCookie(user string, cookieValue string, cookie
 	return nil
 }
 
-func (r *MyRepository) Logout(user string) error {
+func (r *UserRepositoryImpl) Logout(user string) error {
 	_, err := DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", "", "", user)
 	if err != nil {
 		Logger.Error("Failed to delete cookie of user '%s': %v", user, err)
@@ -112,7 +112,7 @@ func (r *MyRepository) Logout(user string) error {
 	return nil
 }
 
-func (r *MyRepository) DoesUserExist(user string) bool {
+func (r *UserRepositoryImpl) DoesUserExist(user string) bool {
 	var exists bool
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE user_name = ?)", user).Scan(&exists)
 	if err != nil {
@@ -123,7 +123,7 @@ func (r *MyRepository) DoesUserExist(user string) bool {
 }
 
 // TODO Test if isAdmin is correct in authorization.
-func (r *MyRepository) GetUserViaCookie(cookieValue string) (*Authorization, error) {
+func (r *UserRepositoryImpl) GetUserViaCookie(cookieValue string) (*Authorization, error) {
 	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (r *MyRepository) GetUserViaCookie(cookieValue string) (*Authorization, err
 	return &Authorization{user, isAdmin}, nil
 }
 
-func (r *MyRepository) ChangePassword(user string, newPassword string) error {
+func (r *UserRepositoryImpl) ChangePassword(user string, newPassword string) error {
 	hashedNewPassword, err := utils.SaltAndHash(newPassword)
 	if err != nil {
 		return err

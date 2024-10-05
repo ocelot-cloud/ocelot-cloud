@@ -14,7 +14,7 @@ var (
 
 // TODO Trigger already existing and not existing errors.
 func TestAppLifecycle(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 
 	maintainersAndApps, err := repo.ListApps()
 	assert.Nil(t, err)
@@ -52,7 +52,7 @@ func TestAppLifecycle(t *testing.T) {
 }
 
 func TestDeleteApp(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.DeleteApp(sampleMaintainer, sampleApp))
 
@@ -66,7 +66,7 @@ func TestDeleteApp(t *testing.T) {
 }
 
 func TestCreatingTwoTagsInApp(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	sampleTag2 := "2.0"
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
@@ -95,7 +95,7 @@ func contain(tags []string, expectedTag string) bool {
 }
 
 func TestDeleteTag(t *testing.T) {
-	defer repo.WipeDatabase()
+	defer dbRepo.WipeDatabase()
 	assert.Nil(t, repo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, repo.DeleteTag(sampleMaintainer, sampleApp, sampleTag))
 
