@@ -1,6 +1,7 @@
 package security
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 )
@@ -111,6 +112,53 @@ func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, app Maintai
 }
 
 func (r *AccessRepositoryImpl) DoesUserHaveAccessToApp(user string, app MaintainerAndApp) bool {
-	//TODO implement me
-	panic("implement me")
+	userId, err := GroupRepo.getUserId(user) // TODO should be in userRepo
+	if err != nil {
+		Logger.Info("Error getting user id: %v", err)
+		return false
+	}
+
+	rows, err := DB.Query("SELECT group_id FROM user_groups WHERE user_id = ?", userId)
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+
+	var groupIds []int
+	for rows.Next() {
+		var groupId int
+		if err = rows.Scan(&groupId); err != nil {
+			return false
+		}
+		groupIds = append(groupIds, groupId)
+	}
+
+	if len(groupIds) == 0 {
+		return false
+	}
+
+	appId, err := AppRepo.getAppId(app.Maintainer, app.App)
+	if err != nil {
+		return false
+	}
+
+	placeholders := strings.TrimSuffix(strings.Repeat("?,", len(groupIds)), ",")
+	query := fmt.Sprintf("SELECT 1 FROM app_access WHERE app_id = ? AND group_id IN (%s) LIMIT 1", placeholders)
+
+	args := make([]interface{}, len(groupIds)+1)
+	args[0] = appId
+	for i, groupId := range groupIds {
+		args[i+1] = groupId
+	}
+
+	row := DB.QueryRow(query, args...)
+	var exists int
+	err = row.Scan(&exists)
+	if err == sql.ErrNoRows {
+		return false
+	} else if err != nil {
+		return false
+	}
+
+	return true
 }

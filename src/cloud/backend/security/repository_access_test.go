@@ -27,6 +27,7 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	accessList, err = AccessRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(accessList))
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleGroup, sampleMaintainerAndApp))
 }
 
 func TestAppAccessDeletionCascading(t *testing.T) {
