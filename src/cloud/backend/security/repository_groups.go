@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func (r *MyRepository) CreateGroup(group string) error {
+func (r *GroupRepositoryImpl) CreateGroup(group string) error {
 	_, err := DB.Exec("INSERT INTO groups(group_name) VALUES (?)", group)
 	if err != nil {
 		// TODO
@@ -14,7 +14,7 @@ func (r *MyRepository) CreateGroup(group string) error {
 	return nil
 }
 
-func (r *MyRepository) ListGroups() ([]string, error) {
+func (r *GroupRepositoryImpl) ListGroups() ([]string, error) {
 	rows, err := DB.Query("SELECT group_name FROM groups")
 	if err != nil {
 		// TODO
@@ -33,7 +33,7 @@ func (r *MyRepository) ListGroups() ([]string, error) {
 	return groups, nil
 }
 
-func (r *MyRepository) DeleteGroup(group string) error {
+func (r *GroupRepositoryImpl) DeleteGroup(group string) error {
 	_, err := DB.Exec("DELETE FROM groups WHERE group_name = ?", group)
 	if err != nil {
 		// TODO
@@ -42,7 +42,7 @@ func (r *MyRepository) DeleteGroup(group string) error {
 	return nil
 }
 
-func (r *MyRepository) ListAllUsers() ([]string, error) {
+func (r *GroupRepositoryImpl) ListAllUsers() ([]string, error) {
 	rows, err := DB.Query("SELECT user_name FROM users")
 	if err != nil {
 		// TODO
@@ -61,7 +61,7 @@ func (r *MyRepository) ListAllUsers() ([]string, error) {
 }
 
 // TODO deletion cascading: when either the group or the user is deleted, this entry should be deleted as well.
-func (r *MyRepository) AddUserToGroup(user, group string) error {
+func (r *GroupRepositoryImpl) AddUserToGroup(user, group string) error {
 	userId, err := r.getUserId(user)
 	if err != nil {
 		// TODO
@@ -81,7 +81,7 @@ func (r *MyRepository) AddUserToGroup(user, group string) error {
 	return nil
 }
 
-func (r *MyRepository) getUserId(user string) (int, error) {
+func (r *GroupRepositoryImpl) getUserId(user string) (int, error) {
 	var userId int
 	err := DB.QueryRow("Select user_id from users where user_name = ?", user).Scan(&userId)
 	if err != nil {
@@ -91,7 +91,7 @@ func (r *MyRepository) getUserId(user string) (int, error) {
 	return userId, nil
 }
 
-func (r *MyRepository) getGroupId(group string) (int, error) {
+func (r *GroupRepositoryImpl) getGroupId(group string) (int, error) {
 	var groupId int
 	err := DB.QueryRow("Select group_id from groups where group_name = ?", group).Scan(&groupId)
 	if err != nil {
@@ -101,7 +101,7 @@ func (r *MyRepository) getGroupId(group string) (int, error) {
 	return groupId, nil
 }
 
-func (r *MyRepository) ListMembersOfGroup(group string) ([]string, error) {
+func (r *GroupRepositoryImpl) ListMembersOfGroup(group string) ([]string, error) {
 	groupId, err := r.getGroupId(group)
 	if err != nil {
 		// TODO
@@ -132,7 +132,7 @@ func (r *MyRepository) ListMembersOfGroup(group string) ([]string, error) {
 	return usernames, nil
 }
 
-func (r *MyRepository) getUsernamesByIDs(ids []int) ([]string, error) {
+func (r *GroupRepositoryImpl) getUsernamesByIDs(ids []int) ([]string, error) {
 	query := fmt.Sprintf("SELECT user_name FROM users WHERE user_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
 
 	args := make([]interface{}, len(ids))
@@ -160,7 +160,7 @@ func (r *MyRepository) getUsernamesByIDs(ids []int) ([]string, error) {
 	return usernames, nil
 }
 
-func (r *MyRepository) RemoveUserFromGroup(user, group string) error {
+func (r *GroupRepositoryImpl) RemoveUserFromGroup(user, group string) error {
 	// TODO Maybe abstract to getUserAndGroupId(user, group), and reuse it in other function where the same block is used.
 	userId, err := r.getUserId(user)
 	if err != nil {
@@ -183,7 +183,7 @@ func (r *MyRepository) RemoveUserFromGroup(user, group string) error {
 
 // TODO Replace maintainer + app (separate strings) with MaintainerAndApp in all repos. Probably wil be extended later.
 
-func (r *MyRepository) GiveGroupAccessToApp(group string, app MaintainerAndApp) error {
+func (r *GroupRepositoryImpl) GiveGroupAccessToApp(group string, app MaintainerAndApp) error {
 	groupId, err := r.getGroupId(group)
 	if err != nil {
 		// TODO
@@ -205,7 +205,7 @@ func (r *MyRepository) GiveGroupAccessToApp(group string, app MaintainerAndApp) 
 	return nil
 }
 
-func (r *MyRepository) ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error) {
+func (r *GroupRepositoryImpl) ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error) {
 	groupId, err := r.getGroupId(group)
 	if err != nil {
 		// TODO
@@ -237,7 +237,7 @@ func (r *MyRepository) ListAppAccessesOfGroup(group string) ([]MaintainerAndApp,
 	return apps, nil
 }
 
-func (r *MyRepository) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
+func (r *GroupRepositoryImpl) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
 	query := fmt.Sprintf("SELECT maintainer, app FROM apps WHERE app_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
 
 	args := make([]interface{}, len(ids))
@@ -266,7 +266,7 @@ func (r *MyRepository) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
 	return apps, nil
 }
 
-func (r *MyRepository) RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error {
+func (r *GroupRepositoryImpl) RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error {
 	groupId, err := r.getGroupId(group)
 	if err != nil {
 		// TODO
@@ -286,7 +286,7 @@ func (r *MyRepository) RemoveGroupsAccessToApp(group string, app MaintainerAndAp
 	return nil
 }
 
-func (r *MyRepository) DoesUserHaveAccessToApp(user, maintainer, app string) bool {
+func (r *GroupRepositoryImpl) DoesUserHaveAccessToApp(user, maintainer, app string) bool {
 	//TODO implement me
 	panic("implement me")
 }

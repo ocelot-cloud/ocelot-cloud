@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-var Repo Repository = &MyRepository{} // TODO To be removed
 var userRepo = &UserRepositoryImpl{}
 var appRepo = &AppRepositoryImpl{}
 var groupRepo = &GroupRepositoryImpl{}
@@ -123,25 +122,6 @@ type TagAndBlob struct {
 	Blob []byte
 }
 
-// TODO To be implemented
-type Repository interface {
-	// Group interface
-	CreateGroup(group string) error
-	ListGroups() ([]string, error)
-	DeleteGroup(group string) error
-
-	ListAllUsers() ([]string, error)
-	AddUserToGroup(user, group string) error
-	ListMembersOfGroup(group string) ([]string, error)
-	RemoveUserFromGroup(user, group string) error
-
-	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
-	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
-	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error
-
-	DoesUserHaveAccessToApp(user, maintainer, app string) bool
-}
-
 type DatabaseRepository interface {
 	WipeDatabase()
 	// TODO Add functions like IsTableXEmpty() or so.
@@ -184,9 +164,6 @@ type GroupRepository interface {
 
 	DoesUserHaveAccessToApp(user, maintainer, app string) bool
 }
-
-// TODO To be removed
-type MyRepository struct{}
 
 type DatabaseRepositoryImpl struct{}
 type UserRepositoryImpl struct{}

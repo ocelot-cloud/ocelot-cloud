@@ -12,30 +12,30 @@ var (
 
 func TestGroupLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	groups, err := repo.ListGroups()
+	groups, err := groupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
 
-	assert.Nil(t, repo.CreateGroup(sampleGroup))
-	groups, err = repo.ListGroups()
+	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
+	groups, err = groupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(groups))
 	assert.Equal(t, sampleGroup, groups[0])
 
-	assert.Nil(t, repo.DeleteGroup(sampleGroup))
-	groups, err = repo.ListGroups()
+	assert.Nil(t, groupRepo.DeleteGroup(sampleGroup))
+	groups, err = groupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))
 }
 
 func TestListAllUsers(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	users, err := repo.ListAllUsers()
+	users, err := groupRepo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(users))
 
 	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, false))
-	users, err = repo.ListAllUsers()
+	users, err = groupRepo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(users))
 	assert.Equal(t, sampleUser, users[0])
@@ -44,47 +44,47 @@ func TestListAllUsers(t *testing.T) {
 func TestAddUserToGroup(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, userRepo.CreateUser(sampleUser, samplePassword, true))
-	assert.Nil(t, repo.CreateGroup(sampleGroup))
+	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
 
-	members, err := repo.ListMembersOfGroup(sampleGroup)
+	members, err := groupRepo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
 
-	assert.Nil(t, repo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.Nil(t, groupRepo.AddUserToGroup(sampleUser, sampleGroup))
 
-	members, err = repo.ListMembersOfGroup(sampleGroup)
+	members, err = groupRepo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(members))
 	assert.Equal(t, sampleUser, members[0])
 
-	assert.Nil(t, repo.RemoveUserFromGroup(sampleUser, sampleGroup))
+	assert.Nil(t, groupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
 
-	members, err = repo.ListMembersOfGroup(sampleGroup)
+	members, err = groupRepo.ListMembersOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
-	assert.Nil(t, repo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.Nil(t, groupRepo.AddUserToGroup(sampleUser, sampleGroup))
 }
 
 func TestGiveGroupAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, repo.CreateGroup(sampleGroup))
+	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
 	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 
-	accessList, err := repo.ListAppAccessesOfGroup(sampleGroup)
+	accessList, err := groupRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(accessList))
 
-	assert.Nil(t, repo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.Nil(t, groupRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
 
-	accessList, err = repo.ListAppAccessesOfGroup(sampleGroup)
+	accessList, err = groupRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(accessList))
 	assert.Equal(t, sampleMaintainer, accessList[0].Maintainer)
 	assert.Equal(t, sampleApp, accessList[0].App)
 
-	assert.Nil(t, repo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.Nil(t, groupRepo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
 
-	accessList, err = repo.ListAppAccessesOfGroup(sampleGroup)
+	accessList, err = groupRepo.ListAppAccessesOfGroup(sampleGroup)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(accessList))
 }
@@ -92,7 +92,7 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 func TestAppAccessDeletionCascading(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, appRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, repo.CreateGroup(sampleGroup))
+	assert.Nil(t, groupRepo.CreateGroup(sampleGroup))
 
 	// TODO repo.IsGroupAccessToAppTableEmpty()
 }

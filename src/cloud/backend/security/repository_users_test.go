@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var repo Repository = &MyRepository{}
-
 func TestMain(m *testing.M) {
 	InitializeDatabaseWithSource(":memory:")
 	dbRepo.WipeDatabase()
