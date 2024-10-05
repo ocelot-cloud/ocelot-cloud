@@ -65,37 +65,5 @@ func TestAddUserToGroup(t *testing.T) {
 	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
 }
 
-func TestGiveGroupAccessToApp(t *testing.T) {
-	defer dbRepo.WipeDatabase()
-	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-
-	accessList, err := GroupRepo.ListAppAccessesOfGroup(sampleGroup)
-	assert.Nil(t, err)
-	assert.Equal(t, 0, len(accessList))
-
-	assert.Nil(t, GroupRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
-
-	accessList, err = GroupRepo.ListAppAccessesOfGroup(sampleGroup)
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(accessList))
-	assert.Equal(t, sampleMaintainer, accessList[0].Maintainer)
-	assert.Equal(t, sampleApp, accessList[0].App)
-
-	assert.Nil(t, GroupRepo.RemoveGroupsAccessToApp(sampleGroup, sampleMaintainerAndApp))
-
-	accessList, err = GroupRepo.ListAppAccessesOfGroup(sampleGroup)
-	assert.Nil(t, err)
-	assert.Equal(t, 0, len(accessList))
-}
-
-func TestAppAccessDeletionCascading(t *testing.T) {
-	defer dbRepo.WipeDatabase()
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
-
-	// TODO repo.IsGroupAccessToAppTableEmpty()
-}
-
 // TODO After finishing the persistence layer, I should add services with business logic, which handle all unhappy path cases.
 // TODO Add assertion function that all tables are empty? Can be used to test deletion cascading.

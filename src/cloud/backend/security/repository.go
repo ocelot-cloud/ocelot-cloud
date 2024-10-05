@@ -11,6 +11,7 @@ var UserRepo = &UserRepositoryImpl{}
 var AppRepo = &AppRepositoryImpl{}
 var GroupRepo = &GroupRepositoryImpl{}
 var dbRepo = &DatabaseRepositoryImpl{}
+var AccessRepo = &AccessRepositoryImpl{}
 
 var DB *sql.DB
 var DatabaseFile = shared.DataDir + "/sqlite.db"
@@ -124,6 +125,7 @@ type DatabaseRepository interface {
 	// TODO Add functions like IsTableXEmpty() or so.
 }
 
+// TODO Check if all methods listed here were already tested.
 type UserRepository interface {
 	CreateUser(user, password string, isAdmin bool) error
 	IsPasswordCorrect(user, password string) bool
@@ -154,17 +156,20 @@ type GroupRepository interface {
 	AddUserToGroup(user, group string) error
 	ListMembersOfGroup(group string) ([]string, error)
 	RemoveUserFromGroup(user, group string) error
+}
 
+type AccessRepository interface {
+	DoesUserHaveAccessToApp(user string, app MaintainerAndApp) bool
 	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
 	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
 	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error
-	DoesUserHaveAccessToApp(user, maintainer, app string) bool
 }
 
 type DatabaseRepositoryImpl struct{}
 type UserRepositoryImpl struct{}
 type AppRepositoryImpl struct{}
 type GroupRepositoryImpl struct{}
+type AccessRepositoryImpl struct{}
 
 // TODO for the handlers: admins should be able to delete an account. But should users be able to delete their own account? I think not. This can cause many troubles if a user does it accidentally. Maybe a feature that is disabled by default, but which can be enabled manually.
 // TODO idea: by default create a group "anonymous" which cant be deleted. Access to an app for members of anonymous means, that any user, even without account can access an app.
@@ -173,3 +178,4 @@ type GroupRepositoryImpl struct{}
 // TODO Delete duplicated argument types in functions
 // TODO Also add deletion tests. For example, when deleting OR app, in both cases tha group to app relation must be deleted as well. maybe: assert.True(t, isTableEmpty("app-to-group")) or so.
 // TODO Also check stuff like: user has access to app via group "x". Delete group so that user loses access and re-create with same name. Assert that user has no longer access.
+// TODO function: List apps that can be accessed by user.
