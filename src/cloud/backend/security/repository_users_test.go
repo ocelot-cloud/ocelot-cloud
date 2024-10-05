@@ -101,11 +101,14 @@ func TestChangePassword(t *testing.T) {
 
 func TestSecrets(t *testing.T) {
 	defer dbRepo.WipeDatabase()
+	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
 	secret, err := UserRepo.GenerateSecret(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 64, len(secret))
 
-	// TODO
+	assert.True(t, UserRepo.IsSecretCorrect(sampleUser, secret))
+	assert.Nil(t, UserRepo.RemoveSecret(sampleUser))
+	assert.False(t, UserRepo.IsSecretCorrect(sampleUser, secret))
 }
 
 // TODO Wrong user, wrong secret -> IsSecretCorrect

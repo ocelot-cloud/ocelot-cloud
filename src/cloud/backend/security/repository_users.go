@@ -158,16 +158,34 @@ func (r *UserRepositoryImpl) ChangePassword(user string, newPassword string) err
 func (r *UserRepositoryImpl) GenerateSecret(user string) (string, error) {
 	randomBytes := make([]byte, 32)
 	if _, err := rand.Read(randomBytes); err != nil {
-		Logger.Error("Failed to generate cookie: %v", err)
-		return "", err
+		Logger.Error("failed to generate secret: %v", err)
+		return "", fmt.Errorf("failed to generate secret")
 	}
-	return hex.EncodeToString(randomBytes), nil
+	secret := hex.EncodeToString(randomBytes)
+	_, err := DB.Exec("UPDATE users SET secret = ? WHERE user_name = ?", secret, user)
+	if err != nil {
+		Logger.Error("failed to to secret: %v", err)
+		return "", fmt.Errorf("failed to to secret")
+	}
+
+	return secret, nil
 }
 
 func (r *UserRepositoryImpl) IsSecretCorrect(user, secret string) bool {
-	return false
+	var repoSecret string
+	err := DB.QueryRow("SELECT secret FROM users WHERE user_name = ?", user).Scan(&repoSecret)
+	if err != nil {
+		Logger.Error("failed to fetch secret: %v", err)
+		return false
+	}
+	return repoSecret == secret
 }
 
 func (r *UserRepositoryImpl) RemoveSecret(user string) error {
+	_, err := DB.Exec("UPDATE users SET secret = ? WHERE user_name = ?", "", user)
+	if err != nil {
+		Logger.Error("failed to remove secret: %v", err)
+		return fmt.Errorf("failed to remove secret")
+	}
 	return nil
 }
