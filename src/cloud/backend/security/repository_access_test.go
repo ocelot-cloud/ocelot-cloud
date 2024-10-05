@@ -30,10 +30,26 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleGroup, sampleMaintainerAndApp))
 }
 
-func TestAppAccessDeletionCascading(t *testing.T) {
+func TestUserAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
 
 	// TODO repo.IsGroupAccessToAppTableEmpty()
 }
+
+func TestAppAccessDeletionCascading(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
+	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
+	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(sampleGroup, sampleMaintainerAndApp))
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, sampleMaintainerAndApp))
+
+	// TODO repo.IsGroupAccessToAppTableEmpty()
+}
+
+// TODO Admins should always have access to all apps, not matter which groups they are in or not in

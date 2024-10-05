@@ -118,8 +118,9 @@ func (r *AccessRepositoryImpl) DoesUserHaveAccessToApp(user string, app Maintain
 		return false
 	}
 
-	rows, err := DB.Query("SELECT group_id FROM user_groups WHERE user_id = ?", userId)
+	rows, err := DB.Query("SELECT group_id FROM user_to_group WHERE user_id = ?", userId)
 	if err != nil {
+		Logger.Info("Error getting group ids: %v", err)
 		return false
 	}
 	defer rows.Close()
