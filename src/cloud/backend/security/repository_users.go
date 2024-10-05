@@ -1,6 +1,8 @@
 package security
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 	"golang.org/x/crypto/bcrypt"
@@ -150,5 +152,22 @@ func (r *UserRepositoryImpl) ChangePassword(user string, newPassword string) err
 		Logger.Error("Failed to update password of user '%s': %v", user, err)
 		return fmt.Errorf("failed to update password")
 	}
+	return nil
+}
+
+func (r *UserRepositoryImpl) GenerateSecret(user string) (string, error) {
+	randomBytes := make([]byte, 32)
+	if _, err := rand.Read(randomBytes); err != nil {
+		Logger.Error("Failed to generate cookie: %v", err)
+		return "", err
+	}
+	return hex.EncodeToString(randomBytes), nil
+}
+
+func (r *UserRepositoryImpl) IsSecretCorrect(user, secret string) bool {
+	return false
+}
+
+func (r *UserRepositoryImpl) RemoveSecret(user string) error {
 	return nil
 }

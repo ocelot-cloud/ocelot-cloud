@@ -98,3 +98,15 @@ func TestChangePassword(t *testing.T) {
 	assert.False(t, UserRepo.IsPasswordCorrect(sampleUser, oldPassword))
 	assert.True(t, UserRepo.IsPasswordCorrect(sampleUser, newPassword))
 }
+
+func TestSecrets(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	secret, err := UserRepo.GenerateSecret(sampleUser)
+	assert.Nil(t, err)
+	assert.Equal(t, 64, len(secret))
+
+	// TODO
+}
+
+// TODO Wrong user, wrong secret -> IsSecretCorrect
+// TODO generating a second secret should have different value

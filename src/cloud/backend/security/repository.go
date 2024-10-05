@@ -40,7 +40,8 @@ func initializeTables() {
 			hashed_password VARCHAR(255) NOT NULL UNIQUE,
 			hashed_cookie_value VARCHAR(255) UNIQUE,
 			cookie_expiration_date VARCHAR(255),
-			is_admin BOOLEAN NOT NULL
+			is_admin BOOLEAN NOT NULL,
+			secret VARCHAR(255) UNIQUE
 		);
 	`)
 	if err != nil {
@@ -136,6 +137,10 @@ type UserRepository interface {
 	GetUserViaCookie(cookieValue string) (*Authorization, error)
 	DoesAnyAdminUserExist() bool
 	ChangePassword(user, newPassword string) error
+
+	GenerateSecret(user string) (string, error)
+	IsSecretCorrect(user, secret string) bool
+	RemoveSecret(user string) error
 }
 
 type AppRepository interface {
