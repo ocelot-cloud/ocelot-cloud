@@ -106,13 +106,17 @@ func TestSecrets(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 64, len(secret))
 
-	assert.Nil(t, UserRepo.CreateUser(sampleUser+"x", samplePassword, false))
-	secret2, _ := UserRepo.GenerateSecret(sampleUser + "x")
-	assert.NotEqual(t, secret, secret2)
-
 	assert.False(t, UserRepo.IsSecretCorrect(sampleUser, secret+"x"))
 	assert.False(t, UserRepo.IsSecretCorrect(sampleUser+"x", secret))
 	assert.True(t, UserRepo.IsSecretCorrect(sampleUser, secret))
 	assert.Nil(t, UserRepo.RemoveSecret(sampleUser))
 	assert.False(t, UserRepo.IsSecretCorrect(sampleUser, secret))
+}
+
+func TestSecretRandomness(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
+	secret, _ := UserRepo.GenerateSecret(sampleUser)
+	secret2, _ := UserRepo.GenerateSecret(sampleUser)
+	assert.NotEqual(t, secret, secret2)
 }
