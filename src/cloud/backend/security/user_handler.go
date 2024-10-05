@@ -1,7 +1,9 @@
 package security
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"ocelot/backend/tools"
@@ -49,23 +51,35 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO Duplication with handleBackendApiRequest?
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(tools.CookieName)
+	err := GetAuthentication(w, r)
 	if err != nil {
-		Logger.Debug("Cookie error: %v", err)
-		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
-	_, err = UserRepo.GetUserViaCookie(cookie.Value)
-	if err != nil {
-		http.Error(w, "cookie not found", http.StatusUnauthorized)
-		return
-	}
-
 	Logger.Debug("Cookie was okay.")
 	w.WriteHeader(http.StatusOK)
+}
+
+func GetAuthentication(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie(tools.CookieName)
+	if err != nil {
+		Logger.Info("cookie error: %v", err)
+		http.Error(w, "error with request cookie", http.StatusUnauthorized)
+		return fmt.Errorf("")
+	}
+
+	auth, err := UserRepo.GetUserViaCookie(cookie.Value)
+	if err != nil {
+		http.Error(w, "cookie not found", http.StatusUnauthorized)
+		return fmt.Errorf("")
+	}
+
+	// The context information is not used in an actual subsequent http request, such as when the request is proxied to
+	// an application.
+	ctx := context.WithValue(r.Context(), "auth", auth)
+	r = r.WithContext(ctx)
+
+	return nil
 }
 
 // TODO must be authenticated

@@ -68,13 +68,11 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO store generated cookie in a repo and check if their value is correct.
-	_, err := r.Cookie(tools.CookieName)
+	err := GetAuthentication(w, r)
 	if err != nil {
-		Logger.Debug("requests cookie is invalid for request: %s%s", r.Host, r.URL.Path)
-		w.WriteHeader(http.StatusUnauthorized)
-	} else {
-		Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")
-		router.ServeHTTP(w, r)
+		return
 	}
+
+	Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")
+	router.ServeHTTP(w, r)
 }
