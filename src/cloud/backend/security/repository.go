@@ -33,7 +33,6 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 	Logger.Info("Database initialized")
 }
 
-// TODO Initial design for the data model, during implementation/testing you should check if correct.
 func initializeTables() {
 	_, err := DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
