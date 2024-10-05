@@ -7,9 +7,6 @@ import (
 	"ocelot/backend/tools"
 )
 
-// TODO Make CI pipeline running again
-// TODO Make tests with real containers only when using REST API, for GUI/Acceptance tests always use the mock since it makes trouble in CI otherwise
-
 // TODO Update "shared" module version
 // TODO Consider reusing stuff from the hub, like security (potential clash with cloud package "security"), sql logic, hub client (search for apps, download, maybe upload to keep them private?)
 // TODO Implement security, there should be a policy that Origin from request header == initially defined Origin as ENV variable or default ("http://localhost:8080")
