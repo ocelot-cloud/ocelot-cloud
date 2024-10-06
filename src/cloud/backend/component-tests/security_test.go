@@ -13,14 +13,18 @@ import (
 func TestAppAccess(t *testing.T) {
 	cloud := getCloud()
 	assert.Nil(t, cloud.login())
-	cookieValue := cloud.parent.Cookie.Value
+	expectedCookieValue := cloud.parent.Cookie.Value
 
 	assert.Nil(t, cloud.startApp())
 	waitForContainer(t, cloud)
 
+	secret, err := cloud.getSecret()
+	assert.Nil(t, err)
+
 	cloud.parent.Cookie = nil
 	assertUnauthorizedAppAccess(t)
-	checkIfRedirectViaSecretWorks(t, cookieValue)
+
+	checkIfRedirectViaSecretWorks(t, secret, expectedCookieValue)
 
 	// TODO wrong cookie -> denied
 }
@@ -34,18 +38,18 @@ func assertUnauthorizedAppAccess(t *testing.T) {
 	assert.Equal(t, 401, resp.StatusCode)
 }
 
-func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
+func checkIfRedirectViaSecretWorks(t *testing.T, secret, expectedCookieValue string) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	}
-	req, err := http.NewRequest("GET", "http://nginx-default.localhost?secret="+cookieValue, nil)
+	req, err := http.NewRequest("GET", "http://nginx-default.localhost?secret="+secret, nil)
 	if err != nil {
 		logger.Error("app request failed %v: ", err)
 		t.Fail()
 	}
-	req.AddCookie(&http.Cookie{Name: "ocelot-auth", Value: cookieValue})
+	req.AddCookie(&http.Cookie{Name: "ocelot-auth", Value: secret})
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("app request failed %v: ", err)
@@ -54,7 +58,7 @@ func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
 	assert.Equal(t, 302, resp.StatusCode)
 	responseCookie := resp.Cookies()[0]
 	assert.Equal(t, tools.CookieName, responseCookie.Name)
-	assert.Equal(t, cookieValue, responseCookie.Value)
+	assert.Equal(t, expectedCookieValue, responseCookie.Value)
 	assert.Equal(t, "/", resp.Header.Get("Location"))
 }
 

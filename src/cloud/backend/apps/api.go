@@ -54,8 +54,16 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-		cookie.Name = tools.CookieName // TODO Duplication with other cookie generation call.
-		cookie.Value = urlSecret
+
+		cookieValue, err := repo.UserRepo.GetAssociatedCookieValueAndDeleteSecret(urlSecret)
+		if err != nil {
+			logger.Error("Failed to get associated cookie value or delete secret: %v", err)
+			http.Error(w, "failed to get associated cookie value or delete secret", http.StatusInternalServerError)
+			return
+		}
+
+		cookie.Name = tools.CookieName // TODO Can be removed? Duplication?
+		cookie.Value = cookieValue
 		http.SetCookie(w, cookie)
 
 		// TODO I dont have a user here. -> so the logic should be: does the secret exist? If so, delete it and use the cookie from the database here.
