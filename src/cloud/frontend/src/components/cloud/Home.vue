@@ -43,7 +43,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
 import {baseDomain, globalConfig, scheme, Stack} from "@/components/shared/global_config";
-import {doCloudRequest} from "@/components/shared/requests";
+import {doCloudRequest, doRequest} from "@/components/shared/requests";
 
 function getCookieValue(cookieName: string): string | null {
   const name = cookieName + "=";
@@ -59,15 +59,14 @@ function getCookieValue(cookieName: string): string | null {
   return null;
 }
 
+// TODO Better name.
 interface Stack2 {
   name: string;
   urlPath: string;
 }
 
 function getUrlFromStack(stack: Stack2): string {
-  const authCookie: string | null = getCookieValue('ocelot-auth');
-  const secretParam = authCookie ? `?secret=${authCookie}` : '';
-  return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}${secretParam}`;
+  return `${scheme}://${stack.name}.${baseDomain}${stack.urlPath}`;
 }
 
 
@@ -107,8 +106,14 @@ export default defineComponent({
       doCloudRequest("/api/stacks/stop", {value: name})
     };
 
-    const openNewTab = (stack: Stack) => {
-      window.open(getUrlFromStack(stack), '_blank');
+    const openNewTab = async (stack: Stack) => {
+      const response = await doCloudRequest('/api/secret', {});
+      if (!response) {
+        console.log('Error fetching secret');
+        return '';
+      }
+      const secret = response.data;
+      window.open(`${getUrlFromStack(stack)}?secret=${secret}`, '_blank');
     };
 
     const getBootstrapBackgroundClass = (state: string) => {

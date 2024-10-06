@@ -76,6 +76,7 @@ func GetRequestWithAuthContext(w http.ResponseWriter, r *http.Request) (*http.Re
 
 // TODO must be authenticated
 func SecretHandler(w http.ResponseWriter, r *http.Request) {
+	Logger.Debug("SecretHandler called")
 	auth, err := tools.GetAuthFromContext(w, r)
 	if err != nil {
 		return
