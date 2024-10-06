@@ -69,6 +69,8 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO Update cookie expiration time if cookie is valid or a valid secret was provided.
+
 	// TODO Use the auth info to allow access to the app.
 	_, err = repo.GetAuthentication(w, r)
 	if err != nil {
