@@ -32,7 +32,7 @@ func TestDefaultAdminCreation(t *testing.T) {
 	assert.True(t, UserRepo.DoesAnyAdminUserExist())
 	assert.True(t, UserRepo.IsPasswordCorrect("admin", "password"))
 
-	assert.Nil(t, UserRepo.HashAndSaveCookie("admin", "some-cookie", time.Now()))
+	assert.Nil(t, UserRepo.SaveCookie("admin", "some-cookie", time.Now()))
 	auth, err := UserRepo.GetUserViaCookie("some-cookie")
 	assert.Nil(t, err)
 	assert.Equal(t, "admin", auth.User)

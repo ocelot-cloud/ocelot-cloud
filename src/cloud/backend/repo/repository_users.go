@@ -92,13 +92,8 @@ func (r *UserRepositoryImpl) DeleteUser(user string) error {
 	return nil
 }
 
-func (r *UserRepositoryImpl) HashAndSaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
-	hashedCookieValue, err := utils.Hash(cookieValue)
-	if err != nil {
-		return err
-	}
-
-	_, err = DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", hashedCookieValue, cookieExpirationDate.Format(time.RFC3339), user)
+func (r *UserRepositoryImpl) SaveCookie(user string, cookieValue string, cookieExpirationDate time.Time) error {
+	_, err := DB.Exec("UPDATE users SET cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", cookieValue, cookieExpirationDate.Format(time.RFC3339), user)
 	if err != nil {
 		Logger.Warn("Failed to update cookie of user '%s': %v", user, err)
 		return fmt.Errorf("failed to update cookie")
@@ -107,7 +102,7 @@ func (r *UserRepositoryImpl) HashAndSaveCookie(user string, cookieValue string, 
 }
 
 func (r *UserRepositoryImpl) Logout(user string) error {
-	_, err := DB.Exec("UPDATE users SET hashed_cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", "", "", user)
+	_, err := DB.Exec("UPDATE users SET cookie_value = ?, cookie_expiration_date = ? WHERE user_name = ?", "", "", user)
 	if err != nil {
 		Logger.Error("Failed to delete cookie of user '%s': %v", user, err)
 		return fmt.Errorf("failed to delete cookie")
@@ -127,14 +122,9 @@ func (r *UserRepositoryImpl) DoesUserExist(user string) bool {
 
 // TODO Test if isAdmin is correct in authorization.
 func (r *UserRepositoryImpl) GetUserViaCookie(cookieValue string) (*tools.Authorization, error) {
-	hashedCookieValue, err := utils.Hash(cookieValue)
-	if err != nil {
-		return nil, err
-	}
-
 	var user string
 	var isAdmin bool
-	err = DB.QueryRow("SELECT user_name, is_admin FROM users WHERE hashed_cookie_value = ?", hashedCookieValue).Scan(&user, &isAdmin)
+	err := DB.QueryRow("SELECT user_name, is_admin FROM users WHERE cookie_value = ?", cookieValue).Scan(&user, &isAdmin)
 	if err != nil {
 		Logger.Error("Failed to fetch user data: %v", err)
 		return nil, fmt.Errorf("failed to fetch user data")
@@ -194,7 +184,7 @@ func (r *UserRepositoryImpl) RemoveSecret(user string) error {
 
 func (r *UserRepositoryImpl) GetAssociatedCookieValue(secret string) (string, error) {
 	var cookieValue string
-	err := DB.QueryRow("SELECT hashed_cookie_value FROM users WHERE secret = ?", secret).Scan(&cookieValue)
+	err := DB.QueryRow("SELECT cookie_value FROM users WHERE secret = ?", secret).Scan(&cookieValue)
 	if err != nil {
 		Logger.Error("failed to fetch cookie value: %v", err)
 		return "", fmt.Errorf("failed to fetch cookie value")

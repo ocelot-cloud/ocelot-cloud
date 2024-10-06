@@ -48,7 +48,7 @@ func TestGetUserWithCookie(t *testing.T) {
 	assert.NotNil(t, err)
 
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, UserRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	assert.Nil(t, UserRepo.SaveCookie(sampleUser, sampleCookie, time.Now()))
 	auth, err := UserRepo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
@@ -56,7 +56,7 @@ func TestGetUserWithCookie(t *testing.T) {
 	dbRepo.WipeDatabase()
 
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, true))
-	assert.Nil(t, UserRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	assert.Nil(t, UserRepo.SaveCookie(sampleUser, sampleCookie, time.Now()))
 	auth, err = UserRepo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
@@ -75,7 +75,7 @@ func TestDoesAnyAdminUserExist(t *testing.T) {
 func TestLogout(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, UserRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	assert.Nil(t, UserRepo.SaveCookie(sampleUser, sampleCookie, time.Now()))
 	auth, err := UserRepo.GetUserViaCookie(sampleCookie)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleUser, auth.User)
@@ -127,7 +127,7 @@ func TestSecretRandomness(t *testing.T) {
 func TestSecretValidation(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
-	assert.Nil(t, UserRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+	assert.Nil(t, UserRepo.SaveCookie(sampleUser, sampleCookie, time.Now()))
 
 	/*TODO Can't compare hashed cookie values, to be unhashed in DB first.
 	secret, err := UserRepo.GenerateSecret(sampleUser)

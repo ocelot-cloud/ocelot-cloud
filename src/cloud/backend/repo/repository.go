@@ -39,7 +39,7 @@ func initializeTables() {
 			user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_name VARCHAR(255) NOT NULL UNIQUE,
 			hashed_password VARCHAR(255) NOT NULL UNIQUE,
-			hashed_cookie_value VARCHAR(255) UNIQUE,
+			cookie_value VARCHAR(255) UNIQUE,
 			cookie_expiration_date VARCHAR(255),
 			is_admin BOOLEAN NOT NULL,
 			secret VARCHAR(255) UNIQUE
@@ -127,7 +127,7 @@ type UserRepository interface {
 	CreateUser(user, password string, isAdmin bool) error
 	IsPasswordCorrect(user, password string) bool
 	DeleteUser(user string) error
-	HashAndSaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
+	SaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
 	Logout(user string) error
 	DoesUserExist(user string) bool
 	GetUserViaCookie(cookieValue string) (*tools.Authorization, error)
