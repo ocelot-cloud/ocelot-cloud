@@ -162,26 +162,6 @@ func (r *UserRepositoryImpl) GenerateSecret(user string) (string, error) {
 	return secret, nil
 }
 
-// TODO Delete this method
-func (r *UserRepositoryImpl) IsSecretCorrect(user, secret string) bool {
-	var repoSecret string
-	err := DB.QueryRow("SELECT secret FROM users WHERE user_name = ?", user).Scan(&repoSecret)
-	if err != nil {
-		Logger.Error("failed to fetch secret: %v", err)
-		return false
-	}
-	return repoSecret == secret
-}
-
-func (r *UserRepositoryImpl) RemoveSecret(user string) error {
-	_, err := DB.Exec("UPDATE users SET secret = ? WHERE user_name = ?", "", user)
-	if err != nil {
-		Logger.Error("failed to remove secret: %v", err)
-		return fmt.Errorf("failed to remove secret")
-	}
-	return nil
-}
-
 func (r *UserRepositoryImpl) GetAssociatedCookieValueAndDeleteSecret(secret string) (string, error) {
 	var cookieValue string
 	err := DB.QueryRow("SELECT cookie_value FROM users WHERE secret = ?", secret).Scan(&cookieValue)

@@ -99,20 +99,6 @@ func TestChangePassword(t *testing.T) {
 	assert.True(t, UserRepo.IsPasswordCorrect(sampleUser, newPassword))
 }
 
-func TestSecrets(t *testing.T) {
-	defer dbRepo.WipeDatabase()
-	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
-	secret, err := UserRepo.GenerateSecret(sampleUser)
-	assert.Nil(t, err)
-	assert.Equal(t, 64, len(secret))
-
-	assert.False(t, UserRepo.IsSecretCorrect(sampleUser, secret+"x"))
-	assert.False(t, UserRepo.IsSecretCorrect(sampleUser+"x", secret))
-	assert.True(t, UserRepo.IsSecretCorrect(sampleUser, secret))
-	assert.Nil(t, UserRepo.RemoveSecret(sampleUser))
-	assert.False(t, UserRepo.IsSecretCorrect(sampleUser, secret))
-}
-
 func TestSecretRandomness(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
@@ -121,17 +107,19 @@ func TestSecretRandomness(t *testing.T) {
 	assert.NotEqual(t, secret, secret2)
 }
 
-// TODO finish test
-// TODO without a user cookie, there should be some error
-// TODO also delete "removeSecret?"
 func TestSecretValidation(t *testing.T) {
 	defer dbRepo.WipeDatabase()
+	cookieFromDb, err := UserRepo.GetAssociatedCookieValueAndDeleteSecret("invalid")
+	assert.NotNil(t, err)
+	assert.Equal(t, "", cookieFromDb)
+
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
 	assert.Nil(t, UserRepo.SaveCookie(sampleUser, sampleCookie, time.Now()))
 
 	secret, err := UserRepo.GenerateSecret(sampleUser)
 	assert.Nil(t, err)
-	cookieFromDb, err := UserRepo.GetAssociatedCookieValueAndDeleteSecret(secret)
+	assert.Equal(t, 64, len(secret))
+	cookieFromDb, err = UserRepo.GetAssociatedCookieValueAndDeleteSecret(secret)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleCookie, cookieFromDb)
 
