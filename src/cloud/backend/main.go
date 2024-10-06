@@ -29,6 +29,5 @@ func main() {
 	setup.InitializeDatabase(config)
 	router := mux.NewRouter()
 
-	setup.InitializeSecurity(router, config)
 	setup.InitializeApplication(router, config)
 }

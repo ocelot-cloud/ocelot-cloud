@@ -19,7 +19,9 @@ var (
 func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router = routerArg
 	config = configArg
-
+	
+	router.HandleFunc("/api/login", loginHandler)
+	router.HandleFunc("/api/check-auth", checkAuthHandler)
 	apps.InitializeAppService(router, config)
 	// TODO I need RegisterProtectedRoutes and RegisterUnprotectedRoutes, also aggregated all routes in a single module, so it is immediately clear what is where.
 	tools.RegisterRoutes(router, []tools.Route{

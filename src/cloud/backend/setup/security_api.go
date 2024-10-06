@@ -1,7 +1,6 @@
 package setup
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"ocelot/backend/apps"
 	"ocelot/backend/tools"
@@ -11,14 +10,6 @@ import (
 var (
 	Logger = tools.Logger
 )
-
-// TODO I think args can be deleted.
-func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
-	router = routerArg
-	config = configArg
-	router.HandleFunc("/api/login", loginHandler)
-	router.HandleFunc("/api/check-auth", checkAuthHandler)
-}
 
 // TODO Assert that you can't access any available app when you dont have a valid cookie in the request.
 func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
