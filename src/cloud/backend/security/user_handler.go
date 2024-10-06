@@ -52,7 +52,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := GetAuthentication(w, r)
+	_, err := GetRequestWithAuthContext(w, r)
 	if err != nil {
 		return
 	}
@@ -60,7 +60,21 @@ func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetAuthentication(w http.ResponseWriter, r *http.Request) (*http.Request, error) {
+func GetRequestWithAuthContext(w http.ResponseWriter, r *http.Request) (*http.Request, error) {
+	auth, err := GetAuthentication(w, r)
+	if err != nil {
+		return nil, err
+	}
+
+	// The context information is not used in an actual subsequent http request, such as when the request is proxied to
+	// an application.
+	ctx := context.WithValue(r.Context(), "auth", auth)
+	r = r.WithContext(ctx)
+
+	return r, nil
+}
+
+func GetAuthentication(w http.ResponseWriter, r *http.Request) (*tools.Authorization, error) {
 	cookie, err := r.Cookie(tools.CookieName)
 	if err != nil {
 		Logger.Info("cookie error: %v", err)
@@ -73,13 +87,7 @@ func GetAuthentication(w http.ResponseWriter, r *http.Request) (*http.Request, e
 		http.Error(w, "cookie not found", http.StatusUnauthorized)
 		return nil, fmt.Errorf("")
 	}
-
-	// The context information is not used in an actual subsequent http request, such as when the request is proxied to
-	// an application.
-	ctx := context.WithValue(r.Context(), "auth", auth)
-	r = r.WithContext(ctx)
-
-	return r, nil
+	return auth, nil
 }
 
 // TODO must be authenticated

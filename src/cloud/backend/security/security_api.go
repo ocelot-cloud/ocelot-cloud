@@ -76,7 +76,7 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r, err := GetAuthentication(w, r)
+	r, err := GetRequestWithAuthContext(w, r)
 	if err != nil {
 		return
 	}

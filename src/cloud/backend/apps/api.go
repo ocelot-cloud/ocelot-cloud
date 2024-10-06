@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+// TODO Logic looks quite complex. Maybe extract to unit and test it?
+// TODO Shouldn't this be part of security module?
 // TODO Dont use cookie anymore as secret. Create a separate one.
 // TODO Make sure to remove the ocelot cookie before proxying a request to the service behind, so that it can't read/steal it.
 func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
@@ -55,12 +57,24 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 		cookie.Value = urlSecret
 		http.SetCookie(w, cookie)
 
+		// TODO I dont have a user here. -> so the logic should be: does the secret exist? If so, delete it and use the cookie from the database here.
+
+		// TODO Also add a mechanism that makes secrets older than 5 minutes invalid.
+		// TODO Is there a ways to search for unused methods and variables? Maybe let CI fail if such are detected.
+
 		redirectURL := *r.URL
 		redirectURL.RawQuery = ""
 		http.Redirect(w, r, redirectURL.String(), http.StatusFound) // TODO write a test for that redirect.
 		return
 	}
 
+	// TODO Use the auth info to allow access to the app.
+	/*_, err = security.GetAuthentication(w, r)
+	if err != nil {
+		return
+	}
+	*/
+	// TODO I think this block can be deleted, since GetAuthentication already does the same.
 	_, err = r.Cookie(tools.CookieName)
 	if err != nil {
 		logger.Info("cookie not found")
