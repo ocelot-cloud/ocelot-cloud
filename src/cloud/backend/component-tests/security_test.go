@@ -87,14 +87,16 @@ func waitForContainer(t *testing.T, cloud *CloudClient) {
 	}
 }
 
+// TODO make thisRootURL = ENV("ROOT_URL"), default to "http://ocelot-cloud.localhost:8080"?
 func TestSecretGeneration(t *testing.T) {
-	cloud := getCloud()
-	// TODO make thisRootURL = ENV("ROOT_URL"), default to "http://ocelot-cloud.localhost:8080"
-	assert.Nil(t, cloud.login())
+	cloud := getClientAndLogin(t)
 	secret, err := cloud.getSecret()
 	assert.Nil(t, err)
-	println("secret: " + secret)
 	assert.Equal(t, 64, len(secret))
+
+	// TODO extra test?
+	secret2, _ := cloud.getSecret()
+	assert.NotEqual(t, secret, secret2)
 }
 
 // TODO Test that a secret only works once. After exchanging it against a cookie, do it a second time and it should fail.
