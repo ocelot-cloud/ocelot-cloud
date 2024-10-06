@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 	"golang.org/x/crypto/bcrypt"
+	"ocelot/backend/tools"
 	"time"
 )
 
@@ -125,7 +126,7 @@ func (r *UserRepositoryImpl) DoesUserExist(user string) bool {
 }
 
 // TODO Test if isAdmin is correct in authorization.
-func (r *UserRepositoryImpl) GetUserViaCookie(cookieValue string) (*Authorization, error) {
+func (r *UserRepositoryImpl) GetUserViaCookie(cookieValue string) (*tools.Authorization, error) {
 	hashedCookieValue, err := utils.Hash(cookieValue)
 	if err != nil {
 		return nil, err
@@ -138,7 +139,7 @@ func (r *UserRepositoryImpl) GetUserViaCookie(cookieValue string) (*Authorizatio
 		Logger.Error("Failed to fetch user data: %v", err)
 		return nil, fmt.Errorf("failed to fetch user data")
 	}
-	return &Authorization{user, isAdmin}, nil
+	return &tools.Authorization{user, isAdmin}, nil
 }
 
 func (r *UserRepositoryImpl) ChangePassword(user string, newPassword string) error {

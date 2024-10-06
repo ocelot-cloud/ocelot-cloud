@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/ocelot-cloud/shared"
+	"ocelot/backend/tools"
 	"time"
 )
 
@@ -106,11 +107,6 @@ func initializeTables() {
 	}
 }
 
-type Authorization struct {
-	User    string
-	IsAdmin bool
-}
-
 type MaintainerAndApp struct {
 	Maintainer string
 	App        string
@@ -134,7 +130,7 @@ type UserRepository interface {
 	HashAndSaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
 	Logout(user string) error
 	DoesUserExist(user string) bool
-	GetUserViaCookie(cookieValue string) (*Authorization, error)
+	GetUserViaCookie(cookieValue string) (*tools.Authorization, error)
 	DoesAnyAdminUserExist() bool
 	ChangePassword(user, newPassword string) error
 

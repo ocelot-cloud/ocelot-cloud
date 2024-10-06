@@ -22,6 +22,11 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	config = configArg
 
 	apps.InitializeAppService(router, config)
+	// TODO I need RegisterProtectedRoutes and RegisterUnprotectedRoutes, also aggregated all routes in a single module, so it is immediately clear what is where.
+	tools.RegisterRoutes(router, []tools.Route{
+		{"/secret", security.SecretHandler},
+	})
+
 	initializeDockerNetwork()
 	if config.IsGuiEnabled {
 		initializeFrontendResourceDelivery()

@@ -33,8 +33,9 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	Also remove the session cookie from the request when proxying it.
 	*/
 
+	// TODO Networking logic becomes quite complex. I should create a  separate unit and create unit tests.
 	// TODO Write a test for the domain check. All tests still pass if it is missing.
-
+	Logger.Debug("Request path: %s", r.URL.Path)
 	if isAddressedToOcelotHost(r) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			Logger.Trace("accessing ocelot backend")
@@ -50,11 +51,18 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// TODO Can some stuff be removed?
 func isAddressedToOcelotHost(r *http.Request) bool {
+	Logger.Debug("Checking host of request: %s", r.Host)
 	if config.Profile == tools.PROD {
-		return r.Host == "ocelot-cloud."+config.RootDomain // TODO Should maybe be abstracted?
+		ocelotHost := "ocelot-cloud." + config.RootDomain // TODO Should maybe be abstracted?
+		Logger.Debug("ocelot host: %s", ocelotHost)
+		Logger.Debug("request host: %s", r.Host)
+		return r.Host == ocelotHost
 	} else {
-		return r.Host == config.RootDomain+":"+config.PubliclyAvailablePort
+		host := config.RootDomain + ":" + config.PubliclyAvailablePort
+		Logger.Debug("host: %s", host)
+		return r.Host == host
 	}
 }
 
@@ -62,13 +70,13 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	// TODO Add a test that fails if one of the paths is removed?
 	// TODO abstract paths
 	// TODO This should be an outer check for the if-block below: if r.Host == "ocelot-cloud."+config.RootDomain
-	if r.URL.Path == "/api/login" || r.URL.Path == "/api/check-auth" {
+	if r.URL.Path == "/api/login" || r.URL.Path == "/api/check-auth" || r.URL.Path == "/api/stacks/wipe-data" {
 		Logger.Debug("unprotected ocelot-cloud endpoint is addressed: %s", r.URL.Path)
 		router.ServeHTTP(w, r)
 		return
 	}
 
-	err := GetAuthentication(w, r)
+	r, err := GetAuthentication(w, r)
 	if err != nil {
 		return
 	}

@@ -20,7 +20,6 @@ func TestAppAccess(t *testing.T) {
 
 	cloud.parent.Cookie = nil
 	assertUnauthorizedAppAccess(t)
-
 	checkIfRedirectViaSecretWorks(t, cookieValue)
 
 	// TODO wrong cookie -> denied
@@ -41,7 +40,6 @@ func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
 			return http.ErrUseLastResponse
 		},
 	}
-
 	req, err := http.NewRequest("GET", "http://nginx-default.localhost?secret="+cookieValue, nil)
 	if err != nil {
 		logger.Error("app request failed %v: ", err)
@@ -62,7 +60,6 @@ func checkIfRedirectViaSecretWorks(t *testing.T, cookieValue string) {
 
 func waitForContainer(t *testing.T, cloud *CloudClient) {
 	start := time.Now()
-
 	for {
 		apps, err := cloud.readApps()
 		if err != nil {
@@ -89,3 +86,16 @@ func waitForContainer(t *testing.T, cloud *CloudClient) {
 		time.Sleep(100 * time.Millisecond)
 	}
 }
+
+func TestSecretGeneration(t *testing.T) {
+	cloud := getCloud()
+	// TODO make thisRootURL = ENV("ROOT_URL"), default to "http://ocelot-cloud.localhost:8080"
+	assert.Nil(t, cloud.login())
+	secret, err := cloud.getSecret()
+	assert.Nil(t, err)
+	println("secret: " + secret)
+	assert.Equal(t, 64, len(secret))
+}
+
+// TODO Test that a secret only works once. After exchanging it against a cookie, do it a second time and it should fail.
+// TODO Make an assertion that cookie value is different from secret

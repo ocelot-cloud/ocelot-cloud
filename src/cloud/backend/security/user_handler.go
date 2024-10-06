@@ -52,7 +52,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
-	err := GetAuthentication(w, r)
+	_, err := GetAuthentication(w, r)
 	if err != nil {
 		return
 	}
@@ -60,18 +60,18 @@ func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetAuthentication(w http.ResponseWriter, r *http.Request) error {
+func GetAuthentication(w http.ResponseWriter, r *http.Request) (*http.Request, error) {
 	cookie, err := r.Cookie(tools.CookieName)
 	if err != nil {
 		Logger.Info("cookie error: %v", err)
 		http.Error(w, "error with request cookie", http.StatusUnauthorized)
-		return fmt.Errorf("")
+		return nil, fmt.Errorf("")
 	}
 
 	auth, err := UserRepo.GetUserViaCookie(cookie.Value)
 	if err != nil {
 		http.Error(w, "cookie not found", http.StatusUnauthorized)
-		return fmt.Errorf("")
+		return nil, fmt.Errorf("")
 	}
 
 	// The context information is not used in an actual subsequent http request, such as when the request is proxied to
@@ -79,12 +79,24 @@ func GetAuthentication(w http.ResponseWriter, r *http.Request) error {
 	ctx := context.WithValue(r.Context(), "auth", auth)
 	r = r.WithContext(ctx)
 
-	return nil
+	return r, nil
 }
 
 // TODO must be authenticated
-func getSecretHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO read user from context, generate secret and return it
+func SecretHandler(w http.ResponseWriter, r *http.Request) {
+	auth, err := tools.GetAuthFromContext(w, r)
+	if err != nil {
+		return
+	}
+
+	secret, err := UserRepo.GenerateSecret(auth.User)
+	if err != nil {
+		http.Error(w, "secret generation failed", http.StatusInternalServerError)
+		return
+	}
+	Logger.Debug("Secret generated: " + secret) // TODO temp
+
+	utils.SendJsonResponse(w, secret) // TODO I should use that more often instead of w.writeHeader and w.write?
 }
 
-// TODO Add cookie expiration checks
+// TODO Add cookie expiration checks and renewals.

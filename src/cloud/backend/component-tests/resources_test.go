@@ -26,6 +26,23 @@ type CloudClient struct {
 	apps           []tools.AppInfo
 }
 
+// TODO abstract paths
+
+func (c *CloudClient) getSecret() (string, error) {
+	body, err := c.parent.DoRequest("/api/secret", nil, "")
+	if err != nil {
+		return "", err
+	}
+
+	var secret string
+	err = json.Unmarshal(body.([]byte), &secret)
+	if err != nil {
+		return "", err
+	}
+
+	return secret, nil
+}
+
 func (c *CloudClient) startApp() error {
 	data := utils.SingleString{c.appToOperateOn}
 	_, err := c.parent.DoRequest("/api/stacks/deploy", data, "")
