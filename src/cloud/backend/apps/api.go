@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 	"strings"
 )
@@ -69,11 +70,11 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO Use the auth info to allow access to the app.
-	/*_, err = security.GetAuthentication(w, r)
+	_, err = repo.GetAuthentication(w, r)
 	if err != nil {
 		return
 	}
-	*/
+
 	// TODO I think this block can be deleted, since GetAuthentication already does the same.
 	_, err = r.Cookie(tools.CookieName)
 	if err != nil {

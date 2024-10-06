@@ -3,9 +3,9 @@ package security
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
+	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 	"time"
 )
@@ -25,7 +25,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !UserRepo.IsPasswordCorrect(creds.Username, creds.Password) {
+	if !repo.UserRepo.IsPasswordCorrect(creds.Username, creds.Password) {
 		Logger.Info("password of user '%s' not matching", creds.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -41,7 +41,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie.SameSite = http.SameSiteLaxMode // TODO Necessary at all? should maybe only be enabled for TEST profile, write tests for it?
 	http.SetCookie(w, cookie)
 
-	err = UserRepo.HashAndSaveCookie(creds.Username, cookie.Value, time.Now())
+	err = repo.UserRepo.HashAndSaveCookie(creds.Username, cookie.Value, time.Now())
 	if err != nil {
 		http.Error(w, "saving cookie failed", http.StatusInternalServerError)
 		return
@@ -61,7 +61,7 @@ func checkAuthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetRequestWithAuthContext(w http.ResponseWriter, r *http.Request) (*http.Request, error) {
-	auth, err := GetAuthentication(w, r)
+	auth, err := repo.GetAuthentication(w, r)
 	if err != nil {
 		return nil, err
 	}
@@ -74,22 +74,6 @@ func GetRequestWithAuthContext(w http.ResponseWriter, r *http.Request) (*http.Re
 	return r, nil
 }
 
-func GetAuthentication(w http.ResponseWriter, r *http.Request) (*tools.Authorization, error) {
-	cookie, err := r.Cookie(tools.CookieName)
-	if err != nil {
-		Logger.Info("cookie error: %v", err)
-		http.Error(w, "error with request cookie", http.StatusUnauthorized)
-		return nil, fmt.Errorf("")
-	}
-
-	auth, err := UserRepo.GetUserViaCookie(cookie.Value)
-	if err != nil {
-		http.Error(w, "cookie not found", http.StatusUnauthorized)
-		return nil, fmt.Errorf("")
-	}
-	return auth, nil
-}
-
 // TODO must be authenticated
 func SecretHandler(w http.ResponseWriter, r *http.Request) {
 	auth, err := tools.GetAuthFromContext(w, r)
@@ -97,7 +81,7 @@ func SecretHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secret, err := UserRepo.GenerateSecret(auth.User)
+	secret, err := repo.UserRepo.GenerateSecret(auth.User)
 	if err != nil {
 		http.Error(w, "secret generation failed", http.StatusInternalServerError)
 		return

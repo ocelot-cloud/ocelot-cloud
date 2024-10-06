@@ -17,7 +17,7 @@ func TestBackendCore() {
 	cli.ExecuteInDir(backendAppsDir, "go test -v -count=1 .")
 	cli.ExecuteInDir(backendAppsDir+"/download", "go test -v -count=1 ./...")
 	cli.ExecuteInDir(backendAppsDir+"/yaml", "go test -v -count=1 ./...")
-	cli.ExecuteInDir(backendSecurityDir, "go test -v -count=1 ./...")
+	cli.ExecuteInDir(backendRepoDir, "go test -v -count=1 ./...")
 	cli.ExecuteInDir(backendToolsDir, "go test -v -count=1 ./...")
 }
 

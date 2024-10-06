@@ -1,6 +1,8 @@
-package security
+package repo
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // TODO test: is app already existing
 func (r *AppRepositoryImpl) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {

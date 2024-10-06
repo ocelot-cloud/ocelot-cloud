@@ -2,14 +2,14 @@ package setup
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
-	"ocelot/backend/security"
+	"ocelot/backend/repo"
 	"os"
 	"testing"
 	"time"
 )
 
 func TestMain(m *testing.M) {
-	security.InitializeDatabaseWithSource(":memory:")
+	repo.InitializeDatabaseWithSource(":memory:")
 	repo.WipeDatabase()
 	code := m.Run()
 	os.Exit(code)

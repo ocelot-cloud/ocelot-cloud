@@ -2,7 +2,7 @@ package setup
 
 import (
 	"fmt"
-	"ocelot/backend/security"
+	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 	"os"
 )
@@ -15,9 +15,9 @@ const (
 // TODO Maybe put that stuff in the security module? Also this isn't just security, but also other stuff. Maybe create a "repository" package?
 func InitializeDatabase(config *tools.GlobalConfig) {
 	if config.UseRealDatabase {
-		security.InitializeDatabaseWithSource(security.DatabaseFile)
+		repo.InitializeDatabaseWithSource(repo.DatabaseFile)
 	} else {
-		security.InitializeDatabaseWithSource(":memory:")
+		repo.InitializeDatabaseWithSource(":memory:")
 	}
 
 	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv), config.CreateDefaultAdminUser)
@@ -30,10 +30,10 @@ func InitializeDatabase(config *tools.GlobalConfig) {
 func createAdminUserIfNotExistent(adminNameEnv string, adminPasswordEnv string, createDefaultAdminUser bool) error {
 	// TODO That means I can remove the ENV variable from the TEST profile backend start in ci-runner
 	if createDefaultAdminUser {
-		return security.UserRepo.CreateUser("admin", "password", true)
+		return repo.UserRepo.CreateUser("admin", "password", true)
 	}
 
-	if security.UserRepo.DoesAnyAdminUserExist() {
+	if repo.UserRepo.DoesAnyAdminUserExist() {
 		logger.Info("There is at least one admin user in the database, so admin initialization via env variables will not be conducted.")
 		return nil
 	} else {
@@ -48,7 +48,7 @@ func createAdminsUserFromEnvs(adminNameEnv string, adminPasswordEnv string) erro
 	} else if adminPasswordEnv == "" {
 		return fmt.Errorf("necessary env variable '%s' is not set", initialAdminPasswordEnv)
 	} else {
-		err := security.UserRepo.CreateUser(adminNameEnv, adminPasswordEnv, true)
+		err := repo.UserRepo.CreateUser(adminNameEnv, adminPasswordEnv, true)
 		if err != nil {
 			return fmt.Errorf("initial admin user creation from env variables failed: %v", err)
 		}

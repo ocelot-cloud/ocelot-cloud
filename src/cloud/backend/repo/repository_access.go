@@ -1,4 +1,4 @@
-package security
+package repo
 
 import (
 	"database/sql"
