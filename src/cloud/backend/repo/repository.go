@@ -137,7 +137,7 @@ type UserRepository interface {
 	GenerateSecret(user string) (string, error)
 	IsSecretCorrect(user, secret string) bool // TODO To be deleted
 	RemoveSecret(user string) error
-	GetAssociatedCookieValue(secret string) (string, error)
+	GetAssociatedCookieValueAndDeleteSecret(secret string) (string, error)
 }
 
 type AppRepository interface {

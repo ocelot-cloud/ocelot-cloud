@@ -129,12 +129,13 @@ func TestSecretValidation(t *testing.T) {
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
 	assert.Nil(t, UserRepo.SaveCookie(sampleUser, sampleCookie, time.Now()))
 
-	/*TODO Can't compare hashed cookie values, to be unhashed in DB first.
 	secret, err := UserRepo.GenerateSecret(sampleUser)
 	assert.Nil(t, err)
-	cookieFromDb, err := UserRepo.GetAssociatedCookieValue(secret)
+	cookieFromDb, err := UserRepo.GetAssociatedCookieValueAndDeleteSecret(secret)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleCookie, cookieFromDb)
-	*/
 
+	cookieFromDb, err = UserRepo.GetAssociatedCookieValueAndDeleteSecret(secret)
+	assert.NotNil(t, err)
+	assert.Equal(t, "", cookieFromDb)
 }

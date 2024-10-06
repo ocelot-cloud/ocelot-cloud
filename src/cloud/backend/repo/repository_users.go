@@ -182,12 +182,17 @@ func (r *UserRepositoryImpl) RemoveSecret(user string) error {
 	return nil
 }
 
-func (r *UserRepositoryImpl) GetAssociatedCookieValue(secret string) (string, error) {
+func (r *UserRepositoryImpl) GetAssociatedCookieValueAndDeleteSecret(secret string) (string, error) {
 	var cookieValue string
 	err := DB.QueryRow("SELECT cookie_value FROM users WHERE secret = ?", secret).Scan(&cookieValue)
 	if err != nil {
 		Logger.Error("failed to fetch cookie value: %v", err)
 		return "", fmt.Errorf("failed to fetch cookie value")
+	}
+	_, err = DB.Exec("UPDATE users SET secret = ? WHERE secret = ?", "", secret)
+	if err != nil {
+		Logger.Error("failed to remove secret: %v", err)
+		return "", fmt.Errorf("failed to remove secret")
 	}
 	return cookieValue, nil
 }
