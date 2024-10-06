@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"ocelot/backend/repo"
 	"ocelot/backend/setup"
 	"ocelot/backend/tools"
 )
@@ -26,7 +27,7 @@ import (
 func main() {
 	setup.VerifyCliToolInstallations()
 	config := tools.GenerateGlobalConfiguration()
-	setup.InitializeDatabase(config)
+	repo.InitializeDatabase(config)
 	router := mux.NewRouter()
 
 	setup.InitializeApplication(router, config)

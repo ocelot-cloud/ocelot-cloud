@@ -1,8 +1,7 @@
-package setup
+package repo
 
 import (
 	"fmt"
-	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 	"os"
 )
@@ -15,14 +14,14 @@ const (
 // TODO Maybe put that stuff in the security module? Also this isn't just security, but also other stuff. Maybe create a "repository" package?
 func InitializeDatabase(config *tools.GlobalConfig) {
 	if config.UseRealDatabase {
-		repo.InitializeDatabaseWithSource(repo.DatabaseFile)
+		InitializeDatabaseWithSource(DatabaseFile)
 	} else {
-		repo.InitializeDatabaseWithSource(":memory:")
+		InitializeDatabaseWithSource(":memory:")
 	}
 
 	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv), config.CreateDefaultAdminUser)
 	if err != nil {
-		logger.Fatal("Admin user initialization failed: %v", err)
+		Logger.Fatal("Admin user initialization failed: %v", err)
 	}
 }
 
@@ -30,14 +29,14 @@ func InitializeDatabase(config *tools.GlobalConfig) {
 func createAdminUserIfNotExistent(adminNameEnv string, adminPasswordEnv string, createDefaultAdminUser bool) error {
 	// TODO That means I can remove the ENV variable from the TEST profile backend start in ci-runner
 	if createDefaultAdminUser {
-		return repo.UserRepo.CreateUser("admin", "password", true)
+		return UserRepo.CreateUser("admin", "password", true)
 	}
 
-	if repo.UserRepo.DoesAnyAdminUserExist() {
-		logger.Info("There is at least one admin user in the database, so admin initialization via env variables will not be conducted.")
+	if UserRepo.DoesAnyAdminUserExist() {
+		Logger.Info("There is at least one admin user in the database, so admin initialization via env variables will not be conducted.")
 		return nil
 	} else {
-		logger.Info("Application needs at least one admin user, but none was found in database. Trying to create the admin user from env variables.")
+		Logger.Info("Application needs at least one admin user, but none was found in database. Trying to create the admin user from env variables.")
 		return createAdminsUserFromEnvs(adminNameEnv, adminPasswordEnv)
 	}
 }
@@ -48,11 +47,11 @@ func createAdminsUserFromEnvs(adminNameEnv string, adminPasswordEnv string) erro
 	} else if adminPasswordEnv == "" {
 		return fmt.Errorf("necessary env variable '%s' is not set", initialAdminPasswordEnv)
 	} else {
-		err := repo.UserRepo.CreateUser(adminNameEnv, adminPasswordEnv, true)
+		err := UserRepo.CreateUser(adminNameEnv, adminPasswordEnv, true)
 		if err != nil {
 			return fmt.Errorf("initial admin user creation from env variables failed: %v", err)
 		}
-		logger.Info("Initial admin user '%s' created", adminNameEnv)
+		Logger.Info("Initial admin user '%s' created", adminNameEnv)
 		return nil
 	}
 }
