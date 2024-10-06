@@ -120,3 +120,21 @@ func TestSecretRandomness(t *testing.T) {
 	secret2, _ := UserRepo.GenerateSecret(sampleUser)
 	assert.NotEqual(t, secret, secret2)
 }
+
+// TODO finish test
+// TODO without a user cookie, there should be some error
+// TODO also delete "removeSecret?"
+func TestSecretValidation(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
+	assert.Nil(t, UserRepo.HashAndSaveCookie(sampleUser, sampleCookie, time.Now()))
+
+	/*TODO Can't compare hashed cookie values, to be unhashed in DB first.
+	secret, err := UserRepo.GenerateSecret(sampleUser)
+	assert.Nil(t, err)
+	cookieFromDb, err := UserRepo.GetAssociatedCookieValue(secret)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleCookie, cookieFromDb)
+	*/
+
+}

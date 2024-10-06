@@ -135,8 +135,9 @@ type UserRepository interface {
 	ChangePassword(user, newPassword string) error
 
 	GenerateSecret(user string) (string, error)
-	IsSecretCorrect(user, secret string) bool
+	IsSecretCorrect(user, secret string) bool // TODO To be deleted
 	RemoveSecret(user string) error
+	GetAssociatedCookieValue(secret string) (string, error)
 }
 
 type AppRepository interface {
