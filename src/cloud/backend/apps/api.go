@@ -75,14 +75,6 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO I think this block can be deleted, since GetAuthentication already does the same.
-	_, err = r.Cookie(tools.CookieName)
-	if err != nil {
-		logger.Info("cookie not found")
-		http.Error(w, "cookie not found", http.StatusUnauthorized)
-		return
-	}
-
 	// TODO Should be "ocelot-auth" to avoid conflicts. Also abstract.
 	// TODO Tell the browser to re-do the request but without "secret" query param? Maybe via redirecting to the same URL? I dont want the secret to be exposed so long in the URL.
 
