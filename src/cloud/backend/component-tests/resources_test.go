@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
-	"ocelot/backend/security"
+	"ocelot/backend/setup"
 	"ocelot/backend/tools"
 	"os"
 	"testing"
@@ -77,7 +77,7 @@ func (c *CloudClient) stopApp() error {
 }
 
 func (c *CloudClient) login() error {
-	loginCredentials := security.Credentials{c.parent.User, c.parent.Password}
+	loginCredentials := setup.Credentials{c.parent.User, c.parent.Password}
 	// TODO should be an expected message like in the hub
 	_, err := c.parent.DoRequest("/api/login", loginCredentials, "")
 	if err != nil {

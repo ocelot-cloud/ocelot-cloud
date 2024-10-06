@@ -1,4 +1,4 @@
-package security
+package setup
 
 import (
 	"github.com/gorilla/mux"
@@ -10,10 +10,9 @@ import (
 
 var (
 	Logger = tools.Logger
-	router *mux.Router
-	config *tools.GlobalConfig
 )
 
+// TODO I think args can be deleted.
 func InitializeSecurity(routerArg *mux.Router, configArg *tools.GlobalConfig) {
 	router = routerArg
 	config = configArg

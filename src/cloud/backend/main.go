@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"ocelot/backend/security"
 	"ocelot/backend/setup"
 	"ocelot/backend/tools"
 )
@@ -30,6 +29,6 @@ func main() {
 	setup.InitializeDatabase(config)
 	router := mux.NewRouter()
 
-	security.InitializeSecurity(router, config)
+	setup.InitializeSecurity(router, config)
 	setup.InitializeApplication(router, config)
 }

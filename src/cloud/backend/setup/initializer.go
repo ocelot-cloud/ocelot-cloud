@@ -6,7 +6,6 @@ import (
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"ocelot/backend/apps"
-	"ocelot/backend/security"
 	"ocelot/backend/tools"
 	"strings"
 )
@@ -24,7 +23,7 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 	apps.InitializeAppService(router, config)
 	// TODO I need RegisterProtectedRoutes and RegisterUnprotectedRoutes, also aggregated all routes in a single module, so it is immediately clear what is where.
 	tools.RegisterRoutes(router, []tools.Route{
-		{"/secret", security.SecretHandler},
+		{"/secret", SecretHandler},
 	})
 
 	initializeDockerNetwork()
@@ -32,7 +31,7 @@ func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig)
 		initializeFrontendResourceDelivery()
 	}
 
-	var handler http.Handler = http.HandlerFunc(security.ApplyAuthMiddleware)
+	var handler http.Handler = http.HandlerFunc(ApplyAuthMiddleware)
 	if config.AreCrossOriginRequestsAllowed {
 		handler = utils.GetCorsDisablingHandler(handler)
 	}

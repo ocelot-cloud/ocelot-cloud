@@ -1,4 +1,4 @@
-package security
+package setup
 
 import (
 	"context"
@@ -86,7 +86,6 @@ func SecretHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "secret generation failed", http.StatusInternalServerError)
 		return
 	}
-	Logger.Debug("Secret generated: " + secret) // TODO temp
 
 	utils.SendJsonResponse(w, secret) // TODO I should use that more often instead of w.writeHeader and w.write?
 }
