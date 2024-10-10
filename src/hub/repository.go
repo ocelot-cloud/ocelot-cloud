@@ -67,7 +67,7 @@ func initializeDatabaseWithSource(dataSourceName string) {
 		Logger.Fatal("Failed to create tags table: %v\n", err)
 	}
 
-	Logger.Info("Database initialized")
+	Logger.Info("database initialized")
 }
 
 type Repository interface {

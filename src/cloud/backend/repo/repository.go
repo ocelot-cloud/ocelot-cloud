@@ -30,7 +30,7 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 	DB.SetMaxIdleConns(1)
 
 	initializeTables()
-	Logger.Info("Database initialized")
+	Logger.Info("database initialized")
 }
 
 func initializeTables() {

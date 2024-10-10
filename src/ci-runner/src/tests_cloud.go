@@ -71,7 +71,16 @@ func TestCi() {
 	TestBackend()
 	TestFrontend()
 	TestCloudAcceptance()
+	TestIntegration()
 	TestHubAll()
+}
+
+func TestIntegration() {
+	printTaskDescription("Testing integration between cloud and hub")
+	defer Cleanup()
+	StartDaemon(hubDir, "bash run-development-setup.sh")
+	cli.WaitUntilPortIsReady("8082")
+	cli.ExecuteInDir(cloudHubClientDir, "go test -v -count=1 ./...", getTestProfileEnv())
 }
 
 func TestBackend() {

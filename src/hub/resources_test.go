@@ -188,6 +188,7 @@ func (h *HubClient) getTags() ([]string, error) {
 	return *tags, nil
 }
 
+// TODO Maybe use that in shared module as well
 func unpackResponse[T any](object interface{}) (*T, error) {
 	respBody, ok := object.([]byte)
 	if !ok {

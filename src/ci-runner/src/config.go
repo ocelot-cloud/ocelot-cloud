@@ -17,15 +17,18 @@ const cypressCommand = "npx cypress run --spec cypress/e2e/cloud.cy.ts --headles
 var projectDir = GetProjectDir()
 var scriptsDir = projectDir + "/scripts"
 var srcDir = projectDir + "/src"
+
 var cloudDir = srcDir + "/cloud"
 var backendDir = cloudDir + "/backend"
-var backendComponentTestsDir = backendDir + "/component-tests"
 var frontendDir = cloudDir + "/frontend"
 var acceptanceTestsDir = cloudDir + "/acceptance-tests"
+
 var ocelotStackDir = backendDir + "/assets/ocelot-cloud"
 var backendAppsDir = backendDir + "/apps"
 var backendRepoDir = backendDir + "/repo"
 var backendToolsDir = backendDir + "/tools"
+var cloudHubClientDir = backendDir + "/hub"
+var backendComponentTestsDir = backendDir + "/component-tests"
 
 var hubDir = srcDir + "/hub"
 
