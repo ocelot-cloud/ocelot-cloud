@@ -72,3 +72,5 @@ func (a *AppContext) Stop() {
 		// TODO Abort download possible?
 	}
 }
+
+// TODO What do I do in case Ocelot is restarted? Or when the PC is restarted? State should remain accurate.
