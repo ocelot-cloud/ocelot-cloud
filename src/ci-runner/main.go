@@ -8,9 +8,7 @@ import (
 	"ocelot/ci-runner/src"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
 )
 
 var rootCmd = &cobra.Command{
@@ -164,7 +162,7 @@ func main() {
 	cli.DefaultEnvs = []string{"LOG_LEVEL=DEBUG"}
 	cli.CustomCleanupFunc = src.CustomCleanup
 
-	go handleSignals()
+	go cli.HandleSignals()
 	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 	pf := rootCmd.PersistentFlags()
 	pf.BoolVarP(&src.SkipBackendBuild, "skip-backend-build", "b", false, "Skip building the backend")
@@ -234,13 +232,4 @@ func failIfThereAreExistingDockerContainers() {
 	} else {
 		fmt.Println("As required for DevOps jobs, no Docker containers are deployed.")
 	}
-}
-
-func handleSignals() {
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	sig := <-sigChan
-	fmt.Printf("\nReceived signal: %v. Initiating graceful shutdown...\n", sig)
-	cli.Cleanup()
-	os.Exit(0)
 }

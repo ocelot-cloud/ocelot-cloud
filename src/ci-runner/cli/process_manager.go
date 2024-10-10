@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"syscall"
 )
 
@@ -88,3 +89,12 @@ func appendEnvsToCommand(cmd *exec.Cmd, envs []string) {
 }
 
 var DefaultEnvs []string
+
+func HandleSignals() {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-sigChan
+	fmt.Printf("\nReceived signal: %v. Initiating graceful shutdown...\n", sig)
+	Cleanup()
+	os.Exit(0)
+}
