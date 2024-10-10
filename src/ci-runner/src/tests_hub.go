@@ -13,37 +13,37 @@ func TestHubAll() {
 }
 
 func TestHubUnits() {
-	printTaskDescription("Testing hub units")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing hub units")
+	defer cli.Cleanup()
 	cli.ExecuteInDir(hubDir, "go test -tags=unit ./...", "LOG_LEVEL=DEBUG")
 }
 
 func TestHubBackend() {
-	printTaskDescription("Testing hub backend")
-	defer Cleanup()
-	StartDaemon(hubDir, "go run .", "PROFILE=TEST")
+	cli.PrintTaskDescription("Testing hub backend")
+	defer cli.Cleanup()
+	cli.StartDaemon(hubDir, "go run .", "PROFILE=TEST")
 	cli.WaitUntilPortIsReady("8082")
 	cli.ExecuteInDir(hubDir, "go test -tags=acceptance ./...")
 }
 
 func TestHubAcceptance() {
-	printTaskDescription("Testing hub backend")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing hub backend")
+	defer cli.Cleanup()
 	cli.ExecuteInDir(hubDir, "rm -rf data")
-	StartDaemon(hubDir, "bash run-development-setup.sh")
+	cli.StartDaemon(hubDir, "bash run-development-setup.sh")
 	cli.WaitUntilPortIsReady("8082")
 	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
-	cli.WaitForIndexPageToBeReady(frontendServerUrl)
+	cli.StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
+	cli.WaitForWebPageToBeReady(frontendServerUrl)
 	cli.ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
 }
 
 func TestHubPersistence() {
-	printTaskDescription("Testing hub persistence")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing hub persistence")
+	defer cli.Cleanup()
 	cli.ExecuteInDir(hubDir, "rm -rf data")
 	cli.ExecuteInDir(hubDir, "go build")
-	StartDaemon(hubDir, "./hub")
+	cli.StartDaemon(hubDir, "./hub")
 	cli.WaitUntilPortIsReady("8082")
 	cli.ExecuteInDir(hubDir, "[ -f ./data/sqlite.db ]")
 	cli.ExecuteInDir(hubDir, "[ -f ./data/logs.txt ]")

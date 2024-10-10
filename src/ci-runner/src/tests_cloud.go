@@ -12,8 +12,8 @@ const (
 )
 
 func TestBackendCore() {
-	printTaskDescription("Executing backend unit tests")
-	defer Cleanup()
+	cli.PrintTaskDescription("Executing backend unit tests")
+	defer cli.Cleanup()
 	cli.ExecuteInDir(backendAppsDir, "go test -v -count=1 .")
 	cli.ExecuteInDir(backendAppsDir+"/download", "go test -v -count=1 ./...")
 	cli.ExecuteInDir(backendAppsDir+"/yaml", "go test -v -count=1 ./...")
@@ -22,32 +22,32 @@ func TestBackendCore() {
 }
 
 func TestBackendComponentMocked() {
-	printTaskDescription("Testing mocked backend component")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing mocked backend component")
+	defer cli.Cleanup()
 	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
 	// TODO Aggregate the envs
 	// TODO Dummy stacks should not be necessary when there are mocks used.
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
+	cli.StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	cli.WaitUntilPortIsReady("8080")
 	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags functional ./...", getTestProfileEnv())
 }
 
 // TODO There are quite a lot of envs. Maybe I should refactor that into sth like "envs := getEnvs(...)".
 func TestCloudAcceptance() {
-	printTaskDescription("Testing acceptance")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing acceptance")
+	defer cli.Cleanup()
 	deployContainer(getEnableDummyStacksEnv(true))
 	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }
 
 func DeployContainer() {
-	printTaskDescription("Running a production server")
+	cli.PrintTaskDescription("Running a production server")
 	deployContainer()
 }
 
 func DeployContainerWithDummies() {
-	printTaskDescription("Running a server using dummy stacks")
+	cli.PrintTaskDescription("Running a server using dummy stacks")
 	deployContainer(getEnableDummyStacksEnv(true))
 }
 
@@ -62,12 +62,12 @@ func deployContainer(additionalEnvs ...string) {
 	}
 	envs = append(envs, additionalEnvs...)
 	dockerCmd := fmt.Sprintf("bash -c '%s && docker logs -f ocelot-cloud'", ocelotContainerRunCommandDetached)
-	StartDaemon(ocelotStackDir, dockerCmd, envs...)
-	cli.WaitForIndexPageToBeReady(ocelotUrl)
+	cli.StartDaemon(ocelotStackDir, dockerCmd, envs...)
+	cli.WaitForWebPageToBeReady(ocelotUrl)
 }
 
 func TestCi() {
-	printTaskDescription("Running CI tests")
+	cli.PrintTaskDescription("Running CI tests")
 	TestBackend()
 	TestFrontend()
 	TestCloudAcceptance()
@@ -76,9 +76,9 @@ func TestCi() {
 }
 
 func TestIntegration() {
-	printTaskDescription("Testing integration between cloud and hub")
-	defer Cleanup()
-	StartDaemon(hubDir, "bash run-development-setup.sh")
+	cli.PrintTaskDescription("Testing integration between cloud and hub")
+	defer cli.Cleanup()
+	cli.StartDaemon(hubDir, "bash run-development-setup.sh")
 	cli.WaitUntilPortIsReady("8082")
 	cli.ExecuteInDir(cloudHubClientDir, "go test -v -count=1 ./...", getTestProfileEnv())
 }
@@ -96,8 +96,8 @@ func RunScheduledTests() {
 
 // TODO Maybe dont seaprate between build tags "functional" and "security"? I want them to run together.
 func TestProdBackendApi() {
-	printTaskDescription("Testing PROD backend API with real docker service")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing PROD backend API with real docker service")
+	defer cli.Cleanup()
 	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_DATA_WIPE_ENDPOINT=true")
 	cli.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags security ./...", getProdProfileEnv())
 }
@@ -106,29 +106,25 @@ func testBackendImageDownload() {
 	cli.ExecuteInDir(backendAppsDir, "go test -v -count=1 -run TestDownloadProcessProviderReal", "IS_IMAGE_DOWNLOAD_TEST=true")
 }
 
-func printTaskDescription(text string) {
-	cli.ColoredPrintln("\n=== %s ===\n", text)
-}
-
 func TestFrontend() {
-	printTaskDescription("Testing Components In DevelopmentMode")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing Components In DevelopmentMode")
+	defer cli.Cleanup()
 	cli.ExecuteInDir(backendDir, "rm -rf data")
 	Build(Backend)
-	StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
+	cli.StartDaemon(backendDir, "./backend", getTestProfileEnv(), getEnableDummyStacksEnv(true))
 	cli.WaitUntilPortIsReady("8080")
 
 	Build(Frontend)
-	StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
-	cli.WaitForIndexPageToBeReady(frontendServerUrl)
+	cli.StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
+	cli.WaitForWebPageToBeReady(frontendServerUrl)
 	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand, "CYPRESS_PROFILE="+TestProfile)
 }
 
 func testRunScript() {
-	printTaskDescription("Testing run script")
-	defer Cleanup()
+	cli.PrintTaskDescription("Testing run script")
+	defer cli.Cleanup()
 	Build(DockerImage)
 	cli.ExecuteInDir(scriptsDir, "bash run-dummy.sh")
-	cli.WaitForIndexPageToBeReady(ocelotUrl)
+	cli.WaitForWebPageToBeReady(ocelotUrl)
 	cli.ExecuteInDir(acceptanceTestsDir, cypressCommand)
 }

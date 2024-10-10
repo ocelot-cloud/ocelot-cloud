@@ -68,7 +68,7 @@ func Build(comp COMPONENT) {
 }
 
 func DownloadDependencies() {
-	printTaskDescription("downloading dependencies")
+	cli.PrintTaskDescription("downloading dependencies")
 	cli.ExecuteInDir(acceptanceTestsDir, "npm install")
 	cli.ExecuteInDir(frontendDir, "npm install")
 	cli.ExecuteInDir(backendDir, "go mod tidy")
