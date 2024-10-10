@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var Config *GlobalConfig
+
 const CookieName = "ocelot-auth"
 
 var Logger = shared.ProvideLogger(os.Getenv("LOG_LEVEL"))
@@ -25,11 +27,10 @@ func (p *BackendProfile) String() string {
 
 type BackendComponentMode int
 
-func GenerateGlobalConfiguration() *GlobalConfig {
+func GenerateGlobalConfiguration() {
 	Profile := getProfile()
-	config := getGlobalConfigBasedOnProfile(Profile)
-	logGlobalConfig(config, Profile)
-	return &config
+	Config = getGlobalConfigBasedOnProfile(Profile)
+	logGlobalConfig(Config, Profile)
 }
 
 func getProfile() BackendProfile {
@@ -41,7 +42,7 @@ func getProfile() BackendProfile {
 	}
 }
 
-func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
+func getGlobalConfigBasedOnProfile(profile BackendProfile) *GlobalConfig {
 	config := GlobalConfig{}
 	config.Profile = profile
 	hostParams, err := getHostParams(profile, os.Getenv("HOST"))
@@ -73,7 +74,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) GlobalConfig {
 		config.OpenDataWipeEndpoint = true
 		Logger = shared.ProvideLogger("DEBUG")
 	}
-	return config
+	return &config
 }
 
 type HostParams struct {
@@ -114,7 +115,7 @@ func getHostParams(profile BackendProfile, hostEnv string) (*HostParams, error) 
 
 }
 
-func logGlobalConfig(config GlobalConfig, profile BackendProfile) {
+func logGlobalConfig(config *GlobalConfig, profile BackendProfile) {
 	if profile == PROD {
 		Logger.Info("Profile is: %s", profile.String())
 	} else {

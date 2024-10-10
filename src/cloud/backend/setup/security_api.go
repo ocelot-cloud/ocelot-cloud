@@ -36,13 +36,13 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 // TODO Can some stuff be removed?
 func isAddressedToOcelotHost(r *http.Request) bool {
 	Logger.Debug("Checking host of request: %s", r.Host)
-	if config.Profile == tools.PROD {
-		ocelotHost := "ocelot-cloud." + config.RootDomain // TODO Should maybe be abstracted?
+	if tools.Config.Profile == tools.PROD {
+		ocelotHost := "ocelot-cloud." + tools.Config.RootDomain // TODO Should maybe be abstracted?
 		Logger.Debug("ocelot host: %s", ocelotHost)
 		Logger.Debug("request host: %s", r.Host)
 		return r.Host == ocelotHost
 	} else {
-		host := config.RootDomain + ":" + config.PubliclyAvailablePort
+		host := tools.Config.RootDomain + ":" + tools.Config.PubliclyAvailablePort
 		Logger.Debug("host: %s", host)
 		return r.Host == host
 	}

@@ -26,9 +26,9 @@ import (
 
 func main() {
 	setup.VerifyCliToolInstallations()
-	config := tools.GenerateGlobalConfiguration()
-	repo.InitializeDatabase(config)
-	router := mux.NewRouter()
+	tools.GenerateGlobalConfiguration()
+	repo.InitializeDatabase()
+	Router := mux.NewRouter() // TODO Add to tools module
 
-	setup.InitializeApplication(router, config)
+	setup.InitializeApplication(Router)
 }

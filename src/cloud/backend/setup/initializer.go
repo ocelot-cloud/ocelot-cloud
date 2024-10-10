@@ -13,33 +13,31 @@ import (
 var (
 	logger = tools.Logger
 	router *mux.Router
-	config *tools.GlobalConfig
 )
 
-func InitializeApplication(routerArg *mux.Router, configArg *tools.GlobalConfig) {
+func InitializeApplication(routerArg *mux.Router) {
 	router = routerArg
-	config = configArg
-	
+
 	router.HandleFunc("/api/login", loginHandler)
 	router.HandleFunc("/api/check-auth", checkAuthHandler)
-	apps.InitializeAppService(router, config)
+	apps.InitializeAppService(router, tools.Config)
 	// TODO I need RegisterProtectedRoutes and RegisterUnprotectedRoutes, also aggregated all routes in a single module, so it is immediately clear what is where.
 	tools.RegisterRoutes(router, []tools.Route{
 		{"/secret", SecretHandler},
 	})
 
 	initializeDockerNetwork()
-	if config.IsGuiEnabled {
+	if tools.Config.IsGuiEnabled {
 		initializeFrontendResourceDelivery()
 	}
 
 	var handler http.Handler = http.HandlerFunc(ApplyAuthMiddleware)
-	if config.AreCrossOriginRequestsAllowed {
+	if tools.Config.AreCrossOriginRequestsAllowed {
 		handler = utils.GetCorsDisablingHandler(handler)
 	}
 
-	logger.Info("Starting server listening on port %s", config.BackendExecutablePort)
-	err := http.ListenAndServe(":"+config.BackendExecutablePort, handler)
+	logger.Info("Starting server listening on port %s", tools.Config.BackendExecutablePort)
+	err := http.ListenAndServe(":"+tools.Config.BackendExecutablePort, handler)
 	if err != nil {
 		logger.Fatal("Failed to start server: " + err.Error())
 	}

@@ -12,14 +12,14 @@ const (
 )
 
 // TODO Maybe put that stuff in the security module? Also this isn't just security, but also other stuff. Maybe create a "repository" package?
-func InitializeDatabase(config *tools.GlobalConfig) {
-	if config.UseRealDatabase {
+func InitializeDatabase() {
+	if tools.Config.UseRealDatabase {
 		InitializeDatabaseWithSource(DatabaseFile)
 	} else {
 		InitializeDatabaseWithSource(":memory:")
 	}
 
-	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv), config.CreateDefaultAdminUser)
+	err := createAdminUserIfNotExistent(os.Getenv(initialAdminNameEnv), os.Getenv(initialAdminPasswordEnv), tools.Config.CreateDefaultAdminUser)
 	if err != nil {
 		Logger.Fatal("Admin user initialization failed: %v", err)
 	}
