@@ -149,7 +149,7 @@ export default defineComponent({
 
     const downloadTag = async () => {
       try {
-        const response = await doHubRequest("/tags/", { user, app, tag: selectedTag.value })
+        const response = await doHubRequest("/tags/download", { user, app, tag: selectedTag.value })
         if (response != null) {
           const blob = new Blob([response.data], { type: 'application/gzip' });
           const downloadUrl = window.URL.createObjectURL(blob);
