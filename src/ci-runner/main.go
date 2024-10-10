@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/ocelot-cloud/task-runner"
 	"github.com/spf13/cobra"
 	"net"
-	"ocelot/ci-runner/cli"
 	"ocelot/ci-runner/src"
 	"os"
 	"os/exec"
@@ -26,7 +26,7 @@ var buildCmd = &cobra.Command{
 	Long:  "Builds the whole project from scratch and produces a production docker image",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.Build(src.DockerImage)
-		cli.ColoredPrintln("\nSuccess! Build worked.\n")
+		tr.ColoredPrintln("\nSuccess! Build worked.\n")
 	},
 }
 
@@ -35,8 +35,8 @@ var cleanCmd = &cobra.Command{
 	Short: "Removes processes and docker artifacts",
 	Long:  "Removes processes and docker artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
-		cli.Cleanup()
-		cli.ColoredPrintln("\nSuccess! Cleanup worked.\n")
+		tr.Cleanup()
+		tr.ColoredPrintln("\nSuccess! Cleanup worked.\n")
 	},
 }
 
@@ -77,13 +77,13 @@ var cloudCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := cloudTestTypes[inputTestType]; !exists {
-			cli.ColoredPrintln("\nerror: unknown cloud test type: %s\n", inputTestType)
-			cli.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
+			tr.ColoredPrintln("\nerror: unknown cloud test type: %s\n", inputTestType)
+			tr.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(cloudTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			cloudTestTypes[inputTestType]()
 		}
-		cli.ColoredPrintln("\nSuccess! Cloud tests passed.\n")
+		tr.ColoredPrintln("\nSuccess! Cloud tests passed.\n")
 	},
 }
 
@@ -100,7 +100,7 @@ var ciCmd = &cobra.Command{
 	Short: "Run CI-related tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.TestCi()
-		cli.ColoredPrintln("\nSuccess! CI tests passed.\n")
+		tr.ColoredPrintln("\nSuccess! CI tests passed.\n")
 	},
 }
 
@@ -113,13 +113,13 @@ var hubCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		inputTestType := args[0]
 		if _, exists := hubTestTypes[inputTestType]; !exists {
-			cli.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
-			cli.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
+			tr.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
+			tr.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
 			os.Exit(1)
 		} else {
 			hubTestTypes[inputTestType]()
 		}
-		cli.ColoredPrintln("\nSuccess! Hub tests passed.\n")
+		tr.ColoredPrintln("\nSuccess! Hub tests passed.\n")
 	},
 }
 
@@ -128,7 +128,7 @@ var scheduleCmd = &cobra.Command{
 	Short: "Run scheduled tests",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.RunScheduledTests()
-		cli.ColoredPrintln("\nSuccess! Scheduled tests passed.\n")
+		tr.ColoredPrintln("\nSuccess! Scheduled tests passed.\n")
 	},
 }
 
@@ -145,7 +145,7 @@ var deployContainerProdCmd = &cobra.Command{
 	Short: "Deploy the ocelot-cloud production container",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.DeployContainer()
-		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
+		tr.ColoredPrintln("\nSuccess! Deploy worked.\n")
 	},
 }
 
@@ -154,15 +154,15 @@ var deployContainerProdWithDummiesCmd = &cobra.Command{
 	Short: "Deploy the ocelot-cloud container with dummy stacks",
 	Run: func(cmd *cobra.Command, args []string) {
 		src.DeployContainerWithDummies()
-		cli.ColoredPrintln("\nSuccess! Deploy worked.\n")
+		tr.ColoredPrintln("\nSuccess! Deploy worked.\n")
 	},
 }
 
 func main() {
-	cli.DefaultEnvs = []string{"LOG_LEVEL=DEBUG"}
-	cli.CustomCleanupFunc = src.CustomCleanup
+	go tr.HandleSignals()
+	tr.DefaultEnvs = []string{"LOG_LEVEL=DEBUG"}
+	tr.CustomCleanupFunc = src.CustomCleanup
 
-	go cli.HandleSignals()
 	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 	pf := rootCmd.PersistentFlags()
 	pf.BoolVarP(&src.SkipBackendBuild, "skip-backend-build", "b", false, "Skip building the backend")
@@ -179,14 +179,14 @@ func main() {
 	rootCmd.AddCommand(buildCmd, testCmd, deployCmd, cleanCmd, downloadDependenciesCmd)
 
 	if shouldDoPreChecks() {
-		cli.Cleanup()
+		tr.Cleanup()
 		failIfRequiredPortsAreAlreadyInUse()
 		failIfThereAreExistingDockerContainers()
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		cli.ColoredPrintln("\nError during execution: %s\n", err.Error())
-		cli.CleanupAndExitWithError()
+		tr.ColoredPrintln("\nError during execution: %s\n", err.Error())
+		tr.CleanupAndExitWithError()
 	}
 }
 

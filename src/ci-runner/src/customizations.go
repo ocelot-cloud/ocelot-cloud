@@ -3,8 +3,8 @@ package src
 import (
 	"bytes"
 	"fmt"
+	"github.com/ocelot-cloud/task-runner"
 	"log"
-	"ocelot/ci-runner/cli"
 	"os/exec"
 	"strings"
 )
@@ -25,11 +25,11 @@ func assertThatNoProcessesSurvived() {
 	}
 	for _, line := range strings.Split(out.String(), "\n") {
 		if strings.Contains(line, "./backend") {
-			cli.ColoredPrintln("The backend daemon process was not killed after tests were completed.\n")
-			cli.CleanupAndExitWithError()
-		} else if strings.Contains(line, "vue-service") || strings.Contains(line, "vue-cli-service") {
-			cli.ColoredPrintln("The frontend daemon process was not killed after tests were completed.\n")
-			cli.CleanupAndExitWithError()
+			tr.ColoredPrintln("The backend daemon process was not killed after tests were completed.\n")
+			tr.CleanupAndExitWithError()
+		} else if strings.Contains(line, "vue-service") || strings.Contains(line, "vue-tr-service") {
+			tr.ColoredPrintln("The frontend daemon process was not killed after tests were completed.\n")
+			tr.CleanupAndExitWithError()
 		}
 	}
 }
@@ -37,7 +37,7 @@ func assertThatNoProcessesSurvived() {
 func killPotentiallyDisturbingPreExistingComponentProcesses() {
 	potentiallyPreExistingProcesses := []string{
 		"./backend",
-		"vue-cli-service",
+		"vue-tr-service",
 		"vue-service",
 		"./hub",
 		"vite",

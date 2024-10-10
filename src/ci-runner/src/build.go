@@ -2,7 +2,7 @@ package src
 
 import (
 	"fmt"
-	"ocelot/ci-runner/cli"
+	"github.com/ocelot-cloud/task-runner"
 )
 
 var (
@@ -29,20 +29,20 @@ type Component struct {
 
 var ComponentBuilds = map[COMPONENT]*Component{
 	Backend: {"backend", false, func() {
-		cli.ExecuteInDir(backendDir, "go build")
+		tr.ExecuteInDir(backendDir, "go build")
 	}},
 	Frontend: {"frontend", false, func() {
-		cli.ExecuteInDir(frontendDir, "npm run build")
+		tr.ExecuteInDir(frontendDir, "npm run build")
 	}},
 	DockerImage: {"docker image", false, func() {
 		// The flags make it executable in Docker containers
-		cli.ExecuteInDir(backendDir, "go build -ldflags '-extldflags \"-static\"'")
-		cli.ExecuteInDir(frontendDir, "npm run build")
-		cli.ExecuteInDir(projectDir, "docker rm -f ocelotcloud/ocelotcloud")
-		cli.ExecuteInDir(projectDir, "bash -c 'docker network create ocelot-net || true'")
-		cli.ExecuteInDir(projectDir, "bash -c 'if [ -z \"$(docker images -q alpine:3.18.6)\" ]; then docker pull alpine:3.18.6; fi'")
+		tr.ExecuteInDir(backendDir, "go build -ldflags '-extldflags \"-static\"'")
+		tr.ExecuteInDir(frontendDir, "npm run build")
+		tr.ExecuteInDir(projectDir, "docker rm -f ocelotcloud/ocelotcloud")
+		tr.ExecuteInDir(projectDir, "bash -c 'docker network create ocelot-net || true'")
+		tr.ExecuteInDir(projectDir, "bash -c 'if [ -z \"$(docker images -q alpine:3.18.6)\" ]; then docker pull alpine:3.18.6; fi'")
 		cmd := fmt.Sprintf("docker build -t ocelotcloud/ocelotcloud:local -f src/ci-runner/Dockerfile .")
-		cli.ExecuteInDir(projectDir, cmd)
+		tr.ExecuteInDir(projectDir, cmd)
 	}},
 }
 
@@ -60,7 +60,7 @@ func Build(comp COMPONENT) {
 	}
 	component := ComponentBuilds[comp]
 	if component.SkipBuild {
-		cli.ColoredPrintln(component.name + " build skipped")
+		tr.ColoredPrintln(component.name + " build skipped")
 	} else {
 		component.build()
 		component.SkipBuild = true
@@ -68,9 +68,9 @@ func Build(comp COMPONENT) {
 }
 
 func DownloadDependencies() {
-	cli.PrintTaskDescription("downloading dependencies")
-	cli.ExecuteInDir(acceptanceTestsDir, "npm install")
-	cli.ExecuteInDir(frontendDir, "npm install")
-	cli.ExecuteInDir(backendDir, "go mod tidy")
-	cli.ExecuteInDir(hubDir, "go mod tidy")
+	tr.PrintTaskDescription("downloading dependencies")
+	tr.ExecuteInDir(acceptanceTestsDir, "npm install")
+	tr.ExecuteInDir(frontendDir, "npm install")
+	tr.ExecuteInDir(backendDir, "go mod tidy")
+	tr.ExecuteInDir(hubDir, "go mod tidy")
 }

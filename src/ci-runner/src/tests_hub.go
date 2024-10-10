@@ -1,11 +1,9 @@
 package src
 
-import (
-	"ocelot/ci-runner/cli"
-)
+import "github.com/ocelot-cloud/task-runner"
 
 func TestHubAll() {
-	cli.ExecuteInDir(hubDir, "rm -rf data")
+	tr.ExecuteInDir(hubDir, "rm -rf data")
 	TestHubUnits()
 	TestHubBackend()
 	TestHubPersistence()
@@ -13,38 +11,38 @@ func TestHubAll() {
 }
 
 func TestHubUnits() {
-	cli.PrintTaskDescription("Testing hub units")
-	defer cli.Cleanup()
-	cli.ExecuteInDir(hubDir, "go test -tags=unit ./...", "LOG_LEVEL=DEBUG")
+	tr.PrintTaskDescription("Testing hub units")
+	defer tr.Cleanup()
+	tr.ExecuteInDir(hubDir, "go test -tags=unit ./...", "LOG_LEVEL=DEBUG")
 }
 
 func TestHubBackend() {
-	cli.PrintTaskDescription("Testing hub backend")
-	defer cli.Cleanup()
-	cli.StartDaemon(hubDir, "go run .", "PROFILE=TEST")
-	cli.WaitUntilPortIsReady("8082")
-	cli.ExecuteInDir(hubDir, "go test -tags=acceptance ./...")
+	tr.PrintTaskDescription("Testing hub backend")
+	defer tr.Cleanup()
+	tr.StartDaemon(hubDir, "go run .", "PROFILE=TEST")
+	tr.WaitUntilPortIsReady("8082")
+	tr.ExecuteInDir(hubDir, "go test -tags=acceptance ./...")
 }
 
 func TestHubAcceptance() {
-	cli.PrintTaskDescription("Testing hub backend")
-	defer cli.Cleanup()
-	cli.ExecuteInDir(hubDir, "rm -rf data")
-	cli.StartDaemon(hubDir, "bash run-development-setup.sh")
-	cli.WaitUntilPortIsReady("8082")
+	tr.PrintTaskDescription("Testing hub backend")
+	defer tr.Cleanup()
+	tr.ExecuteInDir(hubDir, "rm -rf data")
+	tr.StartDaemon(hubDir, "bash run-development-setup.sh")
+	tr.WaitUntilPortIsReady("8082")
 	Build(Frontend)
-	cli.StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
-	cli.WaitForWebPageToBeReady(frontendServerUrl)
-	cli.ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
+	tr.StartDaemon(frontendDir, "npm run serve", "VITE_APP_PROFILE="+TestProfile)
+	tr.WaitForWebPageToBeReady(frontendServerUrl)
+	tr.ExecuteInDir(acceptanceTestsDir, "npx cypress run --spec cypress/e2e/hub.cy.ts --headless")
 }
 
 func TestHubPersistence() {
-	cli.PrintTaskDescription("Testing hub persistence")
-	defer cli.Cleanup()
-	cli.ExecuteInDir(hubDir, "rm -rf data")
-	cli.ExecuteInDir(hubDir, "go build")
-	cli.StartDaemon(hubDir, "./hub")
-	cli.WaitUntilPortIsReady("8082")
-	cli.ExecuteInDir(hubDir, "[ -f ./data/sqlite.db ]")
-	cli.ExecuteInDir(hubDir, "[ -f ./data/logs.txt ]")
+	tr.PrintTaskDescription("Testing hub persistence")
+	defer tr.Cleanup()
+	tr.ExecuteInDir(hubDir, "rm -rf data")
+	tr.ExecuteInDir(hubDir, "go build")
+	tr.StartDaemon(hubDir, "./hub")
+	tr.WaitUntilPortIsReady("8082")
+	tr.ExecuteInDir(hubDir, "[ -f ./data/sqlite.db ]")
+	tr.ExecuteInDir(hubDir, "[ -f ./data/logs.txt ]")
 }
