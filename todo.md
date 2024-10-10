@@ -1,5 +1,7 @@
 # TODO
 
+* no access to app should redirect to login page
+* Use compose-go and docker sdk to communicate with the docker daemon
 * GlobalConfig and db objects should be globally available via tools.xxx
 * this should be a warning if profile is TEST: "tools/config.go:112 > Profile is: TEST"
 * security
@@ -291,3 +293,5 @@ Extract the CLI runner stuff to separate module to share with other projects. Us
 Hub Production System must run with CockroachDB.
 EnsureSchemaVersionTable() -> version the database scheme? research about database migration tools
 wrap the http server of Go, in case the API changes
+
+for later: frequent log deletion might be an interesting measure to keep the system clean and the volumes small. Centralized approach? e.g. delete files in the logs directory older than x days?

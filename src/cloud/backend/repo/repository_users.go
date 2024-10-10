@@ -146,6 +146,8 @@ func (r *UserRepositoryImpl) ChangePassword(user string, newPassword string) err
 	return nil
 }
 
+
+// TODO Delete the secret automatically after 3 seconds or so. Maybe put a simple go routine in the handler above?
 func (r *UserRepositoryImpl) GenerateSecret(user string) (string, error) {
 	randomBytes := make([]byte, 32)
 	if _, err := rand.Read(randomBytes); err != nil {
