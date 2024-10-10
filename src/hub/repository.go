@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/ocelot-cloud/shared/hub"
 	"github.com/ocelot-cloud/shared/utils"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -72,14 +71,14 @@ func initializeDatabaseWithSource(dataSourceName string) {
 }
 
 type Repository interface {
-	CreateUser(form *hub.RegistrationForm) error
+	CreateUser(form *RegistrationForm) error
 	DoesUserExist(user string) bool
 	DeleteUser(user string) error
 	IsPasswordCorrect(user string, password string) bool
 	DoesAppExist(user string, app string) bool
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
-	FindApps(query string) ([]hub.UserAndApp, error)
+	FindApps(query string) ([]UserAndApp, error)
 	HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error
 	IsCookieExpired(cookie string) bool
 	GetUserWithCookie(cookie string) (string, error)
@@ -139,7 +138,7 @@ func (u *SqliteRepository) DoesUserExist(user string) bool {
 	return exists
 }
 
-func (u *SqliteRepository) CreateUser(form *hub.RegistrationForm) error {
+func (u *SqliteRepository) CreateUser(form *RegistrationForm) error {
 	hashedPassword, err := utils.SaltAndHash(form.Password)
 	if err != nil {
 		return logAndReturnError("Failed to hash password: %v\n", err)
@@ -244,8 +243,8 @@ func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
 	return totalSize.Int64, nil
 }
 
-func (u *SqliteRepository) FindApps(query string) ([]hub.UserAndApp, error) {
-	var apps []hub.UserAndApp
+func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
+	var apps []UserAndApp
 
 	rows, err := db.Query(`
 		SELECT u.user_name, a.app_name 
@@ -261,7 +260,7 @@ func (u *SqliteRepository) FindApps(query string) ([]hub.UserAndApp, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var app hub.UserAndApp
+		var app UserAndApp
 		err := rows.Scan(&app.User, &app.App)
 		if err != nil {
 			Logger.Error("Error scanning app row: %v\n", err)

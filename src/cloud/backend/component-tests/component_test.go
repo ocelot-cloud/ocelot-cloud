@@ -18,7 +18,7 @@ import (
 func TestLogin(t *testing.T) {
 	cloud := getCloud()
 	assert.Nil(t, cloud.parent.Cookie)
-	assert.Nil(t, cloud.Login())
+	assert.Nil(t, cloud.login())
 	cookie := cloud.parent.Cookie
 	assert.NotNil(t, cookie)
 	assert.Equal(t, 64, len(cookie.Value))
