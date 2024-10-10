@@ -19,7 +19,7 @@ const (
 	Starting
 	Available
 	Stopping
-	Error // TODO In case some operation went wrong
+	Error // TODO In case some operation went wrong, but how to fix it from a users perspective? maybe use stop/prune?
 )
 
 func createAppState() *AppContext {
