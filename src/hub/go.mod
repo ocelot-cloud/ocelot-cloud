@@ -4,7 +4,7 @@ go 1.21.6
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.22
-	github.com/ocelot-cloud/shared v0.0.23
+	github.com/ocelot-cloud/shared v0.0.29
 	golang.org/x/crypto v0.26.0
 )
 
