@@ -14,15 +14,7 @@ var (
 // TODO Assert that you can't access any available app when you dont have a valid cookie in the request.
 func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	// TODO Add "Origin" header check to prevent CSRF attacks.
-
-	/* TODO
-	The secret is created and stored in the database and send to the ocelot frontend. When a requests provides
-	a valid secret, it needs to be deleted from the database afterwards.
-	For easy (but not secure) prototype, I can use the cookie as secret.
-	The secret should expire after 10 seconds or so.
-	Also remove the session cookie from the request when proxying it.
-	*/
-
+	// TODO	remove the session cookie from the request when proxying it.
 	// TODO Networking logic becomes quite complex. I should create a  separate unit and create unit tests.
 	// TODO Write a test for the domain check. All tests still pass if it is missing.
 	Logger.Debug("Request path: %s", r.URL.Path)
