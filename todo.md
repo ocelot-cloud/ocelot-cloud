@@ -294,34 +294,4 @@ Hub Production System must run with CockroachDB.
 EnsureSchemaVersionTable() -> version the database scheme? research about database migration tools
 wrap the http server of Go, in case the API changes
 
-for later: frequent log deletion might be an interesting measure to keep the system clean and the volumes small. Centralized approach? e.g. delete files in the logs directory older than x days? 
-
-code quality improvements?
-  * "go vet ./..."
-  * golangci-lint:
-    * go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-    * create .golangci.yml (see example below)
-    * golangci-lint run
-
-```yaml
-linters:
-  enable:
-    - deadcode   # Finds unused code
-    - unused     # Checks for unused variables, constants, functions, etc.
-run:
-  issues-exit-code: 1  # Exit with code 1 if any issues are found
-```
-
-  * staticcheck
-    * go install honnef.co/go/tools/cmd/staticcheck@latest
-    * staticcheck ./...
-  * Use -gcflags and -asmflags to pass options to the compiler: "go build -gcflags="-m""
-  * put code quality measures into the CI pipeline and git hooks (before push?)
-  * deadcode:
-    * go install github.com/tsenart/deadcode@latest 
-    * deadcode ./...
-  * unused
-    * go install honnef.co/go/tools/cmd/unused@latest
-    * unused ./...
-  * enforce style: "gofmt -s -w ."
-  * dependency updater -> github has a bot for that I think
+for later: frequent log deletion might be an interesting measure to keep the system clean and the volumes small. Centralized approach? e.g. delete files in the logs directory older than x days?
