@@ -17,8 +17,8 @@ func TestHubClient(t *testing.T) {
 	client := utils.ComponentClient{
 		RootUrl: "http://localhost:8082",
 	}
-	payload := utils.SingleString{"sample"}
-	responseBody, err := client.DoRequest("/apps/search", payload, "")
+
+	responseBody, err := client.DoRequest("/apps/search", utils.SingleString{"sample"}, "")
 	assert.Nil(t, err)
 
 	apps, err := unpackResponse[[]UserAndApp](responseBody)
