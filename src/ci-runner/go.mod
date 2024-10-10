@@ -1,9 +1,9 @@
 module ocelot/ci-runner
 
-go 1.22.8
+go 1.21.6
 
 require (
-	github.com/ocelot-cloud/task-runner v0.0.4
+	github.com/ocelot-cloud/task-runner v0.0.6
 	github.com/spf13/cobra v1.8.0
 )
 

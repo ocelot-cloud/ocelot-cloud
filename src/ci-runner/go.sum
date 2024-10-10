@@ -3,8 +3,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/mattn/go-shellwords v1.0.12 h1:M2zGm7EW6UQJvDeQxo4T51eKPurbeFbe8WtebGE2xrk=
 github.com/mattn/go-shellwords v1.0.12/go.mod h1:EZzvwXDESEeg03EKmM+RmDnNOPKG4lLtQsUlTZDWQ8Y=
-github.com/ocelot-cloud/task-runner v0.0.4 h1:mDPuaeJanPSEzCbt9fd0RcczDzvTMP8JDmUha7WroK4=
-github.com/ocelot-cloud/task-runner v0.0.4/go.mod h1:XPmf57jWVOfWIbjMku/nnSX3B/bViiHbn0RfVwJ/lGo=
+github.com/ocelot-cloud/task-runner v0.0.6 h1:VWQ1fa2pmTGM4NqJI49295oKbNPC2C69DTMYexMun1M=
+github.com/ocelot-cloud/task-runner v0.0.6/go.mod h1:XPmf57jWVOfWIbjMku/nnSX3B/bViiHbn0RfVwJ/lGo=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/spf13/cobra v1.8.0 h1:7aJaZx1B85qltLMc546zn58BxxfZdR/W22ej9CFoEf0=
 github.com/spf13/cobra v1.8.0/go.mod h1:WXLWApfZ71AjXPya3WOlMsY9yMs7YeiHhFVlvLyhcho=
