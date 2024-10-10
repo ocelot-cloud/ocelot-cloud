@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ocelot-cloud/shared/hub"
 	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
@@ -30,12 +31,12 @@ func readBody[T any](r *http.Request) (*T, error) {
 
 	var jobs []ValidationJob
 	switch v := any(result).(type) {
-	case UserAndApp:
+	case hub.UserAndApp:
 		jobs = []ValidationJob{
 			{v.User, User},
 			{v.App, App},
 		}
-	case RegistrationForm:
+	case hub.RegistrationForm:
 		jobs = []ValidationJob{
 			{v.User, User},
 			{v.Password, Password},
@@ -46,19 +47,19 @@ func readBody[T any](r *http.Request) (*T, error) {
 			{v.OldPassword, Password},
 			{v.NewPassword, Password},
 		}
-	case LoginCredentials:
+	case hub.LoginCredentials:
 		jobs = []ValidationJob{
 			{v.User, User},
 			{v.Password, Password},
 			{v.Origin, Origin},
 		}
-	case TagInfo:
+	case hub.TagInfo:
 		jobs = []ValidationJob{
 			{v.User, User},
 			{v.App, App},
 			{v.Tag, Tag},
 		}
-	case AppAndTag:
+	case hub.AppAndTag:
 		jobs = []ValidationJob{
 			{v.App, App},
 			{v.Tag, Tag},

@@ -127,7 +127,7 @@ func getState(stackName string, appInfo *[]tools.AppInfo) string {
 
 func getClientAndLogin(t *testing.T) *CloudClient {
 	cloud := getCloud()
-	assert.Nil(t, cloud.login())
+	assert.Nil(t, cloud.Login())
 	assert.Nil(t, cloud.wipeData())
 	return cloud
 }

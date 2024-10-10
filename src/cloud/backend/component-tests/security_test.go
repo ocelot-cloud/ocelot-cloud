@@ -12,7 +12,7 @@ import (
 
 func TestAppAccess(t *testing.T) {
 	cloud := getCloud()
-	assert.Nil(t, cloud.login())
+	assert.Nil(t, cloud.Login())
 	expectedCookieValue := cloud.parent.Cookie.Value
 
 	assert.Nil(t, cloud.startApp())

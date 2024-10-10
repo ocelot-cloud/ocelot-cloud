@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ocelot-cloud/shared/hub"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"time"
@@ -12,7 +13,7 @@ const (
 )
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	creds, err := readBody[LoginCredentials](r)
+	creds, err := readBody[hub.LoginCredentials](r)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -92,7 +93,7 @@ func userDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func registrationHandler(w http.ResponseWriter, r *http.Request) {
-	form, err := readBody[RegistrationForm](r)
+	form, err := readBody[hub.RegistrationForm](r)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)

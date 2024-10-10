@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ocelot-cloud/shared/hub"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 )
@@ -16,7 +17,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxPayloadSize)
 	defer r.Body.Close()
 
-	var tagUpload TagUpload
+	var tagUpload hub.TagUpload
 	err := json.NewDecoder(r.Body).Decode(&tagUpload)
 	if err != nil {
 		if err.Error() == "http: request body too large" {
@@ -79,7 +80,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromContext(r)
 
-	tagInfo, err := readBody[AppAndTag](r)
+	tagInfo, err := readBody[hub.AppAndTag](r)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -103,7 +104,7 @@ func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTagsHandler(w http.ResponseWriter, r *http.Request) {
-	userAndApp, err := readBody[UserAndApp](r)
+	userAndApp, err := readBody[hub.UserAndApp](r)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -133,7 +134,7 @@ func getTagsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	tagInfo, err := readBody[TagInfo](r)
+	tagInfo, err := readBody[hub.TagInfo](r)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)

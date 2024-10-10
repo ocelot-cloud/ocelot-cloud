@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/ocelot-cloud/shared"
+	"github.com/ocelot-cloud/shared/hub"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
 	"os"
@@ -18,8 +19,8 @@ func main() {
 	mux := http.NewServeMux()
 	initializeHandlers(mux)
 
-	Logger.Info("Server starting on port %s", port)
-	err := http.ListenAndServe(":"+port, utils.GetCorsDisablingHandler(mux))
+	Logger.Info("Server starting on port %s", hub.Port)
+	err := http.ListenAndServe(":"+hub.Port, utils.GetCorsDisablingHandler(mux))
 	if err != nil {
 		Logger.Fatal("Server stopped: %v", err)
 	}
@@ -52,31 +53,31 @@ type Route struct {
 
 func initializeHandlers(mux *http.ServeMux) {
 	unprotectedRoutes := []Route{
-		{loginPath, loginHandler},
-		{registrationPath, registrationHandler},
-		{downloadPath, downloadHandler},
-		{getTagsPath, getTagsHandler},
-		{searchAppsPath, searchAppsHandler},
+		{hub.LoginPath, loginHandler},
+		{hub.RegistrationPath, registrationHandler},
+		{hub.DownloadPath, downloadHandler},
+		{hub.GetTagsPath, getTagsHandler},
+		{hub.SearchAppsPath, searchAppsHandler},
 	}
 
 	protectedRoutes := []Route{
-		{authCheckPath, authCheckHandler},
-		{tagUploadPath, tagUploadHandler},
-		{tagDeletePath, tagDeleteHandler},
-		{changePasswordPath, changePasswordHandler},
-		{appCreationPath, appCreationHandler},
-		{appGetListPath, appGetListHandler},
-		{appDeletePath, appDeleteHandler},
-		{deleteUserPath, userDeleteHandler},
-		{logoutPath, logoutHandler},
+		{hub.AuthCheckPath, authCheckHandler},
+		{hub.TagUploadPath, tagUploadHandler},
+		{hub.TagDeletePath, tagDeleteHandler},
+		{hub.ChangePasswordPath, changePasswordHandler},
+		{hub.AppCreationPath, appCreationHandler},
+		{hub.AppGetListPath, appGetListHandler},
+		{hub.AppDeletePath, appDeleteHandler},
+		{hub.DeleteUserPath, userDeleteHandler},
+		{hub.LogoutPath, logoutHandler},
 	}
 
 	if profile == TEST {
 		Logger.Warn("opening unprotected full data wipe endpoint meant for testing only")
-		unprotectedRoutes = append(unprotectedRoutes, Route{wipeDataPath, wipeDataHandler})
+		unprotectedRoutes = append(unprotectedRoutes, Route{hub.WipeDataPath, wipeDataHandler})
 
 		sampleUser := "sample"
-		err := repo.CreateUser(&RegistrationForm{sampleUser, "password", "admin@admin.com"})
+		err := repo.CreateUser(&hub.RegistrationForm{sampleUser, "password", "admin@admin.com"})
 		if err != nil {
 			Logger.Fatal("Failed to create '%s' user: %v.", sampleUser, err)
 		}
