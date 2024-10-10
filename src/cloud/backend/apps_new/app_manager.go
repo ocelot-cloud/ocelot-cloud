@@ -14,6 +14,8 @@ var logger = tools.Logger
 type State int
 
 const (
+	// TODO I also need a state for: "Stopped" implying there is still data. Stopped + "action: prune" -> Uninitialized
+	// TODO "prune" deletes everything: image, network, volume, container
 	Uninitialized State = iota
 	Downloading
 	Starting
