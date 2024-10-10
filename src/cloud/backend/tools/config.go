@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/ocelot-cloud/shared"
 	"net/url"
 	"os"
@@ -9,6 +10,7 @@ import (
 )
 
 var Config *GlobalConfig
+var Router = mux.NewRouter()
 
 const CookieName = "ocelot-auth"
 
@@ -30,7 +32,7 @@ type BackendComponentMode int
 func GenerateGlobalConfiguration() {
 	Profile := getProfile()
 	Config = getGlobalConfigBasedOnProfile(Profile)
-	logGlobalConfig(Config, Profile)
+	logGlobalVariables(Config, Profile)
 }
 
 func getProfile() BackendProfile {
@@ -115,7 +117,7 @@ func getHostParams(profile BackendProfile, hostEnv string) (*HostParams, error) 
 
 }
 
-func logGlobalConfig(config *GlobalConfig, profile BackendProfile) {
+func logGlobalVariables(config *GlobalConfig, profile BackendProfile) {
 	if profile == PROD {
 		Logger.Info("Profile is: %s", profile.String())
 	} else {

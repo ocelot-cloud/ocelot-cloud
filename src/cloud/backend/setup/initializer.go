@@ -1,7 +1,6 @@
 package setup
 
 import (
-	"github.com/gorilla/mux" // TODO To be wrapped?
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
@@ -12,17 +11,14 @@ import (
 
 var (
 	logger = tools.Logger
-	router *mux.Router
 )
 
-func InitializeApplication(routerArg *mux.Router) {
-	router = routerArg
-
-	router.HandleFunc("/api/login", loginHandler)
-	router.HandleFunc("/api/check-auth", checkAuthHandler)
-	apps.InitializeAppService(router, tools.Config)
+func InitializeApplication() {
+	tools.Router.HandleFunc("/api/login", loginHandler)
+	tools.Router.HandleFunc("/api/check-auth", checkAuthHandler)
+	apps.InitializeAppService()
 	// TODO I need RegisterProtectedRoutes and RegisterUnprotectedRoutes, also aggregated all routes in a single module, so it is immediately clear what is where.
-	tools.RegisterRoutes(router, []tools.Route{
+	tools.RegisterRoutes([]tools.Route{
 		{"/secret", SecretHandler},
 	})
 
@@ -51,7 +47,7 @@ func initializeDockerNetwork() {
 // TODO When implementing users and groups, here should be a check whether the user is authorized or not to access the app.
 
 func initializeFrontendResourceDelivery() {
-	router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	tools.Router.PathPrefix("/").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Attempt to open the requested file within the ./dist directory.
 		_, err := http.Dir("./dist").Open(r.URL.Path)
 

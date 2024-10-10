@@ -24,7 +24,7 @@ func ApplyAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 			applyBackendApiAuthMiddleware(w, r)
 		} else {
 			Logger.Debug("backend serves frontend resources")
-			router.ServeHTTP(w, r)
+			tools.Router.ServeHTTP(w, r)
 		}
 	} else {
 		Logger.Debug("app redirect is called")
@@ -54,7 +54,7 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	// TODO This should be an outer check for the if-block below: if r.Host == "ocelot-cloud."+config.RootDomain
 	if r.URL.Path == "/api/login" || r.URL.Path == "/api/check-auth" || r.URL.Path == "/api/stacks/wipe-data" {
 		Logger.Debug("unprotected ocelot-cloud endpoint is addressed: %s", r.URL.Path)
-		router.ServeHTTP(w, r)
+		tools.Router.ServeHTTP(w, r)
 		return
 	}
 
@@ -64,5 +64,5 @@ func applyBackendApiAuthMiddleware(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Logger.Trace("user has a valid cookie and is allowed to access protected backend functions")
-	router.ServeHTTP(w, r)
+	tools.Router.ServeHTTP(w, r)
 }

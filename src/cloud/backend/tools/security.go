@@ -2,7 +2,6 @@ package tools
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -12,9 +11,9 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func RegisterRoutes(router *mux.Router, routes []Route) {
+func RegisterRoutes(routes []Route) {
 	for _, r := range routes {
-		router.Handle("/api"+r.Path, r.HandlerFunc)
+		Router.Handle("/api"+r.Path, r.HandlerFunc)
 	}
 }
 

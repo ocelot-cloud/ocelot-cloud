@@ -21,7 +21,7 @@ func ProxyRequestToTheDockerContainer(w http.ResponseWriter, r *http.Request) {
 	if host == "" {
 		host = r.Host
 	}
-	targetContainer := strings.TrimSuffix(host, "."+config.RootDomain)
+	targetContainer := strings.TrimSuffix(host, "."+tools.Config.RootDomain)
 	targetPort := stackConfigService.GetAppConfig(targetContainer).Port
 	targetURL, err := url.Parse("http://" + targetContainer + ":" + targetPort)
 	logger.Debug("proxying to target URL: %s", targetURL)
