@@ -2,8 +2,7 @@ version: "3.3"
 
 services:
   nginx-default:
-    build:
-      context: nginx-default
+    build: .
     container_name: nginx-default
     healthcheck:
       test: curl http://localhost:80

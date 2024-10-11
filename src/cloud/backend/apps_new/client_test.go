@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var expectedSampleTagSizeInByte = 912
+var expectedSampleTagSizeInByte = 908
 
 func TestHubClientReal(t *testing.T) {
 	hubClient := NewHubClientReal().(HubClient)
