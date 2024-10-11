@@ -1,16 +1,12 @@
 package main
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/utils"
-	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 func init() {
@@ -107,7 +103,7 @@ func loadSampleApp() {
 	repo.CreateUser(&RegistrationForm{sampleUser, "password", "sample@sample.com"})
 	repo.CreateApp(sampleUser, sampleApp)
 	dirPath := "./assets/sampleuser_nginxdefault"
-	zipBytes, err := ZipDirectoryToBytes(dirPath)
+	zipBytes, err := utils.ZipDirectoryToBytes(dirPath)
 	if err != nil {
 		fmt.Printf("Failed to zip directory: %v\n", err)
 		return
@@ -117,63 +113,6 @@ func loadSampleApp() {
 	if err != nil {
 		Logger.Fatal("Failed to create sample tag: %v", err)
 	}
-}
-
-func ZipDirectoryToBytes(dirPath string) ([]byte, error) {
-	buf := new(bytes.Buffer)
-	zipWriter := zip.NewWriter(buf)
-
-	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if path == dirPath {
-			return nil
-		}
-
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		header.Name, _ = filepath.Rel(filepath.Dir(dirPath), path)
-		if info.IsDir() {
-			header.Name += "/"
-		}
-
-		writer, err := zipWriter.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if !info.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-
-			_, err = io.Copy(writer, file)
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		zipWriter.Close()
-		return nil, err
-	}
-
-	err = zipWriter.Close()
-	if err != nil {
-		return nil, err
-	}
-	Logger.Info("zipped directory %s and stored its %v bytes in the database for integration testing", dirPath, len(buf.Bytes()))
-	return buf.Bytes(), nil
 }
 
 // getUserFromContext Since only authenticated users are added to the context, it only works in protected handlers.
