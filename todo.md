@@ -328,3 +328,5 @@ run:
   * unused ./...
 * enforce style: "gofmt -s -w ."
 * dependency updater -> github has a bot for that I think
+
+* don't userAndApp data structure etc to address an item. Rather use its ID.

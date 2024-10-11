@@ -102,8 +102,10 @@ func initializeHandlers(mux *http.ServeMux) {
 }
 
 func loadSampleApp() {
-	repo.CreateUser(&RegistrationForm{"sampleuser", "password", "sample@sample.com"})
-	repo.CreateApp("sampleuser", "sampleapp")
+	sampleUser := "sampleuser"
+	sampleApp := "nginxdefault"
+	repo.CreateUser(&RegistrationForm{sampleUser, "password", "sample@sample.com"})
+	repo.CreateApp(sampleUser, sampleApp)
 	dirPath := "./assets/sampleuser_nginxdefault"
 	zipBytes, err := zipDirectoryToBytes(dirPath)
 	if err != nil {
@@ -111,7 +113,7 @@ func loadSampleApp() {
 		return
 	}
 
-	err = repo.CreateTag("sampleuser", "sampleapp", "nginxdefault", zipBytes)
+	err = repo.CreateTag(sampleUser, sampleApp, "0.0.1", zipBytes)
 	if err != nil {
 		Logger.Fatal("Failed to create sample tag: %v", err)
 	}
