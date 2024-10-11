@@ -32,29 +32,13 @@ func DownloadTag(info TagInfo) error {
 }
 
 func StartContainer(info TagInfo) error {
-	tagContent, err := repo.AppRepo.LoadTagBlob(info.User, info.App, info.Tag)
-	if err != nil {
-		return err
-	}
-
-	tempDir, err := ioutil.TempDir("", "docker-compose") // TODO deprecated
-	if err != nil {
-		return err
-	}
+	tempDir, err := extractTagToDir(info)
 	defer os.RemoveAll(tempDir)
-
-	zipFilePath := filepath.Join(tempDir, "archive.zip")
-	err = os.WriteFile(zipFilePath, tagContent, 0644)
 	if err != nil {
 		return err
 	}
 
-	err = unzip(zipFilePath, tempDir)
-	if err != nil {
-		return err
-	}
-
-	cmd := exec.Command("docker-compose", "up", "-d")
+	cmd := exec.Command("docker-compose", "-p", info.App, "up", "-d") // TODO Could also be "docker compose". Should be checked before.
 	cmd.Dir = tempDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -65,6 +49,30 @@ func StartContainer(info TagInfo) error {
 	}
 
 	return nil
+}
+
+func extractTagToDir(info TagInfo) (string, error) {
+	tagContent, err := repo.AppRepo.LoadTagBlob(info.User, info.App, info.Tag)
+	if err != nil {
+		return "", err
+	}
+
+	tempDir, err := ioutil.TempDir("", "docker-compose") // TODO deprecated
+	if err != nil {
+		return "", err
+	}
+
+	zipFilePath := filepath.Join(tempDir, "archive.zip")
+	err = os.WriteFile(zipFilePath, tagContent, 0644)
+	if err != nil {
+		return "", err
+	}
+
+	err = unzip(zipFilePath, tempDir)
+	if err != nil {
+		return "", err
+	}
+	return tempDir, nil
 }
 
 func unzip(src string, dest string) error {
@@ -120,3 +128,26 @@ func InitializeHubClient() {
 		hubClient = NewHubClientMock()
 	}
 }
+
+// TODO Resolve duplication.
+func StopContainer(info TagInfo) error {
+	tempDir, err := extractTagToDir(info)
+	defer os.RemoveAll(tempDir)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("docker-compose", "-p", info.App, "down") // TODO Could also be "docker compose". Should be checked before.
+	cmd.Dir = tempDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TODO function for stopping container? Keep the extraction logic and just use "docker-compose down at the end"

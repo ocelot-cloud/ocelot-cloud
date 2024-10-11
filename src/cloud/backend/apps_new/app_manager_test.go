@@ -31,8 +31,12 @@ func TestDownloadTag(t *testing.T) {
 
 	// TODO Duplication
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
-	defer exec.Command("docker", "rm", "-f", "nginx-default").Run()
 	err = StartContainer(tagInfo)
+	assert.Nil(t, err)
+
+	// TODO Make CLI assertions that container was deployed and is correctly stopped/removed.
+
+	err = StopContainer(tagInfo)
 	assert.Nil(t, err)
 }
 
