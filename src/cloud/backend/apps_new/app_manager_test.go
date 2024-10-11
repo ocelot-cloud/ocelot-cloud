@@ -34,10 +34,14 @@ func TestDownloadTag(t *testing.T) {
 	err = StartContainer(tagInfo)
 	assert.Nil(t, err)
 
-	// TODO Make CLI assertions that container was deployed and is correctly stopped/removed.
+	err = exec.Command("/bin/sh", "-c", "docker ps | grep -q nginx-default").Run()
+	assert.Nil(t, err)
 
 	err = StopContainer(tagInfo)
 	assert.Nil(t, err)
+
+	err = exec.Command("/bin/sh", "-c", "docker ps -a | grep -q nginx-default").Run()
+	assert.NotNil(t, err)
 }
 
 // TODO Make an integration test similar to the test above, but which does a http request to the nginx container.
