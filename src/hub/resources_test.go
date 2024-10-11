@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
@@ -117,7 +116,7 @@ func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
 		return nil, err
 	}
 
-	apps, err := unpackResponse[[]UserAndApp](result)
+	apps, err := utils.UnpackResponse[[]UserAndApp](result)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +130,7 @@ func (h *HubClient) GetApps() ([]string, error) {
 		return nil, err
 	}
 
-	apps, err := unpackResponse[[]string](result)
+	apps, err := utils.UnpackResponse[[]string](result)
 	if err != nil {
 		return nil, err
 	}
@@ -180,27 +179,12 @@ func (h *HubClient) getTags() ([]string, error) {
 		return nil, err
 	}
 
-	tags, err := unpackResponse[[]string](result)
+	tags, err := utils.UnpackResponse[[]string](result)
 	if err != nil {
 		return nil, err
 	}
 
 	return *tags, nil
-}
-
-// TODO Maybe use that in shared module as well
-func unpackResponse[T any](object interface{}) (*T, error) {
-	respBody, ok := object.([]byte)
-	if !ok {
-		return nil, fmt.Errorf("Failed to assert result to []byte")
-	}
-
-	var result T
-	err := json.Unmarshal(respBody, &result)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal response body: %v", err)
-	}
-	return &result, nil
 }
 
 func (h *HubClient) deleteTag() error {

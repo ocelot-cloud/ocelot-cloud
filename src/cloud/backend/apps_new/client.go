@@ -1,7 +1,6 @@
 package apps_new
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 )
@@ -40,7 +39,7 @@ func (h hubClientReal) SearchApps(searchTerm string) (*[]UserAndApp, error) {
 	if err != nil {
 		return nil, err
 	}
-	userAndAppList, err := unpackResponse[[]UserAndApp](responseBody)
+	userAndAppList, err := utils.UnpackResponse[[]UserAndApp](responseBody)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +52,7 @@ func (h hubClientReal) GetTags(userAndApp UserAndApp) (*[]string, error) {
 		return nil, err
 	}
 
-	tagList, err := unpackResponse[[]string](responseBody)
+	tagList, err := utils.UnpackResponse[[]string](responseBody)
 	if err != nil {
 		return nil, err
 	}
@@ -70,20 +69,6 @@ func (h hubClientReal) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
 		return nil, fmt.Errorf("Failed to assert result to []byte")
 	}
 	return &downloadedContent, nil
-}
-
-func unpackResponse[T any](object interface{}) (*T, error) {
-	respBody, ok := object.([]byte)
-	if !ok {
-		return nil, fmt.Errorf("Failed to assert result to []byte")
-	}
-
-	var result T
-	err := json.Unmarshal(respBody, &result)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal response body: %v", err)
-	}
-	return &result, nil
 }
 
 type hubClientMock struct{}
