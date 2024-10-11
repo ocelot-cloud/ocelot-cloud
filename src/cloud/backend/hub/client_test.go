@@ -25,9 +25,9 @@ func conductApiChecks(t *testing.T, hubClient HubClient) {
 	assert.Equal(t, "0.0.1", tag)
 
 	tagInfo := TagInfo{userAndApp.User, userAndApp.App, tag}
-	_, err = hubClient.DownloadTag(tagInfo)
+	tagContent, err := hubClient.DownloadTag(tagInfo)
 	assert.Nil(t, err)
-	// TODO assert.Equal(t, 1260, len(*tagContent))
+	assert.Equal(t, 1260, len(*tagContent))
 }
 
 func TestHubClientMock(t *testing.T) {

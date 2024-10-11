@@ -97,7 +97,10 @@ func (h hubClientMock) GetTags(userAndApp UserAndApp) (*[]string, error) {
 }
 
 func (h hubClientMock) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
-	data := []byte("sample content")
+	data, err := utils.ZipDirectoryToBytes("sampleuser_nginxdefault")
+	if err != nil {
+		return nil, err
+	}
 	return &data, nil
 }
 
