@@ -127,7 +127,6 @@ func InitializeHubClient() {
 	}
 }
 
-// TODO Resolve duplication.
 func StopContainer(info TagInfo) error {
 	cmd := exec.Command("docker-compose", "-p", info.App, "down") // TODO Could also be "docker compose". Should be checked before.
 	err := extractTagToDir(info, cmd)
@@ -136,5 +135,3 @@ func StopContainer(info TagInfo) error {
 	}
 	return nil
 }
-
-// TODO function for stopping container? Keep the extraction logic and just use "docker-compose down at the end"
