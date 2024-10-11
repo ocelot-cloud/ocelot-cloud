@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+var expectedSampleTagSizeInByte = 912
+
 func TestHubClientReal(t *testing.T) {
 	hubClient := NewHubClientReal().(HubClient)
 	conductApiChecks(t, hubClient)
@@ -27,7 +29,7 @@ func conductApiChecks(t *testing.T, hubClient HubClient) {
 	tagInfo := TagInfo{userAndApp.User, userAndApp.App, tag}
 	tagContent, err := hubClient.DownloadTag(tagInfo)
 	assert.Nil(t, err)
-	assert.Equal(t, 1260, len(*tagContent))
+	assert.Equal(t, expectedSampleTagSizeInByte, len(*tagContent))
 }
 
 func TestHubClientMock(t *testing.T) {

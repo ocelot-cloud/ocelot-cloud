@@ -4,7 +4,6 @@ import (
 	"ocelot/backend/repo"
 )
 
-// TODO Dont zip the folder the files are in, zip the files themselves.
 // TODO Add a test/function which takes the zip bytes, extracts them locally and run "docker-compose up" on them.
 // TODO in shared.utils remove the "storage" stuff: Logger.Info("zipped directory %s and stored its %v bytes in the database for integration testing", dirPath, len(buf.Bytes()))
 // TODO Add logs to errors.

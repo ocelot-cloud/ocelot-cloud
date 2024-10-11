@@ -26,7 +26,7 @@ func TestDownloadTag(t *testing.T) {
 
 	blob, err := repo.AppRepo.LoadTagBlob(tagInfo.User, tagInfo.App, tagInfo.Tag)
 	assert.Nil(t, err)
-	assert.Equal(t, 1260, len(blob))
+	assert.Equal(t, expectedSampleTagSizeInByte, len(blob))
 }
 
 // TODO Can MaintainerAndApp be merged with UserAndApp?
