@@ -158,7 +158,7 @@ func getCloud() *CloudClient {
 }
 
 // TODO Subsequently are the new app functions. When implemented, delete the old ones.
-func (c *CloudClient) readAppsNew() (*[]apps_new.UserAndApp, error) {
+func (c *CloudClient) readHubApps() (*[]apps_new.UserAndApp, error) {
 	responseBody, err := c.parent.DoRequest("/api/apps/search", utils.SingleString{"sample"}, "")
 	if err != nil {
 		return nil, err
@@ -172,7 +172,7 @@ func (c *CloudClient) readAppsNew() (*[]apps_new.UserAndApp, error) {
 	return &userAndAppList, nil
 }
 
-func (c *CloudClient) getTags(userAndApp apps_new.UserAndApp) (*[]string, error) {
+func (c *CloudClient) getHubTags(userAndApp apps_new.UserAndApp) (*[]string, error) {
 	responseBody, err := c.parent.DoRequest("/api/tags/list", userAndApp, "")
 	if err != nil {
 		return nil, err
@@ -184,4 +184,12 @@ func (c *CloudClient) getTags(userAndApp apps_new.UserAndApp) (*[]string, error)
 	}
 
 	return &tags, nil
+}
+
+func (c *CloudClient) downloadTagFromHub(tagInfo apps_new.TagInfo) error {
+	_, err := c.parent.DoRequest("/api/tags/download", tagInfo, "")
+	if err != nil {
+		return err
+	}
+	return nil
 }

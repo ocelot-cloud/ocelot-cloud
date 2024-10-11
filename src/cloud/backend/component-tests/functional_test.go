@@ -4,6 +4,7 @@ import (
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
+	"ocelot/backend/apps_new"
 	"ocelot/backend/tools"
 	"os"
 	"testing"
@@ -132,16 +133,20 @@ func TestHubIntegration(t *testing.T) {
 	cloud := getCloud()
 	cloud.parent.RootUrl = "http://localhost:8080" // TODO should be used automatically
 	assert.Nil(t, cloud.login())
-	apps, err := cloud.readAppsNew()
+	apps, err := cloud.readHubApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*apps))
 	userAndApp := (*apps)[0]
 	assert.Equal(t, "sampleuser", userAndApp.User)
 	assert.Equal(t, "nginxdefault", userAndApp.App)
 
-	tags, err := cloud.getTags(userAndApp)
+	tags, err := cloud.getHubTags(userAndApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*tags))
 	tag := (*tags)[0]
 	assert.Equal(t, "0.0.1", tag)
+
+	tagInfo := apps_new.TagInfo{userAndApp.User, userAndApp.App, tag}
+	err = cloud.downloadTagFromHub(tagInfo)
+	assert.Nil(t, err)
 }

@@ -38,7 +38,15 @@ func AppSearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TagDownloadHandler(w http.ResponseWriter, r *http.Request) {
-
+	tagInfo, err := ReadBody[TagInfo](r)
+	if err != nil {
+		return
+	}
+	_, err = hubClient.DownloadTag(*tagInfo)
+	if err != nil {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func AppStartHandler(w http.ResponseWriter, r *http.Request) {
