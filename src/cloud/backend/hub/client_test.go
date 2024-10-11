@@ -13,6 +13,12 @@ type UserAndApp struct {
 	App  string `json:"app"`
 }
 
+type TagInfo struct {
+	User string `json:"user"`
+	App  string `json:"app"`
+	Tag  string `json:"tag"`
+}
+
 func TestHubClient(t *testing.T) {
 	client := utils.ComponentClient{
 		RootUrl: "http://localhost:8082",
@@ -38,6 +44,13 @@ func TestHubClient(t *testing.T) {
 	assert.Equal(t, 1, len(*tagList))
 	tag := (*tagList)[0]
 	assert.Equal(t, "0.0.1", tag)
+
+	tagInfo := TagInfo{userAndApp.User, userAndApp.App, tag}
+	result, err := client.DoRequest("/tags/download", tagInfo, "")
+	assert.Nil(t, err)
+	downloadedContent, ok := result.([]byte)
+	assert.True(t, ok)
+	assert.Equal(t, 1260, len(downloadedContent))
 }
 
 func unpackResponse[T any](object interface{}) (*T, error) {
