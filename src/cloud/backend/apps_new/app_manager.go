@@ -30,7 +30,7 @@ func DownloadTag(info TagInfo) error {
 }
 
 func StartContainer(info TagInfo) error {
-	cmd := exec.Command("docker-compose", "-p", info.App, "up", "-d") // TODO Could also be "docker compose". Should be checked before.
+	cmd := exec.Command("docker", "compose", "-p", info.App, "up", "-d")
 	err := extractTagToDir(info, cmd)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func InitializeHubClient() {
 }
 
 func StopContainer(info TagInfo) error {
-	cmd := exec.Command("docker-compose", "-p", info.App, "down") // TODO Could also be "docker compose". Should be checked before.
+	cmd := exec.Command("docker", "compose", "-p", info.App, "down")
 	err := extractTagToDir(info, cmd)
 	if err != nil {
 		return err
