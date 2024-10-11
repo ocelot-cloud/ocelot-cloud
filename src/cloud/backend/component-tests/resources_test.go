@@ -171,3 +171,17 @@ func (c *CloudClient) readAppsNew() (*[]apps_new.UserAndApp, error) {
 
 	return &userAndAppList, nil
 }
+
+func (c *CloudClient) getTags(userAndApp apps_new.UserAndApp) (*[]string, error) {
+	responseBody, err := c.parent.DoRequest("/api/tags/list", userAndApp, "")
+	if err != nil {
+		return nil, err
+	}
+	var tags []string
+	err = json.Unmarshal(responseBody.([]byte), &tags)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tags, nil
+}

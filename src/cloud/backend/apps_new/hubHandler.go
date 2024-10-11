@@ -14,7 +14,15 @@ import (
 // TODO Re-use the approach to read dto's from requests like it was done in
 
 func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
-
+	userAndApp, err := ReadBody[UserAndApp](r)
+	if err != nil {
+		return
+	}
+	tags, err := hubClient.GetTags(*userAndApp)
+	if err != nil {
+		return
+	}
+	utils.SendJsonResponse(w, *tags)
 }
 
 func AppSearchHandler(w http.ResponseWriter, r *http.Request) {

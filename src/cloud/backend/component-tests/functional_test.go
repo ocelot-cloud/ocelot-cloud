@@ -135,6 +135,13 @@ func TestHubIntegration(t *testing.T) {
 	apps, err := cloud.readAppsNew()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*apps))
-	assert.Equal(t, "sampleuser", (*apps)[0].User)
-	assert.Equal(t, "nginxdefault", (*apps)[0].App)
+	userAndApp := (*apps)[0]
+	assert.Equal(t, "sampleuser", userAndApp.User)
+	assert.Equal(t, "nginxdefault", userAndApp.App)
+
+	tags, err := cloud.getTags(userAndApp)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(*tags))
+	tag := (*tags)[0]
+	assert.Equal(t, "0.0.1", tag)
 }
