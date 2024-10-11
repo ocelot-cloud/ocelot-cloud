@@ -21,9 +21,7 @@ func TestHubClient(t *testing.T) {
 	assert.Equal(t, "0.0.1", tag)
 
 	tagInfo := TagInfo{userAndApp.User, userAndApp.App, tag}
-	result, err := client.DoRequest("/tags/download", tagInfo, "")
+	tagContent, err := hubClient.DownloadTag(tagInfo)
 	assert.Nil(t, err)
-	downloadedContent, ok := result.([]byte)
-	assert.True(t, ok)
-	assert.Equal(t, 1260, len(downloadedContent))
+	assert.Equal(t, 1260, len(*tagContent))
 }

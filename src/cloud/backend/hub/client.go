@@ -59,8 +59,15 @@ func (h hubClientReal) GetTags(userAndApp UserAndApp) (*[]string, error) {
 }
 
 func (h hubClientReal) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	result, err := client.DoRequest("/tags/download", tagInfo, "")
+	if err != nil {
+		return nil, err
+	}
+	downloadedContent, ok := result.([]byte)
+	if !ok {
+		return nil, fmt.Errorf("Failed to assert result to []byte")
+	}
+	return &downloadedContent, nil
 }
 
 func unpackResponse[T any](object interface{}) (*T, error) {
