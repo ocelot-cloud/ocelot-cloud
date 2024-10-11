@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"ocelot/backend/repo"
+	"ocelot/backend/tools"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -110,4 +111,12 @@ func unzip(src string, dest string) error {
 		}
 	}
 	return nil
+}
+
+func InitializeHubClient() {
+	if tools.Config.UseRealHubClient {
+		hubClient = NewHubClientReal()
+	} else {
+		hubClient = NewHubClientMock()
+	}
 }

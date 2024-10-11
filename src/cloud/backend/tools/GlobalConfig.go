@@ -14,6 +14,7 @@ type GlobalConfig struct {
 	UseRealDatabase               bool
 	CreateDefaultAdminUser        bool
 	OpenDataWipeEndpoint          bool
+	UseRealHubClient              bool
 	HttpScheme                    string
 	RootDomain                    string
 	PubliclyAvailablePort         string

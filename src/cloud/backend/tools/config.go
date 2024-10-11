@@ -58,6 +58,8 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) *GlobalConfig {
 	config.BackendExecutablePort = "8080"
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
+	// TODO Initialize all dummy stacks, except nginx-default, which should be downloaded via the hub client.
+	config.UseRealHubClient = os.Getenv("ENABLE_HUB_CLIENT_MOCK") == "true"
 
 	// TODO security/auth should always be enabled. Remove "IsSecurityEnabled" from everywhere in the project.
 	if profile == PROD {
@@ -134,5 +136,10 @@ func logGlobalVariables(config *GlobalConfig, profile BackendProfile) {
 	Logger.Debug("Use dummy stacks? -> %v", config.UseDummyStacks)
 	if !config.UseRealDatabase {
 		Logger.Warn("An in-memory database is used. No data is stored persistently.")
+	}
+	if config.UseRealHubClient {
+		Logger.Debug("A real hub client is used.")
+	} else {
+		Logger.Warn("A mock hub client is used. No real data is fetched from the hub.")
 	}
 }

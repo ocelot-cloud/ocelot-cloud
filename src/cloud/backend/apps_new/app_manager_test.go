@@ -34,7 +34,6 @@ func TestDownloadTag(t *testing.T) {
 	defer exec.Command("docker", "rm", "-f", "nginx-default").Run()
 	err = StartContainer(tagInfo)
 	assert.Nil(t, err)
-	// TODO Make a CLI check to see that nginx container is actually running.
 }
 
 // TODO Make an integration test similar to the test above, but which does a http request to the nginx container.

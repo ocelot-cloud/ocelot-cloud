@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ocelot/backend/apps_new"
 	"ocelot/backend/repo"
 	"ocelot/backend/setup"
 	"ocelot/backend/tools"
@@ -27,5 +28,6 @@ func main() {
 	setup.VerifyCliToolInstallations()
 	tools.GenerateGlobalConfiguration()
 	repo.InitializeDatabase()
+	apps_new.InitializeHubClient()
 	setup.InitializeApplication()
 }
