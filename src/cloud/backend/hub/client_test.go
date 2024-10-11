@@ -1,26 +1,20 @@
 package hub
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
-	"github.com/ocelot-cloud/shared/utils"
 	"testing"
 )
 
 func TestHubClient(t *testing.T) {
-	responseBody, err := client.DoRequest("/apps/search", utils.SingleString{"sample"}, "")
+	hubClient := NewHubClient()
+	userAndAppList, err := hubClient.SearchApps("sample")
 	assert.Nil(t, err)
-
-	userAndAppList, err := unpackResponse[[]UserAndApp](responseBody)
-	assert.Nil(t, err)
-
 	assert.Equal(t, 1, len(*userAndAppList))
 	userAndApp := (*userAndAppList)[0]
 	assert.Equal(t, "sampleuser", userAndApp.User)
 	assert.Equal(t, "nginxdefault", userAndApp.App)
 
-	responseBody, err = client.DoRequest("/tags/get-tags", userAndApp, "")
+	responseBody, err := client.DoRequest("/tags/get-tags", userAndApp, "")
 	assert.Nil(t, err)
 
 	tagList, err := unpackResponse[[]string](responseBody)
@@ -36,18 +30,4 @@ func TestHubClient(t *testing.T) {
 	downloadedContent, ok := result.([]byte)
 	assert.True(t, ok)
 	assert.Equal(t, 1260, len(downloadedContent))
-}
-
-func unpackResponse[T any](object interface{}) (*T, error) {
-	respBody, ok := object.([]byte)
-	if !ok {
-		return nil, fmt.Errorf("Failed to assert result to []byte")
-	}
-
-	var result T
-	err := json.Unmarshal(respBody, &result)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal response body: %v", err)
-	}
-	return &result, nil
 }

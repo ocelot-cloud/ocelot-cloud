@@ -1,6 +1,10 @@
 package hub
 
-import "github.com/ocelot-cloud/shared/utils"
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/ocelot-cloud/shared/utils"
+)
 
 var client = utils.ComponentClient{
 	RootUrl: "http://localhost:8082",
@@ -18,7 +22,7 @@ type TagInfo struct {
 }
 
 type HubClient interface {
-	SearchApps(searchTerm string) ([]UserAndApp, error)
+	SearchApps(searchTerm string) (*[]UserAndApp, error)
 	GetTags(userAndApp UserAndApp) ([]string, error)
 	DownloadTag(tagInfo TagInfo) ([]byte, error)
 }
@@ -29,9 +33,16 @@ func NewHubClient() HubClient {
 	return &hubClientReal{}
 }
 
-func (h hubClientReal) SearchApps(searchTerm string) ([]UserAndApp, error) {
-	//TODO implement me
-	panic("implement me")
+func (h hubClientReal) SearchApps(searchTerm string) (*[]UserAndApp, error) {
+	responseBody, err := client.DoRequest("/apps/search", utils.SingleString{searchTerm}, "")
+	if err != nil {
+		return nil, err
+	}
+	userAndAppList, err := unpackResponse[[]UserAndApp](responseBody)
+	if err != nil {
+		return nil, err
+	}
+	return userAndAppList, nil
 }
 
 func (h hubClientReal) GetTags(userAndApp UserAndApp) ([]string, error) {
@@ -42,4 +53,18 @@ func (h hubClientReal) GetTags(userAndApp UserAndApp) ([]string, error) {
 func (h hubClientReal) DownloadTag(tagInfo TagInfo) ([]byte, error) {
 	//TODO implement me
 	panic("implement me")
+}
+
+func unpackResponse[T any](object interface{}) (*T, error) {
+	respBody, ok := object.([]byte)
+	if !ok {
+		return nil, fmt.Errorf("Failed to assert result to []byte")
+	}
+
+	var result T
+	err := json.Unmarshal(respBody, &result)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to unmarshal response body: %v", err)
+	}
+	return &result, nil
 }
