@@ -23,8 +23,8 @@ type TagInfo struct {
 
 type HubClient interface {
 	SearchApps(searchTerm string) (*[]UserAndApp, error)
-	GetTags(userAndApp UserAndApp) ([]string, error)
-	DownloadTag(tagInfo TagInfo) ([]byte, error)
+	GetTags(userAndApp UserAndApp) (*[]string, error)
+	DownloadTag(tagInfo TagInfo) (*[]byte, error)
 }
 
 type hubClientReal struct{}
@@ -45,12 +45,20 @@ func (h hubClientReal) SearchApps(searchTerm string) (*[]UserAndApp, error) {
 	return userAndAppList, nil
 }
 
-func (h hubClientReal) GetTags(userAndApp UserAndApp) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+func (h hubClientReal) GetTags(userAndApp UserAndApp) (*[]string, error) {
+	responseBody, err := client.DoRequest("/tags/get-tags", userAndApp, "")
+	if err != nil {
+		return nil, err
+	}
+
+	tagList, err := unpackResponse[[]string](responseBody)
+	if err != nil {
+		return nil, err
+	}
+	return tagList, nil
 }
 
-func (h hubClientReal) DownloadTag(tagInfo TagInfo) ([]byte, error) {
+func (h hubClientReal) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
 	//TODO implement me
 	panic("implement me")
 }
