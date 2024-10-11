@@ -46,3 +46,5 @@ func TestDownloadTag(t *testing.T) {
 
 // TODO Make an integration test similar to the test above, but which does a http request to the nginx container.
 // TODO Can MaintainerAndApp be merged with UserAndApp?
+// TODO New network approach should be added. E.g. Starting stack "gitea" should create a network "gitea-net". This is the only network "gitea" is member of. Ocelot joins the network.
+// TODO remove the "ocelot-net" from the docker-compose.yml files.
