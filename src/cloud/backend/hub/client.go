@@ -29,7 +29,7 @@ type HubClient interface {
 
 type hubClientReal struct{}
 
-func NewHubClient() HubClient {
+func NewHubClientReal() HubClient {
 	return &hubClientReal{}
 }
 
@@ -82,4 +82,25 @@ func unpackResponse[T any](object interface{}) (*T, error) {
 		return nil, fmt.Errorf("Failed to unmarshal response body: %v", err)
 	}
 	return &result, nil
+}
+
+type hubClientMock struct{}
+
+func (h hubClientMock) SearchApps(searchTerm string) (*[]UserAndApp, error) {
+	return &[]UserAndApp{
+		{"sampleuser", "nginxdefault"},
+	}, nil
+}
+
+func (h hubClientMock) GetTags(userAndApp UserAndApp) (*[]string, error) {
+	return &[]string{"0.0.1"}, nil
+}
+
+func (h hubClientMock) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
+	data := []byte("sample content")
+	return &data, nil
+}
+
+func NewHubClientMock() HubClient {
+	return &hubClientMock{}
 }

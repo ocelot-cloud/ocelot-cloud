@@ -107,7 +107,7 @@ func loadSampleApp() {
 	repo.CreateUser(&RegistrationForm{sampleUser, "password", "sample@sample.com"})
 	repo.CreateApp(sampleUser, sampleApp)
 	dirPath := "./assets/sampleuser_nginxdefault"
-	zipBytes, err := zipDirectoryToBytes(dirPath)
+	zipBytes, err := ZipDirectoryToBytes(dirPath)
 	if err != nil {
 		fmt.Printf("Failed to zip directory: %v\n", err)
 		return
@@ -119,7 +119,7 @@ func loadSampleApp() {
 	}
 }
 
-func zipDirectoryToBytes(dirPath string) ([]byte, error) {
+func ZipDirectoryToBytes(dirPath string) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	zipWriter := zip.NewWriter(buf)
 
