@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 	"os"
@@ -44,7 +43,7 @@ func extractTagToDir(info TagInfo, command *exec.Cmd) error {
 		return err
 	}
 
-	tempDir, err := ioutil.TempDir("", "docker-compose") // TODO deprecated
+	tempDir, err := os.MkdirTemp("", "docker-compose")
 	if err != nil {
 		return err
 	}
