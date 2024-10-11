@@ -8,22 +8,7 @@ import (
 	"testing"
 )
 
-type UserAndApp struct {
-	User string `json:"user"`
-	App  string `json:"app"`
-}
-
-type TagInfo struct {
-	User string `json:"user"`
-	App  string `json:"app"`
-	Tag  string `json:"tag"`
-}
-
 func TestHubClient(t *testing.T) {
-	client := utils.ComponentClient{
-		RootUrl: "http://localhost:8082",
-	}
-
 	responseBody, err := client.DoRequest("/apps/search", utils.SingleString{"sample"}, "")
 	assert.Nil(t, err)
 
