@@ -1,10 +1,12 @@
-package hub
+package apps_new
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 )
+
+// TODO When errors occur, add logs
 
 var client = utils.ComponentClient{
 	RootUrl: "http://localhost:8082",

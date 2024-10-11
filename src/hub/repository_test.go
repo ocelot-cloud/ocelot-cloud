@@ -13,7 +13,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	initializeDatabaseWithSource(":memory:")
+	InitializeDatabaseWithSource(":memory:")
 	code := m.Run()
 	os.Exit(code)
 }

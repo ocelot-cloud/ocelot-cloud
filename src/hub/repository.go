@@ -11,7 +11,7 @@ import (
 
 var db *sql.DB
 
-func initializeDatabaseWithSource(dataSourceName string) {
+func InitializeDatabaseWithSource(dataSourceName string) {
 	var err error
 	db, err = sql.Open("sqlite3", dataSourceName)
 	if err != nil {

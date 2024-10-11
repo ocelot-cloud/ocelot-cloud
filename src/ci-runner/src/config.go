@@ -27,7 +27,7 @@ var ocelotStackDir = backendDir + "/assets/ocelot-cloud"
 var backendAppsDir = backendDir + "/apps"
 var backendRepoDir = backendDir + "/repo"
 var backendToolsDir = backendDir + "/tools"
-var cloudHubClientDir = backendDir + "/apps_new/hub"
+var cloudHubClientDir = backendDir + "/apps_new"
 var backendComponentTestsDir = backendDir + "/component-tests"
 
 var hubDir = srcDir + "/hub"

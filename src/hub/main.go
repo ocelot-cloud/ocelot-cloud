@@ -37,10 +37,10 @@ func main() {
 // TODO shift the initialization functions into the "setup" package?
 func initializeDatabase() {
 	if profile == TEST {
-		initializeDatabaseWithSource(":memory:")
+		InitializeDatabaseWithSource(":memory:")
 		Logger.Warn("initializing database only in-memory - when this hub application stops, all data will be deleted")
 	} else {
-		initializeDatabaseWithSource(databaseFile)
+		InitializeDatabaseWithSource(databaseFile)
 	}
 	err := createAdminUserIfNotExistent()
 	if err != nil {

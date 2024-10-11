@@ -1,4 +1,4 @@
-package hub
+package apps_new
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
