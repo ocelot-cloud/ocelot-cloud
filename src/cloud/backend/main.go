@@ -28,6 +28,6 @@ func main() {
 	setup.VerifyCliToolInstallations()
 	tools.GenerateGlobalConfiguration()
 	repo.InitializeDatabase()
-	apps_new.InitializeHubClient()
+	apps_new.InitializeAppsModule()
 	setup.InitializeApplication()
 }

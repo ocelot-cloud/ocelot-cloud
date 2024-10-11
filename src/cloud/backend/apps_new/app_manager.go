@@ -118,12 +118,22 @@ func unzip(src string, dest string) error {
 	return nil
 }
 
-func InitializeHubClient() {
+func InitializeAppsModule() {
 	if tools.Config.UseRealHubClient {
 		hubClient = NewHubClientReal()
 	} else {
 		hubClient = NewHubClientMock()
 	}
+
+	routes := []tools.Route{
+		{"/apps/search", AppSearchHandler},
+		{"/tags/list", GetTagsHandler},
+		{"/tags/download", TagDownloadHandler},
+		{"/apps/start", AppStartHandler},
+		{"/apps/stop", AppStopHandler},
+	}
+	tools.RegisterRoutes(routes)
+	tools.Router.HandleFunc("/api/apps/read", AppReadHandler)
 }
 
 func StopContainer(info TagInfo) error {

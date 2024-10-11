@@ -6,7 +6,16 @@ import "net/http"
 //   registerPublicEndpoint("path", handler), registerUserEndpoint(...), registerAdminEndpoint(...)
 
 // TODO Re-use the approach to read dto's from requests like it was done in
-func AppDownloadHandler(w http.ResponseWriter, r *http.Request) {
+
+func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func AppSearchHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func TagDownloadHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
@@ -15,6 +24,10 @@ func AppStartHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AppStopHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func AppReadHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
