@@ -115,10 +115,10 @@ func TestHealthStateOfSlowStartingStack(t *testing.T) {
 	cloud.appToOperateOn = tools.NginxSlowStart
 	assert.Nil(t, cloud.startApp())
 	// TODO Add assertion for Downloading and Stopping
-	// assert.Nil(t, cloud.assertState("Downloading"))
+	// TODO assert.Nil(t, cloud.assertState("Downloading"))
 	assert.Nil(t, cloud.assertState("Starting"))
 	assert.Nil(t, cloud.assertState("Available"))
-	// assert.Nil(t, cloud.assertState("Stopping"))
+	// TODO assert.Nil(t, cloud.assertState("Stopping"))
 }
 
 func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
@@ -126,4 +126,15 @@ func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
 	if setEnvProfile != profileEnablingTheTest {
 		t.Skip()
 	}
+}
+
+func TestHubIntegration(t *testing.T) {
+	cloud := getCloud()
+	cloud.parent.RootUrl = "http://localhost:8080" // TODO should be used automatically
+	assert.Nil(t, cloud.login())
+	apps, err := cloud.readAppsNew()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(*apps))
+	assert.Equal(t, "sampleuser", (*apps)[0].User)
+	assert.Equal(t, "nginxdefault", (*apps)[0].App)
 }

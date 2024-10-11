@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
+	"ocelot/backend/apps_new"
 	"ocelot/backend/setup"
 	"ocelot/backend/tools"
 	"os"
@@ -154,4 +155,19 @@ func getCloud() *CloudClient {
 	}
 
 	return cloud
+}
+
+// TODO Subsequently are the new app functions. When implemented, delete the old ones.
+func (c *CloudClient) readAppsNew() (*[]apps_new.UserAndApp, error) {
+	responseBody, err := c.parent.DoRequest("/api/apps/search", utils.SingleString{"sample"}, "")
+	if err != nil {
+		return nil, err
+	}
+	var userAndAppList []apps_new.UserAndApp
+	err = json.Unmarshal(responseBody.([]byte), &userAndAppList)
+	if err != nil {
+		return nil, err
+	}
+
+	return &userAndAppList, nil
 }
