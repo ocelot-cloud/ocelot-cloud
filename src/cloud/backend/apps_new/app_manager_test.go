@@ -3,6 +3,7 @@ package apps_new
 import (
 	"github.com/ocelot-cloud/shared/assert"
 	"ocelot/backend/repo"
+	"os/exec"
 	"testing"
 )
 
@@ -28,9 +29,13 @@ func TestDownloadTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSampleTagSizeInByte, len(blob))
 
-	// TODO Create network before starting and delete container afterwards
+	// TODO Duplication
+	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
+	defer exec.Command("docker", "rm", "-f", "nginx-default").Run()
 	err = StartContainer(tagInfo)
 	assert.Nil(t, err)
+	// TODO Make a CLI check to see that nginx container is actually running.
 }
 
+// TODO Make an integration test similar to the test above, but which does a http request to the nginx container.
 // TODO Can MaintainerAndApp be merged with UserAndApp?
