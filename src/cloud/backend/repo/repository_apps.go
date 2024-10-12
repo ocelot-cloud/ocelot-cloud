@@ -2,7 +2,6 @@ package repo
 
 import (
 	"fmt"
-	"ocelot/backend/tools"
 )
 
 // TODO test: is app already existing
@@ -127,18 +126,12 @@ func (r *AppRepositoryImpl) DeleteTag(tagId int) error {
 
 // TODO Method is not tested yet.
 // TODO Add error logs
-func (r *AppRepositoryImpl) DoesTagExist(tagInfo tools.TagInfo) bool {
-	appId, err := r.GetAppId(tagInfo.User, tagInfo.App)
-	if err != nil {
-		return false
-	}
-
+func (r *AppRepositoryImpl) DoesTagExist(tagId int) bool {
 	var doesTagExist bool
-	err = DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tags WHERE app_id = ? AND tag = ?)", appId, tagInfo.Tag).Scan(&doesTagExist)
+	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tags WHERE tag_id = ?)", tagId).Scan(&doesTagExist)
 	if err != nil {
 		return false
 	}
-
 	return doesTagExist
 }
 

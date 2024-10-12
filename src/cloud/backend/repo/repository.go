@@ -160,7 +160,7 @@ type AppRepository interface {
 	DeleteTag(tagId int) error
 	GetAppId(maintainer, app string) (int, error)
 	GetTagId(appId int, tag string) (int, error)
-	DoesTagExist(tagInfo tools.TagInfo) bool
+	DoesTagExist(tagId int) bool
 }
 
 type GroupRepository interface {
