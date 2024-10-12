@@ -191,7 +191,7 @@ type GroupRepository interface {
 type AccessRepository interface {
 	DoesUserHaveAccessToApp(userId, appId int) bool
 	GiveGroupAccessToApp(groupId, appId int) error
-	ListAppAccessesOfGroup(group string) ([]App, error)
+	ListAppAccessesOfGroup(groupId int) ([]App, error)
 	RemoveGroupsAccessToApp(group string, appId int) error
 }
 

@@ -17,13 +17,7 @@ func (r *AccessRepositoryImpl) GiveGroupAccessToApp(groupId, appId int) error {
 	return nil
 }
 
-func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(group string) ([]App, error) {
-	groupId, err := GroupRepo.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return nil, err
-	}
-
+func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]App, error) {
 	rows, err := DB.Query("SELECT app_id FROM app_access WHERE group_id = ?", groupId)
 	if err != nil {
 		// TODO
