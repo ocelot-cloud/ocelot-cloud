@@ -9,7 +9,7 @@ import (
 )
 
 var UserRepo UserRepository = &UserRepositoryImpl{}
-var AppRepo = &AppRepositoryImpl{}
+var AppRepo AppRepository = &AppRepositoryImpl{}
 var GroupRepo = &GroupRepositoryImpl{}
 var dbRepo = &DatabaseRepositoryImpl{}
 var AccessRepo = &AccessRepositoryImpl{}
@@ -145,6 +145,8 @@ type AppRepository interface {
 	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
 	DeleteApp(maintainer, app string) error
 	DeleteTag(maintainer, app, tag string) error
+	GetAppId(maintainer string, app string) (int, error)
+	DoesTagExist(tagInfo tools.TagInfo) bool
 }
 
 type GroupRepository interface {

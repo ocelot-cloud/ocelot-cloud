@@ -22,7 +22,7 @@ func (r *AppRepositoryImpl) CreateAppWithTag(maintainer string, app string, tag 
 		}
 	}
 
-	appId, err := r.getAppId(maintainer, app)
+	appId, err := r.GetAppId(maintainer, app)
 	if err != nil {
 		return fmt.Errorf("TODO4")
 	}
@@ -35,7 +35,7 @@ func (r *AppRepositoryImpl) CreateAppWithTag(maintainer string, app string, tag 
 	return nil
 }
 
-func (r *AppRepositoryImpl) getAppId(maintainer string, app string) (int, error) {
+func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error) {
 	var appId int
 	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
 	if err != nil {
@@ -73,7 +73,7 @@ func (r *AppRepositoryImpl) ListApps() ([]MaintainerAndApp, error) {
 }
 
 func (r *AppRepositoryImpl) ListTagsOfApp(maintainer string, app string) ([]string, error) {
-	appId, err := r.getAppId(maintainer, app)
+	appId, err := r.GetAppId(maintainer, app)
 	if err != nil {
 		return nil, fmt.Errorf("TODO1")
 	}
@@ -104,7 +104,7 @@ func (r *AppRepositoryImpl) ListTagsOfApp(maintainer string, app string) ([]stri
 }
 
 func (r *AppRepositoryImpl) LoadTagBlob(maintainer, app, tag string) ([]byte, error) {
-	appId, err := r.getAppId(maintainer, app)
+	appId, err := r.GetAppId(maintainer, app)
 	if err != nil {
 		return nil, fmt.Errorf("TODO2")
 	}
@@ -127,7 +127,7 @@ func (r *AppRepositoryImpl) DeleteApp(maintainer, app string) error {
 }
 
 func (r *AppRepositoryImpl) DeleteTag(maintainer, app, tag string) error {
-	appId, err := r.getAppId(maintainer, app)
+	appId, err := r.GetAppId(maintainer, app)
 	if err != nil {
 		return fmt.Errorf("TODO7")
 	}
@@ -142,7 +142,7 @@ func (r *AppRepositoryImpl) DeleteTag(maintainer, app, tag string) error {
 // TODO Method is not tested yet.
 // TODO Add error logs
 func (r *AppRepositoryImpl) DoesTagExist(tagInfo tools.TagInfo) bool {
-	appId, err := r.getAppId(tagInfo.User, tagInfo.App)
+	appId, err := r.GetAppId(tagInfo.User, tagInfo.App)
 	if err != nil {
 		return false
 	}
