@@ -8,15 +8,8 @@ import (
 
 // TODO Replace maintainer + app (separate strings) with MaintainerAndApp in all repos. Probably wil be extended later.
 
-func (r *AccessRepositoryImpl) GiveGroupAccessToApp(group string, app MaintainerAndApp) error {
+func (r *AccessRepositoryImpl) GiveGroupAccessToApp(group string, appId int) error {
 	groupId, err := GroupRepo.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return err
-	}
-
-	// TODO Should have MaintainerAndApp as argument. Maybe rename to AppInfo?
-	appId, err := AppRepo.GetAppId(app.Maintainer, app.App)
 	if err != nil {
 		// TODO
 		return err
