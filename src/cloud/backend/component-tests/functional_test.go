@@ -130,6 +130,9 @@ func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
 }
 
 func TestHubIntegration(t *testing.T) {
+	// TODO remove potentially still existing container? Should become obsolete when old app module is replaced.
+	exec.Command("docker", "rm", "-f", "nginx-default").Run()
+
 	cloud := getClientAndLogin(t)
 	// cloud.parent.RootUrl = "http://localhost:8080" // TODO should be used automatically for testing
 	apps, err := cloud.searchHubApps()
@@ -149,11 +152,9 @@ func TestHubIntegration(t *testing.T) {
 	err = cloud.downloadTagFromHub(tagInfo)
 	assert.Nil(t, err)
 
-	exec.Command("docker", "rm", "-f", "nginx-default").Run() // TODO remove potentially still existing container?, Should become obsolete when old app module is replaced.
-
 	err = cloud.startAppNew(tagInfo)
 	assert.Nil(t, err)
-	// TODO check if app available. Also: asd
+
 	err = cloud.stopAppNew(tagInfo)
 	assert.Nil(t, err)
 
