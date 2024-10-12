@@ -4,9 +4,9 @@ import (
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
-	"ocelot/backend/apps_new"
 	"ocelot/backend/tools"
 	"os"
+	"os/exec"
 	"testing"
 	"time"
 )
@@ -130,10 +130,9 @@ func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
 }
 
 func TestHubIntegration(t *testing.T) {
-	cloud := getCloud()
-	cloud.parent.RootUrl = "http://localhost:8080" // TODO should be used automatically
-	assert.Nil(t, cloud.login())
-	apps, err := cloud.readHubApps()
+	cloud := getClientAndLogin(t)
+	// cloud.parent.RootUrl = "http://localhost:8080" // TODO should be used automatically for testing
+	apps, err := cloud.searchHubApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*apps))
 	userAndApp := (*apps)[0]
@@ -146,13 +145,17 @@ func TestHubIntegration(t *testing.T) {
 	tag := (*tags)[0]
 	assert.Equal(t, "0.0.1", tag)
 
-	tagInfo := apps_new.TagInfo{userAndApp.User, userAndApp.App, tag}
+	tagInfo := tools.TagInfo{userAndApp.User, userAndApp.App, tag}
 	err = cloud.downloadTagFromHub(tagInfo)
 	assert.Nil(t, err)
 
-	// err = cloud.startAppNew(tagInfo)
-	// assert.Nil(t, err)
-	// TODO check if app available. Also:
-	//   err = cloud.stopAppNew(tagInfo)
-	//   assert.Nil(t, err)
+	exec.Command("docker", "rm", "-f", "nginx-default").Run() // TODO remove potentially still existing container?, Should become obsolete when old app module is replaced.
+
+	err = cloud.startAppNew(tagInfo)
+	assert.Nil(t, err)
+	// TODO check if app available. Also: asd
+	err = cloud.stopAppNew(tagInfo)
+	assert.Nil(t, err)
+
+	// TODO A second download should return "200" and maybe a message "already downloaded".
 }

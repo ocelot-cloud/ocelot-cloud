@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
-	"ocelot/backend/apps_new"
 	"ocelot/backend/setup"
 	"ocelot/backend/tools"
 	"os"
@@ -158,12 +157,12 @@ func getCloud() *CloudClient {
 }
 
 // TODO Subsequently are the new app functions. When implemented, delete the old ones.
-func (c *CloudClient) readHubApps() (*[]apps_new.UserAndApp, error) {
+func (c *CloudClient) searchHubApps() (*[]tools.UserAndApp, error) {
 	responseBody, err := c.parent.DoRequest("/api/apps/search", utils.SingleString{"sample"}, "")
 	if err != nil {
 		return nil, err
 	}
-	var userAndAppList []apps_new.UserAndApp
+	var userAndAppList []tools.UserAndApp
 	err = json.Unmarshal(responseBody.([]byte), &userAndAppList)
 	if err != nil {
 		return nil, err
@@ -172,7 +171,7 @@ func (c *CloudClient) readHubApps() (*[]apps_new.UserAndApp, error) {
 	return &userAndAppList, nil
 }
 
-func (c *CloudClient) getHubTags(userAndApp apps_new.UserAndApp) (*[]string, error) {
+func (c *CloudClient) getHubTags(userAndApp tools.UserAndApp) (*[]string, error) {
 	responseBody, err := c.parent.DoRequest("/api/tags/list", userAndApp, "")
 	if err != nil {
 		return nil, err
@@ -186,7 +185,7 @@ func (c *CloudClient) getHubTags(userAndApp apps_new.UserAndApp) (*[]string, err
 	return &tags, nil
 }
 
-func (c *CloudClient) downloadTagFromHub(tagInfo apps_new.TagInfo) error {
+func (c *CloudClient) downloadTagFromHub(tagInfo tools.TagInfo) error {
 	_, err := c.parent.DoRequest("/api/tags/download", tagInfo, "")
 	if err != nil {
 		return err
@@ -194,7 +193,7 @@ func (c *CloudClient) downloadTagFromHub(tagInfo apps_new.TagInfo) error {
 	return nil
 }
 
-func (c *CloudClient) startAppNew(tagInfo apps_new.TagInfo) error {
+func (c *CloudClient) startAppNew(tagInfo tools.TagInfo) error {
 	_, err := c.parent.DoRequest("/api/apps/start", tagInfo, "")
 	if err != nil {
 		return err
@@ -202,7 +201,7 @@ func (c *CloudClient) startAppNew(tagInfo apps_new.TagInfo) error {
 	return nil
 }
 
-func (c *CloudClient) stopAppNew(tagInfo apps_new.TagInfo) error {
+func (c *CloudClient) stopAppNew(tagInfo tools.TagInfo) error {
 	_, err := c.parent.DoRequest("/api/apps/stop", tagInfo, "")
 	if err != nil {
 		return err

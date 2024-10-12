@@ -16,7 +16,7 @@ import (
 
 var hubClient HubClient
 
-func DownloadTag(info TagInfo) error {
+func DownloadTag(info tools.TagInfo) error {
 	tagContent, err := hubClient.DownloadTag(info)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func DownloadTag(info TagInfo) error {
 	return nil
 }
 
-func StartContainer(info TagInfo) error {
+func StartContainer(info tools.TagInfo) error {
 	cmd := exec.Command("docker", "compose", "-p", info.App, "up", "-d")
 	err := extractTagToDir(info, cmd)
 	if err != nil {
@@ -37,7 +37,7 @@ func StartContainer(info TagInfo) error {
 	return nil
 }
 
-func extractTagToDir(info TagInfo, command *exec.Cmd) error {
+func extractTagToDir(info tools.TagInfo, command *exec.Cmd) error {
 	tagContent, err := repo.AppRepo.LoadTagBlob(info.User, info.App, info.Tag)
 	if err != nil {
 		return err
@@ -136,7 +136,7 @@ func InitializeAppsModule() {
 	tools.Router.HandleFunc("/api/apps/read", AppReadHandler)
 }
 
-func StopContainer(info TagInfo) error {
+func StopContainer(info tools.TagInfo) error {
 	cmd := exec.Command("docker", "compose", "-p", info.App, "down")
 	err := extractTagToDir(info, cmd)
 	if err != nil {

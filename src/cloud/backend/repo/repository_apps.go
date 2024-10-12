@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"ocelot/backend/tools"
 )
 
 // TODO test: is app already existing
@@ -38,9 +39,8 @@ func (r *AppRepositoryImpl) getAppId(maintainer string, app string) (int, error)
 	var appId int
 	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
 	if err != nil {
-		// TODO
-		Logger.Info("maintainer: %s, app: %s", maintainer, app) // TODO temp
-		Logger.Error("TODO error: %v", err)
+		// TODO Make better error message. Should not be error log, since DoesTagExist uses it and is expected to not find the app any time.
+		Logger.Info("TODO error: %v", err)
 		return -1, err
 	}
 	return appId, nil
@@ -137,4 +137,21 @@ func (r *AppRepositoryImpl) DeleteTag(maintainer, app, tag string) error {
 		return fmt.Errorf("TODO8")
 	}
 	return nil
+}
+
+// TODO Method is not tested yet.
+// TODO Add error logs
+func (r *AppRepositoryImpl) DoesTagExist(tagInfo tools.TagInfo) bool {
+	appId, err := r.getAppId(tagInfo.User, tagInfo.App)
+	if err != nil {
+		return false
+	}
+
+	var doesTagExist bool
+	err = DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tags WHERE app_id = ? AND tag = ?)", appId, tagInfo.Tag).Scan(&doesTagExist)
+	if err != nil {
+		return false
+	}
+
+	return doesTagExist
 }

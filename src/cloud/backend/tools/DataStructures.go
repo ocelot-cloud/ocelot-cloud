@@ -10,3 +10,14 @@ type AppInfo struct {
 type StackInfo struct {
 	Name string `json:"name"`
 }
+
+type UserAndApp struct {
+	User string `json:"user"`
+	App  string `json:"app"`
+}
+
+type TagInfo struct {
+	User string `json:"user"`
+	App  string `json:"app"`
+	Tag  string `json:"tag"`
+}

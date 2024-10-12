@@ -2,6 +2,7 @@ package apps_new
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"ocelot/backend/tools"
 	"testing"
 )
 
@@ -26,7 +27,7 @@ func conductApiChecks(t *testing.T, hubClient HubClient) {
 	tag := (*tagList)[0]
 	assert.Equal(t, "0.0.1", tag)
 
-	tagInfo := TagInfo{userAndApp.User, userAndApp.App, tag}
+	tagInfo := tools.TagInfo{userAndApp.User, userAndApp.App, tag}
 	tagContent, err := hubClient.DownloadTag(tagInfo)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSampleTagSizeInByte, len(*tagContent))

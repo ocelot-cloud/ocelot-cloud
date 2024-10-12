@@ -3,6 +3,7 @@ package apps_new
 import (
 	"github.com/ocelot-cloud/shared/assert"
 	"ocelot/backend/repo"
+	"ocelot/backend/tools"
 	"os/exec"
 	"testing"
 )
@@ -10,7 +11,7 @@ import (
 func TestDownloadTag(t *testing.T) {
 	hubClient = NewHubClientMock().(HubClient)
 	repo.InitializeDatabaseWithSource(":memory:")
-	tagInfo := TagInfo{"sampleuser", "nginxdefault", "0.0.1"}
+	tagInfo := tools.TagInfo{"sampleuser", "nginxdefault", "0.0.1"}
 
 	err := DownloadTag(tagInfo)
 	assert.Nil(t, err)

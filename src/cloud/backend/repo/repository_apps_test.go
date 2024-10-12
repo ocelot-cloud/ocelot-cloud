@@ -2,6 +2,7 @@ package repo
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
+	"ocelot/backend/tools"
 	"testing"
 )
 
@@ -28,6 +29,8 @@ func TestAppLifecycle(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Nil(t, blob)
 
+	tagInfo := tools.TagInfo{sampleMaintainer, sampleApp, sampleTag}
+	assert.False(t, AppRepo.DoesTagExist(tagInfo))
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	maintainersAndApps, err = AppRepo.ListApps()
 	assert.Nil(t, err)
@@ -35,6 +38,7 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, 1, len(maintainersAndApps))
 	assert.Equal(t, sampleMaintainer, maintainersAndApps[0].Maintainer)
 	assert.Equal(t, sampleApp, maintainersAndApps[0].App)
+	assert.True(t, AppRepo.DoesTagExist(tagInfo))
 
 	tags, err = AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
@@ -48,6 +52,7 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, sampleBlob, blob)
 
 	// TODO Deleting the only tag left should also delete the app.
+	//   assert.False(t, AppRepo.DoesTagExist(tagInfo))
 	// TODO Test creating a second app with different tag, as this should not cause collisions if handled correctly.
 }
 

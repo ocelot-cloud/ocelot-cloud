@@ -98,7 +98,7 @@ func RunScheduledTests() {
 func TestProdBackendApi() {
 	tr.PrintTaskDescription("Testing PROD backend API with real docker service")
 	defer tr.Cleanup()
-	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_DATA_WIPE_ENDPOINT=true")
+	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_DATA_WIPE_ENDPOINT=true", "ENABLE_HUB_CLIENT_MOCK=true")
 	tr.ExecuteInDir(backendComponentTestsDir, "go test -v -count=1 -tags security ./...", getProdProfileEnv())
 }
 
