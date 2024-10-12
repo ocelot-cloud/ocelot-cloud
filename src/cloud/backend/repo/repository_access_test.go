@@ -8,7 +8,7 @@ import (
 func TestGiveGroupAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	appId, _ := createAppAndTag(t)
 
 	groupId, err := GroupRepo.GetGroupId(sampleGroup)
 	assert.Nil(t, err)
@@ -16,8 +16,6 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(appsToWhichGroupHasAccess))
 
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(groupId, appId))
 
 	appsToWhichGroupHasAccess, err = AccessRepo.ListAppAccessesOfGroup(groupId)
@@ -42,6 +40,16 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 }
 
+func createAppAndTag(t *testing.T) (int, int) {
+	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag, sampleBlob))
+	tagId, err := AppRepo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	return appId, tagId
+}
+
 func TestUserAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
@@ -51,10 +59,8 @@ func TestUserAccessToApp(t *testing.T) {
 	userId, err := UserRepo.GetUserId(sampleUser)
 	assert.Nil(t, err)
 	assert.Nil(t, GroupRepo.AddUserToGroup(userId, groupId))
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	appId, _ := createAppAndTag(t)
 
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(groupId, appId))
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
@@ -72,9 +78,7 @@ func TestUserAccessToApp(t *testing.T) {
 func TestAppAccessDeletionCascading(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, true))
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
+	appId, _ := createAppAndTag(t)
 	userId, err := UserRepo.GetUserId(sampleUser)
 	assert.Nil(t, err)
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))

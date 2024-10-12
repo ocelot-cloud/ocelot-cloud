@@ -16,15 +16,13 @@ var (
 func TestAppLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
+	appId, tagId := createAppAndTag(t)
 	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.NotNil(t, apps)
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, sampleMaintainer, (apps)[0].Maintainer)
 	assert.Equal(t, sampleApp, (apps)[0].Name)
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
 
 	tags, err := AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
@@ -32,8 +30,6 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0].Name)
 
-	tagId, err := AppRepo.GetTagId(appId, sampleTag)
-	assert.Nil(t, err)
 	blob, err := AppRepo.LoadTagBlob(tagId)
 	assert.Nil(t, err)
 	assert.NotNil(t, blob)
@@ -46,9 +42,7 @@ func TestAppLifecycle(t *testing.T) {
 
 func TestDeleteApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
+	appId, _ := createAppAndTag(t)
 	assert.Nil(t, AppRepo.DeleteApp(appId))
 
 	apps, err := AppRepo.ListApps()
@@ -62,17 +56,14 @@ func TestDeleteApp(t *testing.T) {
 func TestCreatingTwoTagsInApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	sampleTag2 := "2.0"
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag2, sampleBlob))
+	appId, _ := createAppAndTag(t)
+	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag2, sampleBlob))
 
 	app, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(app))
 	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
 	assert.Equal(t, sampleApp, app[0].Name)
-
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
 
 	tags, err := AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
@@ -93,11 +84,7 @@ func contain(tags []Tag, expectedTagName string) bool {
 
 func TestDeleteTag(t *testing.T) {
 	defer dbRepo.WipeDatabase()
-	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
-	assert.Nil(t, err)
-	tagId, err := AppRepo.GetTagId(appId, sampleTag)
-	assert.Nil(t, err)
+	appId, tagId := createAppAndTag(t)
 	assert.Nil(t, AppRepo.DeleteTag(tagId))
 
 	maintainersAndApps, err := AppRepo.ListApps()

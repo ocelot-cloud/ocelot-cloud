@@ -153,8 +153,11 @@ type Tag struct {
 }
 
 type AppRepository interface {
-	// TODO Shouldn't there be seperate methods for creating an app and creating a tag? I want to be able add tags to the same app.
-	CreateAppWithTag(maintainer, app, tag string, blob []byte) error // TODO Maybe these args should be a single data structure?
+	// TODO To implement and replace function above
+	// TODO also make test that I cant create two apps with the same name, but add tags to the same app. Also tags with same name is not possible.
+	CreateApp(maintainer, app string) error
+	CreateTag(appId int, tag string, blob []byte) error
+
 	GetAppId(maintainer, app string) (int, error)
 	GetTagId(appId int, tag string) (int, error)
 

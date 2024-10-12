@@ -5,30 +5,19 @@ import (
 )
 
 // TODO test: is app already existing
-func (r *AppRepositoryImpl) CreateAppWithTag(maintainer string, app string, tag string, blob []byte) error {
-	var doesAppExist bool
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE maintainer = ? AND app = ?)", maintainer, app).Scan(&doesAppExist)
+func (r *AppRepositoryImpl) CreateApp(maintainer, app string) error {
+	_, err := DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
 	if err != nil {
-		Logger.Error("Failed to check if app exists: %v", err)
-		return fmt.Errorf("failed to check if app exists")
+		Logger.Error("Failed to create app: %v", err)
+		return fmt.Errorf("failed to create app")
 	}
+	return nil
+}
 
-	if !doesAppExist {
-		_, err = DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
-		if err != nil {
-			Logger.Error("Failed to create app: %v", err)
-			return fmt.Errorf("failed to create app")
-		}
-	}
-
-	appId, err := r.GetAppId(maintainer, app)
+func (r *AppRepositoryImpl) CreateTag(appId int, tag string, blob []byte) error {
+	_, err := DB.Exec("INSERT INTO tags (app_id, tag, blob) VALUES (?, ?, ?)", appId, tag, blob)
 	if err != nil {
-		return fmt.Errorf("TODO4")
-	}
-
-	_, err = DB.Exec("INSERT INTO tags (app_id, tag, blob) VALUES (?, ?, ?)", appId, tag, blob)
-	if err != nil {
-		return fmt.Errorf("TODO5")
+		return fmt.Errorf("failed to create tag")
 	}
 
 	return nil

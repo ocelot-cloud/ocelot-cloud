@@ -21,7 +21,15 @@ func DownloadTag(info tools.TagInfo) error {
 	if err != nil {
 		return err
 	}
-	err = repo.AppRepo.CreateAppWithTag(info.User, info.App, info.Tag, *tagContent)
+	err = repo.AppRepo.CreateApp(info.User, info.App)
+	if err != nil {
+		// TODO log: app was already existing, skip creation -> or maybe make a DoesAppExist check before that?
+	}
+	appId, err := repo.AppRepo.GetAppId(info.User, info.App)
+	if err != nil {
+		return err
+	}
+	err = repo.AppRepo.CreateTag(appId, info.Tag, *tagContent)
 	if err != nil {
 		return err
 	}
