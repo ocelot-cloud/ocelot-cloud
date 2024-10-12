@@ -20,7 +20,7 @@ func TestGroupLifecycle(t *testing.T) {
 	groups, err = GroupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(groups))
-	assert.Equal(t, sampleGroup, groups[0])
+	assert.Equal(t, sampleGroup, groups[0].Name)
 
 	assert.Nil(t, GroupRepo.DeleteGroup(sampleGroup))
 	groups, err = GroupRepo.ListGroups()

@@ -14,21 +14,22 @@ func (r *GroupRepositoryImpl) CreateGroup(group string) error {
 	return nil
 }
 
-func (r *GroupRepositoryImpl) ListGroups() ([]string, error) {
-	rows, err := DB.Query("SELECT group_name FROM groups")
+func (r *GroupRepositoryImpl) ListGroups() ([]Group, error) {
+	rows, err := DB.Query("SELECT group_id, group_name FROM groups")
 	if err != nil {
 		// TODO
 		return nil, err
 	}
 	defer rows.Close()
-	var groups []string
+	var groups []Group
 	for rows.Next() {
-		var group string
-		if err = rows.Scan(&group); err != nil {
+		var groupId int
+		var groupName string
+		if err = rows.Scan(&groupId, &groupName); err != nil {
 			// TODO
 			return nil, err
 		}
-		groups = append(groups, group)
+		groups = append(groups, Group{groupId, groupName})
 	}
 	return groups, nil
 }

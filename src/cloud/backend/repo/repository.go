@@ -162,9 +162,14 @@ type AppRepository interface {
 	GetTagId(appId int, tag string) (int, error)
 }
 
+type Group struct {
+	Id   int
+	Name string
+}
+
 type GroupRepository interface {
 	CreateGroup(group string) error
-	ListGroups() ([]string, error)
+	ListGroups() ([]Group, error)
 	DeleteGroup(group string) error
 	GetGroupId(group string) (int, error)
 
