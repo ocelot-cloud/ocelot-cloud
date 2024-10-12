@@ -96,6 +96,11 @@ func AppStopHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// TODO Database: add "apps" table column "should_be_running"
+//   in-memory table: all apps that should be running are being conducted a port scan each second, depending on the success the status isAvailable is set to true or false
+//   app name must be the url name, which is currently not applied, "nginxdefault" is "nginx-default" in the url
+//   table "apps" should also contain the port to check
+
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {
 
 }
