@@ -63,7 +63,7 @@ func TestAddUserToGroup(t *testing.T) {
 	assert.Equal(t, 1, len(members))
 	assert.Equal(t, sampleUser, members[0].Name)
 
-	assert.Nil(t, GroupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
+	assert.Nil(t, GroupRepo.RemoveUserFromGroup(userId, groupId))
 
 	members, err = GroupRepo.ListMembersOfGroup(groupId)
 	assert.Nil(t, err)

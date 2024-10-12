@@ -147,20 +147,8 @@ func (r *GroupRepositoryImpl) getUsernamesByIDs(ids []int) ([]User, error) {
 	return users, nil
 }
 
-func (r *GroupRepositoryImpl) RemoveUserFromGroup(user, group string) error {
-	// TODO Maybe abstract to getUserAndGroupId(user, group), and reuse it in other function where the same block is used.
-	userId, err := r.getUserId(user)
-	if err != nil {
-		// TODO
-		return err
-	}
-	groupId, err := r.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return err
-	}
-
-	_, err = DB.Exec("DELETE FROM user_to_group WHERE user_id = ? AND group_id = ?", userId, groupId)
+func (r *GroupRepositoryImpl) RemoveUserFromGroup(userId, groupId int) error {
+	_, err := DB.Exec("DELETE FROM user_to_group WHERE user_id = ? AND group_id = ?", userId, groupId)
 	if err != nil {
 		// TODO
 		return err

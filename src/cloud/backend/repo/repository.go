@@ -185,7 +185,7 @@ type GroupRepository interface {
 	ListAllUsers() ([]User, error) // To decide which user should be added to a group
 	AddUserToGroup(userId, groupId int) error
 	ListMembersOfGroup(groupId int) ([]User, error)
-	RemoveUserFromGroup(user, group string) error
+	RemoveUserFromGroup(userId, groupId int) error
 }
 
 type AccessRepository interface {
