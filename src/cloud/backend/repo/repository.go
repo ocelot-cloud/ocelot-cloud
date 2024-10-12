@@ -155,10 +155,11 @@ type AppRepository interface {
 	CreateAppWithTag(maintainer, app, tag string, blob []byte) error // TODO Maybe these args should be a single data structure?
 	ListApps() ([]App, error)
 	ListTagsOfApp(appId int) ([]Tag, error)
-	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
+	LoadTagBlob(appId int) ([]byte, error)
 	DeleteApp(maintainer, app string) error
 	DeleteTag(maintainer, app, tag string) error
 	GetAppId(maintainer, app string) (int, error)
+	GetTagId(appId int, tag string) (int, error)
 	DoesTagExist(tagInfo tools.TagInfo) bool
 }
 

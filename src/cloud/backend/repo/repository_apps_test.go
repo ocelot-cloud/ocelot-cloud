@@ -17,18 +17,10 @@ var (
 func TestAppLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 
-	apps, err := AppRepo.ListApps()
-	assert.Nil(t, err)
-	assert.Nil(t, apps)
-
-	blob, err := AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
-	assert.NotNil(t, err)
-	assert.Nil(t, blob)
-
 	tagInfo := tools.TagInfo{sampleMaintainer, sampleApp, sampleTag}
 	assert.False(t, AppRepo.DoesTagExist(tagInfo))
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	apps, err = AppRepo.ListApps()
+	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.NotNil(t, apps)
 	assert.Equal(t, 1, len(apps))
@@ -44,7 +36,9 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, 1, len(tags))
 	assert.Equal(t, sampleTag, tags[0].Name)
 
-	blob, err = AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	tagId, err := AppRepo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	blob, err := AppRepo.LoadTagBlob(tagId)
 	assert.Nil(t, err)
 	assert.NotNil(t, blob)
 	assert.Equal(t, sampleBlob, blob)
@@ -114,9 +108,8 @@ func TestDeleteTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, tags)
 
-	blob, err := AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
+	_, err = AppRepo.GetTagId(appId, sampleTag)
 	assert.NotNil(t, err)
-	assert.Nil(t, blob)
 }
 
 // TODO check if expiration is working

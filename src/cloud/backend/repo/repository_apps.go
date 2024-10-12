@@ -100,18 +100,12 @@ func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
 	return result, nil
 }
 
-func (r *AppRepositoryImpl) LoadTagBlob(maintainer, app, tag string) ([]byte, error) {
-	appId, err := r.GetAppId(maintainer, app)
-	if err != nil {
-		return nil, fmt.Errorf("TODO2")
-	}
-
+func (r *AppRepositoryImpl) LoadTagBlob(tagId int) ([]byte, error) {
 	var blob []byte
-	err = DB.QueryRow("SELECT blob FROM tags WHERE app_id = ? AND tag = ?", appId, tag).Scan(&blob)
+	err := DB.QueryRow("SELECT blob FROM tags WHERE tag_id = ?", tagId).Scan(&blob)
 	if err != nil {
 		return nil, fmt.Errorf("TODO3")
 	}
-
 	return blob, nil
 }
 
@@ -151,4 +145,13 @@ func (r *AppRepositoryImpl) DoesTagExist(tagInfo tools.TagInfo) bool {
 	}
 
 	return doesTagExist
+}
+
+func (r *AppRepositoryImpl) GetTagId(appId int, tag string) (int, error) {
+	var tagId int
+	err := DB.QueryRow("SELECT tag_id FROM tags WHERE app_id = ? AND tag = ?", appId, tag).Scan(&tagId)
+	if err != nil {
+		return -1, err
+	}
+	return tagId, nil
 }

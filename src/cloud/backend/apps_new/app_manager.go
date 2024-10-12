@@ -37,8 +37,19 @@ func StartContainer(info tools.TagInfo) error {
 	return nil
 }
 
+// TODO arg should be an tag ID, handler should require this ID
 func extractTagToDir(info tools.TagInfo, command *exec.Cmd) error {
-	tagContent, err := repo.AppRepo.LoadTagBlob(info.User, info.App, info.Tag)
+	appId, err := repo.AppRepo.GetAppId(info.User, info.App)
+	if err != nil {
+		return err
+	}
+
+	tagId, err := repo.AppRepo.GetTagId(appId, info.Tag)
+	if err != nil {
+		return err
+	}
+
+	tagContent, err := repo.AppRepo.LoadTagBlob(tagId)
 	if err != nil {
 		return err
 	}
