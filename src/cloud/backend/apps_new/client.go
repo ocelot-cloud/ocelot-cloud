@@ -3,6 +3,9 @@ package apps_new
 import (
 	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 // TODO When errors occur, add logs
@@ -84,7 +87,7 @@ func (h hubClientMock) GetTags(userAndApp UserAndApp) (*[]string, error) {
 }
 
 func (h hubClientMock) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
-	data, err := utils.ZipDirectoryToBytes("sampleuser_nginxdefault")
+	data, err := utils.ZipDirectoryToBytes(getSampleAppFolder())
 	if err != nil {
 		return nil, err
 	}
@@ -93,4 +96,17 @@ func (h hubClientMock) DownloadTag(tagInfo TagInfo) (*[]byte, error) {
 
 func NewHubClientMock() HubClient {
 	return &hubClientMock{}
+}
+
+func getSampleAppFolder() string {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		Logger.Fatal("Failed to get current dir: %v", err)
+	}
+	parentDir := filepath.Base(currentDir)
+	Logger.Debug("Current dir is backend")
+	if strings.EqualFold(parentDir, "backend") {
+		return "apps_new/sampleuser_nginxdefault"
+	}
+	return "sampleuser_nginxdefault"
 }

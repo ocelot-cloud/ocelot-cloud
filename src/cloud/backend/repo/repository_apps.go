@@ -39,6 +39,7 @@ func (r *AppRepositoryImpl) getAppId(maintainer string, app string) (int, error)
 	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
 	if err != nil {
 		// TODO
+		Logger.Info("maintainer: %s, app: %s", maintainer, app) // TODO temp
 		Logger.Error("TODO error: %v", err)
 		return -1, err
 	}

@@ -193,3 +193,19 @@ func (c *CloudClient) downloadTagFromHub(tagInfo apps_new.TagInfo) error {
 	}
 	return nil
 }
+
+func (c *CloudClient) startAppNew(tagInfo apps_new.TagInfo) error {
+	_, err := c.parent.DoRequest("/api/apps/start", tagInfo, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CloudClient) stopAppNew(tagInfo apps_new.TagInfo) error {
+	_, err := c.parent.DoRequest("/api/apps/stop", tagInfo, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -59,10 +59,10 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) *GlobalConfig {
 
 	config.UseDummyStacks = os.Getenv("USE_DUMMY_STACKS") == "true"
 	// TODO Initialize all dummy stacks, except nginx-default, which should be downloaded via the hub client.
-	config.UseRealHubClient = os.Getenv("ENABLE_HUB_CLIENT_MOCK") == "true"
 
 	// TODO security/auth should always be enabled. Remove "IsSecurityEnabled" from everywhere in the project.
 	if profile == PROD {
+		config.UseRealHubClient = true
 		config.IsGuiEnabled = true
 		config.UseRealDatabase = true
 		config.AreMocksEnabled = false
@@ -70,6 +70,7 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) *GlobalConfig {
 		config.CreateDefaultAdminUser = false
 		config.OpenDataWipeEndpoint = os.Getenv("ENABLE_DATA_WIPE_ENDPOINT") == "true"
 	} else {
+		config.UseRealHubClient = false
 		config.IsGuiEnabled = false
 		config.UseRealDatabase = false
 		config.AreMocksEnabled = true
@@ -77,6 +78,11 @@ func getGlobalConfigBasedOnProfile(profile BackendProfile) *GlobalConfig {
 		config.CreateDefaultAdminUser = true
 		config.OpenDataWipeEndpoint = true
 		Logger = shared.ProvideLogger("DEBUG")
+	}
+
+	// TODO Is that maybe redundant?
+	if os.Getenv("ENABLE_HUB_CLIENT_MOCK") == "true" {
+		config.UseRealHubClient = false
 	}
 	return &config
 }

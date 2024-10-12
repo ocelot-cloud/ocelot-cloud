@@ -7,6 +7,9 @@ import (
 
 var logger = tools.Logger
 
+// TODO !!! I just leave the states away. Maybe simply have Not Available and Available. I can add new states later.
+// TODO The health check should be done by ocelot -> make a simple port scan. If the port is open, the app is available.
+
 // TODO First implement the app database and build the logic here on top of it.
 // TODO At start, I need to take the stacks, put them into a tar.gz and load them in the database.
 // TODO I need to create a high-level structure, which contains the AppContexts of all installed apps.

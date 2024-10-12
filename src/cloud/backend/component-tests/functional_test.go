@@ -149,4 +149,10 @@ func TestHubIntegration(t *testing.T) {
 	tagInfo := apps_new.TagInfo{userAndApp.User, userAndApp.App, tag}
 	err = cloud.downloadTagFromHub(tagInfo)
 	assert.Nil(t, err)
+
+	// err = cloud.startAppNew(tagInfo)
+	// assert.Nil(t, err)
+	// TODO check if app available. Also:
+	//   err = cloud.stopAppNew(tagInfo)
+	//   assert.Nil(t, err)
 }
