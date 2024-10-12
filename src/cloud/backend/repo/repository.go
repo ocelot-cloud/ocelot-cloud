@@ -123,6 +123,7 @@ type DatabaseRepository interface {
 }
 
 // TODO Check if all methods listed here were already tested.
+// TODO Put all data strcutures together and check if they could be simplified
 type UserRepository interface {
 	CreateUser(user, password string, isAdmin bool) error
 	IsPasswordCorrect(user, password string) bool
@@ -138,9 +139,15 @@ type UserRepository interface {
 	GetAssociatedCookieValueAndDeleteSecret(secret string) (string, error)
 }
 
+type App struct {
+	Maintainer string
+	App        string
+	Id         int
+}
+
 type AppRepository interface {
 	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
-	ListApps() ([]MaintainerAndApp, error)
+	ListApps() ([]App, error)
 	ListTagsOfApp(maintainer, app string) ([]string, error)
 	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
 	DeleteApp(maintainer, app string) error

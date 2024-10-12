@@ -17,9 +17,9 @@ var (
 func TestAppLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 
-	maintainersAndApps, err := AppRepo.ListApps()
+	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
-	assert.Nil(t, maintainersAndApps)
+	assert.Nil(t, apps)
 
 	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
 	assert.NotNil(t, err)
@@ -32,12 +32,12 @@ func TestAppLifecycle(t *testing.T) {
 	tagInfo := tools.TagInfo{sampleMaintainer, sampleApp, sampleTag}
 	assert.False(t, AppRepo.DoesTagExist(tagInfo))
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	maintainersAndApps, err = AppRepo.ListApps()
+	apps, err = AppRepo.ListApps()
 	assert.Nil(t, err)
-	assert.NotNil(t, maintainersAndApps)
-	assert.Equal(t, 1, len(maintainersAndApps))
-	assert.Equal(t, sampleMaintainer, maintainersAndApps[0].Maintainer)
-	assert.Equal(t, sampleApp, maintainersAndApps[0].App)
+	assert.NotNil(t, apps)
+	assert.Equal(t, 1, len(apps))
+	assert.Equal(t, sampleMaintainer, (apps)[0].Maintainer)
+	assert.Equal(t, sampleApp, (apps)[0].App)
 	assert.True(t, AppRepo.DoesTagExist(tagInfo))
 
 	tags, err = AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)

@@ -46,22 +46,23 @@ func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error)
 	return appId, nil
 }
 
-func (r *AppRepositoryImpl) ListApps() ([]MaintainerAndApp, error) {
-	rows, err := DB.Query("SELECT maintainer, app FROM apps")
+func (r *AppRepositoryImpl) ListApps() ([]App, error) {
+	rows, err := DB.Query("SELECT maintainer, app, app_id FROM apps")
 	if err != nil {
 		Logger.Error("Failed to fetch app list: %v", err)
 		return nil, fmt.Errorf("failed to fetch app list")
 	}
 	defer rows.Close()
 
-	var result []MaintainerAndApp
+	var result []App
 	for rows.Next() {
 		var maintainer, app string
-		if err = rows.Scan(&maintainer, &app); err != nil {
+		var appId int
+		if err = rows.Scan(&maintainer, &app, &appId); err != nil {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, MaintainerAndApp{Maintainer: maintainer, App: app})
+		result = append(result, App{Maintainer: maintainer, App: app, Id: appId})
 	}
 
 	if err = rows.Err(); err != nil {
