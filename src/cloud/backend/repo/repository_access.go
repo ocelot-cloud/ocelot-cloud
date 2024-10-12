@@ -100,16 +100,15 @@ func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, appId int) 
 }
 
 // TODO should be in userRepo: GroupRepo.getUserId(user)
-func (r *AccessRepositoryImpl) DoesUserHaveAccessToApp(user string, appId int) bool {
-	var userId int
+func (r *AccessRepositoryImpl) DoesUserHaveAccessToApp(userId, appId int) bool {
 	var isAdmin bool
-	err := DB.QueryRow("Select user_id, is_admin from users where user_name = ?", user).Scan(&userId, &isAdmin)
+	err := DB.QueryRow("Select user_id, is_admin from users where user_id = ?", userId).Scan(&userId, &isAdmin)
 	if err != nil {
 		// TODO log
 		return false
 	}
 
-	if isAdmin {
+	if isAdmin { // TODO Maybe this should be put into the handlers (business logic)?
 		// TODO log?
 		return true
 	}

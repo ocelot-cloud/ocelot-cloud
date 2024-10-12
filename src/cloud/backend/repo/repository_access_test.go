@@ -31,7 +31,13 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.Equal(t, 0, len(appsToWhichGroupHasAccess))
 	appId, err = AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
-	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleGroup, appId))
+
+	// TODO Not sure, but shouldn't there be a test which says that a user has the according access when he is member of a group with access rights to an app?
+	err = UserRepo.CreateUser(sampleUser, samplePassword, false)
+	assert.Nil(t, err)
+	userId, err := UserRepo.GetUserId(sampleUser)
+	assert.Nil(t, err)
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 }
 
 func TestUserAccessToApp(t *testing.T) {
@@ -47,18 +53,18 @@ func TestUserAccessToApp(t *testing.T) {
 
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
-	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(sampleGroup, appId))
-	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 	assert.Nil(t, AccessRepo.RemoveGroupsAccessToApp(sampleGroup, appId))
-	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(sampleGroup, appId))
-	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 	assert.Nil(t, GroupRepo.RemoveUserFromGroup(userId, groupId))
-	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 	assert.Nil(t, GroupRepo.AddUserToGroup(userId, groupId))
-	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 }
 
 func TestAppAccessDeletionCascading(t *testing.T) {
@@ -67,7 +73,10 @@ func TestAppAccessDeletionCascading(t *testing.T) {
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
-	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
+	userId, err := UserRepo.GetUserId(sampleUser)
+	assert.Nil(t, err)
+	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 }
 
 // TODO Admins should always have access to all apps, not matter which groups they are in or not in
+// TODO I should also check that there are no residues in the database when deleting items. Could lead to security issues otherwise.
