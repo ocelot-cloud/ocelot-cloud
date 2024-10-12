@@ -152,14 +152,16 @@ type Tag struct {
 }
 
 type AppRepository interface {
+	// TODO Shouldn't there be seperate methods for creating an app and creating a tag? I want to be able add tags to the same app.
 	CreateAppWithTag(maintainer, app, tag string, blob []byte) error // TODO Maybe these args should be a single data structure?
+	GetAppId(maintainer, app string) (int, error)
+	GetTagId(appId int, tag string) (int, error)
+
 	ListApps() ([]App, error)
 	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(appId int) ([]byte, error)
 	DeleteApp(appId int) error
 	DeleteTag(tagId int) error
-	GetAppId(maintainer, app string) (int, error)
-	GetTagId(appId int, tag string) (int, error)
 }
 
 type Group struct {
@@ -173,10 +175,10 @@ type User struct {
 }
 
 type GroupRepository interface {
+	GetGroupId(group string) (int, error)
 	CreateGroup(group string) error
 	ListGroups() ([]Group, error)
 	DeleteGroup(groupId int) error
-	GetGroupId(group string) (int, error)
 
 	ListAllUsers() ([]User, error) // To decide which user should be added to a group
 	AddUserToGroup(user string, groupId int) error
