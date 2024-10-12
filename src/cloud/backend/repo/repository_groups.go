@@ -98,12 +98,7 @@ func (r *GroupRepositoryImpl) GetGroupId(group string) (int, error) {
 	return groupId, nil
 }
 
-func (r *GroupRepositoryImpl) ListMembersOfGroup(group string) ([]string, error) {
-	groupId, err := r.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return nil, err
-	}
+func (r *GroupRepositoryImpl) ListMembersOfGroup(groupId int) ([]User, error) {
 	rows, err := DB.Query("SELECT user_id FROM user_to_group WHERE group_id = ?", groupId)
 	if err != nil {
 		// TODO
@@ -120,16 +115,16 @@ func (r *GroupRepositoryImpl) ListMembersOfGroup(group string) ([]string, error)
 		userIds = append(userIds, userId)
 	}
 
-	usernames, err := r.getUsernamesByIDs(userIds)
+	users, err := r.getUsernamesByIDs(userIds)
 	if err != nil {
 		// TODO
 		return nil, err
 	}
 
-	return usernames, nil
+	return users, nil
 }
 
-func (r *GroupRepositoryImpl) getUsernamesByIDs(ids []int) ([]string, error) {
+func (r *GroupRepositoryImpl) getUsernamesByIDs(ids []int) ([]User, error) {
 	query := fmt.Sprintf("SELECT user_name FROM users WHERE user_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
 
 	args := make([]interface{}, len(ids))
@@ -144,17 +139,18 @@ func (r *GroupRepositoryImpl) getUsernamesByIDs(ids []int) ([]string, error) {
 	}
 	defer rows.Close()
 
-	var usernames []string
+	var users []User
 	for rows.Next() {
+		var userId int
 		var username string
 		if err = rows.Scan(&username); err != nil {
 			// TODO
 			return nil, err
 		}
-		usernames = append(usernames, username)
+		users = append(users, User{userId, username})
 	}
 
-	return usernames, nil
+	return users, nil
 }
 
 func (r *GroupRepositoryImpl) RemoveUserFromGroup(user, group string) error {

@@ -48,22 +48,22 @@ func TestAddUserToGroup(t *testing.T) {
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, true))
 	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
 
-	members, err := GroupRepo.ListMembersOfGroup(sampleGroup)
+	groupId, err := GroupRepo.GetGroupId(sampleGroup)
+	assert.Nil(t, err)
+	members, err := GroupRepo.ListMembersOfGroup(groupId)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
 
-	groupId, err := GroupRepo.GetGroupId(sampleGroup)
-	assert.Nil(t, err)
 	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
 
-	members, err = GroupRepo.ListMembersOfGroup(sampleGroup)
+	members, err = GroupRepo.ListMembersOfGroup(groupId)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(members))
-	assert.Equal(t, sampleUser, members[0])
+	assert.Equal(t, sampleUser, members[0].Name)
 
 	assert.Nil(t, GroupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
 
-	members, err = GroupRepo.ListMembersOfGroup(sampleGroup)
+	members, err = GroupRepo.ListMembersOfGroup(groupId)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
 	groupId, err = GroupRepo.GetGroupId(sampleGroup)
