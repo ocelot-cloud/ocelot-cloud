@@ -153,7 +153,6 @@ type Tag struct {
 }
 
 type AppRepository interface {
-	// TODO To implement and replace function above
 	// TODO also make test that I cant create two apps with the same name, but add tags to the same app. Also tags with same name is not possible.
 	CreateApp(maintainer, app string) error
 	CreateTag(appId int, tag string, blob []byte) error
