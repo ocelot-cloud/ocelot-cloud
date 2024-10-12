@@ -23,7 +23,7 @@ func (r *AccessRepositoryImpl) GiveGroupAccessToApp(group string, appId int) err
 	return nil
 }
 
-func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error) {
+func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(group string) ([]App, error) {
 	groupId, err := GroupRepo.GetGroupId(group)
 	if err != nil {
 		// TODO
@@ -55,8 +55,8 @@ func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(group string) ([]Maintaine
 	return apps, nil
 }
 
-func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]MaintainerAndApp, error) {
-	query := fmt.Sprintf("SELECT maintainer, app FROM apps WHERE app_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
+func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
+	query := fmt.Sprintf("SELECT maintainer, app, app_id FROM apps WHERE app_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
 
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
@@ -70,15 +70,16 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]MaintainerAndApp, erro
 	}
 	defer rows.Close()
 
-	var apps []MaintainerAndApp
+	var apps []App
 	for rows.Next() {
 		var maintainer string
 		var app string
-		if err = rows.Scan(&maintainer, &app); err != nil {
+		var appId int
+		if err = rows.Scan(&maintainer, &app, &appId); err != nil {
 			// TODO
 			return nil, err
 		}
-		apps = append(apps, MaintainerAndApp{maintainer, app})
+		apps = append(apps, App{maintainer, app, appId})
 	}
 
 	return apps, nil
