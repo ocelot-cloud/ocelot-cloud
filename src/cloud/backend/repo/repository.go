@@ -126,6 +126,7 @@ type DatabaseRepository interface {
 // TODO Put all data strcutures together and check if they could be simplified
 type UserRepository interface {
 	CreateUser(user, password string, isAdmin bool) error
+	GetUserId(user string) (int, error)
 	IsPasswordCorrect(user, password string) bool
 	DeleteUser(user string) error
 	SaveCookie(user, cookieValue string, cookieExpirationDate time.Time) error
@@ -169,6 +170,7 @@ type Group struct {
 	Name string
 }
 
+// TODO Add field, "IsAdmin"?
 type User struct {
 	Id   int
 	Name string

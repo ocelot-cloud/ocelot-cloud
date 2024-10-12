@@ -146,7 +146,6 @@ func (r *UserRepositoryImpl) ChangePassword(user string, newPassword string) err
 	return nil
 }
 
-
 // TODO Delete the secret automatically after 3 seconds or so. Maybe put a simple go routine in the handler above?
 func (r *UserRepositoryImpl) GenerateSecret(user string) (string, error) {
 	randomBytes := make([]byte, 32)
@@ -177,4 +176,14 @@ func (r *UserRepositoryImpl) GetAssociatedCookieValueAndDeleteSecret(secret stri
 		return "", fmt.Errorf("failed to remove secret")
 	}
 	return cookieValue, nil
+}
+
+func (r *UserRepositoryImpl) GetUserId(user string) (int, error) {
+	var userId int
+	err := DB.QueryRow("Select user_id from users where user_name = ?", user).Scan(&userId)
+	if err != nil {
+		Logger.Error("Failed to get user id: %v", err)
+		return -1, err
+	}
+	return userId, nil
 }
