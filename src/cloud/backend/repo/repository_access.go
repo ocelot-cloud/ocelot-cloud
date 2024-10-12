@@ -85,14 +85,8 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
 	return apps, nil
 }
 
-func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error {
+func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, appId int) error {
 	groupId, err := GroupRepo.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return err
-	}
-
-	appId, err := AppRepo.GetAppId(app.Maintainer, app.App)
 	if err != nil {
 		// TODO
 		return err

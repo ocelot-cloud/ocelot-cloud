@@ -178,7 +178,7 @@ type AccessRepository interface {
 	DoesUserHaveAccessToApp(user string, appId int) bool
 	GiveGroupAccessToApp(group string, appId int) error
 	ListAppAccessesOfGroup(group string) ([]App, error)
-	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error
+	RemoveGroupsAccessToApp(group string, appId int) error
 }
 
 type DatabaseRepositoryImpl struct{}
