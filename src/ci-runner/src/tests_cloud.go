@@ -48,7 +48,7 @@ func DeployContainer() {
 
 func DeployContainerWithDummies() {
 	tr.PrintTaskDescription("Running a server using dummy stacks")
-	deployContainer(getEnableDummyStacksEnv(true))
+	deployContainer(getEnableDummyStacksEnv(true), "ENABLE_HUB_CLIENT_MOCK=true")
 }
 
 func deployContainer(additionalEnvs ...string) {

@@ -4,6 +4,8 @@ import (
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/assert"
 	"github.com/ocelot-cloud/shared/utils"
+	"io"
+	"net/http"
 	"ocelot/backend/tools"
 	"os"
 	"os/exec"
@@ -155,8 +157,31 @@ func TestHubIntegration(t *testing.T) {
 	err = cloud.startAppNew(tagInfo)
 	assert.Nil(t, err)
 
+	if os.Getenv("PROFILE") != "TEST" {
+		time.Sleep(1 * time.Second)
+		asdf(t, cloud.parent.Cookie)
+	}
+
 	err = cloud.stopAppNew(tagInfo)
 	assert.Nil(t, err)
 
 	// TODO A second download should return "200" and maybe a message "already downloaded".
+}
+
+func asdf(t *testing.T, cookie *http.Cookie) {
+	url := "http://nginx-default.localhost"
+	req, err := http.NewRequest("GET", url, nil)
+	assert.Nil(t, err)
+	req.AddCookie(cookie)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	assert.Nil(t, err)
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	assert.Nil(t, err)
+	expectedResponse := "<html><body>nginx index page</body></html>"
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, expectedResponse, string(body))
 }
