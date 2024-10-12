@@ -7,7 +7,7 @@ import (
 
 var (
 	sampleGroup            = "mygroup"
-	sampleMaintainerAndApp = MaintainerAndApp{sampleMaintainer, sampleApp}
+	sampleMaintainerAndApp = MaintainerAndApp{sampleMaintainer, sampleApp} // TODO can be removed?
 )
 
 func TestGroupLifecycle(t *testing.T) {
@@ -22,7 +22,9 @@ func TestGroupLifecycle(t *testing.T) {
 	assert.Equal(t, 1, len(groups))
 	assert.Equal(t, sampleGroup, groups[0].Name)
 
-	assert.Nil(t, GroupRepo.DeleteGroup(sampleGroup))
+	groupId, err := GroupRepo.GetGroupId(sampleGroup)
+	assert.Nil(t, err)
+	assert.Nil(t, GroupRepo.DeleteGroup(groupId))
 	groups, err = GroupRepo.ListGroups()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(groups))

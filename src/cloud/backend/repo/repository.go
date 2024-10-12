@@ -170,7 +170,7 @@ type Group struct {
 type GroupRepository interface {
 	CreateGroup(group string) error
 	ListGroups() ([]Group, error)
-	DeleteGroup(group string) error
+	DeleteGroup(groupId int) error
 	GetGroupId(group string) (int, error)
 
 	ListAllUsers() ([]string, error)

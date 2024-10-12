@@ -34,8 +34,8 @@ func (r *GroupRepositoryImpl) ListGroups() ([]Group, error) {
 	return groups, nil
 }
 
-func (r *GroupRepositoryImpl) DeleteGroup(group string) error {
-	_, err := DB.Exec("DELETE FROM groups WHERE group_name = ?", group)
+func (r *GroupRepositoryImpl) DeleteGroup(groupId int) error {
+	_, err := DB.Exec("DELETE FROM groups WHERE group_id = ?", groupId)
 	if err != nil {
 		// TODO
 		return err
