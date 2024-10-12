@@ -103,11 +103,13 @@ func AppStopHandler(w http.ResponseWriter, r *http.Request) {
 //   "apps" table: active_tag
 
 type appInfo struct {
-	maintainer  string
-	app         string
-	activeTag   string
-	path        string
-	isAvailable bool // TODO find out via healthchecks
+	appMaintainer string
+	appName       string
+	appId         int
+	activeTag     string
+	tagId         int
+	path          string
+	isAvailable   bool // TODO find out via healthchecks
 }
 
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {
