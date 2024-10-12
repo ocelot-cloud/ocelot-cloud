@@ -10,7 +10,7 @@ import (
 
 var UserRepo UserRepository = &UserRepositoryImpl{}
 var AppRepo AppRepository = &AppRepositoryImpl{}
-var GroupRepo = &GroupRepositoryImpl{}
+var GroupRepo GroupRepository = &GroupRepositoryImpl{}
 var dbRepo = &DatabaseRepositoryImpl{}
 var AccessRepo = &AccessRepositoryImpl{}
 
@@ -153,6 +153,7 @@ type GroupRepository interface {
 	CreateGroup(group string) error
 	ListGroups() ([]string, error)
 	DeleteGroup(group string) error
+	GetGroupId(group string) (int, error)
 
 	ListAllUsers() ([]string, error)
 	AddUserToGroup(user, group string) error

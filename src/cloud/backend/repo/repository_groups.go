@@ -67,7 +67,7 @@ func (r *GroupRepositoryImpl) AddUserToGroup(user, group string) error {
 		// TODO
 		return err
 	}
-	groupId, err := r.getGroupId(group)
+	groupId, err := r.GetGroupId(group)
 	if err != nil {
 		// TODO
 		return err
@@ -91,7 +91,7 @@ func (r *GroupRepositoryImpl) getUserId(user string) (int, error) {
 	return userId, nil
 }
 
-func (r *GroupRepositoryImpl) getGroupId(group string) (int, error) {
+func (r *GroupRepositoryImpl) GetGroupId(group string) (int, error) {
 	var groupId int
 	err := DB.QueryRow("Select group_id from groups where group_name = ?", group).Scan(&groupId)
 	if err != nil {
@@ -102,7 +102,7 @@ func (r *GroupRepositoryImpl) getGroupId(group string) (int, error) {
 }
 
 func (r *GroupRepositoryImpl) ListMembersOfGroup(group string) ([]string, error) {
-	groupId, err := r.getGroupId(group)
+	groupId, err := r.GetGroupId(group)
 	if err != nil {
 		// TODO
 		return nil, err
@@ -167,7 +167,7 @@ func (r *GroupRepositoryImpl) RemoveUserFromGroup(user, group string) error {
 		// TODO
 		return err
 	}
-	groupId, err := r.getGroupId(group)
+	groupId, err := r.GetGroupId(group)
 	if err != nil {
 		// TODO
 		return err

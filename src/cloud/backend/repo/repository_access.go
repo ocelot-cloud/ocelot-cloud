@@ -9,7 +9,7 @@ import (
 // TODO Replace maintainer + app (separate strings) with MaintainerAndApp in all repos. Probably wil be extended later.
 
 func (r *AccessRepositoryImpl) GiveGroupAccessToApp(group string, app MaintainerAndApp) error {
-	groupId, err := GroupRepo.getGroupId(group)
+	groupId, err := GroupRepo.GetGroupId(group)
 	if err != nil {
 		// TODO
 		return err
@@ -31,7 +31,7 @@ func (r *AccessRepositoryImpl) GiveGroupAccessToApp(group string, app Maintainer
 }
 
 func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error) {
-	groupId, err := GroupRepo.getGroupId(group)
+	groupId, err := GroupRepo.GetGroupId(group)
 	if err != nil {
 		// TODO
 		return nil, err
@@ -92,7 +92,7 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]MaintainerAndApp, erro
 }
 
 func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error {
-	groupId, err := GroupRepo.getGroupId(group)
+	groupId, err := GroupRepo.GetGroupId(group)
 	if err != nil {
 		// TODO
 		return err
