@@ -183,7 +183,7 @@ type GroupRepository interface {
 	DeleteGroup(groupId int) error
 
 	ListAllUsers() ([]User, error) // To decide which user should be added to a group
-	AddUserToGroup(user string, groupId int) error
+	AddUserToGroup(userId, groupId int) error
 	ListMembersOfGroup(groupId int) ([]User, error)
 	RemoveUserFromGroup(user, group string) error
 }

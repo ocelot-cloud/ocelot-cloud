@@ -40,7 +40,9 @@ func TestUserAccessToApp(t *testing.T) {
 	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
 	groupId, err := GroupRepo.GetGroupId(sampleGroup)
 	assert.Nil(t, err)
-	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
+	userId, err := UserRepo.GetUserId(sampleUser)
+	assert.Nil(t, err)
+	assert.Nil(t, GroupRepo.AddUserToGroup(userId, groupId))
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
@@ -55,7 +57,7 @@ func TestUserAccessToApp(t *testing.T) {
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
 	assert.Nil(t, GroupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
-	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
+	assert.Nil(t, GroupRepo.AddUserToGroup(userId, groupId))
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
 }
 

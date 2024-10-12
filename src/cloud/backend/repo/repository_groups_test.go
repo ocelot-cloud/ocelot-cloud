@@ -54,7 +54,9 @@ func TestAddUserToGroup(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
 
-	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
+	userId, err := UserRepo.GetUserId(sampleUser)
+	assert.Nil(t, err)
+	assert.Nil(t, GroupRepo.AddUserToGroup(userId, groupId))
 
 	members, err = GroupRepo.ListMembersOfGroup(groupId)
 	assert.Nil(t, err)
@@ -67,7 +69,7 @@ func TestAddUserToGroup(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(members))
 	groupId, err = GroupRepo.GetGroupId(sampleGroup)
-	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
+	assert.Nil(t, GroupRepo.AddUserToGroup(userId, groupId))
 }
 
 // TODO After finishing the persistence layer, I should add services with business logic, which handle all unhappy path cases.

@@ -63,14 +63,8 @@ func (r *GroupRepositoryImpl) ListAllUsers() ([]User, error) {
 }
 
 // TODO deletion cascading: when either the group or the user is deleted, this entry should be deleted as well.
-func (r *GroupRepositoryImpl) AddUserToGroup(user string, groupId int) error {
-	userId, err := r.getUserId(user)
-	if err != nil {
-		// TODO
-		return err
-	}
-
-	_, err = DB.Exec("INSERT INTO user_to_group(user_id, group_id) VALUES (?, ?)", userId, groupId)
+func (r *GroupRepositoryImpl) AddUserToGroup(userId, groupId int) error {
+	_, err := DB.Exec("INSERT INTO user_to_group(user_id, group_id) VALUES (?, ?)", userId, groupId)
 	if err != nil {
 		// TODO
 		return err
