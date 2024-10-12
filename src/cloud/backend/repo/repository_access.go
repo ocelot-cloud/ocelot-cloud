@@ -8,14 +8,8 @@ import (
 
 // TODO Replace maintainer + app (separate strings) with MaintainerAndApp in all repos. Probably wil be extended later.
 
-func (r *AccessRepositoryImpl) GiveGroupAccessToApp(group string, appId int) error {
-	groupId, err := GroupRepo.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return err
-	}
-
-	_, err = DB.Exec("INSERT INTO app_access(group_id, app_id) VALUES (?, ?)", groupId, appId)
+func (r *AccessRepositoryImpl) GiveGroupAccessToApp(groupId, appId int) error {
+	_, err := DB.Exec("INSERT INTO app_access(group_id, app_id) VALUES (?, ?)", groupId, appId)
 	if err != nil {
 		// TODO
 		return err
