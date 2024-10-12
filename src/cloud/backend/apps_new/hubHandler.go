@@ -6,7 +6,6 @@ import (
 	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
-	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 )
 
@@ -49,20 +48,17 @@ func AppSearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TagDownloadHandler(w http.ResponseWriter, r *http.Request) {
-	tagInfo, err := ReadBody[tools.TagInfo](r)
+	tagInfo, err := ReadBody[tools.TagInfo](r) // TODO Should read TagId from request
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	doesTagExist := repo.AppRepo.DoesTagExist(*tagInfo)
-	if !doesTagExist {
-		err = DownloadTag(*tagInfo)
-		if err != nil {
-			Logger.Info("Failed to download tag: %v", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+	err = DownloadTag(*tagInfo)
+	if err != nil {
+		Logger.Info("Failed to download tag: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

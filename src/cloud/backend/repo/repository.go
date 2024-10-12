@@ -160,7 +160,6 @@ type AppRepository interface {
 	DeleteTag(tagId int) error
 	GetAppId(maintainer, app string) (int, error)
 	GetTagId(appId int, tag string) (int, error)
-	DoesTagExist(tagId int) bool
 }
 
 type GroupRepository interface {
@@ -176,7 +175,7 @@ type GroupRepository interface {
 }
 
 type AccessRepository interface {
-	DoesUserHaveAccessToApp(user string, app MaintainerAndApp) bool
+	DoesUserHaveAccessToApp(user string, appId int) bool
 	GiveGroupAccessToApp(group string, app MaintainerAndApp) error
 	ListAppAccessesOfGroup(group string) ([]MaintainerAndApp, error)
 	RemoveGroupsAccessToApp(group string, app MaintainerAndApp) error

@@ -2,7 +2,6 @@ package repo
 
 import (
 	"github.com/ocelot-cloud/shared/assert"
-	"ocelot/backend/tools"
 	"testing"
 )
 
@@ -17,8 +16,6 @@ var (
 func TestAppLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 
-	tagInfo := tools.TagInfo{sampleMaintainer, sampleApp, sampleTag}
-	assert.False(t, AppRepo.DoesTagExist(tagInfo))
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
@@ -26,10 +23,9 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, sampleMaintainer, (apps)[0].Maintainer)
 	assert.Equal(t, sampleApp, (apps)[0].Name)
-	assert.True(t, AppRepo.DoesTagExist(tagInfo))
-
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
+
 	tags, err := AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
 	assert.NotNil(t, tags)

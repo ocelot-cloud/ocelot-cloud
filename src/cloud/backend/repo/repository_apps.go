@@ -124,17 +124,6 @@ func (r *AppRepositoryImpl) DeleteTag(tagId int) error {
 	return nil
 }
 
-// TODO Method is not tested yet.
-// TODO Add error logs
-func (r *AppRepositoryImpl) DoesTagExist(tagId int) bool {
-	var doesTagExist bool
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM tags WHERE tag_id = ?)", tagId).Scan(&doesTagExist)
-	if err != nil {
-		return false
-	}
-	return doesTagExist
-}
-
 func (r *AppRepositoryImpl) GetTagId(appId int, tag string) (int, error) {
 	var tagId int
 	err := DB.QueryRow("SELECT tag_id FROM tags WHERE app_id = ? AND tag = ?", appId, tag).Scan(&tagId)
@@ -143,3 +132,5 @@ func (r *AppRepositoryImpl) GetTagId(appId int, tag string) (int, error) {
 	}
 	return tagId, nil
 }
+
+// TODO Add error logs
