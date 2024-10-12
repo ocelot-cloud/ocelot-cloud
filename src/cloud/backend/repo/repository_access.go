@@ -73,14 +73,8 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
 	return apps, nil
 }
 
-func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(group string, appId int) error {
-	groupId, err := GroupRepo.GetGroupId(group)
-	if err != nil {
-		// TODO
-		return err
-	}
-
-	_, err = DB.Exec("DELETE FROM app_access WHERE group_id = ? AND app_id = ?", groupId, appId)
+func (r *AccessRepositoryImpl) RemoveGroupsAccessToApp(groupId, appId int) error {
+	_, err := DB.Exec("DELETE FROM app_access WHERE group_id = ? AND app_id = ?", groupId, appId)
 	if err != nil {
 		return err
 	}

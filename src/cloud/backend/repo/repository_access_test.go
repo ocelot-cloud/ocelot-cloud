@@ -26,7 +26,7 @@ func TestGiveGroupAccessToApp(t *testing.T) {
 	assert.Equal(t, sampleMaintainer, appsToWhichGroupHasAccess[0].Maintainer)
 	assert.Equal(t, sampleApp, appsToWhichGroupHasAccess[0].Name)
 
-	assert.Nil(t, AccessRepo.RemoveGroupsAccessToApp(sampleGroup, appId))
+	assert.Nil(t, AccessRepo.RemoveGroupsAccessToApp(groupId, appId))
 
 	appsToWhichGroupHasAccess, err = AccessRepo.ListAppAccessesOfGroup(groupId)
 	assert.Nil(t, err)
@@ -58,7 +58,7 @@ func TestUserAccessToApp(t *testing.T) {
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(groupId, appId))
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
-	assert.Nil(t, AccessRepo.RemoveGroupsAccessToApp(sampleGroup, appId))
+	assert.Nil(t, AccessRepo.RemoveGroupsAccessToApp(groupId, appId))
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(userId, appId))
 
 	assert.Nil(t, AccessRepo.GiveGroupAccessToApp(groupId, appId))
