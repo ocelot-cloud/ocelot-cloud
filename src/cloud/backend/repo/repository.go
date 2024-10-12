@@ -11,8 +11,8 @@ import (
 var UserRepo UserRepository = &UserRepositoryImpl{}
 var AppRepo AppRepository = &AppRepositoryImpl{}
 var GroupRepo GroupRepository = &GroupRepositoryImpl{}
-var dbRepo = &DatabaseRepositoryImpl{}
-var AccessRepo = &AccessRepositoryImpl{}
+var dbRepo DatabaseRepository = &DatabaseRepositoryImpl{}
+var AccessRepo AccessRepository = &AccessRepositoryImpl{}
 
 var DB *sql.DB
 var DatabaseFile = shared.DataDir + "/sqlite.db"
