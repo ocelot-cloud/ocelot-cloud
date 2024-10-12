@@ -117,13 +117,8 @@ func (r *AppRepositoryImpl) DeleteApp(appId int) error {
 	return nil
 }
 
-func (r *AppRepositoryImpl) DeleteTag(maintainer, app, tag string) error {
-	appId, err := r.GetAppId(maintainer, app)
-	if err != nil {
-		return fmt.Errorf("TODO7")
-	}
-
-	_, err = DB.Exec("DELETE FROM tags WHERE app_id = ? AND tag = ?", appId, tag)
+func (r *AppRepositoryImpl) DeleteTag(tagId int) error {
+	_, err := DB.Exec("DELETE FROM tags WHERE tag_id = ?", tagId)
 	if err != nil {
 		return fmt.Errorf("TODO8")
 	}

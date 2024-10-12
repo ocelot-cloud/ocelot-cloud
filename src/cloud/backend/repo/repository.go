@@ -157,7 +157,7 @@ type AppRepository interface {
 	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(appId int) ([]byte, error)
 	DeleteApp(appId int) error
-	DeleteTag(maintainer, app, tag string) error
+	DeleteTag(tagId int) error
 	GetAppId(maintainer, app string) (int, error)
 	GetTagId(appId int, tag string) (int, error)
 	DoesTagExist(tagInfo tools.TagInfo) bool
