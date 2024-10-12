@@ -96,10 +96,19 @@ func AppStopHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// TODO Database: add "apps" table column "should_be_running"
+// TODO Database: add "apps" table column "should_be_running", is by default false on creation
 //   in-memory table: all apps that should be running are being conducted a port scan each second, depending on the success the status isAvailable is set to true or false
-//   app name must be the url name, which is currently not applied, "nginxdefault" is "nginx-default" in the url
-//   table "apps" should also contain the port to check
+//   table "apps" should also contain the port to check, is set when extracting and running the container by reading app.yml, default is 80.
+//   On start, there should be a process that does the health checks?
+//   "apps" table: active_tag
+
+type appInfo struct {
+	maintainer  string
+	app         string
+	activeTag   string
+	path        string
+	isAvailable bool // TODO find out via healthchecks
+}
 
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {
 
