@@ -330,3 +330,9 @@ run:
 * dependency updater -> github has a bot for that I think
 
 * don't userAndApp data structure etc to address an item. Rather use its ID.
+
+* upload in hub must make multiple checks:
+  * no extra privileges, maybe white allowed attributes
+  * networks and volume names must exactly correlated with the maintainer and app name
+  * the public container must have a name which is the same as the app name
+  * Do I allow custom builds via "context: ."? Seems dangerous, ask ChatGPT.

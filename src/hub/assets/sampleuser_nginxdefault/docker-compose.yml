@@ -1,9 +1,9 @@
 version: "3.3"
 
 services:
-  nginx-default:
+  nginx:
     build: .
-    container_name: nginx-default
+    container_name: nginx
     healthcheck:
       test: curl http://localhost:80
       interval: 1s

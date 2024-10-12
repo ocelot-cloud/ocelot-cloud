@@ -169,7 +169,7 @@ func TestHubIntegration(t *testing.T) {
 }
 
 func asdf(t *testing.T, cookie *http.Cookie) {
-	url := "http://nginx-default.localhost"
+	url := "http://nginx.localhost"
 	req, err := http.NewRequest("GET", url, nil)
 	assert.Nil(t, err)
 	req.AddCookie(cookie)

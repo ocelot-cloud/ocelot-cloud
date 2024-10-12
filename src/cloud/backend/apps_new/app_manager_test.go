@@ -35,13 +35,13 @@ func TestDownloadTag(t *testing.T) {
 	err = StartContainer(tagInfo)
 	assert.Nil(t, err)
 
-	err = exec.Command("/bin/sh", "-c", "docker ps | grep -q nginx-default").Run()
+	err = exec.Command("/bin/sh", "-c", "docker ps | grep -q nginx").Run() // TODO abstract the "nginx"
 	assert.Nil(t, err)
 
 	err = StopContainer(tagInfo)
 	assert.Nil(t, err)
 
-	err = exec.Command("/bin/sh", "-c", "docker ps -a | grep -q nginx-default").Run()
+	err = exec.Command("/bin/sh", "-c", "docker ps -a | grep -q nginx").Run()
 	assert.NotNil(t, err)
 }
 
