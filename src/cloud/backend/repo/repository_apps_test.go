@@ -51,7 +51,9 @@ func TestAppLifecycle(t *testing.T) {
 func TestDeleteApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
-	assert.Nil(t, AppRepo.DeleteApp(sampleMaintainer, sampleApp))
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, AppRepo.DeleteApp(appId))
 
 	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)

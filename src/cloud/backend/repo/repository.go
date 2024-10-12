@@ -156,7 +156,7 @@ type AppRepository interface {
 	ListApps() ([]App, error)
 	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(appId int) ([]byte, error)
-	DeleteApp(maintainer, app string) error
+	DeleteApp(appId int) error
 	DeleteTag(maintainer, app, tag string) error
 	GetAppId(maintainer, app string) (int, error)
 	GetTagId(appId int, tag string) (int, error)

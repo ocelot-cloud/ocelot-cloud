@@ -109,8 +109,8 @@ func (r *AppRepositoryImpl) LoadTagBlob(tagId int) ([]byte, error) {
 	return blob, nil
 }
 
-func (r *AppRepositoryImpl) DeleteApp(maintainer, app string) error {
-	_, err := DB.Exec("DELETE FROM apps WHERE maintainer = ? AND app = ?", maintainer, app)
+func (r *AppRepositoryImpl) DeleteApp(appId int) error {
+	_, err := DB.Exec("DELETE FROM apps WHERE app_id = ?", appId)
 	if err != nil {
 		return fmt.Errorf("TODO6")
 	}
