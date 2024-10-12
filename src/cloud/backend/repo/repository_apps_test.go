@@ -21,10 +21,6 @@ func TestAppLifecycle(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, apps)
 
-	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
-	assert.NotNil(t, err)
-	assert.Nil(t, tags)
-
 	blob, err := AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.NotNil(t, err)
 	assert.Nil(t, blob)
@@ -37,14 +33,16 @@ func TestAppLifecycle(t *testing.T) {
 	assert.NotNil(t, apps)
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, sampleMaintainer, (apps)[0].Maintainer)
-	assert.Equal(t, sampleApp, (apps)[0].App)
+	assert.Equal(t, sampleApp, (apps)[0].Name)
 	assert.True(t, AppRepo.DoesTagExist(tagInfo))
 
-	tags, err = AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	tags, err := AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
 	assert.NotNil(t, tags)
 	assert.Equal(t, 1, len(tags))
-	assert.Equal(t, sampleTag, tags[0])
+	assert.Equal(t, sampleTag, tags[0].Name)
 
 	blob, err = AppRepo.LoadTagBlob(sampleMaintainer, sampleApp, sampleTag)
 	assert.Nil(t, err)
@@ -65,9 +63,8 @@ func TestDeleteApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, apps)
 
-	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	_, err = AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.NotNil(t, err)
-	assert.Nil(t, tags)
 }
 
 func TestCreatingTwoTagsInApp(t *testing.T) {
@@ -80,9 +77,12 @@ func TestCreatingTwoTagsInApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(app))
 	assert.Equal(t, sampleMaintainer, app[0].Maintainer)
-	assert.Equal(t, sampleApp, app[0].App)
+	assert.Equal(t, sampleApp, app[0].Name)
 
-	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+
+	tags, err := AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(tags))
 
@@ -90,9 +90,9 @@ func TestCreatingTwoTagsInApp(t *testing.T) {
 	assert.True(t, contain(tags, sampleTag2))
 }
 
-func contain(tags []string, expectedTag string) bool {
+func contain(tags []Tag, expectedTagName string) bool {
 	for _, actualTag := range tags {
-		if actualTag == expectedTag {
+		if actualTag.Name == expectedTagName {
 			return true
 		}
 	}
@@ -108,7 +108,9 @@ func TestDeleteTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(maintainersAndApps))
 
-	tags, err := AppRepo.ListTagsOfApp(sampleMaintainer, sampleApp)
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	tags, err := AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
 	assert.Nil(t, tags)
 

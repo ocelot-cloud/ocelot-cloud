@@ -20,7 +20,7 @@ func TestDownloadTag(t *testing.T) {
 	assert.Equal(t, 1, len(apps))
 	MaintainerAndApp := apps[0]
 	assert.Equal(t, tagInfo.User, MaintainerAndApp.Maintainer)
-	assert.Equal(t, tagInfo.App, MaintainerAndApp.App)
+	assert.Equal(t, tagInfo.App, MaintainerAndApp.Name)
 	tags, err := repo.AppRepo.ListTagsOfApp(tagInfo.User, tagInfo.App)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))

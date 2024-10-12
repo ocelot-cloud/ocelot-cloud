@@ -139,20 +139,26 @@ type UserRepository interface {
 	GetAssociatedCookieValueAndDeleteSecret(secret string) (string, error)
 }
 
+// TODO Put ID's first in the structs.
 type App struct {
 	Maintainer string
-	App        string
+	Name       string
 	Id         int
 }
 
+type Tag struct {
+	Name string
+	Id   int
+}
+
 type AppRepository interface {
-	CreateAppWithTag(maintainer, app, tag string, blob []byte) error
+	CreateAppWithTag(maintainer, app, tag string, blob []byte) error // TODO Maybe these args should be a single data structure?
 	ListApps() ([]App, error)
-	ListTagsOfApp(maintainer, app string) ([]string, error)
+	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(maintainer, app, tag string) ([]byte, error)
 	DeleteApp(maintainer, app string) error
 	DeleteTag(maintainer, app, tag string) error
-	GetAppId(maintainer string, app string) (int, error)
+	GetAppId(maintainer, app string) (int, error)
 	DoesTagExist(tagInfo tools.TagInfo) bool
 }
 

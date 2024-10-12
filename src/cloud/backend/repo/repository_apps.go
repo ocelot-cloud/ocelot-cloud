@@ -62,7 +62,7 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, App{Maintainer: maintainer, App: app, Id: appId})
+		result = append(result, App{Maintainer: maintainer, Name: app, Id: appId})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -72,28 +72,24 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 
 	return result, nil
 }
-
-func (r *AppRepositoryImpl) ListTagsOfApp(maintainer string, app string) ([]string, error) {
-	appId, err := r.GetAppId(maintainer, app)
+func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
+	rows, err := DB.Query("SELECT tag, tag_id FROM tags WHERE app_id = ?", appId)
 	if err != nil {
-		return nil, fmt.Errorf("TODO1")
-	}
-
-	rows, err := DB.Query("SELECT tag FROM tags WHERE app_id = ?", appId)
-	if err != nil {
-		Logger.Error("Failed to fetch tag list of app: %s/%s, %v", maintainer, app, err)
+		Logger.Error("Failed to fetch tag list: %v", err)
 		return nil, fmt.Errorf("failed to fetch tag list")
 	}
 	defer rows.Close()
 
-	var result []string
+	var result []Tag
 	for rows.Next() {
-		var singleTag string
-		if err = rows.Scan(&singleTag); err != nil {
+		var tagName string
+		var tagId int
+		if err = rows.Scan(&tagName, &tagId); err != nil {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, singleTag)
+		tag := Tag{tagName, tagId}
+		result = append(result, tag)
 	}
 
 	if err = rows.Err(); err != nil {
