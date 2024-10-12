@@ -38,7 +38,9 @@ func TestUserAccessToApp(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, UserRepo.CreateUser(sampleUser, samplePassword, false))
 	assert.Nil(t, GroupRepo.CreateGroup(sampleGroup))
-	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
+	groupId, err := GroupRepo.GetGroupId(sampleGroup)
+	assert.Nil(t, err)
+	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
 	assert.Nil(t, AppRepo.CreateAppWithTag(sampleMaintainer, sampleApp, sampleTag, sampleBlob))
 
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
@@ -53,7 +55,7 @@ func TestUserAccessToApp(t *testing.T) {
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
 	assert.Nil(t, GroupRepo.RemoveUserFromGroup(sampleUser, sampleGroup))
 	assert.False(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
-	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, sampleGroup))
+	assert.Nil(t, GroupRepo.AddUserToGroup(sampleUser, groupId))
 	assert.True(t, AccessRepo.DoesUserHaveAccessToApp(sampleUser, appId))
 }
 

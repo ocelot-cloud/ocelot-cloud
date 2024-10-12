@@ -179,7 +179,7 @@ type GroupRepository interface {
 	GetGroupId(group string) (int, error)
 
 	ListAllUsers() ([]User, error) // To decide which user should be added to a group
-	AddUserToGroup(user, group string) error
+	AddUserToGroup(user string, groupId int) error
 	ListMembersOfGroup(group string) ([]string, error)
 	RemoveUserFromGroup(user, group string) error
 }
