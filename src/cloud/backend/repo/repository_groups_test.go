@@ -40,7 +40,7 @@ func TestListAllUsers(t *testing.T) {
 	users, err = GroupRepo.ListAllUsers()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(users))
-	assert.Equal(t, sampleUser, users[0])
+	assert.Equal(t, sampleUser, users[0].Name)
 }
 
 func TestAddUserToGroup(t *testing.T) {

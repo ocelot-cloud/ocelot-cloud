@@ -167,13 +167,18 @@ type Group struct {
 	Name string
 }
 
+type User struct {
+	Id   int
+	Name string
+}
+
 type GroupRepository interface {
 	CreateGroup(group string) error
 	ListGroups() ([]Group, error)
 	DeleteGroup(groupId int) error
 	GetGroupId(group string) (int, error)
 
-	ListAllUsers() ([]string, error)
+	ListAllUsers() ([]User, error) // To decide which user should be added to a group
 	AddUserToGroup(user, group string) error
 	ListMembersOfGroup(group string) ([]string, error)
 	RemoveUserFromGroup(user, group string) error

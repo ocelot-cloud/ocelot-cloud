@@ -43,20 +43,21 @@ func (r *GroupRepositoryImpl) DeleteGroup(groupId int) error {
 	return nil
 }
 
-func (r *GroupRepositoryImpl) ListAllUsers() ([]string, error) {
+func (r *GroupRepositoryImpl) ListAllUsers() ([]User, error) {
 	rows, err := DB.Query("SELECT user_name FROM users")
 	if err != nil {
 		// TODO
 		return nil, err
 	}
 	defer rows.Close()
-	var users []string
+	var users []User
 	for rows.Next() {
-		var user string
-		if err = rows.Scan(&user); err != nil {
+		var userId int
+		var userName string
+		if err = rows.Scan(&userName); err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users = append(users, User{userId, userName})
 	}
 	return users, nil
 }
