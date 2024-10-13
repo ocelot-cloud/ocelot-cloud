@@ -20,9 +20,25 @@ func (r *AppRepositoryImpl) CreateTag(appId int, tag string, blob []byte) error 
 		return fmt.Errorf("failed to create tag")
 	}
 
+	app, err := r.GetApp(appId)
+	if err != nil {
+		return err
+	}
+	if app.ActiveTagId == -1 {
+		tagId, err := r.GetTagId(appId, tag)
+		if err != nil {
+			return err
+		}
+		_, err = DB.Exec("UPDATE apps SET active_tag = ? WHERE app_id = ?", tagId, appId)
+		if err != nil {
+			return fmt.Errorf("failed to update active tag")
+		}
+	}
+
 	return nil
 }
 
+// TODO Should actually be hidden to outside. I think it would be better to expose interfaces to the outside, while using the implementations internally.
 func (r *AppRepositoryImpl) GetApp(appId int) (App, error) {
 	var maintainer, app string
 	var activeTagId int
