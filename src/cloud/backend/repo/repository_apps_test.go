@@ -102,14 +102,24 @@ func TestDeleteTag(t *testing.T) {
 func TestActiveTag(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
-	apps, err := AppRepo.ListApps()
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(apps))
-	app := apps[0]
+	app, err := AppRepo.GetApp(appId)
 	assert.Equal(t, "", app.ActiveTag)
 	assert.Equal(t, -1, app.ActiveTagId)
+
+	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag, sampleBlob))
+
+	/* TODO
+	app, err = AppRepo.GetApp(appId)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleTag, app.ActiveTag)
+	assert.True(t, app.ActiveTagId >= 0)
+
+	*/
 }
 
+// TODO test to delete active tag, should reset the values in "apps" table.
 // TODO check if expiration is working
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.

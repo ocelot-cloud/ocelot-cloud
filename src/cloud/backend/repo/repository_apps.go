@@ -23,6 +23,20 @@ func (r *AppRepositoryImpl) CreateTag(appId int, tag string, blob []byte) error 
 	return nil
 }
 
+func (r *AppRepositoryImpl) GetApp(appId int) (App, error) {
+	var maintainer, app string
+	var activeTagId int
+	err := DB.QueryRow("SELECT maintainer, app, active_tag FROM apps WHERE app_id = ?", appId).Scan(&maintainer, &app, &activeTagId)
+	if err != nil {
+		return App{}, fmt.Errorf("TODO2")
+	}
+	activeTagName, err := r.getTagNameById(activeTagId)
+	if err != nil {
+		// TODO if tag not found, then it becomes an empty string
+	}
+	return App{maintainer, app, appId, activeTagName, activeTagId}, nil
+}
+
 func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error) {
 	var appId int
 	err := DB.QueryRow("SELECT app_id FROM apps WHERE maintainer = ? AND app = ?", maintainer, app).Scan(&appId)
