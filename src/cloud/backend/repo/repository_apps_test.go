@@ -127,8 +127,8 @@ func TestActiveTag(t *testing.T) {
 	assert.Equal(t, -1, app.ActiveTagId)
 }
 
-// TODO test to delete active tag, should reset the values in "apps" table.
-// TODO check if expiration is working
+// TODO When a request proxy does not work, the user should be redirected to the home page, in order to use the button to visit the app.
+// TODO check if expiration of cookies and secret is working?
 // TODO can't set a cookie without user
 // TODO all inconsistencies should be handled in this layer -> user does not exist, user already existing etc.
 // TODO error: user already exists
