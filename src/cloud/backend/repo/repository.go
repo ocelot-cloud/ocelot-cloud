@@ -172,7 +172,7 @@ type AppRepository interface {
 	GetAppId(maintainer, app string) (int, error)
 	GetTagId(appId int, tag string) (int, error)
 
-	GetApp(appId int) (App, error)
+	GetApp(appId int) (*App, error)
 	ListApps() ([]App, error)
 	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(appId int) ([]byte, error)

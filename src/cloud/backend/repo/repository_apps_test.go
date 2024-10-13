@@ -104,7 +104,6 @@ func TestActiveTag(t *testing.T) {
 	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
-
 	app, err := AppRepo.GetApp(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, "", app.ActiveTagName)
@@ -116,7 +115,6 @@ func TestActiveTag(t *testing.T) {
 	assert.Equal(t, -1, apps[0].ActiveTagId)
 
 	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag, sampleBlob))
-
 	app, err = AppRepo.GetApp(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTag, app.ActiveTagName)
@@ -130,7 +128,6 @@ func TestActiveTag(t *testing.T) {
 	tagId, err := AppRepo.GetTagId(appId, sampleTag)
 	assert.Nil(t, err)
 	assert.Nil(t, AppRepo.DeleteTag(tagId))
-
 	app, err = AppRepo.GetApp(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, "", app.ActiveTagName)

@@ -39,19 +39,20 @@ func (r *AppRepositoryImpl) CreateTag(appId int, tag string, blob []byte) error 
 }
 
 // TODO Should actually be hidden to outside. I think it would be better to expose interfaces to the outside, while using the implementations internally.
-func (r *AppRepositoryImpl) GetApp(appId int) (App, error) {
+func (r *AppRepositoryImpl) GetApp(appId int) (*App, error) {
 	var maintainer, app string
 	var activeTagId int
 	err := DB.QueryRow("SELECT maintainer, app, active_tag FROM apps WHERE app_id = ?", appId).Scan(&maintainer, &app, &activeTagId)
 	if err != nil {
-		return App{}, fmt.Errorf("TODO2")
+		return nil, fmt.Errorf("TODO2")
 	}
 	activeTag, err := r.getTag(activeTagId)
 	if err != nil {
 		// TODO if tag not found, then it becomes an empty string
+		return &App{maintainer, app, appId, "", -1}, nil
 	}
 	// TODO Add null check?
-	return App{maintainer, app, appId, activeTag.Name, activeTagId}, nil
+	return &App{maintainer, app, appId, activeTag.Name, activeTagId}, nil
 }
 
 func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error) {
@@ -88,7 +89,7 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 	for i := range result {
 		activeTag, err := r.getTag(result[i].ActiveTagId)
 		if err != nil {
-			activeTag = Tag{"", result[i].ActiveTagId, -1}
+			activeTag = &Tag{"", result[i].ActiveTagId, -1}
 		}
 		result[i].ActiveTagName = activeTag.Name
 		result[i].ActiveTagId = activeTag.TagId
@@ -104,14 +105,14 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 
 // TODO If the ID is not found, the query is hanging indefinitely, which is bad. I want to return an error in this case.
 // TODO make Tag a pointer and return nil in case of error?
-func (r *AppRepositoryImpl) getTag(tagId int) (Tag, error) {
+func (r *AppRepositoryImpl) getTag(tagId int) (*Tag, error) {
 	var tagName string
 	var appId int
 	err := DB.QueryRow("SELECT tag, app_id FROM tags WHERE tag_id = ?", tagId).Scan(&tagName, &appId)
 	if err != nil {
-		return Tag{"", tagId, -1}, fmt.Errorf("TODO4")
+		return nil, fmt.Errorf("TODO4")
 	}
-	return Tag{tagName, tagId, appId}, nil
+	return &Tag{tagName, tagId, appId}, nil
 }
 
 func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
@@ -165,14 +166,14 @@ func (r *AppRepositoryImpl) DeleteTag(tagId int) error {
 		return err
 	}
 
-	_, err = DB.Exec("DELETE FROM tags WHERE tag_id = ?", tagId)
-	if err != nil {
-		return fmt.Errorf("TODO8")
-	}
-
 	app, err := r.GetApp(tag.AppId)
 	if err != nil {
 		return err
+	}
+
+	_, err = DB.Exec("DELETE FROM tags WHERE tag_id = ?", tagId)
+	if err != nil {
+		return fmt.Errorf("TODO8")
 	}
 
 	if app.ActiveTagId == tagId {
