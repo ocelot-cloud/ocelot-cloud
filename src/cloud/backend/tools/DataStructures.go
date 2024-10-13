@@ -38,3 +38,8 @@ type App struct {
 	ActiveTagId     int
 	ShouldBeRunning bool // TODO Implement in database, set when starting/stopping app
 }
+
+// TODO Mabye put in shared module and reuse in hub when refactoring its API?
+type SingleInt struct {
+	Value int `json:"value"`
+}

@@ -67,12 +67,12 @@ func TagDownloadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AppStartHandler(w http.ResponseWriter, r *http.Request) {
-	tagInfo, err := ReadBody[tools.TagInfo](r)
+	singleInt, err := ReadBody[tools.SingleInt](r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = StartContainer(*tagInfo)
+	err = StartContainer(singleInt.Value)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

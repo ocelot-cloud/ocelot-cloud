@@ -194,8 +194,8 @@ func (c *CloudClient) downloadTagFromHub(tagInfo tools.TagInfo) error {
 	return nil
 }
 
-func (c *CloudClient) startAppNew(tagInfo tools.TagInfo) error {
-	_, err := c.parent.DoRequest("/api/apps/start", tagInfo, "")
+func (c *CloudClient) startAppNew(appId int) error {
+	_, err := c.parent.DoRequest("/api/apps/start", tools.SingleInt{appId}, "")
 	if err != nil {
 		return err
 	}

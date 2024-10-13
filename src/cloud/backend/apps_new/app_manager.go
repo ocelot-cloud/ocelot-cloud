@@ -37,9 +37,14 @@ func DownloadTag(info tools.TagInfo) error {
 	return nil
 }
 
-func StartContainer(info tools.TagInfo) error {
-	cmd := exec.Command("docker", "compose", "-p", info.App, "up", "-d")
-	err := extractTagToDir(info, cmd)
+func StartContainer(appId int) error {
+	app, err := repo.AppRepo.GetApp(appId)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("docker", "compose", "-p", app.Name, "up", "-d")
+	err = extractTagToDir(*app, cmd)
 	if err != nil {
 		return err
 	}
@@ -47,18 +52,8 @@ func StartContainer(info tools.TagInfo) error {
 }
 
 // TODO arg should be an tag ID, handler should require this ID
-func extractTagToDir(info tools.TagInfo, command *exec.Cmd) error {
-	appId, err := repo.AppRepo.GetAppId(info.User, info.App)
-	if err != nil {
-		return err
-	}
-
-	tagId, err := repo.AppRepo.GetTagId(appId, info.Tag)
-	if err != nil {
-		return err
-	}
-
-	tagContent, err := repo.AppRepo.LoadTagBlob(tagId)
+func extractTagToDir(app tools.App, command *exec.Cmd) error {
+	tagContent, err := repo.AppRepo.LoadTagBlob(app.ActiveTagId)
 	if err != nil {
 		return err
 	}
@@ -158,7 +153,53 @@ func InitializeAppsModule() {
 
 func StopContainer(info tools.TagInfo) error {
 	cmd := exec.Command("docker", "compose", "-p", info.App, "down")
-	err := extractTagToDir(info, cmd)
+	err := extractTagToDirDeprecated(info, cmd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO Use the new function above instead
+func extractTagToDirDeprecated(info tools.TagInfo, command *exec.Cmd) error {
+	appId, err := repo.AppRepo.GetAppId(info.User, info.App)
+	if err != nil {
+		return err
+	}
+
+	tagId, err := repo.AppRepo.GetTagId(appId, info.Tag)
+	if err != nil {
+		return err
+	}
+
+	tagContent, err := repo.AppRepo.LoadTagBlob(tagId)
+	if err != nil {
+		return err
+	}
+
+	tempDir, err := os.MkdirTemp("", "docker-compose")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tempDir)
+
+	zipFilePath := filepath.Join(tempDir, "archive.zip")
+	err = os.WriteFile(zipFilePath, tagContent, 0644)
+	if err != nil {
+		return err
+	}
+
+	err = unzip(zipFilePath, tempDir)
+	if err != nil {
+		return err
+	}
+
+	cmd := command
+	cmd.Dir = tempDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
 	if err != nil {
 		return err
 	}

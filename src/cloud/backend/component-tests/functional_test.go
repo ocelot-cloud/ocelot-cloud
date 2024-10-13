@@ -154,7 +154,11 @@ func TestHubIntegration(t *testing.T) {
 	err = cloud.downloadTagFromHub(tagInfo)
 	assert.Nil(t, err)
 
-	err = cloud.startAppNew(tagInfo)
+	appInfos, err := cloud.readAppsNew()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(appInfos))
+	// TODO Handler must take care of the case that no active tag is currently set.
+	err = cloud.startAppNew(appInfos[0].App.AppId)
 	assert.Nil(t, err)
 
 	if os.Getenv("PROFILE") != "TEST" {
@@ -187,9 +191,7 @@ func assertAppEndpointContent(t *testing.T, cookie *http.Cookie) {
 }
 
 func TestReadApp(t *testing.T) {
-	cloud := getCloud()
-	cloud.parent.RootUrl = "http://localhost:8080" // TODO
-	cloud.login()
+	cloud := getClientAndLogin(t)
 	cloud.downloadTagFromHub(tools.TagInfo{"sampleuser", "nginxdefault", "0.0.1"})
 	apps, err := cloud.readAppsNew()
 	assert.Nil(t, err)
