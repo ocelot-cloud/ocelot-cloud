@@ -121,13 +121,11 @@ func TestActiveTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTag, app.ActiveTagName)
 	assert.True(t, app.ActiveTagId >= 0)
-	/* TODO
 	apps, err = AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, sampleTag, apps[0].ActiveTagName)
 	assert.True(t, apps[0].ActiveTagId >= 0)
-	*/
 
 	tagId, err := AppRepo.GetTagId(appId, sampleTag)
 	assert.Nil(t, err)

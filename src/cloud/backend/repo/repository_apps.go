@@ -81,17 +81,17 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, App{maintainer, app, appId, "", -1})
+		result = append(result, App{maintainer, app, appId, "", activeTagId})
 	}
 
 	// TODO A little performance hungry. Maybe make one query for all apps and then put it together in memory.
-	for _, app := range result {
-		activeTag, err := r.getTag(app.ActiveTagId)
+	for i := range result {
+		activeTag, err := r.getTag(result[i].ActiveTagId)
 		if err != nil {
-			// TODO if tag not found, then it becomes an empty string
+			activeTag = Tag{"", result[i].ActiveTagId, -1}
 		}
-		app.ActiveTagName = activeTag.Name
-		app.ActiveTagId = activeTag.TagId
+		result[i].ActiveTagName = activeTag.Name
+		result[i].ActiveTagId = activeTag.TagId
 	}
 
 	if err = rows.Err(); err != nil {
