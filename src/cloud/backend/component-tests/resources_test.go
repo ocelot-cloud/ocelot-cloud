@@ -171,6 +171,7 @@ func (c *CloudClient) searchHubApps() (*[]tools.UserAndApp, error) {
 	return &userAndAppList, nil
 }
 
+// TODO In order to use appId and tagId, I have to adapt the hub API first.
 func (c *CloudClient) getHubTags(userAndApp tools.UserAndApp) (*[]string, error) {
 	responseBody, err := c.parent.DoRequest("/api/tags/list", userAndApp, "")
 	if err != nil {
