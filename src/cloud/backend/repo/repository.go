@@ -153,6 +153,7 @@ type App struct {
 	AppId      int
 	ActiveTag  string
 	TagId      int
+	// TODO add shouldBeRunning?
 }
 
 type Tag struct {
