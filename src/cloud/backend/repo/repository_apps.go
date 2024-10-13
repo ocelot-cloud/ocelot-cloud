@@ -105,10 +105,6 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 // TODO If the ID is not found, the query is hanging indefinitely, which is bad. I want to return an error in this case.
 // TODO make Tag a pointer and return nil in case of error?
 func (r *AppRepositoryImpl) getTag(tagId int) (Tag, error) {
-	doesTagExist := r.doesTagExist(tagId)
-	if !doesTagExist {
-		return Tag{"", tagId, -1}, fmt.Errorf("tag not found")
-	}
 	var tagName string
 	var appId int
 	err := DB.QueryRow("SELECT tag, app_id FROM tags WHERE tag_id = ?", tagId).Scan(&tagName, &appId)
@@ -116,16 +112,6 @@ func (r *AppRepositoryImpl) getTag(tagId int) (Tag, error) {
 		return Tag{"", tagId, -1}, fmt.Errorf("TODO4")
 	}
 	return Tag{tagName, tagId, appId}, nil
-}
-
-func (r *AppRepositoryImpl) doesTagExist(tagId int) bool {
-	var count int
-	err := DB.QueryRow("SELECT COUNT(*) FROM tags WHERE tag_id = ?", tagId).Scan(&count)
-	if err != nil {
-		Logger.Error("Failed to check if tag exists: %v", err)
-		return false
-	}
-	return count == 1
 }
 
 func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
