@@ -144,6 +144,8 @@ type UserRepository interface {
 //   Implement active_tag in the database. NOT NULL, default is the first tag.
 //	 AppRepo.SwitchActiveTag(appId, tagId int) error -> download two tags, switch between them, assert via the AppReadHandler
 
+// TODO I think I did not yet correctly assert ID's of the items returned.
+
 // TODO Put ID's first in the structs.
 type App struct {
 	Maintainer string
