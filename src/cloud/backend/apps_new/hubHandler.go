@@ -102,15 +102,28 @@ func AppStopHandler(w http.ResponseWriter, r *http.Request) {
 
 // TODO add memory variable: map[appId int]IsAvailable bool -> implemented empty or with just false values, make a separate go routine checking that via "docker compose ls" (see old "apps" module) which sets to "true" if container is healthy
 
-type appInfo struct {
+type AppInfo struct {
 	app         repo.App
 	port        string
 	path        string
-	isAvailable bool // TODO find out via healthchecks
+	isAvailable bool
 }
 
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO return []appInfo as json
+	apps, err := repo.AppRepo.ListApps()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var appInfos []AppInfo
+	for _, app := range apps {
+		// TODO "port" and "path" must be read from the app.yml files and stored in memory. Whenever an app is started, its config must be read from zip.
+		// TODO "isAvailable" must be determined via healthchecks, and stored in memory
+		appInfos = append(appInfos, AppInfo{app, "80", "/", false})
+	}
+
+	utils.SendJsonResponse(w, appInfos)
 }
 
 // TODO readAppHandler, home page -> users can only see available apps and open them, no start or stop visible or allowed by backend.
