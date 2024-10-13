@@ -191,3 +191,4 @@ func TestSetActiveTagOfAppShouldFail(t *testing.T) {
 // TODO SetCookie, DeleteCookie, IsCookieValid
 // TODO the DB interface appears to grow quite large when all all use cases are implemented. Check if could be split up.
 // TODO Test deletion cascading, e.g. deleting user should also delete his group memberships etc.
+// TODO SwitchActiveTag can only be used when the app is not running. -> to handlers
