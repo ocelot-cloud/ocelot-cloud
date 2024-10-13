@@ -46,7 +46,7 @@ func (r *AppRepositoryImpl) GetApp(appId int) (App, error) {
 	if err != nil {
 		return App{}, fmt.Errorf("TODO2")
 	}
-	activeTag, err := r.getTagNameById(activeTagId)
+	activeTag, err := r.getTag(activeTagId)
 	if err != nil {
 		// TODO if tag not found, then it becomes an empty string
 	}
@@ -81,7 +81,7 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		activeTag, err := r.getTagNameById(activeTagId)
+		activeTag, err := r.getTag(activeTagId)
 		if err != nil {
 			// TODOif tag not found, then it becomes an empty string
 		}
@@ -97,9 +97,11 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 }
 
 // TODO If the ID is not found, the query is hanging indefinitely, which is bad. I want to return an error in this case.
-func (r *AppRepositoryImpl) getTagNameById(tagId int) (Tag, error) {
-	if tagId == -1 {
-		return Tag{"", tagId, -1}, nil
+// TODO make Tag a pointer and return nil in case of error?
+func (r *AppRepositoryImpl) getTag(tagId int) (Tag, error) {
+	doesTagExist := r.doesTagExist(tagId)
+	if !doesTagExist {
+		return Tag{"", tagId, -1}, fmt.Errorf("tag not found")
 	}
 	var tagName string
 	var appId int
@@ -108,6 +110,16 @@ func (r *AppRepositoryImpl) getTagNameById(tagId int) (Tag, error) {
 		return Tag{"", tagId, -1}, fmt.Errorf("TODO4")
 	}
 	return Tag{tagName, tagId, appId}, nil
+}
+
+func (r *AppRepositoryImpl) doesTagExist(tagId int) bool {
+	var count int
+	err := DB.QueryRow("SELECT COUNT(*) FROM tags WHERE tag_id = ?", tagId).Scan(&count)
+	if err != nil {
+		Logger.Error("Failed to check if tag exists: %v", err)
+		return false
+	}
+	return count == 1
 }
 
 func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
@@ -156,7 +168,7 @@ func (r *AppRepositoryImpl) DeleteApp(appId int) error {
 }
 
 func (r *AppRepositoryImpl) DeleteTag(tagId int) error {
-	tag, err := r.getTagNameById(tagId)
+	tag, err := r.getTag(tagId)
 	if err != nil {
 		return err
 	}
