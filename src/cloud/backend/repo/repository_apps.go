@@ -40,19 +40,23 @@ func (r *AppRepositoryImpl) CreateTag(appId int, tag string, blob []byte) error 
 
 // TODO Should actually be hidden to outside. I think it would be better to expose interfaces to the outside, while using the implementations internally.
 func (r *AppRepositoryImpl) GetApp(appId int) (*App, error) {
-	var maintainer, app string
+	var maintainer, appName string
 	var activeTagId int
-	err := DB.QueryRow("SELECT maintainer, app, active_tag FROM apps WHERE app_id = ?", appId).Scan(&maintainer, &app, &activeTagId)
+	err := DB.QueryRow("SELECT maintainer, app, active_tag FROM apps WHERE app_id = ?", appId).Scan(&maintainer, &appName, &activeTagId)
 	if err != nil {
 		return nil, fmt.Errorf("TODO2")
 	}
+
+	app := &App{maintainer, appName, appId, "", -1, false}
 	activeTag, err := r.getTag(activeTagId)
 	if err != nil {
 		// TODO if tag not found, then it becomes an empty string
-		return &App{maintainer, app, appId, "", -1}, nil
+		return app, nil
 	}
 	// TODO Add null check?
-	return &App{maintainer, app, appId, activeTag.Name, activeTagId}, nil
+	app.ActiveTagName = activeTag.Name
+	app.ActiveTagId = activeTagId
+	return app, nil
 }
 
 func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error) {
@@ -82,7 +86,7 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, App{maintainer, app, appId, "", activeTagId})
+		result = append(result, App{maintainer, app, appId, "", activeTagId, false})
 	}
 
 	// TODO A little performance hungry. Maybe make one query for all apps and then put it together in memory.

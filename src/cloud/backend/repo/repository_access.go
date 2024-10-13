@@ -67,7 +67,8 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
 			// TODO
 			return nil, err
 		}
-		apps = append(apps, App{maintainer, app, appId, "", -1}) // TODO active tag
+		// TODO Apps are constructed at multiple locations. I should abstract that.
+		apps = append(apps, App{maintainer, app, appId, "", -1, false}) // TODO active tag
 	}
 
 	return apps, nil
