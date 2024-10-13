@@ -109,13 +109,11 @@ func TestActiveTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "", app.ActiveTagName)
 	assert.Equal(t, -1, app.ActiveTagId)
-	/* TODO
 	apps, err := AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, "", apps[0].ActiveTagName)
 	assert.Equal(t, -1, apps[0].ActiveTagId)
-	*/
 
 	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag, sampleBlob))
 
@@ -139,13 +137,11 @@ func TestActiveTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "", app.ActiveTagName)
 	assert.Equal(t, -1, app.ActiveTagId)
-	/* TODO
-	apps, err := AppRepo.ListApps()
+	apps, err = AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, "", apps[0].ActiveTagName)
 	assert.Equal(t, -1, apps[0].ActiveTagId)
-	*/
 }
 
 // TODO When a request proxy does not work, the user should be redirected to the home page, in order to use the button to visit the app.
