@@ -159,7 +159,7 @@ func TestHubIntegration(t *testing.T) {
 
 	if os.Getenv("PROFILE") != "TEST" {
 		time.Sleep(1 * time.Second)
-		asdf(t, cloud.parent.Cookie)
+		assertAppEndpointContent(t, cloud.parent.Cookie)
 	}
 
 	err = cloud.stopAppNew(tagInfo)
@@ -168,7 +168,7 @@ func TestHubIntegration(t *testing.T) {
 	// TODO A second download should return "200" and maybe a message "already downloaded".
 }
 
-func asdf(t *testing.T, cookie *http.Cookie) {
+func assertAppEndpointContent(t *testing.T, cookie *http.Cookie) {
 	url := "http://nginx.localhost"
 	req, err := http.NewRequest("GET", url, nil)
 	assert.Nil(t, err)
@@ -184,4 +184,22 @@ func asdf(t *testing.T, cookie *http.Cookie) {
 	expectedResponse := "<html><body>nginx index page</body></html>"
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, expectedResponse, string(body))
+}
+
+func TestReadApp(t *testing.T) {
+	cloud := getCloud()
+	cloud.parent.RootUrl = "http://localhost:8080" // TODO
+	cloud.login()
+	cloud.downloadTagFromHub(tools.TagInfo{"sampleuser", "nginxdefault", "0.0.1"})
+	apps, err := cloud.readAppsNew()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(apps))
+	app := apps[0]
+	assert.Equal(t, "80", app.Port)
+	assert.Equal(t, "/", app.Path)
+	assert.False(t, app.IsAvailable)
+	assert.Equal(t, "sampleuser", app.App.Maintainer)
+	assert.Equal(t, "nginxdefault", app.App.Name)
+	assert.Equal(t, "0.0.1", app.App.ActiveTagName)
+	assert.False(t, app.App.ShouldBeRunning)
 }

@@ -147,16 +147,6 @@ type UserRepository interface {
 
 // TODO I think I did not yet correctly assert ID's of the items returned.
 
-// TODO Put ID's first in the structs.
-type App struct {
-	Maintainer      string
-	Name            string
-	AppId           int
-	ActiveTagName   string
-	ActiveTagId     int
-	ShouldBeRunning bool // TODO Implement in database, set when starting/stopping app
-}
-
 type Tag struct {
 	Name  string
 	TagId int
@@ -172,8 +162,8 @@ type AppRepository interface {
 	GetTagId(appId int, tag string) (int, error)
 
 	SetActiveTag(appId, tagId int) error
-	GetApp(appId int) (*App, error)
-	ListApps() ([]App, error)
+	GetApp(appId int) (*tools.App, error)
+	ListApps() ([]tools.App, error)
 	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(appId int) ([]byte, error)
 	DeleteApp(appId int) error
@@ -206,7 +196,7 @@ type GroupRepository interface {
 type AccessRepository interface {
 	DoesUserHaveAccessToApp(userId, appId int) bool
 	GiveGroupAccessToApp(groupId, appId int) error
-	ListAppAccessesOfGroup(groupId int) ([]App, error) // TODO different app necessary? no active tag required?
+	ListAppAccessesOfGroup(groupId int) ([]tools.App, error) // TODO different app necessary? no active tag required?
 	RemoveGroupsAccessToApp(groupId, appId int) error
 }
 

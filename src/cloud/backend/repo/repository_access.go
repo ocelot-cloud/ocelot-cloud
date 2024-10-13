@@ -3,6 +3,7 @@ package repo
 import (
 	"database/sql"
 	"fmt"
+	"ocelot/backend/tools"
 	"strings"
 )
 
@@ -17,7 +18,7 @@ func (r *AccessRepositoryImpl) GiveGroupAccessToApp(groupId, appId int) error {
 	return nil
 }
 
-func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]App, error) {
+func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]tools.App, error) {
 	rows, err := DB.Query("SELECT app_id FROM app_access WHERE group_id = ?", groupId)
 	if err != nil {
 		// TODO
@@ -43,7 +44,7 @@ func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]App, error
 	return apps, nil
 }
 
-func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
+func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]tools.App, error) {
 	query := fmt.Sprintf("SELECT maintainer, app, app_id FROM apps WHERE app_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
 
 	args := make([]interface{}, len(ids))
@@ -58,7 +59,7 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
 	}
 	defer rows.Close()
 
-	var apps []App
+	var apps []tools.App
 	for rows.Next() {
 		var maintainer string
 		var app string
@@ -68,7 +69,7 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
 			return nil, err
 		}
 		// TODO Apps are constructed at multiple locations. I should abstract that.
-		apps = append(apps, App{maintainer, app, appId, "", -1, false}) // TODO active tag
+		apps = append(apps, tools.App{maintainer, app, appId, "", -1, false}) // TODO active tag
 	}
 
 	return apps, nil

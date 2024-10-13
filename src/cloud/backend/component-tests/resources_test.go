@@ -208,3 +208,18 @@ func (c *CloudClient) stopAppNew(tagInfo tools.TagInfo) error {
 	}
 	return nil
 }
+
+// TODO I think I can do a generic function for this for simplicity
+func (c *CloudClient) readAppsNew() ([]tools.AppInfoNew, error) {
+	responseBody, err := c.parent.DoRequest("/api/apps/read", nil, "")
+	if err != nil {
+		return nil, err
+	}
+	var appInfo []tools.AppInfoNew
+	err = json.Unmarshal(responseBody.([]byte), &appInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return appInfo, nil
+}

@@ -102,13 +102,6 @@ func AppStopHandler(w http.ResponseWriter, r *http.Request) {
 
 // TODO add memory variable: map[appId int]IsAvailable bool -> implemented empty or with just false values, make a separate go routine checking that via "docker compose ls" (see old "apps" module) which sets to "true" if container is healthy
 
-type AppInfo struct {
-	app         repo.App
-	port        string
-	path        string
-	isAvailable bool
-}
-
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {
 	apps, err := repo.AppRepo.ListApps()
 	if err != nil {
@@ -116,11 +109,11 @@ func AppReadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var appInfos []AppInfo
+	var appInfos []tools.AppInfoNew
 	for _, app := range apps {
 		// TODO "port" and "path" must be read from the app.yml files and stored in memory. Whenever an app is started, its config must be read from zip.
 		// TODO "isAvailable" must be determined via healthchecks, and stored in memory
-		appInfos = append(appInfos, AppInfo{app, "80", "/", false})
+		appInfos = append(appInfos, tools.AppInfoNew{app, "80", "/", false})
 	}
 
 	utils.SendJsonResponse(w, appInfos)
