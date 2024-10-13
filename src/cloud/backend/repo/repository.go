@@ -140,11 +140,17 @@ type UserRepository interface {
 	GetAssociatedCookieValueAndDeleteSecret(secret string) (string, error)
 }
 
+// TODO The GUI user needs a way to set the active tag.
+//   Implement active_tag in the database. NOT NULL, default is the first tag.
+//	 AppRepo.SwitchActiveTag(appId, tagId int) error -> download two tags, switch between them, assert via the AppReadHandler
+
 // TODO Put ID's first in the structs.
 type App struct {
 	Maintainer string
 	Name       string
-	Id         int
+	AppId      int
+	ActiveTag  string
+	TagId      int
 }
 
 type Tag struct {

@@ -50,7 +50,7 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, App{Maintainer: maintainer, Name: app, Id: appId})
+		result = append(result, App{Maintainer: maintainer, Name: app, AppId: appId})
 	}
 
 	if err = rows.Err(); err != nil {

@@ -17,6 +17,7 @@ var Logger = tools.Logger
 // TODO Return error messaged like in the hub handlers
 // TODO Re-use the approach to read dto's from requests like it was done in
 
+// TODO The handlers should require ID's where appropriate instead of long data structure, like in the repos.
 func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
 	userAndApp, err := ReadBody[tools.UserAndApp](r)
 	if err != nil {
@@ -102,14 +103,14 @@ type appInfo struct {
 	appMaintainer string
 	appName       string
 	appId         int
-	activeTag     string
+	activeTag     string // TODO Add to database
 	tagId         int
 	path          string
 	isAvailable   bool // TODO find out via healthchecks
 }
 
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {
-
+	// TODO return []appInfo as json
 }
 
 // TODO readAppHandler, home page -> users can only see available apps and open them, no start or stop visible or allowed by backend.
