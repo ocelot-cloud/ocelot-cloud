@@ -337,3 +337,5 @@ run:
   * the public container must have a name which is the same as the app name
   * Do I allow custom builds via "context: ."? Seems dangerous, ask ChatGPT.
   * force explicit image tags for stability, no "latest" allowed (or empty tag which implicitly means "latest")
+
+* add GUI feature to download tags as zip

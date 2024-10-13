@@ -99,7 +99,7 @@ func TestDeleteTag(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestActiveTag(t *testing.T) {
+func TestActiveTagLifecycle(t *testing.T) {
 	defer dbRepo.WipeDatabase()
 	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
@@ -137,6 +137,36 @@ func TestActiveTag(t *testing.T) {
 	assert.Equal(t, 1, len(apps))
 	assert.Equal(t, "", apps[0].ActiveTagName)
 	assert.Equal(t, -1, apps[0].ActiveTagId)
+}
+
+func TestSetActiveTag(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	sampleTag2 := sampleTag + "2"
+	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
+	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag, sampleBlob))
+	tagId1, err := AppRepo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	assert.Nil(t, AppRepo.CreateTag(appId, sampleTag2, sampleBlob))
+	tagId2, err := AppRepo.GetTagId(appId, sampleTag2)
+	assert.Nil(t, err)
+
+	app, err := AppRepo.GetApp(appId)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleTag, app.ActiveTagName)
+	assert.Equal(t, tagId1, app.ActiveTagId)
+
+	assert.Nil(t, AppRepo.SetActiveTag(appId, tagId2))
+	app, err = AppRepo.GetApp(appId)
+	assert.Nil(t, err)
+	assert.Equal(t, sampleTag2, app.ActiveTagName)
+	assert.Equal(t, tagId2, app.ActiveTagId)
+}
+
+func TestSetActiveTagOfWrongApp(t *testing.T) {
+	defer dbRepo.WipeDatabase()
+	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
 }
 
 // TODO When a request proxy does not work, the user should be redirected to the home page, in order to use the button to visit the app.
