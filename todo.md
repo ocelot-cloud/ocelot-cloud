@@ -336,3 +336,4 @@ run:
   * networks and volume names must exactly correlated with the maintainer and app name
   * the public container must have a name which is the same as the app name
   * Do I allow custom builds via "context: ."? Seems dangerous, ask ChatGPT.
+  * force explicit image tags for stability, no "latest" allowed (or empty tag which implicitly means "latest")

@@ -36,7 +36,7 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 func initializeTables() {
 	_, err := DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
-			user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER PRIMARY KEY,
 			user_name VARCHAR(255) NOT NULL UNIQUE,
 			hashed_password VARCHAR(255) NOT NULL UNIQUE,
 			cookie_value VARCHAR(255) UNIQUE,
@@ -52,7 +52,7 @@ func initializeTables() {
 	// TODO When active tag is deleted, test that active tag column is set zero.
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS apps (
-			app_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			app_id INTEGER PRIMARY KEY,
 			maintainer VARCHAR(255) NOT NULL,
 			app VARCHAR(255) NOT NULL,
 			active_tag INT REFERENCES tags(tag_id) ON DELETE SET NULL, 
@@ -66,7 +66,7 @@ func initializeTables() {
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS tags (
 			app_id INT REFERENCES apps(app_id) ON DELETE CASCADE,
-			tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			tag_id INTEGER PRIMARY KEY,
 			tag VARCHAR(255) NOT NULL,
 			blob BYTEA NOT NULL,
 			UNIQUE (app_id, tag)
@@ -78,7 +78,7 @@ func initializeTables() {
 
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS groups (
-			group_id INTEGER PRIMARY KEY AUTOINCREMENT,
+			group_id INTEGER PRIMARY KEY,
 			group_name VARCHAR(255) NOT NULL UNIQUE 
 		);
 	`)
@@ -143,7 +143,6 @@ type UserRepository interface {
 }
 
 // TODO The GUI user needs a way to set the active tag.
-//   Implement active_tag in the database. NOT NULL, default is the first tag.
 //	 AppRepo.SwitchActiveTag(appId, tagId int) error -> download two tags, switch between them, assert via the AppReadHandler
 
 // TODO I think I did not yet correctly assert ID's of the items returned.
