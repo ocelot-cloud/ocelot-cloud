@@ -202,8 +202,8 @@ func (c *CloudClient) startAppNew(appId int) error {
 	return nil
 }
 
-func (c *CloudClient) stopAppNew(tagInfo tools.TagInfo) error {
-	_, err := c.parent.DoRequest("/api/apps/stop", tagInfo, "")
+func (c *CloudClient) stopAppNew(appId int) error {
+	_, err := c.parent.DoRequest("/api/apps/stop", tools.SingleInt{appId}, "")
 	if err != nil {
 		return err
 	}

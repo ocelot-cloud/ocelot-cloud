@@ -166,7 +166,7 @@ func TestHubIntegration(t *testing.T) {
 		assertAppEndpointContent(t, cloud.parent.Cookie)
 	}
 
-	err = cloud.stopAppNew(tagInfo)
+	err = cloud.stopAppNew(appInfos[0].App.AppId)
 	assert.Nil(t, err)
 
 	// TODO A second download should return "200" and maybe a message "already downloaded".

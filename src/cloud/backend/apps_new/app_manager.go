@@ -44,43 +44,7 @@ func StartContainer(appId int) error {
 	}
 
 	cmd := exec.Command("docker", "compose", "-p", app.Name, "up", "-d")
-	err = extractTagToDir(*app, cmd)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// TODO arg should be an tag ID, handler should require this ID
-func extractTagToDir(app tools.App, command *exec.Cmd) error {
-	tagContent, err := repo.AppRepo.LoadTagBlob(app.ActiveTagId)
-	if err != nil {
-		return err
-	}
-
-	tempDir, err := os.MkdirTemp("", "docker-compose")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(tempDir)
-
-	zipFilePath := filepath.Join(tempDir, "archive.zip")
-	err = os.WriteFile(zipFilePath, tagContent, 0644)
-	if err != nil {
-		return err
-	}
-
-	err = unzip(zipFilePath, tempDir)
-	if err != nil {
-		return err
-	}
-
-	cmd := command
-	cmd.Dir = tempDir
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err = cmd.Run()
+	err = extractTagToDirAndDeploy(app.ActiveTagId, cmd)
 	if err != nil {
 		return err
 	}
@@ -151,27 +115,21 @@ func InitializeAppsModule() {
 	tools.Router.HandleFunc("/api/apps/read", AppReadHandler)
 }
 
-func StopContainer(info tools.TagInfo) error {
-	cmd := exec.Command("docker", "compose", "-p", info.App, "down")
-	err := extractTagToDirDeprecated(info, cmd)
+func StopContainer(appId int) error {
+	app, err := repo.AppRepo.GetApp(appId)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("docker", "compose", "-p", app.Name, "down")
+	err = extractTagToDirAndDeploy(app.ActiveTagId, cmd)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// TODO Use the new function above instead
-func extractTagToDirDeprecated(info tools.TagInfo, command *exec.Cmd) error {
-	appId, err := repo.AppRepo.GetAppId(info.User, info.App)
-	if err != nil {
-		return err
-	}
-
-	tagId, err := repo.AppRepo.GetTagId(appId, info.Tag)
-	if err != nil {
-		return err
-	}
-
+func extractTagToDirAndDeploy(tagId int, command *exec.Cmd) error {
 	tagContent, err := repo.AppRepo.LoadTagBlob(tagId)
 	if err != nil {
 		return err

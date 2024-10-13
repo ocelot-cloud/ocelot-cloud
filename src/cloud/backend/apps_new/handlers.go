@@ -81,12 +81,12 @@ func AppStartHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AppStopHandler(w http.ResponseWriter, r *http.Request) {
-	tagInfo, err := ReadBody[tools.TagInfo](r)
+	appIdStruct, err := ReadBody[tools.SingleInt](r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = StopContainer(*tagInfo)
+	err = StopContainer(appIdStruct.Value)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
