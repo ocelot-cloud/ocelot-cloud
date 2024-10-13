@@ -6,6 +6,7 @@ import (
 	"github.com/ocelot-cloud/shared/utils"
 	"io"
 	"net/http"
+	"ocelot/backend/repo"
 	"ocelot/backend/tools"
 )
 
@@ -99,14 +100,13 @@ func AppStopHandler(w http.ResponseWriter, r *http.Request) {
 //   On start, there should be a process that does the health checks?
 //   "apps" table: active_tag
 
+// TODO add memory variable: map[appId int]IsAvailable bool -> implemented empty or with just false values, make a separate go routine checking that via "docker compose ls" (see old "apps" module) which sets to "true" if container is healthy
+
 type appInfo struct {
-	appMaintainer string
-	appName       string
-	appId         int
-	activeTag     string // TODO Add to database
-	tagId         int
-	path          string
-	isAvailable   bool // TODO find out via healthchecks
+	app         repo.App
+	port        string
+	path        string
+	isAvailable bool // TODO find out via healthchecks
 }
 
 func AppReadHandler(w http.ResponseWriter, r *http.Request) {

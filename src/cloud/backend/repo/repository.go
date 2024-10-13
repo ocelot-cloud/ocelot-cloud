@@ -149,12 +149,12 @@ type UserRepository interface {
 
 // TODO Put ID's first in the structs.
 type App struct {
-	Maintainer    string
-	Name          string
-	AppId         int
-	ActiveTagName string
-	ActiveTagId   int
-	// TODO add shouldBeRunning?
+	Maintainer      string
+	Name            string
+	AppId           int
+	ActiveTagName   string
+	ActiveTagId     int
+	ShouldBeRunning bool // TODO Implement in database, set when starting/stopping app
 }
 
 type Tag struct {
