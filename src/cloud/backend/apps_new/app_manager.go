@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// TODO I am missing a test, where the app uses custom port and path, and client tries to access a specific message from there. Add a seconds nginx app for this.
 // TODO Add logs to errors.
 
 var hubClient HubClient

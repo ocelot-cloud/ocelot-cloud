@@ -67,7 +67,7 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]App, error) {
 			// TODO
 			return nil, err
 		}
-		apps = append(apps, App{maintainer, app, appId})
+		apps = append(apps, App{maintainer, app, appId, "", -1}) // TODO active tag
 	}
 
 	return apps, nil
