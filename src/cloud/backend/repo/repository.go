@@ -150,11 +150,11 @@ type UserRepository interface {
 
 // TODO Put ID's first in the structs.
 type App struct {
-	Maintainer string
-	Name       string
-	AppId      int
-	ActiveTag  string
-	TagId      int
+	Maintainer  string
+	Name        string
+	AppId       int
+	ActiveTag   string
+	ActiveTagId int
 	// TODO add shouldBeRunning?
 }
 
@@ -204,7 +204,7 @@ type GroupRepository interface {
 type AccessRepository interface {
 	DoesUserHaveAccessToApp(userId, appId int) bool
 	GiveGroupAccessToApp(groupId, appId int) error
-	ListAppAccessesOfGroup(groupId int) ([]App, error)
+	ListAppAccessesOfGroup(groupId int) ([]App, error) // TODO different app necessary? no active tag required?
 	RemoveGroupsAccessToApp(groupId, appId int) error
 }
 

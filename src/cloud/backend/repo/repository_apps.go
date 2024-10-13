@@ -6,7 +6,7 @@ import (
 
 // TODO test: is app already existing
 func (r *AppRepositoryImpl) CreateApp(maintainer, app string) error {
-	_, err := DB.Exec("INSERT INTO apps (maintainer, app) VALUES (?, ?)", maintainer, app)
+	_, err := DB.Exec("INSERT INTO apps (maintainer, app, active_tag) VALUES (?, ?, ?)", maintainer, app, -1)
 	if err != nil {
 		Logger.Error("Failed to create app: %v", err)
 		return fmt.Errorf("failed to create app")
@@ -35,7 +35,7 @@ func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error)
 }
 
 func (r *AppRepositoryImpl) ListApps() ([]App, error) {
-	rows, err := DB.Query("SELECT maintainer, app, app_id FROM apps")
+	rows, err := DB.Query("SELECT maintainer, app, app_id, active_tag FROM apps")
 	if err != nil {
 		Logger.Error("Failed to fetch app list: %v", err)
 		return nil, fmt.Errorf("failed to fetch app list")
@@ -45,12 +45,16 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 	var result []App
 	for rows.Next() {
 		var maintainer, app string
-		var appId int
-		if err = rows.Scan(&maintainer, &app, &appId); err != nil {
+		var appId, activeTagId int
+		if err = rows.Scan(&maintainer, &app, &appId, &activeTagId); err != nil {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, App{Maintainer: maintainer, Name: app, AppId: appId})
+		activeTagName, err := r.getTagNameById(activeTagId)
+		if err != nil {
+			// TODOif tag not found, then it becomes an empty string
+		}
+		result = append(result, App{maintainer, app, appId, activeTagName, activeTagId})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -60,6 +64,20 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 
 	return result, nil
 }
+
+// TODO If the ID is not found, the query is hanging indefinitely, which is bad. I want to return an error in this case.
+func (r *AppRepositoryImpl) getTagNameById(tagId int) (string, error) {
+	if tagId == -1 {
+		return "", nil
+	}
+	var tagName string
+	err := DB.QueryRow("SELECT tag FROM tags WHERE tag_id = ?", tagId).Scan(&tagName)
+	if err != nil {
+		return "", fmt.Errorf("TODO4")
+	}
+	return tagName, nil
+}
+
 func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
 	rows, err := DB.Query("SELECT tag, tag_id FROM tags WHERE app_id = ?", appId)
 	if err != nil {
