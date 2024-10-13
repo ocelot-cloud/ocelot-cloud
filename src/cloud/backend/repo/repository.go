@@ -159,8 +159,9 @@ type App struct {
 }
 
 type Tag struct {
-	Name string
-	Id   int
+	Name  string
+	TagId int
+	AppId int
 }
 
 type AppRepository interface {

@@ -46,11 +46,12 @@ func (r *AppRepositoryImpl) GetApp(appId int) (App, error) {
 	if err != nil {
 		return App{}, fmt.Errorf("TODO2")
 	}
-	activeTagName, err := r.getTagNameById(activeTagId)
+	activeTag, err := r.getTagNameById(activeTagId)
 	if err != nil {
 		// TODO if tag not found, then it becomes an empty string
 	}
-	return App{maintainer, app, appId, activeTagName, activeTagId}, nil
+	// TODO Add null check?
+	return App{maintainer, app, appId, activeTag.Name, activeTagId}, nil
 }
 
 func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error) {
@@ -80,11 +81,11 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		activeTagName, err := r.getTagNameById(activeTagId)
+		activeTag, err := r.getTagNameById(activeTagId)
 		if err != nil {
 			// TODOif tag not found, then it becomes an empty string
 		}
-		result = append(result, App{maintainer, app, appId, activeTagName, activeTagId})
+		result = append(result, App{maintainer, app, appId, activeTag.Name, activeTagId})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -96,16 +97,17 @@ func (r *AppRepositoryImpl) ListApps() ([]App, error) {
 }
 
 // TODO If the ID is not found, the query is hanging indefinitely, which is bad. I want to return an error in this case.
-func (r *AppRepositoryImpl) getTagNameById(tagId int) (string, error) {
+func (r *AppRepositoryImpl) getTagNameById(tagId int) (Tag, error) {
 	if tagId == -1 {
-		return "", nil
+		return Tag{"", tagId, -1}, nil
 	}
 	var tagName string
-	err := DB.QueryRow("SELECT tag FROM tags WHERE tag_id = ?", tagId).Scan(&tagName)
+	var appId int
+	err := DB.QueryRow("SELECT tag, app_id FROM tags WHERE tag_id = ?", tagId).Scan(&tagName, &appId)
 	if err != nil {
-		return "", fmt.Errorf("TODO4")
+		return Tag{"", tagId, -1}, fmt.Errorf("TODO4")
 	}
-	return tagName, nil
+	return Tag{tagName, tagId, appId}, nil
 }
 
 func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
@@ -124,7 +126,7 @@ func (r *AppRepositoryImpl) ListTagsOfApp(appId int) ([]Tag, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		tag := Tag{tagName, tagId}
+		tag := Tag{tagName, tagId, appId}
 		result = append(result, tag)
 	}
 
@@ -154,10 +156,28 @@ func (r *AppRepositoryImpl) DeleteApp(appId int) error {
 }
 
 func (r *AppRepositoryImpl) DeleteTag(tagId int) error {
-	_, err := DB.Exec("DELETE FROM tags WHERE tag_id = ?", tagId)
+	tag, err := r.getTagNameById(tagId)
+	if err != nil {
+		return err
+	}
+
+	_, err = DB.Exec("DELETE FROM tags WHERE tag_id = ?", tagId)
 	if err != nil {
 		return fmt.Errorf("TODO8")
 	}
+
+	app, err := r.GetApp(tag.AppId)
+	if err != nil {
+		return err
+	}
+
+	if app.ActiveTagId == tagId {
+		_, err = DB.Exec("UPDATE apps SET active_tag = ? WHERE app_id = ?", -1, tag.AppId)
+		if err != nil {
+			return fmt.Errorf("TODO9")
+		}
+	}
+
 	return nil
 }
 

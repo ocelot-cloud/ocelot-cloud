@@ -104,7 +104,9 @@ func TestActiveTag(t *testing.T) {
 	assert.Nil(t, AppRepo.CreateApp(sampleMaintainer, sampleApp))
 	appId, err := AppRepo.GetAppId(sampleMaintainer, sampleApp)
 	assert.Nil(t, err)
+
 	app, err := AppRepo.GetApp(appId)
+	assert.Nil(t, err)
 	assert.Equal(t, "", app.ActiveTag)
 	assert.Equal(t, -1, app.ActiveTagId)
 
@@ -114,6 +116,15 @@ func TestActiveTag(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTag, app.ActiveTag)
 	assert.True(t, app.ActiveTagId >= 0)
+
+	tagId, err := AppRepo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	assert.Nil(t, AppRepo.DeleteTag(tagId))
+
+	app, err = AppRepo.GetApp(appId)
+	assert.Nil(t, err)
+	assert.Equal(t, "", app.ActiveTag)
+	assert.Equal(t, -1, app.ActiveTagId)
 }
 
 // TODO test to delete active tag, should reset the values in "apps" table.
