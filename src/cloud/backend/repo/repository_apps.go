@@ -195,9 +195,17 @@ func (r *AppRepositoryImpl) GetTagId(appId int, tag string) (int, error) {
 	return tagId, nil
 }
 
-// TODO To be tested. You can only set an active tag if it is a tag of the app.
 func (r *AppRepositoryImpl) SetActiveTag(appId, tagId int) error {
-	_, err := DB.Exec("UPDATE apps SET active_tag = ? WHERE app_id = ?", tagId, appId)
+	tag, err := r.getTag(tagId)
+	if err != nil {
+		return err
+	}
+	if tag.AppId != appId {
+		// TODO Logger
+		return fmt.Errorf("tag is not of the app")
+	}
+
+	_, err = DB.Exec("UPDATE apps SET active_tag = ? WHERE app_id = ?", tagId, appId)
 	if err != nil {
 		return fmt.Errorf("TODO10")
 	}

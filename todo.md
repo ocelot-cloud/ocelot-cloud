@@ -339,3 +339,4 @@ run:
   * force explicit image tags for stability, no "latest" allowed (or empty tag which implicitly means "latest")
 
 * add GUI feature to download tags as zip
+* There should be an emergency option like "stop all apps", in case there are inconsistencies or so, in which the user can help himself. Should generate and send an error report maybe?
