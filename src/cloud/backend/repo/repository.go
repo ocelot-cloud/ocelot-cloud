@@ -49,11 +49,13 @@ func initializeTables() {
 		Logger.Fatal("Failed to create users table: %v", err)
 	}
 
+	// TODO When active tag is deleted, test that active tag column is set zero.
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS apps (
 			app_id INTEGER PRIMARY KEY AUTOINCREMENT,
 			maintainer VARCHAR(255) NOT NULL,
 			app VARCHAR(255) NOT NULL,
+			active_tag INT REFERENCES tags(tag_id) ON DELETE SET NULL, 
 			UNIQUE (maintainer, app)
 		);
 	`)
