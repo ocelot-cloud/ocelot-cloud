@@ -26,7 +26,8 @@ type App struct {
 type RegistrationForm struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
-	Email    string `json:"email"`
+	// TODO Replace email by CAPTCHA.
+	Email string `json:"email"`
 }
 
 type LoginCredentials struct {
