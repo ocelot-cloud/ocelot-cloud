@@ -151,48 +151,22 @@ func getTagsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
-	tagInfo, err := readBody[TagInfo](r)
-	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
-		return
-	}
-
-	if !repo.DoesUserExist(tagInfo.User) {
-		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but user does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
-		http.Error(w, "user does not exist", http.StatusNotFound)
-		return
-	}
-
-	appId, err := repo.GetAppId(tagInfo.User, tagInfo.App)
+	tagId, err := readBodyAsSingleInteger(r)
 	if err != nil {
 		// TODO
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
-
-	if !repo.DoesAppExist(appId) {
-		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but app does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
-
-	tagId, err := repo.GetTagId(appId, tagInfo.Tag)
-	if err != nil {
-		// TODO
-		http.Error(w, "tag does not exist", http.StatusNotFound)
+		http.Error(w, "tag ID could not be read", http.StatusBadRequest)
 		return
 	}
 
 	if !repo.DoesTagExist(tagId) {
-		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but tag does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
+		Logger.Info("tag with ID '%d' does not exist", tagId)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
 	content, err := repo.GetTagContent(tagId)
 	if err != nil {
-		Logger.Error("getting tag content failed for user='%s', app='%s' and tag='%s': %v", tagInfo.User, tagInfo.App, tagInfo.Tag, err)
+		Logger.Error("error when accessing tag content: %v", err)
 		http.Error(w, "error when accessing tag content", http.StatusInternalServerError)
 		return
 	}

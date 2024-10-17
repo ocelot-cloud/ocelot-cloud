@@ -32,10 +32,6 @@ func TestDownloadAppSecurity(t *testing.T) {
 	downloadedContent, err := hub.downloadTag()
 	assert.Nil(t, err)
 	assert.Equal(t, sampleTagFileContent, downloadedContent)
-
-	testInputInvalidation(t, hub, "invalid-user", UserField, DownloadTag)
-	testInputInvalidation(t, hub, "invalid-app", AppField, DownloadTag)
-	testInputInvalidation(t, hub, "invalid-tag", TagField, DownloadTag)
 }
 
 func TestGetTagsSecurity(t *testing.T) {

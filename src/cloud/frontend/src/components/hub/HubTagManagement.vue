@@ -35,18 +35,18 @@
                 v-for="tag in tagList"
                 :key="tag.name"
                 class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
-                :class="{ active: selectedTag === tag.name }"
-                @click="selectTag(tag.name)"
+                :class="{ active: selectedTag.id === tag.id }"
+                @click="selectTag(tag)"
                 style="cursor: pointer;"
             >
               <span>{{ tag.name }}</span>
-              <i v-if="selectedTag === tag.name" class="bi bi-check-circle-fill text-success"></i>
+              <i v-if="selectedTag.id === tag.id" class="bi bi-check-circle-fill text-success"></i>
             </li>
           </ul>
         </div>
       </div>
 
-      <div v-if="tagList && selectedTag" class="app-operations d-flex justify-content-end">
+      <div v-if="tagList && selectedTag.id != -1" class="app-operations d-flex justify-content-end">
         <button id="button-download-tag" @click="downloadTag" class="btn btn-primary me-2">Download</button>
         <button id="button-delete-tag" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
       </div>
@@ -93,8 +93,8 @@ export default defineComponent({
     const route = useRoute();
     const appName = route.query.appName
     const appId = Number(route.query.appId);
-    const user = route.query.user
-    const selectedTag = ref("");
+    const user = route.query.user // TODO Not used? Should be shown in the header?
+    const selectedTag = ref<Tag>(new Tag("", -1));
     const showDeleteConfirmation = ref(false);
     const submitted = ref(false);
     const errorMessageText = ref(generateInvalidInputMessage("tag", tagAllowedSymbols, defaultMinLength, defaultMaxLength))
@@ -153,9 +153,9 @@ export default defineComponent({
     };
 
     const deleteTag = async () => {
-      const response = await doHubRequest("/tags/delete", { app: appName, tag: selectedTag.value });
+      const response = await doHubRequest("/tags/delete", { app: appName, tag: selectedTag.value.name });
       if (response != null) {
-        tagList.value = tagList.value.filter(tag => tag.name !== selectedTag.value);
+        tagList.value = tagList.value.filter(tag => tag.id !== selectedTag.value.id);
         showDeleteConfirmation.value = false;
       } else {
         alert('Failed to delete tag.');
@@ -164,7 +164,7 @@ export default defineComponent({
 
     const downloadTag = async () => {
       try {
-        const response = await doHubRequest("/tags/download", { user, app: appName, tag: selectedTag.value })
+        const response = await doHubRequest("/tags/download", { value: selectedTag.value.id })
         if (response != null) {
           const blob = new Blob([response.data], { type: 'application/gzip' });
           const downloadUrl = window.URL.createObjectURL(blob);
@@ -182,11 +182,13 @@ export default defineComponent({
       }
     };
 
-    const selectTag = (tag: string) => {
-      if (selectedTag.value == tag) {
-        selectedTag.value = ""
+    const selectTag = (tag: Tag) => {
+      if (selectedTag.value.id == tag.id) {
+        selectedTag.value.name = ""
+        selectedTag.value.id = -1
       } else {
-        selectedTag.value = tag;
+        selectedTag.value.name = tag.name;
+        selectedTag.value.id = tag.id;
       }
     }
 

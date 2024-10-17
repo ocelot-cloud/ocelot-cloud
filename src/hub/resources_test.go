@@ -29,6 +29,7 @@ type HubClient struct {
 	Tag           string
 	UploadContent []byte
 	AppId         int
+	TagId         int
 }
 
 type Operation int
@@ -159,17 +160,25 @@ func (h *HubClient) uploadTag() error {
 		Content: h.UploadContent,
 	}
 	_, err := h.Parent.DoRequest(tagUploadPath, tapUpload, "")
-	return err
+	if err != nil {
+		return err
+	}
+
+	tags, err := h.getTags()
+	if err != nil {
+		return err
+	}
+	for _, tag := range tags {
+		if tag.Name == h.Tag {
+			h.TagId = tag.Id
+			return nil
+		}
+	}
+	return fmt.Errorf("tag not found on server")
 }
 
 func (h *HubClient) downloadTag() (string, error) {
-	tagInfo := &TagInfo{
-		User: h.Parent.User,
-		App:  h.App,
-		Tag:  h.Tag,
-	}
-
-	result, err := h.Parent.DoRequest(downloadPath, tagInfo, "")
+	result, err := h.Parent.DoRequest(downloadPath, utils.SingleInteger{h.TagId}, "")
 	if err != nil {
 		return "", err
 	}
