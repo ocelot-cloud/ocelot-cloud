@@ -94,6 +94,14 @@ func readBodyAsSingleString(r *http.Request, validationType ValidationType) (str
 	return result, nil
 }
 
+func readBodyAsSingleInteger(r *http.Request) (int, error) {
+	singleString, err := readBody[utils.SingleInteger](r)
+	if err != nil {
+		return -1, err
+	}
+	return singleString.Value, nil
+}
+
 func wipeDataHandler(w http.ResponseWriter, r *http.Request) {
 	repo.WipeDatabase()
 	Logger.Warn("database wipe completed")
