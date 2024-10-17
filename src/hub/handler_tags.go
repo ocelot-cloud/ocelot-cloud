@@ -72,7 +72,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.CreateTag(user, tagUpload.App, tagUpload.Tag, tagUpload.Content)
+	err = repo.CreateTag(appId, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
 		Logger.Error("creating tag '%s' for user '%s' failed: %v", tagUpload.App, user, err)
 		http.Error(w, "invalid input", http.StatusInternalServerError)

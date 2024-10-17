@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/ocelot-cloud/shared"
 	"github.com/ocelot-cloud/shared/utils"
 	"net/http"
@@ -105,11 +104,14 @@ func loadSampleApp() {
 	dirPath := "./assets/sampleuser_nginxdefault"
 	zipBytes, err := utils.ZipDirectoryToBytes(dirPath)
 	if err != nil {
-		fmt.Printf("Failed to zip directory: %v\n", err)
-		return
+		Logger.Fatal("Failed to zip directory: %v", err)
 	}
 
-	err = repo.CreateTag(sampleUser, sampleApp, "0.0.1", zipBytes)
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	if err != nil {
+		Logger.Fatal("Failed to get app ID: %v", err)
+	}
+	err = repo.CreateTag(appId, "0.0.1", zipBytes)
 	if err != nil {
 		Logger.Fatal("Failed to create sample tag: %v", err)
 	}

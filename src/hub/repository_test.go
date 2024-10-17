@@ -182,7 +182,9 @@ func TestGetTagList(t *testing.T) {
 	assert.Equal(t, 0, len(foundTags))
 	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
-	assert.Nil(t, repo.CreateTag(sampleUser, sampleApp, sampleTag, []byte("asdf")))
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, repo.CreateTag(appId, sampleTag, []byte("asdf")))
 	foundTags, err = repo.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
@@ -198,7 +200,7 @@ func TestGetTagList(t *testing.T) {
 	assert.Equal(t, 0, len(foundTags))
 	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
-	assert.Nil(t, repo.CreateTag(sampleUser, sampleApp, sampleTag, []byte("asdf")))
+	assert.Nil(t, repo.CreateTag(appId, sampleTag, []byte("asdf")))
 	foundTags, err = repo.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
@@ -237,15 +239,17 @@ func TestUsedSpace(t *testing.T) {
 	assert.Equal(t, 0, space)
 
 	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
 
 	bytes := []byte("hello")
 	bytes2 := []byte(" world")
-	assert.Nil(t, repo.CreateTag(sampleUser, sampleApp, sampleTag, bytes))
+	assert.Nil(t, repo.CreateTag(appId, sampleTag, bytes))
 	space, err = repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 5, space)
 
-	assert.Nil(t, repo.CreateTag(sampleUser, sampleApp, sampleTag+"x", bytes2))
+	assert.Nil(t, repo.CreateTag(appId, sampleTag+"x", bytes2))
 	space, err = repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 11, space)
@@ -255,13 +259,11 @@ func TestUsedSpace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 6, space)
 
-	assert.Nil(t, repo.CreateTag(sampleUser, sampleApp, sampleTag, bytes2))
+	assert.Nil(t, repo.CreateTag(appId, sampleTag, bytes2))
 	space, err = repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 12, space)
 
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
-	assert.Nil(t, err)
 	assert.Nil(t, repo.DeleteApp(appId))
 	space, err = repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)

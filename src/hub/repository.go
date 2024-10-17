@@ -97,7 +97,7 @@ type Repository interface {
 	FindApps(query string) ([]App, error)
 	GetAppId(user, app string) (int, error)
 
-	CreateTag(user string, app string, tag string, data []byte) error
+	CreateTag(appId int, tag string, data []byte) error
 	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
 	DoesTagExist(user string, app string, tag string) bool
@@ -203,11 +203,9 @@ func (u *SqliteRepository) DoesAppExist(appId int) bool {
 }
 
 func (u *SqliteRepository) DeleteApp(appId int) error {
-	var userId int
-	err := db.QueryRow(`SELECT user_id FROM apps WHERE app_id = ?`, appId).Scan(&userId)
+	userId, err := getUserIdOfApp(appId)
 	if err != nil {
-		// TODO I should log the detailed error including the "err" msg, but . Should be done everywhere in the hub.
-		return logAndReturnError("Failed to get user ID for app ID: %d, error: %v\n", appId, err)
+		return err
 	}
 
 	totalDataSize, err := u.sumBlobSizes(appId)
@@ -226,6 +224,16 @@ func (u *SqliteRepository) DeleteApp(appId int) error {
 	}
 
 	return nil
+}
+
+func getUserIdOfApp(appId int) (int, error) {
+	var userId int
+	err := db.QueryRow(`SELECT user_id FROM apps WHERE app_id = ?`, appId).Scan(&userId)
+	if err != nil {
+		// TODO I should log the detailed error including the "err" msg, but . Should be done everywhere in the hub.
+		return -1, logAndReturnError("Failed to get user ID for app ID: %d, error: %v\n", appId, err)
+	}
+	return userId, nil
 }
 
 func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
@@ -337,19 +345,19 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 	return user, nil
 }
 
-func (u *SqliteRepository) CreateTag(user string, app string, tag string, data []byte) error {
-	appID, err := u.GetAppId(user, app)
+func (u *SqliteRepository) CreateTag(appId int, tag string, data []byte) error {
+	userId, err := getUserIdOfApp(appId)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("INSERT INTO tags (app_id, tag_name, data) VALUES (?, ?, ?)", appID, tag, data)
+	_, err = db.Exec("INSERT INTO tags (app_id, tag_name, data) VALUES (?, ?, ?)", appId, tag, data)
 	if err != nil {
 		return fmt.Errorf("failed to create tag: %w", err)
 	}
 
 	dataSize := len(data)
-	_, err = db.Exec("UPDATE users SET used_space = used_space + ? WHERE user_name = ?", dataSize, user)
+	_, err = db.Exec("UPDATE users SET used_space = used_space + ? WHERE user_id = ?", dataSize, userId)
 	if err != nil {
 		return fmt.Errorf("failed to update user space: %w", err)
 	}
