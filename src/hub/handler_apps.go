@@ -58,13 +58,6 @@ func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	appId, err := repo.GetAppId(user, app)
 	if err != nil {
-		// TODO
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
-
-	// TODO Duplication? Can be removed?
-	if !repo.DoesAppExist(appId) {
 		Logger.Info("user '%s' tried to delete app '%s' but it does not exist", user, app)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
