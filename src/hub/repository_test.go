@@ -194,7 +194,9 @@ func TestGetTagList(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, []byte("asdf"), data)
 
-	assert.Nil(t, repo.DeleteTag(sampleUser, sampleApp, sampleTag))
+	tagId, err := repo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	assert.Nil(t, repo.DeleteTag(tagId))
 	foundTags, err = repo.GetTagList(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
@@ -254,7 +256,9 @@ func TestUsedSpace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 11, space)
 
-	assert.Nil(t, repo.DeleteTag(sampleUser, sampleApp, sampleTag))
+	tagId, err := repo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	assert.Nil(t, repo.DeleteTag(tagId))
 	space, err = repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 6, space)

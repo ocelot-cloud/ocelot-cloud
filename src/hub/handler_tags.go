@@ -93,13 +93,27 @@ func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	appId, err := repo.GetAppId(user, tagInfo.App)
+	if err != nil {
+		// TODO
+		http.Error(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	tagId, err := repo.GetTagId(appId, tagInfo.Tag)
+	if err != nil {
+		// TODO
+		http.Error(w, "tag does not exist", http.StatusNotFound)
+		return
+	}
+
 	if !repo.DoesTagExist(user, tagInfo.App, tagInfo.Tag) {
 		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", user, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
-	err = repo.DeleteTag(user, tagInfo.App, tagInfo.Tag)
+	err = repo.DeleteTag(tagId)
 	if err != nil {
 		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", user, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "invalid input", http.StatusInternalServerError)

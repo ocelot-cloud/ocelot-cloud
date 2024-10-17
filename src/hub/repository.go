@@ -98,7 +98,8 @@ type Repository interface {
 	GetAppId(user, app string) (int, error)
 
 	CreateTag(appId int, tag string, data []byte) error
-	DeleteTag(user string, app string, tag string) error
+	GetTagId(appId int, tag string) (int, error)
+	DeleteTag(tagId int) error
 	GetTagList(user string, app string) ([]string, error)
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
@@ -365,23 +366,26 @@ func (u *SqliteRepository) CreateTag(appId int, tag string, data []byte) error {
 	return nil
 }
 
-func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error {
-	appID, err := u.GetAppId(user, app)
+func (u *SqliteRepository) DeleteTag(tagId int) error {
+	dataSize, err := getBlobSize(tagId)
+	if err != nil {
+		return err
+	}
+	appId, err := getAppIdOfTag(tagId)
+	if err != nil {
+		return err
+	}
+	userId, err := getUserIdOfApp(appId)
 	if err != nil {
 		return err
 	}
 
-	dataSize, err := getBlobSize(appID, tag)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec("DELETE FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag)
+	_, err = db.Exec("DELETE FROM tags WHERE tag_id = ?", tagId)
 	if err != nil {
 		return fmt.Errorf("failed to delete tag: %w", err)
 	}
 
-	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_name = ?", dataSize, user)
+	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_id = ?", dataSize, userId)
 	if err != nil {
 		return fmt.Errorf("failed to update user space: %w", err)
 	}
@@ -389,9 +393,18 @@ func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error 
 	return nil
 }
 
-func getBlobSize(appID int, tag string) (int64, error) {
+func getAppIdOfTag(tagId int) (int, error) {
+	var appId int
+	err := db.QueryRow("SELECT app_id FROM tags WHERE tag_id = ?", tagId).Scan(&appId)
+	if err != nil {
+		return -1, fmt.Errorf("failed to get app ID: %w", err)
+	}
+	return appId, nil
+}
+
+func getBlobSize(tagId int) (int64, error) {
 	var dataSize int64
-	err := db.QueryRow("SELECT LENGTH(data) FROM tags WHERE app_id = ? AND tag_name = ?", appID, tag).Scan(&dataSize)
+	err := db.QueryRow("SELECT LENGTH(data) FROM tags WHERE tag_id = ?", tagId).Scan(&dataSize)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get BLOB size: %w", err)
 	}
@@ -589,4 +602,13 @@ func logAndReturnError(message string, args ...interface{}) error {
 func logAndReturnInfo(message string, args ...interface{}) error {
 	Logger.Info(message, args...)
 	return fmt.Errorf(message, args...)
+}
+
+func (u *SqliteRepository) GetTagId(appId int, tag string) (int, error) {
+	var tagId int
+	err := db.QueryRow("SELECT tag_id FROM tags WHERE app_id = ? AND tag_name = ?", appId, tag).Scan(&tagId)
+	if err != nil {
+		return -1, fmt.Errorf("tag not found: %w", err)
+	}
+	return tagId, nil
 }
