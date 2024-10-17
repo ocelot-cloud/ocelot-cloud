@@ -92,8 +92,8 @@ type Repository interface {
 	IsOriginCorrect(user string, origin string) bool
 
 	DoesAppExist(appId int) bool
-	CreateApp(user string, app string) error
-	DeleteApp(user string, app string) error
+	CreateApp(user, app string) error
+	DeleteApp(appId int) error
 	FindApps(query string) ([]App, error)
 	GetAppId(user, app string) (int, error)
 
@@ -202,28 +202,25 @@ func (u *SqliteRepository) DoesAppExist(appId int) bool {
 	return exists
 }
 
-func (u *SqliteRepository) DeleteApp(user string, app string) error {
-	userID, err := getUserId(user)
+func (u *SqliteRepository) DeleteApp(appId int) error {
+	var userId int
+	err := db.QueryRow(`SELECT user_id FROM apps WHERE app_id = ?`, appId).Scan(&userId)
+	if err != nil {
+		// TODO I should log the detailed error including the "err" msg, but . Should be done everywhere in the hub.
+		return logAndReturnError("Failed to get user ID for app ID: %d, error: %v\n", appId, err)
+	}
+
+	totalDataSize, err := u.sumBlobSizes(appId)
 	if err != nil {
 		return err
 	}
 
-	appID, err := getAppId(userID, app)
+	_, err = db.Exec(`DELETE FROM apps WHERE app_id = ?`, appId)
 	if err != nil {
-		return err
+		return logAndReturnError("Failed to delete app '%d', error: %v", appId, err)
 	}
 
-	totalDataSize, err := u.sumBlobSizes(appID)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`DELETE FROM apps WHERE user_id = ? AND app_name = ?`, userID, app)
-	if err != nil {
-		return logAndReturnError("Failed to delete app '%s' of user '%s', error: %v", app, user, err)
-	}
-
-	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_name = ?", totalDataSize, user)
+	_, err = db.Exec("UPDATE users SET used_space = used_space - ? WHERE user_id = ?", totalDataSize, userId)
 	if err != nil {
 		return fmt.Errorf("failed to update user space: %w", err)
 	}

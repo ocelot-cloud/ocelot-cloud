@@ -45,7 +45,7 @@ func TestDeleteAppCascadingThroughUser(t *testing.T) {
 	appId, err := repo.GetAppId(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId))
-	assert.Nil(t, repo.DeleteApp(sampleUser, sampleApp))
+	assert.Nil(t, repo.DeleteApp(appId))
 	assert.False(t, repo.DoesAppExist(appId))
 }
 
@@ -106,7 +106,7 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId2))
 
-	assert.Nil(t, repo.DeleteApp(sampleUser, sampleApp))
+	assert.Nil(t, repo.DeleteApp(appId1))
 	assert.False(t, repo.DoesAppExist(appId1))
 	assert.True(t, repo.DoesAppExist(appId2))
 }
@@ -260,7 +260,9 @@ func TestUsedSpace(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 12, space)
 
-	assert.Nil(t, repo.DeleteApp(sampleUser, sampleApp))
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.Nil(t, repo.DeleteApp(appId))
 	space, err = repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, space)

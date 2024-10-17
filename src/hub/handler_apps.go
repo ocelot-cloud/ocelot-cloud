@@ -70,7 +70,7 @@ func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.DeleteApp(user, app)
+	err = repo.DeleteApp(appId)
 	if err != nil {
 		Logger.Error("user '%s' tried to delete app '%s' but it failed", user, app)
 		http.Error(w, "app deletion failed", http.StatusInternalServerError)
