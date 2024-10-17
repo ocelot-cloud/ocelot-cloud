@@ -89,6 +89,7 @@ type Repository interface {
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]App, error)
+	GetAppId(user, app string) (int, error)
 
 	CreateTag(user string, app string, tag string, data []byte) error
 	DeleteTag(user string, app string, tag string) error
@@ -104,7 +105,7 @@ type Repository interface {
 type SqliteRepository struct{}
 
 func (u *SqliteRepository) GetTagContent(user string, app string, tag string) ([]byte, error) {
-	appID, err := getAppIdFromUsername(user, app)
+	appID, err := u.GetAppId(user, app)
 	if err != nil {
 		return nil, err
 	}
@@ -344,7 +345,7 @@ func (u *SqliteRepository) GetUserWithCookie(cookie string) (string, error) {
 }
 
 func (u *SqliteRepository) CreateTag(user string, app string, tag string, data []byte) error {
-	appID, err := getAppIdFromUsername(user, app)
+	appID, err := u.GetAppId(user, app)
 	if err != nil {
 		return err
 	}
@@ -364,7 +365,7 @@ func (u *SqliteRepository) CreateTag(user string, app string, tag string, data [
 }
 
 func (u *SqliteRepository) DeleteTag(user string, app string, tag string) error {
-	appID, err := getAppIdFromUsername(user, app)
+	appID, err := u.GetAppId(user, app)
 	if err != nil {
 		return err
 	}
@@ -396,7 +397,7 @@ func getBlobSize(appID int, tag string) (int64, error) {
 	return dataSize, nil
 }
 
-func getAppIdFromUsername(user string, app string) (int, error) {
+func (u *SqliteRepository) GetAppId(user, app string) (int, error) {
 	userID, err := getUserId(user)
 	if err != nil {
 		return 0, err
@@ -410,7 +411,7 @@ func getAppIdFromUsername(user string, app string) (int, error) {
 }
 
 func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
-	appID, err := getAppIdFromUsername(user, app)
+	appID, err := u.GetAppId(user, app)
 	if err != nil {
 		return nil, err
 	}
@@ -543,7 +544,7 @@ func getUsers() []string {
 }
 
 func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) bool {
-	appID, err := getAppIdFromUsername(user, app)
+	appID, err := u.GetAppId(user, app)
 	if err != nil {
 		return false
 	}
