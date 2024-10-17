@@ -106,7 +106,7 @@ type Repository interface {
 	GetTagId(appId int, tag string) (int, error)
 	DeleteTag(tagId int) error
 	GetTagList(appId int) ([]Tag, error)
-	DoesTagExist(user string, app string, tag string) bool
+	DoesTagExist(tagId int) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
 	GetAppList(user string) ([]string, error)
@@ -558,18 +558,9 @@ func getUsers() []string {
 	return usernames
 }
 
-func (u *SqliteRepository) DoesTagExist(user string, app string, tag string) bool {
-	appID, err := u.GetAppId(user, app)
-	if err != nil {
-		return false
-	}
-
+func (u *SqliteRepository) DoesTagExist(tagId int) bool {
 	var exists bool
-	err = db.QueryRow(`
-		SELECT EXISTS(
-			SELECT 1 FROM tags WHERE app_id = ? AND tag_name = ?
-		);
-	`, appID, tag).Scan(&exists)
+	err := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM tags WHERE tag_id = ?)`, tagId).Scan(&exists)
 	if err != nil {
 		Logger.Debug("error checking if tag exists")
 		return false

@@ -33,14 +33,14 @@
           <ul id="tag-list" class="list-group w-100">
             <li
                 v-for="tag in tagList"
-                :key="tag"
+                :key="tag.name"
                 class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
-                :class="{ active: selectedTag === tag }"
-                @click="selectTag(tag)"
+                :class="{ active: selectedTag === tag.name }"
+                @click="selectTag(tag.name)"
                 style="cursor: pointer;"
             >
-              <span>{{ tag }}</span>
-              <i v-if="selectedTag === tag" class="bi bi-check-circle-fill text-success"></i>
+              <span>{{ tag.name }}</span>
+              <i v-if="selectedTag === tag.name" class="bi bi-check-circle-fill text-success"></i>
             </li>
           </ul>
         </div>
@@ -73,13 +73,23 @@ import {
 import HubDeletionConfirmationDialog from "@/components/shared/HubDeletionConfirmationDialog.vue";
 import {alertError} from "@/components/shared/requests";
 
+class Tag {
+  name: string
+  id: number
+
+  constructor(name: string, id: number) {
+    this.name = name;
+    this.id = id;
+  }
+}
+
 export default defineComponent({
   name: "HubTagManagement",
   components: {HubDeletionConfirmationDialog},
   methods: {goToHubPage},
 
   setup() {
-    const tagList = ref<string[]>([]);
+    const tagList = ref<Tag[]>([]);
     const route = useRoute();
     const app = route.query.app
     const user = route.query.user
@@ -132,20 +142,24 @@ export default defineComponent({
     };
 
     const getTags = async () => {
-      const response = await doHubRequest("/tags/get-tags", { user, app })
-      if (response != null) {
-        tagList.value = response.data as string[];
-        if (tagList.value != null) {
-          tagList.value.sort()
+      const response = await doHubRequest("/tags/get-tags", { user, app });
+      if (response != null && response.data) {
+        tagList.value = response.data as Tag[];
+        if (tagList.value.length > 0) {
+          tagList.value.sort((a: Tag, b: Tag) => a.name.localeCompare(b.name));
         }
       }
     };
 
     const deleteTag = async () => {
-      await doHubRequest("/tags/delete", {app, tag: selectedTag.value})
-      await getTags()
-      showDeleteConfirmation.value = false
-    }
+      const response = await doHubRequest("/tags/delete", { app, tag: selectedTag.value });
+      if (response != null) {
+        tagList.value = tagList.value.filter(tag => tag.name !== selectedTag.value);
+        showDeleteConfirmation.value = false;
+      } else {
+        alert('Failed to delete tag.');
+      }
+    };
 
     const downloadTag = async () => {
       try {

@@ -29,8 +29,7 @@
                 href="#"
                 class="text-primary"
             >
-              here
-            </a>.
+              here</a>.
           </p>
         </div>
       </div>

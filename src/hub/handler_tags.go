@@ -66,8 +66,9 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if repo.DoesTagExist(user, tagUpload.App, tagUpload.Tag) {
-		Logger.Info("user '%s' tried to upload a new tag to app '%s' with tag '%s', but the tag already exists", user, tagUpload.App, tagUpload.Tag)
+	_, err = repo.GetTagId(appId, tagUpload.Tag)
+	if err == nil {
+		// TODO
 		http.Error(w, "tag already exists", http.StatusConflict)
 		return
 	}
@@ -107,7 +108,7 @@ func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesTagExist(user, tagInfo.App, tagInfo.Tag) {
+	if !repo.DoesTagExist(tagId) {
 		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", user, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
@@ -187,7 +188,14 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesTagExist(tagInfo.User, tagInfo.App, tagInfo.Tag) {
+	tagId, err := repo.GetTagId(appId, tagInfo.Tag)
+	if err != nil {
+		// TODO
+		http.Error(w, "tag does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesTagExist(tagId) {
 		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but tag does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return

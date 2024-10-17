@@ -181,38 +181,44 @@ func TestGetTagList(t *testing.T) {
 	foundTags, err := repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
-	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
+	tagId, err := repo.GetTagId(appId, sampleTag)
+	assert.NotNil(t, err)
+	assert.False(t, repo.DoesTagExist(tagId))
 
 	assert.Nil(t, repo.CreateTag(appId, sampleTag, []byte("asdf")))
 	foundTags, err = repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
 	assert.Equal(t, sampleTag, foundTags[0].Name)
-	assert.True(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
+	tagId, err = repo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesTagExist(tagId))
 	data, err := repo.GetTagContent(sampleUser, sampleApp, sampleTag)
 	assert.Nil(t, err)
 	assert.Equal(t, []byte("asdf"), data)
 
-	tagId, err := repo.GetTagId(appId, sampleTag)
-	assert.Nil(t, err)
 	assert.Nil(t, repo.DeleteTag(tagId))
 	foundTags, err = repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
-	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
+	assert.False(t, repo.DoesTagExist(tagId))
 
 	assert.Nil(t, repo.CreateTag(appId, sampleTag, []byte("asdf")))
 	foundTags, err = repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
 	assert.Equal(t, sampleTag, foundTags[0].Name)
-	assert.True(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
+	tagId, err = repo.GetTagId(appId, sampleTag)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesTagExist(tagId))
 	assert.Nil(t, repo.DeleteUser(sampleUser))
 	tags, err := repo.GetTagList(appId) // TODO not sure, should it fail when app or user do not exist?
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(tags))
-	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
+	assert.False(t, repo.DoesTagExist(tagId))
 }
+
+// TODO Make checks that GetAppId gives the same results as GetAppList[0].Id, same for tags
 
 func TestChangeRepoPassword(t *testing.T) {
 	defer repo.WipeDatabase()
