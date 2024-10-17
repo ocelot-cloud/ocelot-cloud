@@ -75,24 +75,29 @@ type Repository interface {
 	DoesUserExist(user string) bool
 	DeleteUser(user string) error
 	IsPasswordCorrect(user string, password string) bool
+	HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error
+	IsCookieExpired(cookie string) bool
+	GetUserWithCookie(cookie string) (string, error)
+	ChangePassword(user string, newPassword string) error
+	Logout(user string) error
+
+	// TODO Get rid of origin stuff
+	SetOrigin(user string, newOrigin string) error
+	IsOriginCorrect(user string, origin string) bool
+
 	DoesAppExist(user string, app string) bool
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]UserAndApp, error)
-	HashAndSaveCookie(user string, cookie string, expirationDate time.Time) error
-	IsCookieExpired(cookie string) bool
-	GetUserWithCookie(cookie string) (string, error)
+
 	CreateTag(user string, app string, tag string, data []byte) error
 	DeleteTag(user string, app string, tag string) error
 	GetTagList(user string, app string) ([]string, error)
-	ChangePassword(user string, newPassword string) error
-	SetOrigin(user string, newOrigin string) error
-	IsOriginCorrect(user string, origin string) bool
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
-	Logout(user string) error
 	GetAppList(user string) ([]string, error)
+
 	WipeDatabase()
 }
 
