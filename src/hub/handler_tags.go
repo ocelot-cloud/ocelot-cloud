@@ -30,10 +30,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	jobs := []ValidationJob{
-		{tagUpload.App, AppType},
-		{tagUpload.Tag, TagType},
-	}
+	jobs := []ValidationJob{{tagUpload.Tag, TagType}}
 	if err := validateJobs(jobs); err != nil {
 		Logger.Info("tag upload of user '%s' invalid: %v", user, err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -42,45 +39,38 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	bytesUsed, err := repo.GetUsedSpaceInBytes(user)
 	if err != nil {
-		Logger.Info("user '%s' tried to upload tag '%s' to app '%s', but getting current storage size failed", user, tagUpload.Tag, tagUpload.App)
+		Logger.Info("reading currently used storage failed: %v", err)
 		http.Error(w, "reading currently used storage failed", http.StatusInternalServerError)
 		return
 	} else if bytesUsed+len(tagUpload.Content) > maxStorageSize {
-		Logger.Info("user '%s' tried to upload tag '%s' to app '%s', but exceeded max storage size", user, tagUpload.Tag, tagUpload.App)
+		Logger.Info("user '%s' tried to upload tag '%s' to app with ID '%s', but storage limit would be exceeded", user, tagUpload.Tag, tagUpload.AppId)
 		asdf := bytesUsed * 100 / maxStorageSize
 		msg := fmt.Sprintf("storage limit reached, you can't store more then 10MiB of tag content, currently used storage in bytes: %d/%d (%d percent)", bytesUsed, maxStorageSize, asdf)
 		http.Error(w, msg, http.StatusRequestEntityTooLarge)
 		return
 	}
 
-	appId, err := repo.GetAppId(user, tagUpload.App)
-	if err != nil {
-		// TODO
+	if !repo.DoesAppExist(tagUpload.AppId) {
+		Logger.Info("user '%s' tried to upload tag '%s' to app with ID '%s', but app does not exist", user, tagUpload.Tag, tagUpload.AppId)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	if !repo.DoesAppExist(appId) {
-		Logger.Info("user '%s' tried to upload tag '%s', but the app '%s' does not exist", user, tagUpload.Tag, tagUpload.App)
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
-
-	_, err = repo.GetTagId(appId, tagUpload.Tag)
+	_, err = repo.GetTagId(tagUpload.AppId, tagUpload.Tag)
 	if err == nil {
 		// TODO
 		http.Error(w, "tag already exists", http.StatusConflict)
 		return
 	}
 
-	err = repo.CreateTag(appId, tagUpload.Tag, tagUpload.Content)
+	err = repo.CreateTag(tagUpload.AppId, tagUpload.Tag, tagUpload.Content)
 	if err != nil {
-		Logger.Error("creating tag '%s' for user '%s' failed: %v", tagUpload.App, user, err)
+		Logger.Error("creating tag failed: %v", err)
 		http.Error(w, "invalid input", http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("user '%s' uploaded a new tag to the app '%s' with the tag name '%s'", user, tagUpload.App, tagUpload.Tag)
+	Logger.Info("tag '%s' was uploaded to app with ID '%s' by user '%s'", tagUpload.Tag, tagUpload.AppId, user)
 	w.WriteHeader(http.StatusOK)
 }
 

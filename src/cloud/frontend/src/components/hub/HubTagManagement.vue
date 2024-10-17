@@ -126,7 +126,7 @@ export default defineComponent({
         const content = btoa(
             String.fromCharCode(...new Uint8Array(event.target?.result as ArrayBuffer))
         );
-        const tagUpload = {app: appName, tag, content};
+        const tagUpload = {appId, tag, content};
 
         const response = await doHubRequest("/tags/upload", tagUpload)
         if (response) {

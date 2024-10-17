@@ -12,7 +12,7 @@ type AppAndTag struct {
 }
 
 type TagUpload struct {
-	App     string `json:"app"`
+	AppId   int    `json:"appId"`
 	Tag     string `json:"tag"`
 	Content []byte `json:"content"`
 }

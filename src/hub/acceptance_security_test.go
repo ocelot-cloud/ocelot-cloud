@@ -103,8 +103,6 @@ func TestCreateAppSecurity(t *testing.T) {
 
 func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
-
-	testInputInvalidation(t, hub, "invalid-app", AppField, UploadTag)
 	testInputInvalidation(t, hub, "invalid-tag", TagField, UploadTag)
 }
 

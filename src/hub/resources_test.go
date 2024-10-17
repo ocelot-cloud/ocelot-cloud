@@ -155,7 +155,7 @@ func (h *HubClient) GetApps() ([]App, error) {
 
 func (h *HubClient) uploadTag() error {
 	tapUpload := &TagUpload{
-		App:     h.App,
+		AppId:   h.AppId,
 		Tag:     h.Tag,
 		Content: h.UploadContent,
 	}
