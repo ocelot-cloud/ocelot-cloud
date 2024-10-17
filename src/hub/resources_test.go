@@ -183,12 +183,7 @@ func (h *HubClient) downloadTag() (string, error) {
 }
 
 func (h *HubClient) getTags() ([]Tag, error) {
-	usernameAndApp := &App{
-		Maintainer: h.Parent.User,
-		Name:       h.App,
-	}
-
-	result, err := h.Parent.DoRequest(getTagsPath, usernameAndApp, "")
+	result, err := h.Parent.DoRequest(getTagsPath, utils.SingleInteger{h.AppId}, "")
 	if err != nil {
 		return nil, err
 	}
