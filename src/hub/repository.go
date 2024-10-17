@@ -18,6 +18,12 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 		Logger.Fatal("Failed to open database: %v\n", err)
 	}
 
+	// Foreign key constraints are disabled by default. For example, deletion cascading would not work without.
+	_, err = db.Exec("PRAGMA foreign_keys = ON;")
+	if err != nil {
+		Logger.Fatal("Failed to enable foreign key constraints: %v", err)
+	}
+
 	// Prevents concurrency problems. My guess is that the sqlite client does not handle concurrency correctly.
 	// Approach works, but may be too slow. Another client or DB may be needed in the future.
 	db.SetMaxOpenConns(1)
@@ -85,7 +91,7 @@ type Repository interface {
 	SetOrigin(user string, newOrigin string) error
 	IsOriginCorrect(user string, origin string) bool
 
-	DoesAppExist(user string, app string) bool
+	DoesAppExist(appId int) bool
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
 	FindApps(query string) ([]App, error)
@@ -173,8 +179,6 @@ func (u *SqliteRepository) DeleteUser(user string) error {
 func (u *SqliteRepository) CreateApp(user string, app string) error {
 	if !u.DoesUserExist(user) {
 		return logAndReturnError("User '%s' does not exist", user)
-	} else if u.DoesAppExist(user, app) {
-		return logAndReturnError("App '%s' already exists for user '%s'", app, user)
 	}
 
 	userID, err := getUserId(user)
@@ -188,19 +192,11 @@ func (u *SqliteRepository) CreateApp(user string, app string) error {
 	return nil
 }
 
-func (u *SqliteRepository) DoesAppExist(user string, app string) bool {
-	userID, err := getUserId(user)
-	if err != nil {
-		return false
-	}
+func (u *SqliteRepository) DoesAppExist(appId int) bool {
 	var exists bool
-	err = db.QueryRow(`
-		SELECT EXISTS(
-			SELECT 1 FROM apps WHERE user_id = ? AND app_name = ?
-   		);
-	`, userID, app).Scan(&exists)
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM apps WHERE app_id = ?)", appId).Scan(&exists)
 	if err != nil {
-		Logger.Error("Failed to check app existence for user '%s' and app '%s': %v\n", user, app, err)
+		Logger.Error("Failed to check app existence for app with ID: %d, error: %v\n", appId, err)
 		return false
 	}
 	return exists
@@ -400,12 +396,12 @@ func getBlobSize(appID int, tag string) (int64, error) {
 func (u *SqliteRepository) GetAppId(user, app string) (int, error) {
 	userID, err := getUserId(user)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	appID, err := getAppId(userID, app)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 	return appID, nil
 }
@@ -507,7 +503,7 @@ func getAppId(userID int, app string) (int, error) {
 	var appID int
 	err := db.QueryRow("SELECT app_id FROM apps WHERE user_id = ? AND app_name = ?", userID, app).Scan(&appID)
 	if err != nil {
-		return 0, fmt.Errorf("app not found: %w", err)
+		return 0, fmt.Errorf("app not found: %v", err)
 	}
 	return appID, nil
 }

@@ -31,28 +31,33 @@ func TestCreateRepoUser(t *testing.T) {
 func TestCreateRepoApp(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
-	assert.False(t, repo.DoesAppExist(sampleUser, sampleApp))
+	// TODO Assert app table is empty instead?
 	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	assert.True(t, repo.DoesAppExist(sampleUser, sampleApp))
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesAppExist(appId))
 }
 
 func TestDeleteAppCascadingThroughUser(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	assert.True(t, repo.DoesAppExist(sampleUser, sampleApp))
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesAppExist(appId))
 	assert.Nil(t, repo.DeleteApp(sampleUser, sampleApp))
-	assert.False(t, repo.DoesAppExist(sampleUser, sampleApp))
+	assert.False(t, repo.DoesAppExist(appId))
 }
 
 func TestDeleteAppDirectly(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
-	assert.False(t, repo.DoesAppExist(sampleUser, sampleApp))
 	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	assert.True(t, repo.DoesAppExist(sampleUser, sampleApp))
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesAppExist(appId))
 	assert.Nil(t, repo.DeleteUser(sampleUser))
-	assert.False(t, repo.DoesAppExist(sampleUser, sampleApp))
+	assert.False(t, repo.DoesAppExist(appId))
 }
 
 func TestCantCreateUserTwice(t *testing.T) {
@@ -94,12 +99,16 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
 	assert.Nil(t, repo.CreateApp(user2, sampleApp))
 
-	assert.True(t, repo.DoesAppExist(sampleUser, sampleApp))
-	assert.True(t, repo.DoesAppExist(user2, sampleApp))
+	appId1, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesAppExist(appId1))
+	appId2, err := repo.GetAppId(user2, sampleApp)
+	assert.Nil(t, err)
+	assert.True(t, repo.DoesAppExist(appId2))
 
 	assert.Nil(t, repo.DeleteApp(sampleUser, sampleApp))
-	assert.False(t, repo.DoesAppExist(sampleUser, sampleApp))
-	assert.True(t, repo.DoesAppExist(user2, sampleApp))
+	assert.False(t, repo.DoesAppExist(appId1))
+	assert.True(t, repo.DoesAppExist(appId2))
 }
 
 func TestPasswordVerification(t *testing.T) {
@@ -111,24 +120,24 @@ func TestPasswordVerification(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	defer repo.WipeDatabase()
-	repo.CreateUser(sampleForm)
+	assert.Nil(t, repo.CreateUser(sampleForm))
 	app1 := "prefix_myapp_suffix"
 	app2 := "prefix_another-app_suffix"
-	repo.CreateApp(sampleUser, app1)
-	repo.CreateApp(sampleUser, app2)
+	assert.Nil(t, repo.CreateApp(sampleUser, app1))
+	assert.Nil(t, repo.CreateApp(sampleUser, app2))
 
-	a, err := repo.FindApps("app")
+	foundApps, err := repo.FindApps("app")
 	assert.Nil(t, err)
 
-	sort.Slice(a, func(i, j int) bool {
-		return a[i].App < a[j].App
+	sort.Slice(foundApps, func(i, j int) bool {
+		return foundApps[i].App < foundApps[j].App
 	})
 
-	assert.Equal(t, 2, len(a))
-	assert.Equal(t, sampleUser, a[0].Maintainer)
-	assert.Equal(t, sampleUser, a[1].Maintainer)
-	assert.Equal(t, app2, a[0].App)
-	assert.Equal(t, app1, a[1].App)
+	assert.Equal(t, 2, len(foundApps))
+	assert.Equal(t, sampleUser, foundApps[0].Maintainer)
+	assert.Equal(t, sampleUser, foundApps[1].Maintainer)
+	assert.Equal(t, app2, foundApps[0].App)
+	assert.Equal(t, app1, foundApps[1].App)
 }
 
 func TestSearchNegative(t *testing.T) {

@@ -53,7 +53,14 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesAppExist(user, tagUpload.App) {
+	appId, err := repo.GetAppId(user, tagUpload.App)
+	if err != nil {
+		// TODO
+		http.Error(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesAppExist(appId) {
 		Logger.Info("user '%s' tried to upload tag '%s', but the app '%s' does not exist", user, tagUpload.Tag, tagUpload.App)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
@@ -116,7 +123,14 @@ func getTagsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesAppExist(userAndApp.Maintainer, userAndApp.App) {
+	appId, err := repo.GetAppId(userAndApp.Maintainer, userAndApp.App)
+	if err != nil {
+		// TODO
+		http.Error(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesAppExist(appId) {
 		Logger.Info("someone tried to list tags but app '%s' does not exist", userAndApp.App)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
@@ -146,7 +160,14 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesAppExist(tagInfo.User, tagInfo.App) {
+	appId, err := repo.GetAppId(tagInfo.User, tagInfo.App)
+	if err != nil {
+		// TODO
+		http.Error(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	if !repo.DoesAppExist(appId) {
 		Logger.Info("somebody tried to download users '%s' app '%s' with tag '%s', but app does not exist", tagInfo.User, tagInfo.App, tagInfo.Tag)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return

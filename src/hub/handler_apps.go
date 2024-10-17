@@ -20,7 +20,16 @@ func appCreationHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "user does not exists", http.StatusNotFound)
 		return
 	}
-	if repo.DoesAppExist(user, app) {
+
+	appId, err := repo.GetAppId(user, app)
+	if err == nil {
+		// TODO
+		http.Error(w, "app already exists", http.StatusConflict)
+		return
+	}
+
+	// TODO Redundant?
+	if repo.DoesAppExist(appId) {
 		Logger.Info("user '%s' tried to create app '%s' but it already exists", user, app)
 		http.Error(w, "app already exists", http.StatusConflict)
 		return
@@ -47,7 +56,15 @@ func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !repo.DoesAppExist(user, app) {
+	appId, err := repo.GetAppId(user, app)
+	if err != nil {
+		// TODO
+		http.Error(w, "app does not exist", http.StatusNotFound)
+		return
+	}
+
+	// TODO Duplication? Can be removed?
+	if !repo.DoesAppExist(appId) {
 		Logger.Info("user '%s' tried to delete app '%s' but it does not exist", user, app)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
