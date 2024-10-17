@@ -129,14 +129,14 @@ func TestSearch(t *testing.T) {
 	assert.Nil(t, err)
 
 	sort.Slice(foundApps, func(i, j int) bool {
-		return foundApps[i].App < foundApps[j].App
+		return foundApps[i].Name < foundApps[j].Name
 	})
 
 	assert.Equal(t, 2, len(foundApps))
 	assert.Equal(t, sampleUser, foundApps[0].Maintainer)
 	assert.Equal(t, sampleUser, foundApps[1].Maintainer)
-	assert.Equal(t, app2, foundApps[0].App)
-	assert.Equal(t, app1, foundApps[1].App)
+	assert.Equal(t, app2, foundApps[0].Name)
+	assert.Equal(t, app1, foundApps[1].Name)
 }
 
 func TestSearchNegative(t *testing.T) {
@@ -301,8 +301,8 @@ func TestGetAppListRepo(t *testing.T) {
 	list, err = repo.GetAppList(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(list))
-	assert.Equal(t, sampleApp, list[0])
-	assert.Equal(t, sampleApp+"x", list[1])
+	assert.Equal(t, sampleApp, list[0].Name)
+	assert.Equal(t, sampleApp+"x", list[1].Name)
 }
 
 func TestConcurrencyRobustness(t *testing.T) {

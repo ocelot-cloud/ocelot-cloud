@@ -49,28 +49,22 @@ func appCreationHandler(w http.ResponseWriter, r *http.Request) {
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromContext(r)
 
-	app, err := readBodyAsSingleString(r, AppType)
+	appId, err := readBodyAsSingleInteger(r)
 	if err != nil {
-		Logger.Warn("invalid input: %v", err)
-		http.Error(w, "invalid input", http.StatusBadRequest)
+		// TODO Maybe put that in the function?
 		return
 	}
 
-	appId, err := repo.GetAppId(user, app)
-	if err != nil {
-		Logger.Info("user '%s' tried to delete app '%s' but it does not exist", user, app)
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
+	// TODO check existence and ownership?
 
 	err = repo.DeleteApp(appId)
 	if err != nil {
-		Logger.Error("user '%s' tried to delete app '%s' but it failed", user, app)
+		Logger.Error("user '%s' tried to delete app with ID '%d' but it failed", user, appId)
 		http.Error(w, "app deletion failed", http.StatusInternalServerError)
 		return
 	}
 
-	Logger.Info("user '%s' deleted app '%s'", user, app)
+	Logger.Info("user '%s' deleted app with ID '%d'", user, appId)
 	w.WriteHeader(http.StatusOK)
 }
 

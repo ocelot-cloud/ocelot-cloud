@@ -108,11 +108,6 @@ func TestCreateAppSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-app", AppField, CreateApp)
 }
 
-func TestDeleteAppSecurity(t *testing.T) {
-	hub := getHubAndLogin(t)
-	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteApp)
-}
-
 func TestUploadTagSecurity(t *testing.T) {
 	hub := getHubAndLogin(t)
 

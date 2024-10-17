@@ -15,20 +15,20 @@
         <ul id="app-list" class="list-group w-100">
           <li
               v-for="app in appList"
-              :key="app"
+              :key="app.name"
               class="list-group-item d-flex justify-content-between align-items-center bg-secondary bg-opacity-25 text-white"
-              :class="{ active: selectedApp === app }"
+              :class="{ active: selectedApp.id === app.id }"
               @click="selectApp(app)"
               style="cursor: pointer;"
           >
-            <span>{{ app }}</span>
-            <i v-if="selectedApp === app" class="bi bi-check-circle-fill text-success"></i>
+            <span>{{ app.name }}</span>
+            <i v-if="selectedApp.id === app.id" class="bi bi-check-circle-fill text-success"></i>
           </li>
         </ul>
       </div>
     </div>
 
-    <div v-if="appList && selectedApp" class="app-operations d-flex justify-content-end">
+    <div v-if="appList && selectedApp.id != -1" class="app-operations d-flex justify-content-end">
       <button id="button-edit-tags" @click="goToTagManagement()" class="btn btn-primary me-2">Edit Tags</button>
       <button id="button-delete-app" @click="showDeleteConfirmation = true" class="btn btn-danger">Delete</button>
     </div>
@@ -48,6 +48,16 @@ import HubDeletionConfirmationDialog from "@/components/shared/HubDeletionConfir
 import ValidatedInput from "@/components/shared/ValidatedInput.vue";
 import {doHubRequest} from "@/components/shared/shared";
 
+class App {
+  name: string;
+  id: number;
+
+  constructor(name: string, id: number) {
+    this.name = name;
+    this.id = id;
+  }
+}
+
 export default defineComponent({
   name: 'HubAppManagement',
   components: {ValidatedInput, HubDeletionConfirmationDialog},
@@ -56,21 +66,22 @@ export default defineComponent({
     const user = ref("");
     const showDeleteConfirmation = ref(false);
     const newAppToCreate = ref('');
-    const appList = ref<string[]>([]);
-    const selectedApp = ref("");
+    const appList = ref<App[]>([]);
+    const selectedApp = ref<App>(new App("", -1));
     const isEditingTags = ref(false);
     const submitted = ref(false);
 
-    const selectApp = (app: string) => {
-      if (selectedApp.value == app) {
-        selectedApp.value = ""
+    const selectApp = (app: App) => {
+      if (selectedApp.value.id == app.id) {
+        selectedApp.value.id = -1
       } else {
-        selectedApp.value = app;
+        selectedApp.value.id = app.id;
+        selectedApp.value.name = app.name;
       }
     };
 
     const goToTagManagement = () => {
-      router.push({ path: '/hub/tag-management', query: { user: user.value, app: selectedApp.value } });
+      router.push({ path: '/hub/tag-management', query: { user: user.value, appName: selectedApp.value.name, appId: selectedApp.value.id } });
     }
 
     const createApp = async () => {
@@ -85,19 +96,22 @@ export default defineComponent({
 
     const getApps = async () => {
       const response = await doHubRequest("/apps/get-list", null)
-      if (response != null) {
-        appList.value = response.data as string[];
-        if (appList.value != null) {
-          appList.value.sort()
+      if (response != null && response.data) {
+        appList.value = response.data as App[];
+        if (appList.value.length > 0) {
+          appList.value.sort((a: App, b: App) => a.name.localeCompare(b.name));
         }
       }
     };
 
     const deleteApp = async () => {
-      await doHubRequest("/apps/delete", { value: selectedApp.value })
-      await getApps()
-      selectedApp.value = ""
-      showDeleteConfirmation.value = false
+      const response = await doHubRequest("/apps/delete", { value: selectedApp.value.id })
+      if (response != null) {
+        await getApps()
+        appList.value = appList.value.filter(app => app.id !== selectedApp.value.id);
+        selectedApp.value.id = -1
+        showDeleteConfirmation.value = false
+      }
     };
 
     const confirmDeleteAccount = async () => {

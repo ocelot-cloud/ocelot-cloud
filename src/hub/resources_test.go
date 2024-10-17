@@ -28,6 +28,7 @@ type HubClient struct {
 	App           string
 	Tag           string
 	UploadContent []byte
+	AppId         int
 }
 
 type Operation int
@@ -107,7 +108,20 @@ func (h *HubClient) deleteUser() error {
 
 func (h *HubClient) createApp() error {
 	_, err := h.Parent.DoRequest(appCreationPath, utils.SingleString{h.App}, "")
-	return err
+	if err != nil {
+		return err
+	}
+	apps, err := h.GetApps()
+	if err != nil {
+		return err
+	}
+	for _, app := range apps {
+		if app.Name == h.App {
+			h.AppId = app.Id
+			return nil
+		}
+	}
+	return fmt.Errorf("app not found on server")
 }
 
 func (h *HubClient) findApps(searchTerm string) ([]App, error) {
@@ -124,13 +138,13 @@ func (h *HubClient) findApps(searchTerm string) ([]App, error) {
 	return *apps, nil
 }
 
-func (h *HubClient) GetApps() ([]string, error) {
+func (h *HubClient) GetApps() ([]App, error) {
 	result, err := h.Parent.DoRequest(appGetListPath, nil, "")
 	if err != nil {
 		return nil, err
 	}
 
-	apps, err := utils.UnpackResponse[[]string](result)
+	apps, err := utils.UnpackResponse[[]App](result)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +185,7 @@ func (h *HubClient) downloadTag() (string, error) {
 func (h *HubClient) getTags() ([]Tag, error) {
 	usernameAndApp := &App{
 		Maintainer: h.Parent.User,
-		App:        h.App,
+		Name:       h.App,
 	}
 
 	result, err := h.Parent.DoRequest(getTagsPath, usernameAndApp, "")
@@ -197,7 +211,7 @@ func (h *HubClient) deleteTag() error {
 }
 
 func (h *HubClient) deleteApp() error {
-	_, err := h.Parent.DoRequest(appDeletePath, utils.SingleString{h.App}, "")
+	_, err := h.Parent.DoRequest(appDeletePath, utils.SingleInteger{h.AppId}, "")
 	return err
 }
 

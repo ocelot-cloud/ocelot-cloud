@@ -19,8 +19,8 @@ type TagUpload struct {
 
 type App struct {
 	Maintainer string `json:"user"`
-	App        string `json:"app"`
-	AppId      int    `json:"appId"`
+	Name       string `json:"name"`
+	Id         int    `json:"id"`
 }
 
 type RegistrationForm struct {

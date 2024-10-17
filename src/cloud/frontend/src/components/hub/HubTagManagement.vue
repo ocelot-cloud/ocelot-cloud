@@ -91,7 +91,8 @@ export default defineComponent({
   setup() {
     const tagList = ref<Tag[]>([]);
     const route = useRoute();
-    const app = route.query.app
+    const appName = route.query.appName
+    const appId = Number(route.query.appId);
     const user = route.query.user
     const selectedTag = ref("");
     const showDeleteConfirmation = ref(false);
@@ -125,7 +126,7 @@ export default defineComponent({
         const content = btoa(
             String.fromCharCode(...new Uint8Array(event.target?.result as ArrayBuffer))
         );
-        const tagUpload = {app, tag, content};
+        const tagUpload = {app: appName, tag, content};
 
         const response = await doHubRequest("/tags/upload", tagUpload)
         if (response) {
@@ -142,7 +143,7 @@ export default defineComponent({
     };
 
     const getTags = async () => {
-      const response = await doHubRequest("/tags/get-tags", { user, app });
+      const response = await doHubRequest("/tags/get-tags", { value: appId });
       if (response != null && response.data) {
         tagList.value = response.data as Tag[];
         if (tagList.value.length > 0) {
@@ -152,7 +153,7 @@ export default defineComponent({
     };
 
     const deleteTag = async () => {
-      const response = await doHubRequest("/tags/delete", { app, tag: selectedTag.value });
+      const response = await doHubRequest("/tags/delete", { app: appName, tag: selectedTag.value });
       if (response != null) {
         tagList.value = tagList.value.filter(tag => tag.name !== selectedTag.value);
         showDeleteConfirmation.value = false;
@@ -163,7 +164,7 @@ export default defineComponent({
 
     const downloadTag = async () => {
       try {
-        const response = await doHubRequest("/tags/download", { user, app, tag: selectedTag.value })
+        const response = await doHubRequest("/tags/download", { user, app: appName, tag: selectedTag.value })
         if (response != null) {
           const blob = new Blob([response.data], { type: 'application/gzip' });
           const downloadUrl = window.URL.createObjectURL(blob);
@@ -203,7 +204,7 @@ export default defineComponent({
     return {
       handleFileUpload,
       tagList,
-      app,
+      app: appName,
       selectedTag,
       deleteTag,
       selectTag,

@@ -33,7 +33,7 @@ func readBody[T any](r *http.Request) (*T, error) {
 	case App:
 		jobs = []ValidationJob{
 			{v.Maintainer, User},
-			{v.App, AppType},
+			{v.Name, AppType},
 		}
 	case RegistrationForm:
 		jobs = []ValidationJob{

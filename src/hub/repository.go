@@ -109,7 +109,7 @@ type Repository interface {
 	DoesTagExist(tagId int) bool
 	GetTagContent(tagId int) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
-	GetAppList(user string) ([]string, error)
+	GetAppList(user string) ([]App, error)
 
 	WipeDatabase()
 }
@@ -269,7 +269,7 @@ func (u *SqliteRepository) FindApps(query string) ([]App, error) {
 
 	for rows.Next() {
 		var app App
-		err := rows.Scan(&app.Maintainer, &app.App, &app.AppId)
+		err := rows.Scan(&app.Maintainer, &app.Name, &app.Id)
 		if err != nil {
 			Logger.Error("Error scanning app row: %v\n", err)
 			continue
@@ -448,25 +448,26 @@ func (u *SqliteRepository) GetTagList(appId int) ([]Tag, error) {
 	return tags, nil
 }
 
-func (u *SqliteRepository) GetAppList(user string) ([]string, error) {
+func (u *SqliteRepository) GetAppList(user string) ([]App, error) {
 	userID, err := getUserId(user)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := db.Query("SELECT app_name FROM apps WHERE user_id = ?", userID)
+	rows, err := db.Query("SELECT app_name, app_id FROM apps WHERE user_id = ?", userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get apps: %w", err)
 	}
 	defer rows.Close()
 
-	var apps []string
+	var apps []App
 	for rows.Next() {
 		var app string
-		if err = rows.Scan(&app); err != nil {
+		var id int
+		if err = rows.Scan(&app, &id); err != nil {
 			return nil, fmt.Errorf("failed to scan app: %w", err)
 		}
-		apps = append(apps, app)
+		apps = append(apps, App{user, app, id})
 	}
 
 	if err = rows.Err(); err != nil {

@@ -125,35 +125,24 @@ func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTagsHandler(w http.ResponseWriter, r *http.Request) {
-	userAndApp, err := readBody[App](r)
+	appId, err := readBodyAsSingleInteger(r)
 	if err != nil {
-		Logger.Warn("invalid input: %v", err)
+		Logger.Info("TODO: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
-	if !repo.DoesUserExist(userAndApp.Maintainer) {
-		Logger.Info("someone tried to list tags but user '%s' does not exist", userAndApp.Maintainer)
-		http.Error(w, "user does not exist", http.StatusNotFound)
-		return
-	}
-
-	appId, err := repo.GetAppId(userAndApp.Maintainer, userAndApp.App)
-	if err != nil {
-		// TODO
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
+	// TODO check existence and ownership?
 
 	if !repo.DoesAppExist(appId) {
-		Logger.Info("someone tried to list tags but app '%s' does not exist", userAndApp.App)
+		Logger.Info("someone tried to list tags but app with ID '%d' does not exist", appId)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
 	tagsList, err := repo.GetTagList(appId)
 	if err != nil {
-		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.Maintainer, userAndApp.App)
+		Logger.Error("getting tag list failed for app with ID '%d'", appId)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
