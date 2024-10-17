@@ -168,7 +168,7 @@ func (h *HubClient) downloadTag() (string, error) {
 	return string(downloadedContent), nil
 }
 
-func (h *HubClient) getTags() ([]string, error) {
+func (h *HubClient) getTags() ([]Tag, error) {
 	usernameAndApp := &App{
 		Maintainer: h.Parent.User,
 		App:        h.App,
@@ -179,7 +179,7 @@ func (h *HubClient) getTags() ([]string, error) {
 		return nil, err
 	}
 
-	tags, err := utils.UnpackResponse[[]string](result)
+	tags, err := utils.UnpackResponse[[]Tag](result)
 	if err != nil {
 		return nil, err
 	}

@@ -49,7 +49,7 @@ func TestGetTagsSecurity(t *testing.T) {
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
-	assert.Equal(t, sampleTag, tags[0])
+	assert.Equal(t, sampleTag, tags[0].Name)
 
 	testInputInvalidation(t, hub, "invalid-user", UserField, GetTags)
 	testInputInvalidation(t, hub, "invalid-app", AppField, GetTags)

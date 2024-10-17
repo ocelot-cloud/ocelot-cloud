@@ -7,7 +7,6 @@ import (
 	"github.com/ocelot-cloud/shared/utils"
 	"os"
 	"sort"
-	"strings"
 	"testing"
 	"time"
 )
@@ -177,18 +176,18 @@ func TestGetTagList(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	foundTags, err := repo.GetTagList(sampleUser, sampleApp)
+	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	foundTags, err := repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
 	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
-	assert.Nil(t, err)
 	assert.Nil(t, repo.CreateTag(appId, sampleTag, []byte("asdf")))
-	foundTags, err = repo.GetTagList(sampleUser, sampleApp)
+	foundTags, err = repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
-	assert.Equal(t, sampleTag, foundTags[0])
+	assert.Equal(t, sampleTag, foundTags[0].Name)
 	assert.True(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 	data, err := repo.GetTagContent(sampleUser, sampleApp, sampleTag)
 	assert.Nil(t, err)
@@ -197,21 +196,21 @@ func TestGetTagList(t *testing.T) {
 	tagId, err := repo.GetTagId(appId, sampleTag)
 	assert.Nil(t, err)
 	assert.Nil(t, repo.DeleteTag(tagId))
-	foundTags, err = repo.GetTagList(sampleUser, sampleApp)
+	foundTags, err = repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(foundTags))
 	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 
 	assert.Nil(t, repo.CreateTag(appId, sampleTag, []byte("asdf")))
-	foundTags, err = repo.GetTagList(sampleUser, sampleApp)
+	foundTags, err = repo.GetTagList(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
-	assert.Equal(t, sampleTag, foundTags[0])
+	assert.Equal(t, sampleTag, foundTags[0].Name)
 	assert.True(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 	assert.Nil(t, repo.DeleteUser(sampleUser))
-	_, err = repo.GetTagList(sampleUser, sampleApp)
-	assert.NotNil(t, err)
-	assert.True(t, strings.Contains(err.Error(), "user not found"))
+	tags, err := repo.GetTagList(appId) // TODO not sure, should it fail when app or user do not exist?
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(tags))
 	assert.False(t, repo.DoesTagExist(sampleUser, sampleApp, sampleTag))
 }
 

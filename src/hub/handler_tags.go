@@ -32,7 +32,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	jobs := []ValidationJob{
 		{tagUpload.App, AppType},
-		{tagUpload.Tag, Tag},
+		{tagUpload.Tag, TagType},
 	}
 	if err := validateJobs(jobs); err != nil {
 		Logger.Info("tag upload of user '%s' invalid: %v", user, err)
@@ -150,7 +150,7 @@ func getTagsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tagsList, err := repo.GetTagList(userAndApp.Maintainer, userAndApp.App)
+	tagsList, err := repo.GetTagList(appId)
 	if err != nil {
 		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.Maintainer, userAndApp.App)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

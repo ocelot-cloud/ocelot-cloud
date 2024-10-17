@@ -56,12 +56,12 @@ func readBody[T any](r *http.Request) (*T, error) {
 		jobs = []ValidationJob{
 			{v.User, User},
 			{v.App, AppType},
-			{v.Tag, Tag},
+			{v.Tag, TagType},
 		}
 	case AppAndTag:
 		jobs = []ValidationJob{
 			{v.App, AppType},
-			{v.Tag, Tag},
+			{v.Tag, TagType},
 		}
 	}
 	if err = validateJobs(jobs); err != nil {

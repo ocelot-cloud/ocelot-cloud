@@ -16,12 +16,12 @@ func TestValidateName(t *testing.T) {
 }
 
 func TestValidateTag(t *testing.T) {
-	assert.Nil(t, validate("valid.tagname", Tag))
-	assert.Nil(t, validate("tag123", Tag))
-	assert.Nil(t, validate("tag.name123", Tag))
-	assert.NotNil(t, validate("invalid.tagname!", Tag))             // Contains special characters other than dot
-	assert.NotNil(t, validate("ta", Tag))                           // Too short
-	assert.NotNil(t, validate("this.tagname.is.way.too.long", Tag)) // Too long
+	assert.Nil(t, validate("valid.tagname", TagType))
+	assert.Nil(t, validate("tag123", TagType))
+	assert.Nil(t, validate("tag.name123", TagType))
+	assert.NotNil(t, validate("invalid.tagname!", TagType))             // Contains special characters other than dot
+	assert.NotNil(t, validate("ta", TagType))                           // Too short
+	assert.NotNil(t, validate("this.tagname.is.way.too.long", TagType)) // Too long
 }
 
 func TestValidatePassword(t *testing.T) {

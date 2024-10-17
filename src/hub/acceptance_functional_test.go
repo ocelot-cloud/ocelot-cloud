@@ -33,7 +33,7 @@ func TestTagDownload(t *testing.T) {
 	foundTags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundTags))
-	assert.Equal(t, sampleTag, foundTags[0])
+	assert.Equal(t, sampleTag, foundTags[0].Name)
 
 	downloadedContent, err := hub.downloadTag()
 	assert.Nil(t, err)
@@ -98,7 +98,7 @@ func TestUploadTag(t *testing.T) {
 	tags, err := hub.getTags()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
-	assert.Equal(t, hub.Tag, tags[0])
+	assert.Equal(t, hub.Tag, tags[0].Name)
 
 	assert.Nil(t, hub.deleteTag())
 	tags, err = hub.getTags()

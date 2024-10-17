@@ -76,6 +76,11 @@ func InitializeDatabaseWithSource(dataSourceName string) {
 	Logger.Info("database initialized")
 }
 
+type Tag struct {
+	Name string `json:"name"`
+	Id   int    `json:"id"`
+}
+
 type Repository interface {
 	CreateUser(form *RegistrationForm) error
 	DoesUserExist(user string) bool
@@ -100,7 +105,7 @@ type Repository interface {
 	CreateTag(appId int, tag string, data []byte) error
 	GetTagId(appId int, tag string) (int, error)
 	DeleteTag(tagId int) error
-	GetTagList(user string, app string) ([]string, error)
+	GetTagList(appId int) ([]Tag, error)
 	DoesTagExist(user string, app string, tag string) bool
 	GetTagContent(user string, app string, tag string) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
@@ -424,25 +429,21 @@ func (u *SqliteRepository) GetAppId(user, app string) (int, error) {
 	return appID, nil
 }
 
-func (u *SqliteRepository) GetTagList(user string, app string) ([]string, error) {
-	appID, err := u.GetAppId(user, app)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := db.Query("SELECT tag_name FROM tags WHERE app_id = ?", appID)
+func (u *SqliteRepository) GetTagList(appId int) ([]Tag, error) {
+	rows, err := db.Query("SELECT tag_name, tag_id FROM tags WHERE app_id = ?", appId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tags: %w", err)
 	}
 	defer rows.Close()
 
-	var tags []string
+	var tags []Tag
 	for rows.Next() {
 		var tag string
-		if err := rows.Scan(&tag); err != nil {
+		var id int
+		if err := rows.Scan(&tag, &id); err != nil {
 			return nil, fmt.Errorf("failed to scan tag: %w", err)
 		}
-		tags = append(tags, tag)
+		tags = append(tags, Tag{tag, id})
 	}
 
 	if err := rows.Err(); err != nil {
