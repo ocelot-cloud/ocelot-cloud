@@ -201,7 +201,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, err := repo.GetTagContent(tagInfo.User, tagInfo.App, tagInfo.Tag)
+	content, err := repo.GetTagContent(tagId)
 	if err != nil {
 		Logger.Error("getting tag content failed for user='%s', app='%s' and tag='%s': %v", tagInfo.User, tagInfo.App, tagInfo.Tag, err)
 		http.Error(w, "error when accessing tag content", http.StatusInternalServerError)

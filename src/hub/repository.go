@@ -107,7 +107,7 @@ type Repository interface {
 	DeleteTag(tagId int) error
 	GetTagList(appId int) ([]Tag, error)
 	DoesTagExist(tagId int) bool
-	GetTagContent(user string, app string, tag string) ([]byte, error)
+	GetTagContent(tagId int) ([]byte, error)
 	GetUsedSpaceInBytes(user string) (int, error)
 	GetAppList(user string) ([]string, error)
 
@@ -116,14 +116,9 @@ type Repository interface {
 
 type SqliteRepository struct{}
 
-func (u *SqliteRepository) GetTagContent(user string, app string, tag string) ([]byte, error) {
-	appID, err := u.GetAppId(user, app)
-	if err != nil {
-		return nil, err
-	}
-
+func (u *SqliteRepository) GetTagContent(tagId int) ([]byte, error) {
 	var data []byte
-	err = db.QueryRow("SELECT data FROM tags WHERE app_id = ? and tag_name = ?", appID, tag).Scan(&data)
+	err := db.QueryRow("SELECT data FROM tags WHERE tag_id = ?", tagId).Scan(&data)
 	if err != nil {
 		return nil, err
 	}

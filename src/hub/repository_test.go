@@ -193,7 +193,7 @@ func TestGetTagList(t *testing.T) {
 	tagId, err = repo.GetTagId(appId, sampleTag)
 	assert.Nil(t, err)
 	assert.True(t, repo.DoesTagExist(tagId))
-	data, err := repo.GetTagContent(sampleUser, sampleApp, sampleTag)
+	data, err := repo.GetTagContent(tagId)
 	assert.Nil(t, err)
 	assert.Equal(t, []byte("asdf"), data)
 
