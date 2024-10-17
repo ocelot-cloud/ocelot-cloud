@@ -206,11 +206,7 @@ func (h *HubClient) getTags() ([]Tag, error) {
 }
 
 func (h *HubClient) deleteTag() error {
-	tagInfo := &AppAndTag{
-		App: h.App,
-		Tag: h.Tag,
-	}
-	_, err := h.Parent.DoRequest(tagDeletePath, tagInfo, "")
+	_, err := h.Parent.DoRequest(tagDeletePath, utils.SingleInteger{h.TagId}, "")
 	return err
 }
 

@@ -153,7 +153,7 @@ export default defineComponent({
     };
 
     const deleteTag = async () => {
-      const response = await doHubRequest("/tags/delete", { app: appName, tag: selectedTag.value.name });
+      const response = await doHubRequest("/tags/delete", { value: selectedTag.value.id });
       if (response != null) {
         tagList.value = tagList.value.filter(tag => tag.id !== selectedTag.value.id);
         showDeleteConfirmation.value = false;

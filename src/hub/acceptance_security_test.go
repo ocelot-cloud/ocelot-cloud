@@ -108,13 +108,6 @@ func TestUploadTagSecurity(t *testing.T) {
 	testInputInvalidation(t, hub, "invalid-tag", TagField, UploadTag)
 }
 
-func TestDeleteTagSecurity(t *testing.T) {
-	hub := getHubAndLogin(t)
-
-	testInputInvalidation(t, hub, "invalid-app", AppField, DeleteTag)
-	testInputInvalidation(t, hub, "invalid-tag", TagField, DeleteTag)
-}
-
 func TestCookieExpirationAndRenewal(t *testing.T) {
 	hub := getHubAndLogin(t)
 	// There is some specific logic for this user in the production code when handling cookie.

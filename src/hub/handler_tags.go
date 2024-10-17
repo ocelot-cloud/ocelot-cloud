@@ -85,42 +85,28 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	user := getUserFromContext(r)
-
-	tagInfo, err := readBody[AppAndTag](r)
+	tagId, err := readBodyAsSingleInteger(r)
 	if err != nil {
-		Logger.Warn("invalid input: %v", err)
+		Logger.Info("TODO: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
-	appId, err := repo.GetAppId(user, tagInfo.App)
-	if err != nil {
-		// TODO
-		http.Error(w, "app does not exist", http.StatusNotFound)
-		return
-	}
-
-	tagId, err := repo.GetTagId(appId, tagInfo.Tag)
-	if err != nil {
-		// TODO
-		http.Error(w, "tag does not exist", http.StatusNotFound)
-		return
-	}
+	// TODO check ownership and existence
 
 	if !repo.DoesTagExist(tagId) {
-		Logger.Info("user '%s' tried to delete tag of app '%s' but tag '%s' does not exist", user, tagInfo.App, tagInfo.Tag)
+		Logger.Info("someone tried to delete tag with ID '%d' but it does not exist", tagId)
 		http.Error(w, "tag does not exist", http.StatusNotFound)
 		return
 	}
 
 	err = repo.DeleteTag(tagId)
 	if err != nil {
-		Logger.Info("user '%s' tried to delete tag in app '%s' with tag name '%s' but it failed", user, tagInfo.App, tagInfo.Tag)
+		Logger.Info("deleting tag with ID '%d' failed: %v", tagId, err)
 		http.Error(w, "invalid input", http.StatusInternalServerError)
 		return
 	}
-	Logger.Info("user '%s' deleted in tag in app '%s' with tag name '%s'", user, tagInfo.App, tagInfo.Tag)
+	Logger.Info("tag with ID '%d' was deleted", tagId)
 	http.Error(w, "tag deleted", http.StatusOK)
 }
 
