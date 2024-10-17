@@ -96,6 +96,7 @@ type Repository interface {
 	SetOrigin(user string, newOrigin string) error
 	IsOriginCorrect(user string, origin string) bool
 
+	// TODO For all handlers for apps and tags check that a person can only address ID's which belong to his account.
 	DoesAppExist(appId int) bool
 	CreateApp(user, app string) error
 	DeleteApp(appId int) error
