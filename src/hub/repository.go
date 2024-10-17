@@ -88,7 +88,7 @@ type Repository interface {
 	DoesAppExist(user string, app string) bool
 	CreateApp(user string, app string) error
 	DeleteApp(user string, app string) error
-	FindApps(query string) ([]UserAndApp, error)
+	FindApps(query string) ([]App, error)
 
 	CreateTag(user string, app string, tag string, data []byte) error
 	DeleteTag(user string, app string, tag string) error
@@ -248,11 +248,11 @@ func (u *SqliteRepository) sumBlobSizes(appID int) (int64, error) {
 	return totalSize.Int64, nil
 }
 
-func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
-	var apps []UserAndApp
+func (u *SqliteRepository) FindApps(query string) ([]App, error) {
+	var apps []App
 
 	rows, err := db.Query(`
-		SELECT u.user_name, a.app_name 
+		SELECT u.user_name, a.app_name, a.app_id
 		FROM users u 
 		JOIN apps a ON u.user_id = a.user_id
 		WHERE u.user_name LIKE ? OR a.app_name LIKE ?
@@ -265,8 +265,8 @@ func (u *SqliteRepository) FindApps(query string) ([]UserAndApp, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var app UserAndApp
-		err := rows.Scan(&app.User, &app.App)
+		var app App
+		err := rows.Scan(&app.Maintainer, &app.App, &app.AppId)
 		if err != nil {
 			Logger.Error("Error scanning app row: %v\n", err)
 			continue

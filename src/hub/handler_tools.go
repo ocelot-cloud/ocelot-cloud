@@ -30,10 +30,10 @@ func readBody[T any](r *http.Request) (*T, error) {
 
 	var jobs []ValidationJob
 	switch v := any(result).(type) {
-	case UserAndApp:
+	case App:
 		jobs = []ValidationJob{
-			{v.User, User},
-			{v.App, App},
+			{v.Maintainer, User},
+			{v.App, AppType},
 		}
 	case RegistrationForm:
 		jobs = []ValidationJob{
@@ -55,12 +55,12 @@ func readBody[T any](r *http.Request) (*T, error) {
 	case TagInfo:
 		jobs = []ValidationJob{
 			{v.User, User},
-			{v.App, App},
+			{v.App, AppType},
 			{v.Tag, Tag},
 		}
 	case AppAndTag:
 		jobs = []ValidationJob{
-			{v.App, App},
+			{v.App, AppType},
 			{v.Tag, Tag},
 		}
 	}

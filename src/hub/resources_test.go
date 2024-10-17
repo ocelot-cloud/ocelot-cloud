@@ -110,13 +110,13 @@ func (h *HubClient) createApp() error {
 	return err
 }
 
-func (h *HubClient) findApps(searchTerm string) ([]UserAndApp, error) {
+func (h *HubClient) findApps(searchTerm string) ([]App, error) {
 	result, err := h.Parent.DoRequest(searchAppsPath, utils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
 
-	apps, err := utils.UnpackResponse[[]UserAndApp](result)
+	apps, err := utils.UnpackResponse[[]App](result)
 	if err != nil {
 		return nil, err
 	}
@@ -169,9 +169,9 @@ func (h *HubClient) downloadTag() (string, error) {
 }
 
 func (h *HubClient) getTags() ([]string, error) {
-	usernameAndApp := &UserAndApp{
-		User: h.Parent.User,
-		App:  h.App,
+	usernameAndApp := &App{
+		Maintainer: h.Parent.User,
+		App:        h.App,
 	}
 
 	result, err := h.Parent.DoRequest(getTagsPath, usernameAndApp, "")

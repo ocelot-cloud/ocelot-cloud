@@ -31,7 +31,7 @@ func tagUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jobs := []ValidationJob{
-		{tagUpload.App, App},
+		{tagUpload.App, AppType},
 		{tagUpload.Tag, Tag},
 	}
 	if err := validateJobs(jobs); err != nil {
@@ -103,28 +103,28 @@ func tagDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTagsHandler(w http.ResponseWriter, r *http.Request) {
-	userAndApp, err := readBody[UserAndApp](r)
+	userAndApp, err := readBody[App](r)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
 	}
 
-	if !repo.DoesUserExist(userAndApp.User) {
-		Logger.Info("someone tried to list tags but user '%s' does not exist", userAndApp.User)
+	if !repo.DoesUserExist(userAndApp.Maintainer) {
+		Logger.Info("someone tried to list tags but user '%s' does not exist", userAndApp.Maintainer)
 		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
-	if !repo.DoesAppExist(userAndApp.User, userAndApp.App) {
+	if !repo.DoesAppExist(userAndApp.Maintainer, userAndApp.App) {
 		Logger.Info("someone tried to list tags but app '%s' does not exist", userAndApp.App)
 		http.Error(w, "app does not exist", http.StatusNotFound)
 		return
 	}
 
-	tagsList, err := repo.GetTagList(userAndApp.User, userAndApp.App)
+	tagsList, err := repo.GetTagList(userAndApp.Maintainer, userAndApp.App)
 	if err != nil {
-		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.User, userAndApp.App)
+		Logger.Error("getting tag list failed for user '%s' and app '%s'", userAndApp.Maintainer, userAndApp.App)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

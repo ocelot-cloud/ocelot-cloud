@@ -68,7 +68,7 @@ func TestCreateApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(foundApps))
 	foundApp := foundApps[0]
-	assert.Equal(t, hub.Parent.User, foundApp.User)
+	assert.Equal(t, hub.Parent.User, foundApp.Maintainer)
 	assert.Equal(t, hub.App, foundApp.App)
 
 	err = hub.createApp()

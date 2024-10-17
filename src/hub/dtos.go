@@ -17,9 +17,10 @@ type TagUpload struct {
 	Content []byte `json:"content"`
 }
 
-type UserAndApp struct {
-	User string `json:"user"`
-	App  string `json:"app"`
+type App struct {
+	Maintainer string `json:"user"`
+	App        string `json:"app"`
+	AppId      int    `json:"appId"`
 }
 
 type RegistrationForm struct {

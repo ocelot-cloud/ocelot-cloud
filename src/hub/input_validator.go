@@ -11,7 +11,7 @@ type ValidationType int
 
 const (
 	User ValidationType = iota
-	App
+	AppType
 	Tag
 	Password
 	Origin
@@ -39,7 +39,7 @@ func validate(input string, validationType ValidationType) error {
 	switch validationType {
 	case User:
 		re = namePattern
-	case App:
+	case AppType:
 		re = namePattern
 	case Tag:
 		re = tagPattern

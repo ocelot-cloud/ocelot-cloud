@@ -8,7 +8,7 @@ import (
 func appCreationHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromContext(r)
 
-	app, err := readBodyAsSingleString(r, App)
+	app, err := readBodyAsSingleString(r, AppType)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -40,7 +40,7 @@ func appCreationHandler(w http.ResponseWriter, r *http.Request) {
 func appDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromContext(r)
 
-	app, err := readBodyAsSingleString(r, App)
+	app, err := readBodyAsSingleString(r, AppType)
 	if err != nil {
 		Logger.Warn("invalid input: %v", err)
 		http.Error(w, "invalid input", http.StatusBadRequest)

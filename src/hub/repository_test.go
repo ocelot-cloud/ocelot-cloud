@@ -125,8 +125,8 @@ func TestSearch(t *testing.T) {
 	})
 
 	assert.Equal(t, 2, len(a))
-	assert.Equal(t, sampleUser, a[0].User)
-	assert.Equal(t, sampleUser, a[1].User)
+	assert.Equal(t, sampleUser, a[0].Maintainer)
+	assert.Equal(t, sampleUser, a[1].Maintainer)
 	assert.Equal(t, app2, a[0].App)
 	assert.Equal(t, app1, a[1].App)
 }
