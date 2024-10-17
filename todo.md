@@ -341,3 +341,4 @@ run:
 * add GUI feature to download tags as zip
 * There should be an emergency option like "stop all apps", in case there are inconsistencies or so, in which the user can help himself. Should generate and send an error report maybe?
 * Use concurrent connections for the databases. Also replace sqlite with cockroach in production.
+* For all cookies, I must set SameSite=Strict in order to prevent CSRF attacks. 
