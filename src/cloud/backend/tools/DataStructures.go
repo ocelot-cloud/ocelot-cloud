@@ -56,3 +56,11 @@ type Tag struct {
 	Name string `json:"name"`
 	Id   int    `json:"id"`
 }
+
+// TODO Duplication with hub, put to shared module
+type FullTagInfo struct {
+	Maintainer string `json:"maintainer"`
+	Name       string `json:"name"`
+	Content    []byte `json:"content"`
+	Id         int    `json:"id"`
+}
