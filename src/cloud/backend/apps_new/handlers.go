@@ -58,13 +58,13 @@ func AppSearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TagDownloadHandler(w http.ResponseWriter, r *http.Request) {
-	tagInfo, err := ReadBody[tools.TagInfo](r) // TODO Should read TagId from request
+	tagIdSingleInt, err := ReadBody[tools.SingleInt](r) // TODO Should read TagId from request
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = DownloadTag(*tagInfo)
+	err = DownloadTag(tagIdSingleInt.Value)
 	if err != nil {
 		Logger.Info("Failed to download tag: %v", err)
 		w.WriteHeader(http.StatusBadRequest)

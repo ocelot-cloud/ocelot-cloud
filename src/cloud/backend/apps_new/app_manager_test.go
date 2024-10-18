@@ -3,7 +3,6 @@ package apps_new
 import (
 	"github.com/ocelot-cloud/shared/assert"
 	"ocelot/backend/repo"
-	"ocelot/backend/tools"
 	"os/exec"
 	"testing"
 )
@@ -11,24 +10,34 @@ import (
 func TestDownloadTag(t *testing.T) {
 	hubClient = NewHubClientMock().(HubClient)
 	repo.InitializeDatabaseWithSource(":memory:")
-	tagInfo := tools.TagInfo{"sampleuser", "nginxdefault", "0.0.1"}
+	searchApps, err := hubClient.SearchApps("nginxdefault")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(*searchApps))
+	app := (*searchApps)[0]
+	assert.Equal(t, "sampleuser", app.Maintainer)
+	assert.Equal(t, "nginxdefault", app.Name)
+	tags, err := hubClient.GetTags(app.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(*tags))
+	assert.Equal(t, "0.0.1", (*tags)[0].Name)
+	tag := (*tags)[0]
 
-	err := DownloadTag(tagInfo)
+	err = DownloadTag(tag.Id)
 	assert.Nil(t, err)
 	apps, err := repo.AppRepo.ListApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(apps))
 	MaintainerAndApp := apps[0]
-	assert.Equal(t, tagInfo.User, MaintainerAndApp.Maintainer)
-	assert.Equal(t, tagInfo.App, MaintainerAndApp.Name)
-	appId, err := repo.AppRepo.GetAppId(tagInfo.User, tagInfo.App)
+	assert.Equal(t, "sampleuser", MaintainerAndApp.Maintainer)
+	assert.Equal(t, "nginxdefault", MaintainerAndApp.Name)
+	appId, err := repo.AppRepo.GetAppId("sampleuser", "nginxdefault")
 	assert.Nil(t, err)
-	tags, err := repo.AppRepo.ListTagsOfApp(appId)
+	repoTags, err := repo.AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(tags))
-	assert.Equal(t, tagInfo.Tag, tags[0].Name)
+	assert.Equal(t, 1, len(repoTags))
+	assert.Equal(t, "0.0.1", repoTags[0].Name)
 
-	tagId, err := repo.AppRepo.GetTagId(appId, tagInfo.Tag)
+	tagId, err := repo.AppRepo.GetTagId(appId, "0.0.1")
 	blob, err := repo.AppRepo.LoadTagBlob(tagId)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSampleTagSizeInByte, len(blob))

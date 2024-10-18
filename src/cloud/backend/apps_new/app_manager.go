@@ -18,32 +18,20 @@ import (
 var hubClient HubClient
 
 // TODO should directly give tagId
-func DownloadTag(info tools.TagInfo) error {
-	apps, err := hubClient.SearchApps(info.App)
+func DownloadTag(tagId int) error {
+	tagContent, err := hubClient.DownloadTag(tagId) // TODO This should also return: maintainer, app, tag
 	if err != nil {
 		return err
 	}
-
-	app := (*apps)[0]
-	tags, err := hubClient.GetTags(app.Id)
-	if err != nil {
-		return err
-	}
-	tag := (*tags)[0]
-
-	tagContent, err := hubClient.DownloadTag(tag.Id)
-	if err != nil {
-		return err
-	}
-	err = repo.AppRepo.CreateApp(info.User, info.App)
+	err = repo.AppRepo.CreateApp("sampleuser", "nginxdefault") // TODO should not be hardcoded
 	if err != nil {
 		// TODO log: app was already existing, skip creation -> or maybe make a DoesAppExist check before that?
 	}
-	appId, err := repo.AppRepo.GetAppId(info.User, info.App)
+	appId, err := repo.AppRepo.GetAppId("sampleuser", "nginxdefault") // TODO should not be hardcoded
 	if err != nil {
 		return err
 	}
-	err = repo.AppRepo.CreateTag(appId, info.Tag, *tagContent)
+	err = repo.AppRepo.CreateTag(appId, "0.0.1", *tagContent) // TODO tag should not be hardcoded
 	if err != nil {
 		return err
 	}
