@@ -183,12 +183,12 @@ func (h *HubClient) downloadTag() (string, error) {
 		return "", err
 	}
 
-	downloadedContent, ok := result.([]byte)
-	if !ok {
-		return "", fmt.Errorf("Failed to assert result to []byte")
+	fullTagInfo, err := utils.UnpackResponse[FullTagInfo](result)
+	if err != nil {
+		return "", err
 	}
 
-	return string(downloadedContent), nil
+	return string(fullTagInfo.Content), nil
 }
 
 func (h *HubClient) getTags() ([]Tag, error) {

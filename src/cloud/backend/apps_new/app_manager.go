@@ -19,7 +19,7 @@ var hubClient HubClient
 
 // TODO should directly give tagId
 func DownloadTag(tagId int) error {
-	tagContent, err := hubClient.DownloadTag(tagId) // TODO This should also return: maintainer, app, tag
+	fullTagInfo, err := hubClient.DownloadTag(tagId) // TODO This should also return: maintainer, app, tag
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func DownloadTag(tagId int) error {
 	if err != nil {
 		return err
 	}
-	err = repo.AppRepo.CreateTag(appId, "0.0.1", *tagContent) // TODO tag should not be hardcoded
+	err = repo.AppRepo.CreateTag(appId, "0.0.1", fullTagInfo.Content) // TODO tag should not be hardcoded
 	if err != nil {
 		return err
 	}

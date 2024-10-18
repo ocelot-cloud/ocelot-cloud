@@ -1,7 +1,6 @@
 package apps_new
 
 import (
-	"fmt"
 	"github.com/ocelot-cloud/shared/utils"
 	"ocelot/backend/tools"
 	"os"
@@ -21,7 +20,7 @@ type HubApp struct {
 type HubClient interface {
 	SearchApps(searchTerm string) (*[]tools.App, error)
 	GetTags(appId int) (*[]tools.Tag, error)
-	DownloadTag(tagId int) (*[]byte, error)
+	DownloadTag(tagId int) (*tools.FullTagInfo, error)
 }
 
 type hubClientReal struct{}
@@ -57,16 +56,16 @@ func (h hubClientReal) GetTags(appId int) (*[]tools.Tag, error) {
 	return tagList, nil
 }
 
-func (h hubClientReal) DownloadTag(tagId int) (*[]byte, error) {
+func (h hubClientReal) DownloadTag(tagId int) (*tools.FullTagInfo, error) {
 	result, err := client.DoRequest("/tags/download", tools.SingleInt{tagId}, "")
 	if err != nil {
 		return nil, err
 	}
-	downloadedContent, ok := result.([]byte)
-	if !ok {
-		return nil, fmt.Errorf("Failed to assert result to []byte")
+	fullTagInfo, err := utils.UnpackResponse[tools.FullTagInfo](result)
+	if err != nil {
+		return nil, err
 	}
-	return &downloadedContent, nil
+	return fullTagInfo, nil
 }
 
 type hubClientMock struct{}
@@ -81,12 +80,18 @@ func (h hubClientMock) GetTags(appId int) (*[]tools.Tag, error) {
 	return &[]tools.Tag{{"0.0.1", -1}}, nil
 }
 
-func (h hubClientMock) DownloadTag(tagId int) (*[]byte, error) {
+func (h hubClientMock) DownloadTag(tagId int) (*tools.FullTagInfo, error) {
 	data, err := utils.ZipDirectoryToBytes(getSampleAppFolder())
 	if err != nil {
 		return nil, err
 	}
-	return &data, nil
+	return &tools.FullTagInfo{
+		Maintainer: "sampleuser",
+		AppName:    "nginxdefault",
+		TagName:    "0.0.1",
+		Content:    data,
+		Id:         -1,
+	}, nil
 }
 
 func NewHubClientMock() HubClient {

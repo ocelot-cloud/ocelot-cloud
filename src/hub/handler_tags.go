@@ -126,6 +126,14 @@ func getTagsHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendJsonResponse(w, tagsList)
 }
 
+type FullTagInfo struct {
+	Maintainer string `json:"maintainer"`
+	AppName    string `json:"app_name"`
+	TagName    string `json:"tag_name"`
+	Content    []byte `json:"content"`
+	Id         int    `json:"id"`
+}
+
 func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	tagId, err := readBodyAsSingleInteger(r)
 	if err != nil {
@@ -147,7 +155,14 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/gzip")
-	w.WriteHeader(http.StatusOK)
-	w.Write(content)
+	// TODO fields are not asserted in a test yet
+	fullTagInfo := FullTagInfo{
+		Maintainer: "sampleuser",   // TODO Should not be hard coded
+		AppName:    "nginxdefault", // TODO Should not be hard coded
+		TagName:    "0.0.1",        // TODO Should not be hard coded
+		Content:    content,
+		Id:         tagId,
+	}
+
+	utils.SendJsonResponse(w, fullTagInfo)
 }
