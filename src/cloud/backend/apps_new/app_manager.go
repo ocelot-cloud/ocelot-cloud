@@ -23,15 +23,15 @@ func DownloadTag(tagId int) error {
 	if err != nil {
 		return err
 	}
-	err = repo.AppRepo.CreateApp("sampleuser", "nginxdefault") // TODO should not be hardcoded
+	err = repo.AppRepo.CreateApp(fullTagInfo.Maintainer, fullTagInfo.AppName)
 	if err != nil {
 		// TODO log: app was already existing, skip creation -> or maybe make a DoesAppExist check before that?
 	}
-	appId, err := repo.AppRepo.GetAppId("sampleuser", "nginxdefault") // TODO should not be hardcoded
+	appId, err := repo.AppRepo.GetAppId(fullTagInfo.Maintainer, fullTagInfo.AppName)
 	if err != nil {
 		return err
 	}
-	err = repo.AppRepo.CreateTag(appId, "0.0.1", fullTagInfo.Content) // TODO tag should not be hardcoded
+	err = repo.AppRepo.CreateTag(appId, fullTagInfo.TagName, fullTagInfo.Content) // TODO tag should not be hardcoded
 	if err != nil {
 		return err
 	}
