@@ -7,7 +7,7 @@ import (
 
 var (
 	currentSchemaVersion = "0.1.0"
-	databaseFile         = shared.DataDir + "/sqlite.db" // TODO it is greyed out, but shouldn't that be used somewhere?
+	databaseFile         = shared.DataDir + "/sqlite.db"
 	Logger               shared.Logger
 	port                 = "8082"
 	rootUrl              = "http://localhost:" + port
