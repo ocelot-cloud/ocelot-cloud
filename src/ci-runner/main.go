@@ -40,14 +40,6 @@ var cleanCmd = &cobra.Command{
 	},
 }
 
-var hubTestTypes = map[string]func(){
-	"unit":        func() { src.TestHubUnits() },
-	"backend":     func() { src.TestHubBackend() },
-	"acceptance":  func() { src.TestHubAcceptance() },
-	"all":         func() { src.TestHubAll() },
-	"persistence": func() { src.TestHubPersistence() },
-}
-
 var cloudTestTypes = map[string]func(){
 	"acceptance":  func() { src.TestCloudAcceptance() },
 	"frontend":    func() { src.TestFrontend() },
@@ -106,23 +98,6 @@ var ciCmd = &cobra.Command{
 
 // TODO There are flags for every command, even though they have no effect.
 
-var hubCmd = &cobra.Command{
-	Use:   "hub [" + strings.Join(getKeys(hubTestTypes), "/") + "]",
-	Short: "Run hub-related tests",
-	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		inputTestType := args[0]
-		if _, exists := hubTestTypes[inputTestType]; !exists {
-			tr.ColoredPrintln("\nerror: unknown hub test type: %s\n", inputTestType)
-			tr.ColoredPrintln("valid args: %s\n", strings.Join(getKeys(hubTestTypes), ", "))
-			os.Exit(1)
-		} else {
-			hubTestTypes[inputTestType]()
-		}
-		tr.ColoredPrintln("\nSuccess! Hub tests passed.\n")
-	},
-}
-
 var scheduleCmd = &cobra.Command{
 	Use:   "schedule",
 	Short: "Run scheduled tests",
@@ -174,7 +149,7 @@ func main() {
 	src.ComponentBuilds[src.Frontend].SkipBuild = src.SkipFrontendBuild
 	src.ComponentBuilds[src.DockerImage].SkipBuild = src.SkipDockerImageBuild
 
-	testCmd.AddCommand(cloudCmd, ciCmd, hubCmd, scheduleCmd)
+	testCmd.AddCommand(cloudCmd, ciCmd, scheduleCmd)
 	deployCmd.AddCommand(deployContainerProdCmd, deployContainerProdWithDummiesCmd)
 	rootCmd.AddCommand(buildCmd, testCmd, deployCmd, cleanCmd, downloadDependenciesCmd)
 

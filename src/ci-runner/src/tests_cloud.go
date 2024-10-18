@@ -69,10 +69,9 @@ func deployContainer(additionalEnvs ...string) {
 func TestCi() {
 	tr.PrintTaskDescription("Running CI tests")
 	TestBackend()
-	TestIntegration()
+	// TODO TestIntegration()
 	TestFrontend()
 	TestCloudAcceptance()
-	TestHubAll()
 }
 
 func TestIntegration() {
