@@ -98,7 +98,7 @@ type Repository interface {
 
 	// TODO For all handlers for apps and tags check that a person can only address ID's which belong to his account.
 	DoesAppExist(appId int) bool
-	CreateApp(user, app string) (int, error)
+	CreateApp(user, app string) error
 	DeleteApp(appId int) error
 	FindApps(query string) ([]App, error)
 	GetAppId(user, app string) (int, error)
@@ -178,27 +178,20 @@ func (u *SqliteRepository) DeleteUser(user string) error {
 	return nil
 }
 
-func (u *SqliteRepository) CreateApp(user string, app string) (int, error) {
+func (u *SqliteRepository) CreateApp(user string, app string) error {
 	if !u.DoesUserExist(user) {
-		return -1, logAndReturnError("User '%s' does not exist", user)
+		return logAndReturnError("User '%s' does not exist", user)
 	}
 
 	userID, err := getUserId(user)
 	if err != nil {
-		return -1, err
+		return err
 	}
 	_, err = db.Exec(`INSERT INTO apps (user_id, app_name) VALUES (?, ?)`, userID, app)
 	if err != nil {
-		return -1, logAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
-	} // TODO get rid of logAndReturn functions
-
-	appId, err := getAppId(userID, app)
-	if err != nil {
-		// TODO
-		return -1, err
+		return logAndReturnError("Failed to add app '%s' for user '%s': %v", app, user, err)
 	}
-
-	return appId, nil
+	return nil
 }
 
 func (u *SqliteRepository) DoesAppExist(appId int) bool {

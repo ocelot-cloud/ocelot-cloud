@@ -35,7 +35,7 @@ func appCreationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = repo.CreateApp(user, app)
+	err = repo.CreateApp(user, app)
 	if err != nil {
 		Logger.Error("user '%s' tried to create app '%s' but it failed: %v", user, app, err)
 		http.Error(w, "app creation failed", http.StatusInternalServerError)
