@@ -345,3 +345,4 @@ run:
 * add "PRAGMA foreign_keys = ON;" in cloud repo?
 * I think the sample files tags in hub ar encoded as zip, but GUI uses .tar.gz -> I should only use one, but which? Ask ChatGPT 
 * Remove buttons from GUI which switch between cloud and hub.
+* Are scheduled jobs outdated?

@@ -10,7 +10,6 @@ const RootDomain = "localhost"
 const ocelotUrl = Scheme + "://ocelot-cloud." + RootDomain
 const frontendServerUrl = Scheme + "://localhost:8081"
 
-const ocelotContainerRunCommand = "docker compose -p ocelot-cloud up"
 const ocelotContainerRunCommandDetached = "docker compose -p ocelot-cloud up -d"
 const cypressCommand = "npx cypress run --spec cypress/e2e/cloud.cy.ts --headless"
 
@@ -18,10 +17,9 @@ var projectDir = GetProjectDir()
 var scriptsDir = projectDir + "/scripts"
 var srcDir = projectDir + "/src"
 
-var cloudDir = srcDir + "/cloud"
-var backendDir = cloudDir + "/backend"
-var frontendDir = cloudDir + "/frontend"
-var acceptanceTestsDir = cloudDir + "/acceptance-tests"
+var backendDir = srcDir + "/backend"
+var frontendDir = srcDir + "/frontend"
+var acceptanceTestsDir = srcDir + "/acceptance-tests"
 
 var ocelotStackDir = backendDir + "/assets/ocelot-cloud"
 var backendAppsDir = backendDir + "/apps"
