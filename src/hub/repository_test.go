@@ -31,8 +31,7 @@ func TestCreateRepoApp(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	// TODO Assert app table is empty instead?
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	appId, err := repo.CreateApp(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId))
 }
@@ -40,8 +39,7 @@ func TestCreateRepoApp(t *testing.T) {
 func TestDeleteAppCascadingThroughUser(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	appId, err := repo.CreateApp(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId))
 	assert.Nil(t, repo.DeleteApp(appId))
@@ -51,8 +49,7 @@ func TestDeleteAppCascadingThroughUser(t *testing.T) {
 func TestDeleteAppDirectly(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	appId, err := repo.CreateApp(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId))
 	assert.Nil(t, repo.DeleteUser(sampleUser))
@@ -68,13 +65,16 @@ func TestCantCreateUserTwice(t *testing.T) {
 func TestCantCreateAppTwiceForSameUser(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	assert.NotNil(t, repo.CreateApp(sampleUser, sampleApp))
+	_, err := repo.CreateApp(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	_, err = repo.CreateApp(sampleUser, sampleApp)
+	assert.NotNil(t, err)
 }
 
 func TestCantCreateAppWithoutUser(t *testing.T) {
 	defer repo.WipeDatabase()
-	assert.NotNil(t, repo.CreateApp(sampleUser, sampleApp))
+	_, err := repo.CreateApp(sampleUser, sampleApp)
+	assert.NotNil(t, err)
 }
 
 func TestTolerateSamePasswordForTwoUsers(t *testing.T) {
@@ -95,14 +95,12 @@ func TestTolerateSameAppsForTwoUsers(t *testing.T) {
 	newForm := *sampleForm
 	newForm.User = user2
 	assert.Nil(t, repo.CreateUser(&newForm))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	assert.Nil(t, repo.CreateApp(user2, sampleApp))
+	appId1, err := repo.CreateApp(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	appId2, err := repo.CreateApp(user2, sampleApp)
+	assert.Nil(t, err)
 
-	appId1, err := repo.GetAppId(sampleUser, sampleApp)
-	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId1))
-	appId2, err := repo.GetAppId(user2, sampleApp)
-	assert.Nil(t, err)
 	assert.True(t, repo.DoesAppExist(appId2))
 
 	assert.Nil(t, repo.DeleteApp(appId1))
@@ -122,8 +120,10 @@ func TestSearch(t *testing.T) {
 	assert.Nil(t, repo.CreateUser(sampleForm))
 	app1 := "prefix_myapp_suffix"
 	app2 := "prefix_another-app_suffix"
-	assert.Nil(t, repo.CreateApp(sampleUser, app1))
-	assert.Nil(t, repo.CreateApp(sampleUser, app2))
+	_, err := repo.CreateApp(sampleUser, app1)
+	assert.Nil(t, err)
+	_, err = repo.CreateApp(sampleUser, app2)
+	assert.Nil(t, err)
 
 	foundApps, err := repo.FindApps("app")
 	assert.Nil(t, err)
@@ -175,8 +175,7 @@ func TestCookieExpiration(t *testing.T) {
 func TestGetTagList(t *testing.T) {
 	defer repo.WipeDatabase()
 	assert.Nil(t, repo.CreateUser(sampleForm))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	appId, err := repo.CreateApp(sampleUser, sampleApp)
 	assert.Nil(t, err)
 	foundTags, err := repo.GetTagList(appId)
 	assert.Nil(t, err)
@@ -244,9 +243,7 @@ func TestUsedSpace(t *testing.T) {
 	space, err := repo.GetUsedSpaceInBytes(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, space)
-
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	appId, err := repo.GetAppId(sampleUser, sampleApp)
+	appId, err := repo.CreateApp(sampleUser, sampleApp)
 	assert.Nil(t, err)
 
 	bytes := []byte("hello")
@@ -296,8 +293,10 @@ func TestGetAppListRepo(t *testing.T) {
 	list, err := repo.GetAppList(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(list))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp))
-	assert.Nil(t, repo.CreateApp(sampleUser, sampleApp+"x"))
+	_, err = repo.CreateApp(sampleUser, sampleApp)
+	assert.Nil(t, err)
+	_, err = repo.CreateApp(sampleUser, sampleApp+"x")
+	assert.Nil(t, err)
 	list, err = repo.GetAppList(sampleUser)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(list))
