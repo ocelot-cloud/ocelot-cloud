@@ -131,6 +131,8 @@ func onlyExecuteTestForProfile(t *testing.T, profileEnablingTheTest string) {
 	}
 }
 
+// TODO To make development easier, cloud backend should by default run on port 80.
+
 func TestHubIntegration(t *testing.T) {
 	// TODO remove potentially still existing container? Should become obsolete when old app module is replaced.
 	exec.Command("docker", "rm", "-f", "nginx-default").Run()
@@ -140,17 +142,17 @@ func TestHubIntegration(t *testing.T) {
 	apps, err := cloud.searchHubApps()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*apps))
-	userAndApp := (*apps)[0]
-	assert.Equal(t, "sampleuser", userAndApp.User)
-	assert.Equal(t, "nginxdefault", userAndApp.App)
+	app := (*apps)[0]
+	assert.Equal(t, "sampleuser", app.Maintainer)
+	assert.Equal(t, "nginxdefault", app.Name)
 
-	tags, err := cloud.getHubTags(userAndApp)
+	tags, err := cloud.getHubTags(tools.UserAndApp{app.Maintainer, app.Name})
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*tags))
 	tag := (*tags)[0]
-	assert.Equal(t, "0.0.1", tag)
+	assert.Equal(t, "0.0.1", tag.Name)
 
-	tagInfo := tools.TagInfo{userAndApp.User, userAndApp.App, tag}
+	tagInfo := tools.TagInfo{app.Maintainer, app.Name, tag.Name}
 	err = cloud.downloadTagFromHub(tagInfo)
 	assert.Nil(t, err)
 

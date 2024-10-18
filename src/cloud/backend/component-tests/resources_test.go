@@ -157,12 +157,12 @@ func getCloud() *CloudClient {
 }
 
 // TODO Subsequently are the new app functions. When implemented, delete the old ones.
-func (c *CloudClient) searchHubApps() (*[]tools.UserAndApp, error) {
+func (c *CloudClient) searchHubApps() (*[]tools.App, error) {
 	responseBody, err := c.parent.DoRequest("/api/apps/search", utils.SingleString{"sample"}, "")
 	if err != nil {
 		return nil, err
 	}
-	var userAndAppList []tools.UserAndApp
+	var userAndAppList []tools.App
 	err = json.Unmarshal(responseBody.([]byte), &userAndAppList)
 	if err != nil {
 		return nil, err
@@ -172,12 +172,12 @@ func (c *CloudClient) searchHubApps() (*[]tools.UserAndApp, error) {
 }
 
 // TODO In order to use appId and tagId, I have to adapt the hub API first.
-func (c *CloudClient) getHubTags(userAndApp tools.UserAndApp) (*[]string, error) {
+func (c *CloudClient) getHubTags(userAndApp tools.UserAndApp) (*[]tools.Tag, error) {
 	responseBody, err := c.parent.DoRequest("/api/tags/list", userAndApp, "")
 	if err != nil {
 		return nil, err
 	}
-	var tags []string
+	var tags []tools.Tag
 	err = json.Unmarshal(responseBody.([]byte), &tags)
 	if err != nil {
 		return nil, err

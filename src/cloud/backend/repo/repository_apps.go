@@ -40,7 +40,7 @@ func (r *AppRepositoryImpl) CreateTag(appId int, tag string, blob []byte) error 
 }
 
 // TODO Should actually be hidden to outside. I think it would be better to expose interfaces to the outside, while using the implementations internally.
-func (r *AppRepositoryImpl) GetApp(appId int) (*tools.App, error) {
+func (r *AppRepositoryImpl) GetApp(appId int) (*tools.RepoApp, error) {
 	var maintainer, appName string
 	var activeTagId int
 	err := DB.QueryRow("SELECT maintainer, app, active_tag FROM apps WHERE app_id = ?", appId).Scan(&maintainer, &appName, &activeTagId)
@@ -48,7 +48,7 @@ func (r *AppRepositoryImpl) GetApp(appId int) (*tools.App, error) {
 		return nil, fmt.Errorf("TODO2")
 	}
 
-	app := &tools.App{maintainer, appName, appId, "", -1, false}
+	app := &tools.RepoApp{maintainer, appName, appId, "", -1, false}
 	activeTag, err := r.getTag(activeTagId)
 	if err != nil {
 		// TODO if tag not found, then it becomes an empty string
@@ -71,7 +71,7 @@ func (r *AppRepositoryImpl) GetAppId(maintainer string, app string) (int, error)
 	return appId, nil
 }
 
-func (r *AppRepositoryImpl) ListApps() ([]tools.App, error) {
+func (r *AppRepositoryImpl) ListApps() ([]tools.RepoApp, error) {
 	rows, err := DB.Query("SELECT maintainer, app, app_id, active_tag FROM apps")
 	if err != nil {
 		Logger.Error("Failed to fetch app list: %v", err)
@@ -79,7 +79,7 @@ func (r *AppRepositoryImpl) ListApps() ([]tools.App, error) {
 	}
 	defer rows.Close()
 
-	var result []tools.App
+	var result []tools.RepoApp
 	for rows.Next() {
 		var maintainer, app string
 		var appId, activeTagId int
@@ -87,7 +87,7 @@ func (r *AppRepositoryImpl) ListApps() ([]tools.App, error) {
 			Logger.Error("Failed to scan row: %v", err)
 			return nil, fmt.Errorf("failed to scan row")
 		}
-		result = append(result, tools.App{maintainer, app, appId, "", activeTagId, false})
+		result = append(result, tools.RepoApp{maintainer, app, appId, "", activeTagId, false})
 	}
 
 	// TODO A little performance hungry. Maybe make one query for all apps and then put it together in memory.

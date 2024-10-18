@@ -18,22 +18,9 @@ var client = utils.ComponentClient{
 type HubApp struct {
 }
 
-// TODO Duplication with hub, put to shared module
-type App struct {
-	Maintainer string `json:"user"`
-	Name       string `json:"name"`
-	Id         int    `json:"id"`
-}
-
-// TODO Duplication with hub, put to shared module
-type Tag struct {
-	Name string `json:"name"`
-	Id   int    `json:"id"`
-}
-
 type HubClient interface {
-	SearchApps(searchTerm string) (*[]App, error)
-	GetTags(appId int) (*[]Tag, error)
+	SearchApps(searchTerm string) (*[]tools.App, error)
+	GetTags(appId int) (*[]tools.Tag, error)
 	DownloadTag(tagId int) (*[]byte, error)
 }
 
@@ -43,12 +30,12 @@ func NewHubClientReal() HubClient {
 	return &hubClientReal{}
 }
 
-func (h hubClientReal) SearchApps(searchTerm string) (*[]App, error) {
+func (h hubClientReal) SearchApps(searchTerm string) (*[]tools.App, error) {
 	responseBody, err := client.DoRequest("/apps/search", utils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
-	userAndAppList, err := utils.UnpackResponse[[]App](responseBody)
+	userAndAppList, err := utils.UnpackResponse[[]tools.App](responseBody)
 	if err != nil {
 		return nil, err
 	}
@@ -57,13 +44,13 @@ func (h hubClientReal) SearchApps(searchTerm string) (*[]App, error) {
 
 // TODO Duplication tools.SingleInt and utils.SingleInteger
 
-func (h hubClientReal) GetTags(appId int) (*[]Tag, error) {
+func (h hubClientReal) GetTags(appId int) (*[]tools.Tag, error) {
 	responseBody, err := client.DoRequest("/tags/get-tags", tools.SingleInt{appId}, "")
 	if err != nil {
 		return nil, err
 	}
 
-	tagList, err := utils.UnpackResponse[[]Tag](responseBody)
+	tagList, err := utils.UnpackResponse[[]tools.Tag](responseBody)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +71,14 @@ func (h hubClientReal) DownloadTag(tagId int) (*[]byte, error) {
 
 type hubClientMock struct{}
 
-func (h hubClientMock) SearchApps(searchTerm string) (*[]App, error) {
-	return &[]App{
+func (h hubClientMock) SearchApps(searchTerm string) (*[]tools.App, error) {
+	return &[]tools.App{
 		{"sampleuser", "nginxdefault", -1},
 	}, nil
 }
 
-func (h hubClientMock) GetTags(appId int) (*[]Tag, error) {
-	return &[]Tag{{"0.0.1", -1}}, nil
+func (h hubClientMock) GetTags(appId int) (*[]tools.Tag, error) {
+	return &[]tools.Tag{{"0.0.1", -1}}, nil
 }
 
 func (h hubClientMock) DownloadTag(tagId int) (*[]byte, error) {

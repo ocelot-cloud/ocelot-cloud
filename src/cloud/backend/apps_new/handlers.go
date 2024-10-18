@@ -33,6 +33,7 @@ func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app := (*apps)[0]
+
 	tags, err := hubClient.GetTags(app.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -57,14 +58,27 @@ func AppSearchHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendJsonResponse(w, *apps)
 }
 
+// TODO Should directly use tagId
 func TagDownloadHandler(w http.ResponseWriter, r *http.Request) {
-	tagIdSingleInt, err := ReadBody[tools.SingleInt](r) // TODO Should read TagId from request
+	tagInfo, err := ReadBody[tools.TagInfo](r) // TODO Should read TagId from request
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	apps, err := hubClient.SearchApps(tagInfo.Tag)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	app := (*apps)[0]
+	tags, err := hubClient.GetTags(app.Id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	tag := (*tags)[0]
 
-	err = DownloadTag(tagIdSingleInt.Value)
+	err = DownloadTag(tag.Id)
 	if err != nil {
 		Logger.Info("Failed to download tag: %v", err)
 		w.WriteHeader(http.StatusBadRequest)

@@ -18,7 +18,7 @@ func (r *AccessRepositoryImpl) GiveGroupAccessToApp(groupId, appId int) error {
 	return nil
 }
 
-func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]tools.App, error) {
+func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]tools.RepoApp, error) {
 	rows, err := DB.Query("SELECT app_id FROM app_access WHERE group_id = ?", groupId)
 	if err != nil {
 		// TODO
@@ -44,7 +44,7 @@ func (r *AccessRepositoryImpl) ListAppAccessesOfGroup(groupId int) ([]tools.App,
 	return apps, nil
 }
 
-func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]tools.App, error) {
+func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]tools.RepoApp, error) {
 	query := fmt.Sprintf("SELECT maintainer, app, app_id FROM apps WHERE app_id IN (%s)", strings.TrimSuffix(strings.Repeat("?,", len(ids)), ","))
 
 	args := make([]interface{}, len(ids))
@@ -59,7 +59,7 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]tools.App, error) {
 	}
 	defer rows.Close()
 
-	var apps []tools.App
+	var apps []tools.RepoApp
 	for rows.Next() {
 		var maintainer string
 		var app string
@@ -69,7 +69,7 @@ func (r *AccessRepositoryImpl) getAppsByIDs(ids []int) ([]tools.App, error) {
 			return nil, err
 		}
 		// TODO Apps are constructed at multiple locations. I should abstract that.
-		apps = append(apps, tools.App{maintainer, app, appId, "", -1, false}) // TODO active tag
+		apps = append(apps, tools.RepoApp{maintainer, app, appId, "", -1, false}) // TODO active tag
 	}
 
 	return apps, nil

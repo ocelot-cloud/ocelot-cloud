@@ -162,8 +162,8 @@ type AppRepository interface {
 	GetTagId(appId int, tag string) (int, error)
 
 	SetActiveTag(appId, tagId int) error
-	GetApp(appId int) (*tools.App, error)
-	ListApps() ([]tools.App, error)
+	GetApp(appId int) (*tools.RepoApp, error)
+	ListApps() ([]tools.RepoApp, error)
 	ListTagsOfApp(appId int) ([]Tag, error)
 	LoadTagBlob(appId int) ([]byte, error)
 	DeleteApp(appId int) error
@@ -196,7 +196,7 @@ type GroupRepository interface {
 type AccessRepository interface {
 	DoesUserHaveAccessToApp(userId, appId int) bool
 	GiveGroupAccessToApp(groupId, appId int) error
-	ListAppAccessesOfGroup(groupId int) ([]tools.App, error) // TODO different app necessary? no active tag required?
+	ListAppAccessesOfGroup(groupId int) ([]tools.RepoApp, error) // TODO different app necessary? no active tag required?
 	RemoveGroupsAccessToApp(groupId, appId int) error
 }
 

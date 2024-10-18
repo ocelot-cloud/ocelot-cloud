@@ -23,14 +23,14 @@ type TagInfo struct {
 }
 
 type AppInfoNew struct {
-	App         App
+	App         RepoApp
 	Port        string
 	Path        string
 	IsAvailable bool
 }
 
 // TODO Put ID's first in the structs.
-type App struct {
+type RepoApp struct {
 	Maintainer      string
 	Name            string
 	AppId           int
@@ -42,4 +42,17 @@ type App struct {
 // TODO Mabye put in shared module and reuse in hub when refactoring its API?
 type SingleInt struct {
 	Value int `json:"value"`
+}
+
+// TODO Duplication with hub, put to shared module
+type App struct {
+	Maintainer string `json:"user"`
+	Name       string `json:"name"`
+	Id         int    `json:"id"`
+}
+
+// TODO Duplication with hub, put to shared module
+type Tag struct {
+	Name string `json:"name"`
+	Id   int    `json:"id"`
 }
