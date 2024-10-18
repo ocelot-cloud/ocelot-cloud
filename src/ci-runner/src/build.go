@@ -72,5 +72,5 @@ func DownloadDependencies() {
 	tr.ExecuteInDir(acceptanceTestsDir, "npm install")
 	tr.ExecuteInDir(frontendDir, "npm install")
 	tr.ExecuteInDir(backendDir, "go mod tidy")
-	tr.ExecuteInDir(hubDir, "go mod tidy")
+	tr.ExecuteInDir(hubBackendDir, "go mod tidy")
 }

@@ -30,7 +30,7 @@ var backendToolsDir = backendDir + "/tools"
 var cloudHubClientDir = backendDir + "/apps_new"
 var backendComponentTestsDir = backendDir + "/component-tests"
 
-var hubDir = srcDir + "/hub"
+var hubBackendDir = srcDir + "/hub/backend"
 
 const TestProfile = "TEST"
 const ProdProfile = "PROD"
