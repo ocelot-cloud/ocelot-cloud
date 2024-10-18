@@ -21,24 +21,27 @@ func TestDownloadTag(t *testing.T) {
 	MaintainerAndApp := apps[0]
 	assert.Equal(t, tagInfo.User, MaintainerAndApp.Maintainer)
 	assert.Equal(t, tagInfo.App, MaintainerAndApp.Name)
-	tags, err := repo.AppRepo.ListTagsOfApp(tagInfo.User, tagInfo.App)
+	appId, err := repo.AppRepo.GetAppId(tagInfo.User, tagInfo.App)
+	assert.Nil(t, err)
+	tags, err := repo.AppRepo.ListTagsOfApp(appId)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(tags))
-	assert.Equal(t, tagInfo.Tag, tags[0])
+	assert.Equal(t, tagInfo.Tag, tags[0].Name)
 
-	blob, err := repo.AppRepo.LoadTagBlob(tagInfo.User, tagInfo.App, tagInfo.Tag)
+	tagId, err := repo.AppRepo.GetTagId(appId, tagInfo.Tag)
+	blob, err := repo.AppRepo.LoadTagBlob(tagId)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSampleTagSizeInByte, len(blob))
 
 	// TODO Duplication
 	exec.Command("/bin/sh", "-c", "docker network ls | grep -q ocelot-net || docker network create ocelot-net").Run()
-	err = StartContainer(tagInfo)
+	err = StartContainer(appId)
 	assert.Nil(t, err)
 
 	err = exec.Command("/bin/sh", "-c", "docker ps | grep -q nginx").Run() // TODO abstract the "nginx"
 	assert.Nil(t, err)
 
-	err = StopContainer(tagInfo)
+	err = StopContainer(appId)
 	assert.Nil(t, err)
 
 	err = exec.Command("/bin/sh", "-c", "docker ps -a | grep -q nginx").Run()
