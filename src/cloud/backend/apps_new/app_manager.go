@@ -17,8 +17,21 @@ import (
 
 var hubClient HubClient
 
+// TODO should directly give tagId
 func DownloadTag(info tools.TagInfo) error {
-	tagContent, err := hubClient.DownloadTag(info)
+	apps, err := hubClient.SearchApps(info.App)
+	if err != nil {
+		return err
+	}
+
+	app := (*apps)[0]
+	tags, err := hubClient.GetTags(app.Id)
+	if err != nil {
+		return err
+	}
+	tag := (*tags)[0]
+
+	tagContent, err := hubClient.DownloadTag(tag.Id)
 	if err != nil {
 		return err
 	}

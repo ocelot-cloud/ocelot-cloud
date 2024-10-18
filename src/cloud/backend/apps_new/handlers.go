@@ -19,13 +19,21 @@ var Logger = tools.Logger
 // TODO Re-use the approach to read dto's from requests like it was done in
 
 // TODO The handlers should require ID's where appropriate instead of long data structure, like in the repos.
+
+// TODO Should directly use appId
 func GetTagsHandler(w http.ResponseWriter, r *http.Request) {
 	userAndApp, err := ReadBody[tools.UserAndApp](r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	tags, err := hubClient.GetTags(*userAndApp)
+	apps, err := hubClient.SearchApps(userAndApp.App)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	app := (*apps)[0]
+	tags, err := hubClient.GetTags(app.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -15,10 +15,26 @@ var client = utils.ComponentClient{
 	RootUrl: "http://localhost:8082",
 }
 
+type HubApp struct {
+}
+
+// TODO Duplication with hub, put to shared module
+type App struct {
+	Maintainer string `json:"user"`
+	Name       string `json:"name"`
+	Id         int    `json:"id"`
+}
+
+// TODO Duplication with hub, put to shared module
+type Tag struct {
+	Name string `json:"name"`
+	Id   int    `json:"id"`
+}
+
 type HubClient interface {
-	SearchApps(searchTerm string) (*[]tools.UserAndApp, error)
-	GetTags(userAndApp tools.UserAndApp) (*[]string, error)
-	DownloadTag(tagInfo tools.TagInfo) (*[]byte, error)
+	SearchApps(searchTerm string) (*[]App, error)
+	GetTags(appId int) (*[]Tag, error)
+	DownloadTag(tagId int) (*[]byte, error)
 }
 
 type hubClientReal struct{}
@@ -27,33 +43,35 @@ func NewHubClientReal() HubClient {
 	return &hubClientReal{}
 }
 
-func (h hubClientReal) SearchApps(searchTerm string) (*[]tools.UserAndApp, error) {
+func (h hubClientReal) SearchApps(searchTerm string) (*[]App, error) {
 	responseBody, err := client.DoRequest("/apps/search", utils.SingleString{searchTerm}, "")
 	if err != nil {
 		return nil, err
 	}
-	userAndAppList, err := utils.UnpackResponse[[]tools.UserAndApp](responseBody)
+	userAndAppList, err := utils.UnpackResponse[[]App](responseBody)
 	if err != nil {
 		return nil, err
 	}
 	return userAndAppList, nil
 }
 
-func (h hubClientReal) GetTags(userAndApp tools.UserAndApp) (*[]string, error) {
-	responseBody, err := client.DoRequest("/tags/get-tags", userAndApp, "")
+// TODO Duplication tools.SingleInt and utils.SingleInteger
+
+func (h hubClientReal) GetTags(appId int) (*[]Tag, error) {
+	responseBody, err := client.DoRequest("/tags/get-tags", tools.SingleInt{appId}, "")
 	if err != nil {
 		return nil, err
 	}
 
-	tagList, err := utils.UnpackResponse[[]string](responseBody)
+	tagList, err := utils.UnpackResponse[[]Tag](responseBody)
 	if err != nil {
 		return nil, err
 	}
 	return tagList, nil
 }
 
-func (h hubClientReal) DownloadTag(tagInfo tools.TagInfo) (*[]byte, error) {
-	result, err := client.DoRequest("/tags/download", tagInfo, "")
+func (h hubClientReal) DownloadTag(tagId int) (*[]byte, error) {
+	result, err := client.DoRequest("/tags/download", tools.SingleInt{tagId}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -66,17 +84,17 @@ func (h hubClientReal) DownloadTag(tagInfo tools.TagInfo) (*[]byte, error) {
 
 type hubClientMock struct{}
 
-func (h hubClientMock) SearchApps(searchTerm string) (*[]tools.UserAndApp, error) {
-	return &[]tools.UserAndApp{
-		{"sampleuser", "nginxdefault"},
+func (h hubClientMock) SearchApps(searchTerm string) (*[]App, error) {
+	return &[]App{
+		{"sampleuser", "nginxdefault", -1},
 	}, nil
 }
 
-func (h hubClientMock) GetTags(userAndApp tools.UserAndApp) (*[]string, error) {
-	return &[]string{"0.0.1"}, nil
+func (h hubClientMock) GetTags(appId int) (*[]Tag, error) {
+	return &[]Tag{{"0.0.1", -1}}, nil
 }
 
-func (h hubClientMock) DownloadTag(tagInfo tools.TagInfo) (*[]byte, error) {
+func (h hubClientMock) DownloadTag(tagId int) (*[]byte, error) {
 	data, err := utils.ZipDirectoryToBytes(getSampleAppFolder())
 	if err != nil {
 		return nil, err
