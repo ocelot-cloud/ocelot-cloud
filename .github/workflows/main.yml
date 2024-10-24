@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  schedule:
+    - cron: '0 0 * * 3'
+
+jobs:
+  ci-tests:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup
+      - name: Run CI Tests
+        run: |
+          cd src/ci-runner
+          go build
+          ./ci-runner download
+          ./ci-runner test ci
+
+  scheduled-tests:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup
+      - name: Run Scheduled Tests
+        run: |
+          cd src/ci-runner
+          go build
+          ./ci-runner download
+          ./ci-runner test scheduled
