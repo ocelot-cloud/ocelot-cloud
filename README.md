@@ -15,14 +15,13 @@ This section explains how to build and run Ocelot-Cloud from scratch.
 **Requirements**
 
 - git
-- Docker (including Docker Compose)
+- Docker (including `docker compose`)
 - Linux shell
 
 ### Demo Version
 
 ```bash
 apt update
-apt install -y git docker.io docker-compose
 git clone --depth=1 --branch=0.1.0 https://github.com/ocelot-cloud/ocelot-cloud
 cd ocelot-cloud/scripts
 bash run-demo.sh
