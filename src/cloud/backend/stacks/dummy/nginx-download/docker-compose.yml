@@ -1,0 +1,16 @@
+version: "3.3"
+
+services:
+  nginx-download:
+    image: nginx:alpine3.17
+    container_name: nginx-download
+    healthcheck:
+      test: curl http://localhost:80
+      interval: 1s
+    restart: unless-stopped
+    networks:
+      - ocelot-net
+
+networks:
+  ocelot-net:
+    external: true

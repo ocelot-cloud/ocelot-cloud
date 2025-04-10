@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  openproject:
+    image: openproject/community:12
+    container_name: openproject
+    healthcheck:
+      test: curl http://localhost:8080 | grep "https://www.openproject.org"
+      interval: 1s
+    environment:
+      - OPENPROJECT_HOST__NAME=openproject.localhost
+      - OPENPROJECT_HTTPS=false # true
+      - OPENPROJECT_SECRET_KEY_BASE=shfcfu728udvhqq54f2g422jdpgd7ag5usqvv566q3gjjhvuwqin93wbchhp6u7cgb5umpon5zdfsfy3p8zy7kxsfmrcg4mn9iqjshgi7qnndh2vdqx9z62kyybtiiwm
+    volumes:
+      - openproject-pgdata:/var/openproject/pgdata
+      - openproject-assets:/var/openproject/assets
+    networks:
+      - ocelot-net
+
+volumes:
+  openproject-pgdata:
+  openproject-assets:
+
+networks:
+  ocelot-net:
+    external: true

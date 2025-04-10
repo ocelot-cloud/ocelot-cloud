@@ -1,0 +1,71 @@
+name: 'Setup and Build Environment'
+description: 'Sets up environment and builds the Go application'
+inputs:
+  run_tests:
+    description: 'Whether to run ./ci-runner test-ci'
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ github.workspace }}/go-cache/pkg/mod
+          ${{ github.workspace }}/go-cache/bin
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.21.6'
+
+    - name: Cache npm modules
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/npm-cache
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/package.json') }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 'v18.10.0'
+
+    - name: Cache Docker Compose
+      uses: actions/cache@v4
+      with:
+        path: ~/.docker/cli-plugins/docker-compose
+        key: ${{ runner.os }}-docker-compose-v2.24.6
+        restore-keys: |
+          ${{ runner.os }}-docker-compose-v2.24.6
+
+    - name: Install Docker Compose V2
+      shell: bash
+      if: steps.cache-docker-compose.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p ~/.docker/cli-plugins/
+        curl -SL "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o ~/.docker/cli-plugins/docker-compose
+        chmod +x ~/.docker/cli-plugins/docker-compose
+        docker compose version
+
+    - name: Set Permissions after Cache
+      shell: bash
+      run: |
+        chmod -R u+rwX ${{ github.workspace }}/go-cache || true
+        chmod -R u+rwX ${{ github.workspace }}/npm-cache || true
+
+    - run: |
+        mkdir -p ${{ github.workspace }}/go-cache ${{ github.workspace }}/npm-cache
+        echo "GOPATH=${{ github.workspace }}/go-cache" >> $GITHUB_ENV
+        echo "NPM_CONFIG_CACHE=${{ github.workspace }}/npm-cache" >> $GITHUB_ENV
+        echo "PATH=$PATH:/usr/local/go/bin:${{ github.workspace }}/go-cache/bin" >> $GITHUB_ENV
+        chmod -R u+rwX ${{ github.workspace }}/src/cloud/acceptance-tests || true
+      shell: bash
+

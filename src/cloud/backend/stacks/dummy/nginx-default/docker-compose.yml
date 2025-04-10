@@ -1,0 +1,17 @@
+version: "3.3"
+
+services:
+  nginx-default:
+    build:
+      context: .
+    container_name: nginx-default
+    healthcheck:
+      test: curl http://localhost:80
+      interval: 1s
+    restart: unless-stopped
+    networks:
+      - ocelot-net
+
+networks:
+  ocelot-net:
+    external: true

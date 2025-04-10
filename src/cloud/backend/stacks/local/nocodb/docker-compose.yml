@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  nocodb:
+    image: "nocodb/nocodb:latest"
+    container_name: nocodb
+    healthcheck:
+      test: nc -z localhost 8080
+      interval: 1s
+    volumes:
+      - "nocodb:/usr/app/data"
+    environment:
+      - DB_QUERY_LIMIT_DEFAULT=1000
+      - DB_QUERY_LIMIT_MAX=1000
+    networks:
+      - ocelot-net
+
+volumes:
+  nocodb:
+
+networks:
+  ocelot-net:
+    external: true

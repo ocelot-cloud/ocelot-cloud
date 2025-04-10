@@ -1,0 +1,18 @@
+version: "3.3"
+
+services:
+  nginx-slow-start:
+    build:
+      context: .
+    container_name: nginx-slow-start
+    healthcheck:
+      test: curl http://localhost:80
+      interval: 100ms
+    restart: unless-stopped
+    networks:
+      - ocelot-net
+    stop_grace_period: 2s
+
+networks:
+  ocelot-net:
+    external: true

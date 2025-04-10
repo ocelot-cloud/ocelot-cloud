@@ -1,0 +1,17 @@
+version: "3.3"
+
+services:
+  nginx-custom-port:
+    build:
+      context: .
+    container_name: nginx-custom-port
+    healthcheck:
+      test: curl http://localhost:3000
+      interval: 1s
+    restart: unless-stopped
+    networks:
+      - ocelot-net
+
+networks:
+  ocelot-net:
+    external: true

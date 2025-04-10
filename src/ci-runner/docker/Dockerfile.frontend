@@ -1,0 +1,4 @@
+FROM node:18.10
+WORKDIR /app
+COPY artifacts/frontend/ .
+ENTRYPOINT ["/bin/bash", "-c", "npm install && npm run build"]

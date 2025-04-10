@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+
+  xwiki:
+    image: "xwiki:stable-postgres-tomcat"
+    container_name: xwiki
+    healthcheck:
+      test: curl -L http://localhost:8080
+      interval: 1s
+    environment:
+      - DB_USER=xwiki
+      - DB_PASSWORD=db-user-password-5643
+      - DB_HOST=xwiki-postgres-db
+    volumes:
+      - xwiki-web:/usr/local/xwiki
+    networks:
+      - ocelot-net
+      - xwiki-net
+
+  xwiki-postgres-db:
+    image: "postgres:13.9"
+    container_name: xwiki-postgres-db
+    volumes:
+      - xwiki-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_ROOT_PASSWORD=db-root-password-5643
+      - POSTGRES_PASSWORD=db-user-password-5643
+      - POSTGRES_USER=xwiki
+      - POSTGRES_DB=xwiki
+      - POSTGRES_INITDB_ARGS="--encoding=UTF8"
+    networks:
+      - xwiki-net
+
+volumes:
+  xwiki-web:
+  xwiki-db:
+
+networks:
+  xwiki-net:
+  ocelot-net:
+    external: true

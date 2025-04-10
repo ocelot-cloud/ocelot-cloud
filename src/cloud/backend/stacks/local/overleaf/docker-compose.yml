@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  overleaf:
+    image: sharelatex/sharelatex:3.5.5
+    container_name: overleaf-web
+    healthcheck:
+      test: curl -L http://localhost:80 | grep "https://www.overleaf.com"
+      interval: 1s
+    depends_on:
+      - mongo
+      - redis
+    stop_grace_period: 60s
+    volumes:
+      - overleaf-web:/var/lib/sharelatex
+    environment:
+      SHARELATEX_APP_NAME: Overleaf Community Edition
+      SHARELATEX_MONGO_URL: mongodb://overleaf-mongo/sharelatex
+      SHARELATEX_REDIS_HOST: overleaf-redis
+      REDIS_HOST: redis
+      ENABLED_LINKED_FILE_TYPES: 'project_file,project_output_file'
+      ENABLE_CONVERSIONS: 'true'
+      EMAIL_CONFIRMATION_DISABLED: 'true'
+      SHARELATEX_SITE_URL: http://overleaf.localhost
+      # SHARELATEX_SITE_URL: https://overleaf.crispy-coding.org
+    networks:
+      - ocelot-net
+      - overleaf-net
+
+  mongo:
+    image: mongo:4.4.20
+    container_name: overleaf-mongo
+    volumes:
+      - overleaf-mongo:/data/db
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - overleaf-net
+
+  redis:
+    image: redis:5.0.14
+    container_name: overleaf-redis
+    volumes:
+      - overleaf-redis:/data
+    networks:
+      - overleaf-net
+
+volumes:
+  overleaf-redis:
+  overleaf-mongo:
+  overleaf-web:
+
+networks:
+  overleaf-net:
+  ocelot-net:
+    external: true
