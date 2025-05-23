@@ -1,5 +1,7 @@
 # Ocelot-Cloud
 
+Note! This is just an old release of the source code for the prototype. The actual Ocelot-Cloud repository can be found here: https://github.com/ocelot-cloud/cloud.
+
 ## Introduction
 
 Ocelot-Cloud is an open source digital infrastructure management platform that aims to make self-hosting as easy as possible. Information about the project can be found on our [website](https://ocelot-cloud.org). Visit the 'Contact' page if you want to get in touch, find out more about our other communication channels or join our community. You might also want to take a look at the [announcement video](https://youtu.be/WQwBYjMbe8I), which includes a technical demo of the prototype.
